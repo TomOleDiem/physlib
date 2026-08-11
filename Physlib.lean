@@ -116,7 +116,12 @@ public import Physlib.Mathematics.InnerProductSpace.Gaussian
 public import Physlib.Mathematics.InnerProductSpace.Submodule
 public import Physlib.Mathematics.KroneckerDelta.Basic
 public import Physlib.Mathematics.KroneckerDelta.Contraction
+public import Physlib.Mathematics.LadderSystem.Basic
+public import Physlib.Mathematics.LadderSystem.OccupationBasis
+public import Physlib.Mathematics.LadderSystem.SymmetricPower
+public import Physlib.Mathematics.LadderSystem.Vacuum
 public import Physlib.Mathematics.LeviCivita.Basic
+public import Physlib.Mathematics.LieHomOfBasis
 public import Physlib.Mathematics.LinearMaps
 public import Physlib.Mathematics.LinearPMap
 public import Physlib.Mathematics.List
@@ -307,6 +312,7 @@ public import Physlib.QuantumMechanics.HarmonicOscillator.OneDimension.Completen
 public import Physlib.QuantumMechanics.HarmonicOscillator.OneDimension.Eigenfunction
 public import Physlib.QuantumMechanics.HarmonicOscillator.OneDimension.Examples
 public import Physlib.QuantumMechanics.HarmonicOscillator.OneDimension.TISE
+public import Physlib.QuantumMechanics.HarmonicOscillator.Vacuum
 public import Physlib.QuantumMechanics.HilbertSpaces.CompleteTensorProduct
 public import Physlib.QuantumMechanics.HilbertSpaces.FiniteTarget.Basic
 public import Physlib.QuantumMechanics.HilbertSpaces.OneDimension.Basic
