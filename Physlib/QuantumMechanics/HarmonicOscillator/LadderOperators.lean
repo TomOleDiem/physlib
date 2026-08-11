@@ -232,12 +232,8 @@ theorem numberCLM_comm_annihilationCLM (Q : HarmonicOscillator d) (i j : Fin d) 
   rw [toLadderSystem_N_toLinearMap] at h
   refine ContinuousLinearMap.ext fun ψ => ?_
   have hx := LinearMap.congr_fun h ψ
-  rcases eq_or_ne i j with rfl | hij
-  · simpa [toLadderSystem, LieRing.of_associative_ring_bracket, ContinuousLinearMap.mul_def,
-      ContinuousLinearMap.coe_comp, Module.End.mul_apply] using hx
-  · simpa [toLadderSystem, LieRing.of_associative_ring_bracket, ContinuousLinearMap.mul_def,
-      ContinuousLinearMap.coe_comp, Module.End.mul_apply, hij,
-      KroneckerDelta.eq_zero_of_ne hij] using hx
+  simpa [toLadderSystem, LieRing.of_associative_ring_bracket, ContinuousLinearMap.mul_def,
+    ContinuousLinearMap.coe_comp, Module.End.mul_apply] using hx
 
 /-- `[𝐍ᵢ, 𝐚ⱼ⁺] = δᵢⱼ𝐚ᵢ⁺`, from the general `LadderSystem.lie_N_ac` applied to `toLadderSystem`. -/
 theorem numberCLM_comm_creationCLM (Q : HarmonicOscillator d) (i j : Fin d) :

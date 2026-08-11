@@ -9,6 +9,7 @@ public import Physlib.Mathematics.LadderSystem.Basic
 public import Mathlib.Data.List.Perm.Lattice
 public import Mathlib.Algebra.BigOperators.Group.List.Basic
 public import Mathlib.Algebra.Lie.Submodule
+public import Physlib.Meta.TODO.Basic
 /-!
 
 # Vacuum states and creation-operator words
@@ -50,6 +51,22 @@ Theorems:
 -/
 
 @[expose] public section
+
+TODO "Prove `vacuumSpanLieSubmodule L P n` is *irreducible*: the only `E i j`-invariant
+  submodules of `vacuumSpan L Ω n` are `⊥` and `⊤`. This is the precise, algebraic sense in which
+  each fixed-excitation-number sector is 'maximal' -- not literal completeness in an ambient
+  Hilbert space (a separate, analytic question -- see
+  `HarmonicOscillator.OneDimension.Completeness`'s `eigenfunction_completeness`, which is itself
+  conditional on an unproved Plancherel theorem), but genuine `gl(d)`-irreducibility, provable
+  by pure linear algebra over `CharZero K` alone, no analysis needed. Sketch: (1) a transfer
+  formula `E i j (word (countWord α) Ω) = α j • word (countWord (α with one moved j→i)) Ω`, from
+  `E_word` + `count_countWord` + `word_perm`; (2) given `W ≠ ⊥` invariant under every `E i j`, `W`
+  is invariant under the diagonal operator `M := ∑ᵢ(n+1)^i • Nᵢ` from `OccupationBasis.lean`'s
+  `hasEigenvector_word_countWord`, whose eigenvalues (`countEncode`) are pairwise distinct
+  (`countEncode_injOn`) -- a Lagrange-interpolation polynomial in `M` then projects any nonzero
+  `w ∈ W` onto a single nonzero `vacuumBasis` vector, landing it in `W`; (3) repeatedly applying
+  `E 0 j`/`E j 0` (using `0 < d`) connects every basis vector to every other, so `W` contains the
+  whole `vacuumBasis`, i.e. `W = ⊤`."
 
 attribute [local instance 100] LieRing.ofAssociativeRing
 
