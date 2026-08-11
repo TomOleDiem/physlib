@@ -117,6 +117,7 @@ public import Physlib.Mathematics.InnerProductSpace.Submodule
 public import Physlib.Mathematics.KroneckerDelta.Basic
 public import Physlib.Mathematics.KroneckerDelta.Contraction
 public import Physlib.Mathematics.LadderSystem.Basic
+public import Physlib.Mathematics.LadderSystem.Irreducibility
 public import Physlib.Mathematics.LadderSystem.OccupationBasis
 public import Physlib.Mathematics.LadderSystem.SymmetricPower
 public import Physlib.Mathematics.LadderSystem.Vacuum

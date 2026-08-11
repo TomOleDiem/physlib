@@ -26,6 +26,9 @@ in `d` dimensions.
 
 ## ii. Key results
 
+- `potentialFunction_apply` : the potential function, expanded to `½m · ∑ᵢ ωᵢ²xᵢ²`.
+- `potentialOperator_isSelfAdjoint` : the potential operator is self-adjoint.
+
 ## iii. Table of contents
 
 - A. Basic properties
@@ -172,10 +175,28 @@ def potentialFunction : Space d → ℝ := Q.potentialQuadraticForm ∘ Space.va
 
 lemma potentialFunction_eq : Q.potentialFunction = Q.potentialQuadraticForm ∘ Space.val := rfl
 
+/-- The potential function, expanded: `½m · ∑ᵢ ωᵢ²xᵢ²`. -/
+lemma potentialFunction_apply (x : Space d) :
+    Q.potentialFunction x = (2⁻¹ * Q.m) * ∑ i, (Q.ω i) ^ 2 * (x i) ^ 2 := by
+  show Q.potentialQuadraticForm (Space.val x) = _
+  rw [potentialQuadraticForm, Matrix.toQuadraticForm', LinearMap.BilinMap.toQuadraticMap_apply,
+    Matrix.toLinearMap₂'_apply', potentialMatrix_mulVec, dotProduct, Finset.mul_sum]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  simp only [Pi.smul_apply, Pi.mul_apply, Pi.pow_apply, smul_eq_mul]
+  ring
+
+/-- The potential function for the harmonic oscillator is continuous, hence a.e. strongly
+measurable. -/
+lemma potentialFunction_continuous : Continuous Q.potentialFunction := by
+  have heq : Q.potentialFunction = fun x => (2⁻¹ * Q.m) * ∑ i, (Q.ω i) ^ 2 * (x i) ^ 2 :=
+    funext Q.potentialFunction_apply
+  rw [heq]
+  fun_prop
+
 /-- The potential function for the harmonic oscillator is a.e. strongly measurable. -/
-informal_lemma potentialFunction_aestronglyMeasurable where
-  deps := [``HarmonicOscillator]
-  tag := "QM-HO-potAESM"
+lemma potentialFunction_aestronglyMeasurable :
+    MeasureTheory.AEStronglyMeasurable Q.potentialFunction volume :=
+  Q.potentialFunction_continuous.aestronglyMeasurable
 
 end
 
@@ -220,10 +241,11 @@ open MeasureTheory Complex
 /-- The potential operator which maps `ψ` to `Q.potentialFunction • ψ`. -/
 def potentialOperator : Q.HS →ₗ.[ℂ] Q.HS := 𝓜 volume (ofReal ∘ Q.potentialFunction)
 
-/-- The potential operators for the harmonic oscillator is self-adjoint. -/
-informal_lemma potentialOperator_isSelfAdjoint where
-  deps := [``HarmonicOscillator.potentialFunction_aestronglyMeasurable]
-  tag := "QM-HO-potSA"
+/-- The potential operator for the harmonic oscillator is self-adjoint. -/
+lemma potentialOperator_isSelfAdjoint : IsSelfAdjoint Q.potentialOperator :=
+  mulOperator_isSelfAdjoint_ofReal
+    (Complex.continuous_ofReal.comp Q.potentialFunction_continuous).aestronglyMeasurable
+    (by ext; simp)
 
 end
 
