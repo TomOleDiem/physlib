@@ -47,26 +47,32 @@ noncomputable section
 
 namespace Matrix
 
+/-- The Frobenius normed-ring structure used for matrix one-parameter subgroups. -/
 @[instance_reducible, local instance] def oneParameterNormedRing (n : ℕ) :
     NormedRing (Matrix (Fin n) (Fin n) ℂ) :=
   Matrix.frobeniusNormedRing
 
+/-- The topology induced by the Frobenius norm on matrices. -/
 @[instance_reducible, local instance] def oneParameterTopologicalSpace (n : ℕ) :
     TopologicalSpace (Matrix (Fin n) (Fin n) ℂ) :=
   (oneParameterNormedRing n).toPseudoMetricSpace.toUniformSpace.toTopologicalSpace
 
+/-- The Frobenius normed-algebra structure used for matrix one-parameter subgroups. -/
 @[instance_reducible, local instance] def oneParameterNormedAlgebraComplex (n : ℕ) :
     NormedAlgebra ℂ (Matrix (Fin n) (Fin n) ℂ) :=
   Matrix.frobeniusNormedAlgebra
 
+/-- The additive commutative group underlying the Frobenius normed-ring structure. -/
 @[instance_reducible, local instance] def oneParameterAddCommGroup (n : ℕ) :
     AddCommGroup (Matrix (Fin n) (Fin n) ℂ) :=
   (oneParameterNormedRing n).toAddCommGroup
 
+/-- The complex module underlying the Frobenius normed-algebra structure. -/
 @[instance_reducible, local instance] def oneParameterModuleComplex (n : ℕ) :
     Module ℂ (Matrix (Fin n) (Fin n) ℂ) :=
   (oneParameterNormedAlgebraComplex n).toModule
 
+/-- The real module obtained by restricting scalars from the complex matrix module. -/
 @[instance_reducible, local instance] def oneParameterModuleReal (n : ℕ) :
     Module ℝ (Matrix (Fin n) (Fin n) ℂ) :=
   NormedSpace.complexToReal.toModule

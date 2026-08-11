@@ -61,8 +61,7 @@ open Matrix
 noncomputable section
 
 /-- A matrix is anti-Hermitian when its conjugate transpose is its negation. -/
-def _root_.Matrix.IsAntiHermitian {n : Type*} [Fintype n]
-    (A : Matrix n n ℂ) : Prop := star A = -A
+def _root_.Matrix.IsAntiHermitian {n : Type*} (A : Matrix n n ℂ) : Prop := star A = -A
 
 namespace Matrix
 

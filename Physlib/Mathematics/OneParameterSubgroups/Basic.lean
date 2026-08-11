@@ -66,6 +66,7 @@ namespace OneParameterSubgroup
 variable {E F : Type*} [NormedRing E] [FunLike F (Multiplicative ℝ) Eˣ]
   [MonoidHomClass F (Multiplicative ℝ) Eˣ] [ContinuousMapClass F (Multiplicative ℝ) Eˣ]
 
+/-- The value of a one-parameter subgroup in the ambient ring. -/
 def ambientValue (U : F) (t : ℝ) : E := U (.ofAdd t)
 
 omit [ContinuousMapClass F (Multiplicative ℝ) Eˣ] in
@@ -87,6 +88,7 @@ variable [NormedAlgebra ℝ E] [CompleteSpace E]
 isn't automatic from `NormedAlgebra ℝ E` alone; derive it once here rather than at each use site. -/
 local instance : NormedAlgebra ℚ E := .restrictScalars ℚ ℝ E
 
+/-- The unit of `E` obtained by scaling `1` by a nonzero real number. -/
 def scalarUnit (d : ℝ) (hd : d ≠ 0) : Eˣ where
   val := d • 1
   inv := d⁻¹ • 1
