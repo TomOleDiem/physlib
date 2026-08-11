@@ -35,9 +35,9 @@ algebra exponential apply.
 
 This is the pure Banach-algebra core of the finite-dimensional Stone correspondence between
 continuous one-parameter unitary groups and (anti-)Hermitian generators -- see
-`Physlib.Mathematics.OneParameterSubgroups.Matrix`/`Unitary` for the matrix specializations and
-`Matrix.UnitaryOneParameterSubgroup.stoneEquiv` for the finite-dimensional statement of Stone's
-theorem itself.
+`Physlib.Mathematics.OneParameterSubgroups.Matrix` for the matrix specialization and
+`Physlib.QuantumMechanics.Stone` (`Matrix.UnitaryOneParameterSubgroup.stoneEquiv`) for the
+finite-dimensional statement of Stone's theorem itself.
 
 **Proof outline.** Continuity at zero implies that, for sufficiently small `d > 0`, the integral of
 `U` over `[0, d]` is close to `d • 1` and therefore invertible. If `I` is the indefinite integral of
@@ -66,30 +66,34 @@ namespace OneParameterSubgroup
 variable {E F : Type*} [NormedRing E] [FunLike F (Multiplicative ℝ) Eˣ]
   [MonoidHomClass F (Multiplicative ℝ) Eˣ] [ContinuousMapClass F (Multiplicative ℝ) Eˣ]
 
-private def ambientValue (U : F) (t : ℝ) : E := U (.ofAdd t)
+def ambientValue (U : F) (t : ℝ) : E := U (.ofAdd t)
 
 omit [ContinuousMapClass F (Multiplicative ℝ) Eˣ] in
-@[simp] private theorem ambientValue_zero (U : F) : ambientValue U 0 = 1 := by
+@[simp] theorem ambientValue_zero (U : F) : ambientValue U 0 = 1 := by
   simp [ambientValue]
 
 omit [ContinuousMapClass F (Multiplicative ℝ) Eˣ] in
-@[simp] private theorem ambientValue_add (U : F) (s t : ℝ) :
+@[simp] theorem ambientValue_add (U : F) (s t : ℝ) :
     ambientValue U (s + t) = ambientValue U s * ambientValue U t := by
   exact congrArg Units.val (map_mul U (.ofAdd s) (.ofAdd t))
 
 omit [MonoidHomClass F (Multiplicative ℝ) Eˣ] in
-private theorem continuous_ambientValue (U : F) : Continuous (ambientValue U) := by
+theorem continuous_ambientValue (U : F) : Continuous (ambientValue U) := by
   exact Units.continuous_val.comp ((map_continuous U).comp continuous_ofAdd)
 
 variable [NormedAlgebra ℝ E] [CompleteSpace E]
 
-private def scalarUnit (d : ℝ) (hd : d ≠ 0) : Eˣ where
+/-- `NormedSpace.exp`'s API wants a `ℚ`-algebra structure (for the `1/n!` coefficients), which
+isn't automatic from `NormedAlgebra ℝ E` alone; derive it once here rather than at each use site. -/
+local instance : NormedAlgebra ℚ E := .restrictScalars ℚ ℝ E
+
+def scalarUnit (d : ℝ) (hd : d ≠ 0) : Eˣ where
   val := d • 1
   inv := d⁻¹ • 1
   val_inv := by rw [smul_mul_smul_comm, mul_inv_cancel₀ hd, one_smul, one_mul]
   inv_val := by rw [smul_mul_smul_comm, inv_mul_cancel₀ hd, one_smul, one_mul]
 
-private theorem exists_isUnit_intervalIntegral [Nontrivial E] (U : F) :
+theorem exists_isUnit_intervalIntegral [Nontrivial E] (U : F) :
     ∃ d : ℝ, 0 < d ∧ IsUnit (∫ x in (0 : ℝ)..d, ambientValue U x) := by
   let c : ℝ := ‖(1 : E)‖⁻¹ / 2
   have hone : 0 < ‖(1 : E)‖ := norm_pos_iff.mpr one_ne_zero
@@ -137,7 +141,7 @@ private theorem exists_isUnit_intervalIntegral [Nontrivial E] (U : F) :
     nlinarith [inv_pos.mpr hone]
   exact ⟨d, hd, (Units.ofNearby q _ hnear).isUnit⟩
 
-private theorem differentiable_ambientValue [Nontrivial E] (U : F) :
+theorem differentiable_ambientValue [Nontrivial E] (U : F) :
     Differentiable ℝ (ambientValue U) := by
   obtain ⟨d, _, hV⟩ := exists_isUnit_intervalIntegral U
   let V : E := ∫ x in (0 : ℝ)..d, ambientValue U x
@@ -181,9 +185,8 @@ private theorem differentiable_ambientValue [Nontrivial E] (U : F) :
   rw [heq]
   exact (hR.mul_const (↑v⁻¹ : E)).differentiableAt
 
-private theorem exists_generator_of_nontrivial [Nontrivial E] (U : F) :
+theorem exists_generator_of_nontrivial [Nontrivial E] (U : F) :
     ∃ A : E, ∀ t : ℝ, (U (.ofAdd t) : E) = NormedSpace.exp (t • A) := by
-  let +nondep : NormedAlgebra ℚ E := .restrictScalars ℚ ℝ E
   have hdiff : Differentiable ℝ (ambientValue U) := differentiable_ambientValue U
   let A : E := deriv (ambientValue U) 0
   have hU (t : ℝ) : HasDerivAt (ambientValue U) (ambientValue U t * A) t := by
@@ -236,7 +239,6 @@ private theorem exists_generator_of_nontrivial [Nontrivial E] (U : F) :
 exponential of a unique element of the algebra. -/
 theorem existsUnique_generator (U : F) :
     ∃! A : E, ∀ t : ℝ, (U (.ofAdd t) : E) = NormedSpace.exp (t • A) := by
-  let +nondep : NormedAlgebra ℚ E := .restrictScalars ℚ ℝ E
   cases subsingleton_or_nontrivial E with
   | inl h =>
       let : Subsingleton E := h

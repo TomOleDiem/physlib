@@ -49,6 +49,9 @@ Theorems:
 
 ## iv. References
 
+* M. H. Stone, *Linear Transformations in Hilbert Space III. Operational Methods and Group Theory*,
+  Proc. Natl. Acad. Sci. 18 (1932), 172-175.
+
 -/
 
 @[expose] public section
