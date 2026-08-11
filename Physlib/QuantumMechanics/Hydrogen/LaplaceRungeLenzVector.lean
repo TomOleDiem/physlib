@@ -95,7 +95,7 @@ lemma lrlOperator_eq'' (ε : ℝˣ) (i : Fin H.d) : H.lrlOperator ε i =
 
 /-- A supporting piece of `angularMomentum_commutation_lrl`: how `𝐋ᵢⱼ` commutes with the
 dot-product term `𝐋ₖ⬝ᵥ𝐩` appearing in `H.lrlOperator`'s expanded form (`lrlOperator_eq'`). -/
-private lemma angularMomentum_commutation_Ldot_p (i j k : Fin H.d) :
+lemma angularMomentum_commutation_Ldot_p (i j k : Fin H.d) :
     ⁅𝐋[H.d] i j, 𝐋 k ⬝ᵥ 𝐩⁆ =
       (I * ℏ) • (δ[i,k] • (𝐋 j ⬝ᵥ 𝐩) - δ[j,k] • (𝐋 i ⬝ᵥ 𝐩)) := by
   simp only [dotProduct, mul_def, lie_sum, lie_leibniz,
