@@ -100,12 +100,12 @@ namespace LadderSystem
 
 variable {K V : Type*} [Field K] [AddCommGroup V] [Module K V] {d : ℕ} (L : LadderSystem K V d)
 
-private theorem assoc_leibniz (x y z : Module.End K V) :
+theorem assoc_leibniz (x y z : Module.End K V) :
     (⁅x, y * z⁆ : Module.End K V) = ⁅x, y⁆ * z + y * ⁅x, z⁆ := by
   simp only [LieRing.of_associative_ring_bracket]
   noncomm_ring
 
-private theorem assoc_leibniz' (x y z : Module.End K V) :
+theorem assoc_leibniz' (x y z : Module.End K V) :
     (⁅x * y, z⁆ : Module.End K V) = x * ⁅y, z⁆ + ⁅x, z⁆ * y := by
   simp only [LieRing.of_associative_ring_bracket]
   noncomm_ring

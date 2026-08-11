@@ -219,7 +219,7 @@ creation words. -/
 def vacuumSpan (L : LadderSystem K V d) (Ω : V) (n : ℕ) : Submodule K V :=
   Submodule.span K (Set.range fun w : Fin n → Fin d => L.word (List.ofFn w) Ω)
 
-private theorem exists_ofFn_eq_of_length_eq {l : List (Fin d)} {n : ℕ} (h : l.length = n) :
+theorem exists_ofFn_eq_of_length_eq {l : List (Fin d)} {n : ℕ} (h : l.length = n) :
     ∃ w : Fin n → Fin d, List.ofFn w = l := by
   refine ⟨fun i => l.get (Fin.cast h.symm i), List.ext_get_iff.mpr ⟨by simp [h], ?_⟩⟩
   intro k h1 h2

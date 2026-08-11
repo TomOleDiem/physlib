@@ -22,11 +22,13 @@ for `Q.toLadderSystem` (`hasVacuum_vacuumGaussian`) -- no isotropy assumption ne
 number basis and the degeneracy formula `(d+n-1).choose n` concrete facts about a real,
 physical Schwartz-space state, not just available-but-unused machinery.
 
-The special case `stdGaussian (Space d) ℂ` (`x ↦ exp(-‖x‖²/2)`, from
-`Physlib.Mathematics.InnerProductSpace.Gaussian`) is kept alongside as a simpler, more direct proof
-for the isotropic-unit-length case (`Q.ξ i = 1` for all `i`) -- it is literally
-`Q.vacuumGaussian` when `Q.diagEquiv` is the identity, but proved independently since that
-specialization isn't needed anywhere else.
+The isotropic-unit-length case (`Q.ξ i = 1` for all `i`) is kept alongside as the special case
+`stdGaussian (Space d) ℂ` (`x ↦ exp(-‖x‖²/2)`, from `Physlib.Mathematics.InnerProductSpace.Gaussian`):
+`hasVacuum_stdGaussian_of_forall_xi_eq_one` is a genuine one-line corollary of
+`hasVacuum_vacuumGaussian`, since `Q.vacuumGaussian` literally *is* `stdGaussian (Space d) ℂ` once
+`Q.diagEquiv.symm` fixes every point. `annihilationCLM_stdGaussian_of_xi_eq_one` is proved
+independently rather than as a corollary -- its hypothesis is genuinely weaker (unit length in a
+*single* mode `i`, not every mode), so it isn't implied by the general result at all.
 
 ## ii. Key results
 
@@ -36,8 +38,8 @@ specialization isn't needed anywhere else.
     unconditionally.
 - `hasVacuum_vacuumGaussian` : `Q.vacuumGaussian` is a genuine vacuum for `Q.toLadderSystem`, for
     *any* oscillator `Q`.
-- `deriv_stdGaussian`, `annihilationCLM_stdGaussian_of_xi_eq_one`,
-    `hasVacuum_stdGaussian_of_forall_xi_eq_one` : the simpler isotropic-unit-length special case.
+- `annihilationCLM_stdGaussian_of_xi_eq_one`, `hasVacuum_stdGaussian_of_forall_xi_eq_one` : the
+    isotropic-unit-length special case.
 
 ## iii. References
 
@@ -53,9 +55,18 @@ open ContinuousLinearMap SchwartzMap
 
 variable {d : ℕ} (Q : HarmonicOscillator d)
 
+/-!
+
+## The standard Gaussian: derivative and momentum action
+
+`Q`-free prerequisites about the plain, unscaled Gaussian, reused by both the general anisotropic
+case below and the isotropic-unit-length special case at the end of this file.
+
+-/
+
 /-- The real-valued Gaussian `exp(-‖x‖²/2)`'s coordinate derivative,
 `∂ᵢ g = -xᵢ · g`. -/
-private theorem deriv_realGaussian (x : Space d) (i : Fin d) :
+theorem deriv_realGaussian (x : Space d) (i : Fin d) :
     Space.deriv i (fun x : Space d => Real.exp (-2⁻¹ * ‖x‖ ^ 2)) x =
       -x i * Real.exp (-2⁻¹ * ‖x‖ ^ 2) := by
   have hsq : DifferentiableAt ℝ (fun x : Space d => ‖x‖ ^ 2) x :=
@@ -68,7 +79,7 @@ private theorem deriv_realGaussian (x : Space d) (i : Fin d) :
   simp [Real.deriv_exp]
 
 /-- `stdGaussian (Space d) ℂ`'s pointwise value is the real-valued Gaussian, cast to `ℂ`. -/
-private theorem stdGaussian_apply' (x : Space d) :
+theorem stdGaussian_apply' (x : Space d) :
     (stdGaussian (Space d) ℂ : Space d → ℂ) x = Real.exp (-2⁻¹ * ‖x‖ ^ 2) := by
   simp [stdGaussian, gaussian₀, gaussian_apply]
 
@@ -92,12 +103,6 @@ theorem deriv_stdGaussian (x : Space d) (i : Fin d) :
   push_cast
   ring
 
-/-!
-
-## Killing the standard Gaussian
-
--/
-
 /-- The momentum operator applied to the standard Gaussian,
 `𝐩ᵢ Ω = -iℏ·(-xᵢ)Ω = iℏxᵢ·Ω`. -/
 theorem momentumCLM_stdGaussian (i : Fin d) (x : Space d) :
@@ -107,34 +112,6 @@ theorem momentumCLM_stdGaussian (i : Fin d) (x : Space d) :
   show -I * ℏ * Space.deriv i (fun x => (stdGaussian (Space d) ℂ : Space d → ℂ) x) x = _
   rw [deriv_stdGaussian]
   ring
-
-/-- Every `annihilationCLM i` kills the standard Gaussian, provided that mode has unit
-characteristic length. -/
-theorem annihilationCLM_stdGaussian_of_xi_eq_one (i : Fin d) (hξ : Q.ξ i = 1) :
-    Q.annihilationCLM i (stdGaussian (Space d) ℂ) = 0 := by
-  have hℏ : (ℏ : ℂ) ≠ 0 := by exact_mod_cast Constants.ℏ_ne_zero
-  ext x
-  rw [annihilationCLM_apply_fun]
-  simp only [smul_apply, add_apply, smul_eq_mul, zero_apply, positionCLM_apply]
-  rw [show (𝐩 i) (stdGaussian (Space d) ℂ) x =
-      (𝐩[d] i (stdGaussian (Space d) ℂ) : 𝓢(Space d, ℂ)) x from rfl,
-    momentumCLM_stdGaussian, hξ]
-  field_simp
-  norm_num [Complex.I_sq]
-
-/-- **`stdGaussian (Space d) ℂ` is a genuine vacuum** for `Q.toLadderSystem`, provided every
-mode has unit characteristic length. -/
-theorem hasVacuum_stdGaussian_of_forall_xi_eq_one (hξ : ∀ i, Q.ξ i = 1) :
-    Q.toLadderSystem.HasVacuum (stdGaussian (Space d) ℂ) where
-  ne_zero := by
-    intro h
-    have hpt := congrFun (congrArg DFunLike.coe h) (⟨fun _ => 0⟩ : Space d)
-    simp at hpt
-  ann i := by
-    show (Q.annihilationCLM i).toLinearMap (stdGaussian (Space d) ℂ) = 0
-    rw [show (Q.annihilationCLM i).toLinearMap (stdGaussian (Space d) ℂ) =
-        Q.annihilationCLM i (stdGaussian (Space d) ℂ) from rfl,
-      Q.annihilationCLM_stdGaussian_of_xi_eq_one i (hξ i)]
 
 /-!
 
@@ -148,7 +125,7 @@ characteristic lengths `ξᵢ`) has an explicit vacuum, the Gaussian rescaled co
 /-- The diagonal rescaling of `Space d` by the characteristic lengths, `(Q.diagEquiv x) i = ξᵢxᵢ`.
 Composing the standard Gaussian with its inverse turns the standard Gaussian's isotropic width into
 the anisotropic width `ξᵢ` a genuine vacuum of `Q` needs mode by mode, whether or not `Q` itself is
-isotropic (contrast `stdGaussian`/`hasVacuum_stdGaussian_of_forall_xi_eq_one` above, which only
+isotropic (contrast `stdGaussian`/`hasVacuum_stdGaussian_of_forall_xi_eq_one` below, which only
 covers `∀ i, ξᵢ = 1`). -/
 noncomputable def diagEquiv (Q : HarmonicOscillator d) : Space d ≃L[ℝ] Space d :=
   (Space.equivPi d).trans <|
@@ -171,14 +148,14 @@ theorem vacuumGaussian_apply (x : Space d) :
   simp [vacuumGaussian, gaussian₀, gaussian_apply]
 
 /-- `Q.diagEquiv.symm` applied to a basis vector rescales it by `(ξᵢ)⁻¹`. -/
-private theorem diagEquiv_symm_basis (i : Fin d) :
+theorem diagEquiv_symm_basis (i : Fin d) :
     Q.diagEquiv.symm (Space.basis i) = (Q.ξ i)⁻¹ • Space.basis i := by
   ext j
   by_cases h : i = j <;> simp [diagEquiv_symm_apply, Space.basis_apply, h]
 
 /-- The Fréchet derivative of the anisotropic Gaussian's real exponent `‖Q.diagEquiv.symm ·‖²`,
 at the CLM level (mirrors `fderiv_norm_sq_apply`, composed with `Q.diagEquiv.symm`). -/
-private theorem fderiv_norm_sq_diagEquiv_symm (x : Space d) :
+theorem fderiv_norm_sq_diagEquiv_symm (x : Space d) :
     fderiv ℝ (fun x : Space d => ‖Q.diagEquiv.symm x‖ ^ 2) x =
       (2 • innerSL ℝ (Q.diagEquiv.symm x)) ∘L (Q.diagEquiv.symm : Space d →L[ℝ] Space d) := by
   have hlin : DifferentiableAt ℝ Q.diagEquiv.symm x := Q.diagEquiv.symm.differentiableAt
@@ -189,7 +166,7 @@ private theorem fderiv_norm_sq_diagEquiv_symm (x : Space d) :
 
 /-- The real-valued anisotropic Gaussian's coordinate derivative,
 `∂ᵢ g = -(xᵢ/ξᵢ²) · g`. -/
-private theorem deriv_realGaussian_diag (x : Space d) (i : Fin d) :
+theorem deriv_realGaussian_diag (x : Space d) (i : Fin d) :
     Space.deriv i (fun x : Space d => Real.exp (-2⁻¹ * ‖Q.diagEquiv.symm x‖ ^ 2)) x =
       -(x i / (Q.ξ i) ^ 2) * Real.exp (-2⁻¹ * ‖Q.diagEquiv.symm x‖ ^ 2) := by
   have hsq : DifferentiableAt ℝ (fun x : Space d => ‖Q.diagEquiv.symm x‖ ^ 2) x :=
@@ -268,6 +245,42 @@ theorem hasVacuum_vacuumGaussian : Q.toLadderSystem.HasVacuum (Q.vacuumGaussian)
     rw [show (Q.annihilationCLM i).toLinearMap (Q.vacuumGaussian) =
         Q.annihilationCLM i (Q.vacuumGaussian) from rfl,
       Q.annihilationCLM_vacuumGaussian i]
+
+/-!
+
+## The isotropic-unit-length special case
+
+-/
+
+/-- Every `annihilationCLM i` kills the standard Gaussian, provided that mode has unit
+characteristic length. Independent of `hasVacuum_vacuumGaussian`/`annihilationCLM_vacuumGaussian`
+above: the hypothesis here is genuinely weaker (unit length in mode `i` alone, not every mode), so
+this isn't a corollary of the general anisotropic result. -/
+theorem annihilationCLM_stdGaussian_of_xi_eq_one (i : Fin d) (hξ : Q.ξ i = 1) :
+    Q.annihilationCLM i (stdGaussian (Space d) ℂ) = 0 := by
+  have hℏ : (ℏ : ℂ) ≠ 0 := by exact_mod_cast Constants.ℏ_ne_zero
+  ext x
+  rw [annihilationCLM_apply_fun]
+  simp only [smul_apply, add_apply, smul_eq_mul, zero_apply, positionCLM_apply]
+  rw [show (𝐩 i) (stdGaussian (Space d) ℂ) x =
+      (𝐩[d] i (stdGaussian (Space d) ℂ) : 𝓢(Space d, ℂ)) x from rfl,
+    momentumCLM_stdGaussian, hξ]
+  field_simp
+  norm_num [Complex.I_sq]
+
+/-- **`stdGaussian (Space d) ℂ` is a genuine vacuum** for `Q.toLadderSystem`, provided every
+mode has unit characteristic length -- a direct corollary of `hasVacuum_vacuumGaussian`, since
+`Q.vacuumGaussian = stdGaussian (Space d) ℂ` once every `ξᵢ = 1` fixes `Q.diagEquiv.symm`. -/
+theorem hasVacuum_stdGaussian_of_forall_xi_eq_one (hξ : ∀ i, Q.ξ i = 1) :
+    Q.toLadderSystem.HasVacuum (stdGaussian (Space d) ℂ) := by
+  have heq : Q.vacuumGaussian = stdGaussian (Space d) ℂ := by
+    ext x
+    have hsymm : Q.diagEquiv.symm x = x := by
+      ext j
+      simp [diagEquiv_symm_apply, hξ j]
+    rw [Q.vacuumGaussian_apply, stdGaussian_apply', hsymm]
+  rw [← heq]
+  exact Q.hasVacuum_vacuumGaussian
 
 end
 end HarmonicOscillator
