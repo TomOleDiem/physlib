@@ -36,12 +36,8 @@ Definitions:
     bijection between the unitary one-parameter subgroups and the Hermitian matrices.
 
 Lemmas:
-* `Matrix.UnitaryOneParameterSubgroup.existsUnique_antiHermitian_generator`: Existence and
-    uniqueness in the anti-Hermitian convention.
-* `Matrix.UnitaryOneParameterSubgroup.existsUnique_hermitian_generator`: The equivalent Hermitian
-    formulation `U(t) = exp (-itH)`.
 * `Matrix.UnitaryOneParameterSubgroup.existsUnique_hamiltonian`: Every continuous unitary time
-    evolution has a unique Hermitian Hamiltonian in the convention `U(t) = exp (-itH/ℏ)`.
+    evolution has a unique Hermitian Hamiltonian satisfying `U(t) = exp (-itH/ℏ)`.
 
 ## iii. Table of contents
 
