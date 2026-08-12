@@ -25,11 +25,9 @@ to `Eˣ`, equipped with `MonoidHomClass` and `ContinuousMapClass` instances. Coe
 `E` associates to each `U : F` an `E`-valued curve to which integration, differentiation, and the
 algebra exponential apply.
 
-This is the pure Banach-algebra core of the finite-dimensional Stone correspondence between
-continuous one-parameter unitary groups and (anti-)Hermitian generators -- see
-`Physlib.Mathematics.OneParameterSubgroups.Matrix` for the matrix specialization and
-`Physlib.QuantumMechanics.Stone` (`Matrix.UnitaryOneParameterSubgroup.stoneEquiv`) for the
-finite-dimensional statement of Stone's theorem itself.
+This is the Banach-algebra argument underlying the correspondence between norm-continuous unitary
+time evolutions and bounded self-adjoint Hamiltonians. See `Physlib.QuantumMechanics.Stone`, in
+particular `QuantumMechanics.UnitaryTimeEvolution.stoneEquiv`, for the physical statement.
 
 **Proof outline.** Continuity at zero implies that, for sufficiently small `d > 0`, the integral of
 `U` over `[0, d]` is close to `d • 1` and therefore invertible. If `I` is the indefinite integral of
@@ -249,5 +247,21 @@ lemma existsUnique_generator (U : F) :
       have h_exp (C : E) : HasDerivAt (fun t : ℝ => NormedSpace.exp (t • C)) C 0 := by
         simpa using hasDerivAt_exp_smul_const C (0 : ℝ)
       exact (h_exp B).deriv.symm.trans (hder.symm.trans (h_exp A).deriv)
+
+/-- Every continuous one-parameter subgroup of unitary elements has a unique generator in the
+ambient Banach algebra. -/
+lemma existsUnique_generator_of_unitary {V : Type*} [StarRing E] [ContinuousStar E]
+    [FunLike V (Multiplicative ℝ) (unitary E)]
+    [MonoidHomClass V (Multiplicative ℝ) (unitary E)]
+    [ContinuousMapClass V (Multiplicative ℝ) (unitary E)] (U : V) :
+    ∃! A : E, ∀ t : ℝ, (U (.ofAdd t) : E) = NormedSpace.exp (t • A) := by
+  let G : ContinuousMonoidHom (Multiplicative ℝ) Eˣ := {
+    toMonoidHom := Unitary.toUnits.comp (MonoidHomClass.toMonoidHom U)
+    continuous_toFun := by
+      rw [Units.continuous_iff]
+      exact ⟨continuous_subtype_val.comp (map_continuous U),
+        continuous_star.comp (continuous_subtype_val.comp (map_continuous U))⟩ }
+  obtain ⟨A, hA, hA_unique⟩ := existsUnique_generator G
+  refine ⟨A, fun t => hA t, fun B hB => hA_unique B fun t => hB t⟩
 
 end OneParameterSubgroup
