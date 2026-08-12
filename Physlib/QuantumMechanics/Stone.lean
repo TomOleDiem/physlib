@@ -139,69 +139,50 @@ lemma exp_mem_unitaryGroup {A : Matrix (Fin n) (Fin n) ℂ}
   exact Matrix.nonsing_inv_mul _
     ((Matrix.isUnit_iff_isUnit_det _).mp (Matrix.isUnit_exp ((t : ℂ) • A)))
 
-/-- A unitary one-parameter subgroup has a unique anti-Hermitian generator. -/
-lemma existsUnique_antiHermitian_generator (U : Matrix.UnitaryOneParameterSubgroup n) :
-    ∃! A : Matrix (Fin n) (Fin n) ℂ,
-      A.IsAntiHermitian ∧ ∀ t : ℝ, value U t = NormedSpace.exp ((t : ℂ) • A) := by
-  obtain ⟨A, hA, hA_unique⟩ := Matrix.OneParameterSubgroup.existsUnique_generator U.toMatrix
-  have hA' (t : ℝ) : value U t = NormedSpace.exp ((t : ℂ) • A) :=
-    (toMatrix_value U t).symm.trans (hA t)
-  refine ⟨A, ⟨U.generator_isAntiHermitian hA', hA'⟩, ?_⟩
-  intro B hB
-  apply hA_unique B
-  intro t
-  exact (toMatrix_value U t).trans (hB.2 t)
-
 /-- Multiplication by `i` turns an anti-Hermitian matrix into a Hermitian matrix. -/
 lemma isSelfAdjoint_I_smul {A : Matrix (Fin n) (Fin n) ℂ}
     (hA : A.IsAntiHermitian) : IsSelfAdjoint (Complex.I • A) := by
   rw [isSelfAdjoint_iff, star_smul, Complex.star_def, Complex.conj_I, hA]
   module
 
-/-- A unitary one-parameter subgroup has a unique Hermitian generator `H` satisfying
-`U(t) = exp (-itH)`. -/
-lemma existsUnique_hermitian_generator (U : Matrix.UnitaryOneParameterSubgroup n) :
-    ∃! H : Matrix (Fin n) (Fin n) ℂ,
-      IsSelfAdjoint H ∧
-        ∀ t : ℝ, value U t = NormedSpace.exp ((-(t : ℂ) * Complex.I) • H) := by
-  obtain ⟨A, ⟨hAanti, hA⟩, hA_unique⟩ := U.existsUnique_antiHermitian_generator
-  let H := Complex.I • A
-  refine ⟨H, ⟨isSelfAdjoint_I_smul hAanti, ?_⟩, ?_⟩
-  · intro t
-    calc
-      value U t = NormedSpace.exp ((t : ℂ) • A) := hA t
-      _ = NormedSpace.exp ((-(t : ℂ) * Complex.I) • H) := by
-        dsimp [H]
-        rw [smul_smul]
-        apply congrArg NormedSpace.exp
-        apply congrArg (fun z : ℂ => z • A)
-        rw [mul_assoc, Complex.I_mul_I]
-        simp
-  · intro K hK
-    have hKrep : ∀ t : ℝ,
-        value U t = NormedSpace.exp ((t : ℂ) • ((-Complex.I) • K)) := by
-      intro t
-      rw [hK.2 t]
-      congr 1
-      rw [smul_smul]
-      congr 1
-      ring
-    have hKA : (-Complex.I) • K = A := hA_unique ((-Complex.I) • K) ⟨by
-      rw [Matrix.IsAntiHermitian, star_smul, hK.1.star_eq]
-      simp, hKrep⟩
-    calc
-      K = Complex.I • ((-Complex.I) • K) := by rw [smul_smul]; simp
-      _ = Complex.I • A := by rw [hKA]
-      _ = H := rfl
-
 /-- A continuous unitary time evolution has a unique Hermitian Hamiltonian `H` satisfying
-`U(t) = exp (-itH/ℏ)`. This is the physical normalization of
-`existsUnique_hermitian_generator`. -/
+`U(t) = exp (-itH/ℏ)`. -/
 lemma existsUnique_hamiltonian (U : Matrix.UnitaryOneParameterSubgroup n) :
     ∃! H : Matrix (Fin n) (Fin n) ℂ,
       IsSelfAdjoint H ∧
         ∀ t : ℝ, value U t = NormedSpace.exp ((-(t : ℂ) * Complex.I / ℏ) • H) := by
-  obtain ⟨K, hK, hK_unique⟩ := U.existsUnique_hermitian_generator
+  obtain ⟨A, hA, hA_unique⟩ := Matrix.OneParameterSubgroup.existsUnique_generator U.toMatrix
+  have hA' (t : ℝ) : value U t = NormedSpace.exp ((t : ℂ) • A) :=
+    (toMatrix_value U t).symm.trans (hA t)
+  have hAanti : A.IsAntiHermitian := U.generator_isAntiHermitian hA'
+  let K := Complex.I • A
+  have hK : IsSelfAdjoint K ∧
+      ∀ t : ℝ, value U t = NormedSpace.exp ((-(t : ℂ) * Complex.I) • K) := by
+    refine ⟨isSelfAdjoint_I_smul hAanti, fun t => ?_⟩
+    rw [hA' t]
+    dsimp [K]
+    rw [smul_smul]
+    congr 1
+    rw [mul_assoc, Complex.I_mul_I]
+    simp
+  have hK_unique : ∀ K' : Matrix (Fin n) (Fin n) ℂ,
+      IsSelfAdjoint K' ∧
+        (∀ t : ℝ, value U t = NormedSpace.exp ((-(t : ℂ) * Complex.I) • K')) → K' = K := by
+    intro K' hK'
+    have hKrep : ∀ t : ℝ,
+        Matrix.OneParameterSubgroup.value U.toMatrix t =
+          NormedSpace.exp ((t : ℂ) • ((-Complex.I) • K')) := by
+      intro t
+      rw [toMatrix_value, hK'.2 t]
+      congr 1
+      rw [smul_smul]
+      congr 1
+      ring
+    have hKA : (-Complex.I) • K' = A := hA_unique ((-Complex.I) • K') hKrep
+    calc
+      K' = Complex.I • ((-Complex.I) • K') := by rw [smul_smul]; simp
+      _ = Complex.I • A := by rw [hKA]
+      _ = K := rfl
   let H : Matrix (Fin n) (Fin n) ℂ := (ℏ : ℂ) • K
   have hℏself : IsSelfAdjoint (ℏ : ℂ) := by
     rw [isSelfAdjoint_iff, Complex.star_def, Complex.conj_ofReal]
