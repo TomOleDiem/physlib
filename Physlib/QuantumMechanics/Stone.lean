@@ -6,7 +6,6 @@ Authors: Tom Ole Diem
 module
 
 public import Physlib.Mathematics.OneParameterSubgroups.Matrix
-public import Mathlib.LinearAlgebra.UnitaryGroup
 
 /-!
 
@@ -36,7 +35,7 @@ Definitions:
 * `Matrix.UnitaryOneParameterSubgroup.stoneEquiv`: Stone's theorem, finite-dimensional form, as a
     bijection between the unitary one-parameter subgroups and the Hermitian matrices.
 
-Theorems:
+Lemmas:
 * `Matrix.UnitaryOneParameterSubgroup.existsUnique_antiHermitian_generator`: Existence and
     uniqueness in the anti-Hermitian convention.
 * `Matrix.UnitaryOneParameterSubgroup.existsUnique_hermitian_generator`: The equivalent Hermitian
@@ -83,10 +82,10 @@ variable {n : ℕ}
 def value (U : Matrix.UnitaryOneParameterSubgroup n) (t : ℝ) : Matrix (Fin n) (Fin n) ℂ :=
   U (.ofAdd t)
 
-@[simp] theorem value_zero (U : Matrix.UnitaryOneParameterSubgroup n) : value U 0 = 1 := by
+@[simp] lemma value_zero (U : Matrix.UnitaryOneParameterSubgroup n) : value U 0 = 1 := by
   simp [value]
 
-@[simp] theorem value_add (U : Matrix.UnitaryOneParameterSubgroup n) (s t : ℝ) :
+@[simp] lemma value_add (U : Matrix.UnitaryOneParameterSubgroup n) (s t : ℝ) :
     value U (s + t) = value U s * value U t := by
   exact congrArg Subtype.val (map_mul U (.ofAdd s) (.ofAdd t))
 
@@ -99,17 +98,17 @@ def toMatrix (U : Matrix.UnitaryOneParameterSubgroup n) : Matrix.OneParameterSub
     · exact continuous_subtype_val.comp (map_continuous U)
     · exact continuous_star.comp (continuous_subtype_val.comp (map_continuous U))
 
-@[simp] theorem toMatrix_value (U : Matrix.UnitaryOneParameterSubgroup n) (t : ℝ) :
+@[simp] lemma toMatrix_value (U : Matrix.UnitaryOneParameterSubgroup n) (t : ℝ) :
     Matrix.OneParameterSubgroup.value U.toMatrix t = value U t := rfl
 
-theorem star_value_neg (U : Matrix.UnitaryOneParameterSubgroup n) (t : ℝ) :
+lemma star_value_neg (U : Matrix.UnitaryOneParameterSubgroup n) (t : ℝ) :
     star (value U (-t)) = value U t := by
   exact left_inv_eq_right_inv
     (Matrix.mem_unitaryGroup_iff'.mp (U (.ofAdd (-t))).property)
     (by rw [← value_add, neg_add_cancel, value_zero])
 
 /-- The generator of a unitary one-parameter subgroup is anti-Hermitian. -/
-theorem generator_isAntiHermitian (U : Matrix.UnitaryOneParameterSubgroup n)
+lemma generator_isAntiHermitian (U : Matrix.UnitaryOneParameterSubgroup n)
     {A : Matrix (Fin n) (Fin n) ℂ}
     (hA : ∀ t : ℝ, value U t = NormedSpace.exp ((t : ℂ) • A)) :
     A.IsAntiHermitian := by
@@ -131,7 +130,7 @@ theorem generator_isAntiHermitian (U : Matrix.UnitaryOneParameterSubgroup n)
   simpa using (congrArg Neg.neg hgen).symm
 
 /-- Exponentiating an anti-Hermitian matrix produces a unitary matrix. -/
-theorem exp_mem_unitaryGroup {A : Matrix (Fin n) (Fin n) ℂ}
+lemma exp_mem_unitaryGroup {A : Matrix (Fin n) (Fin n) ℂ}
     (hA : A.IsAntiHermitian) (t : ℝ) :
     NormedSpace.exp ((t : ℂ) • A) ∈ Matrix.unitaryGroup (Fin n) ℂ := by
   rw [Matrix.mem_unitaryGroup_iff', NormedSpace.star_exp]
@@ -143,7 +142,7 @@ theorem exp_mem_unitaryGroup {A : Matrix (Fin n) (Fin n) ℂ}
     ((Matrix.isUnit_iff_isUnit_det _).mp (Matrix.isUnit_exp ((t : ℂ) • A)))
 
 /-- A unitary one-parameter subgroup has a unique anti-Hermitian generator. -/
-theorem existsUnique_antiHermitian_generator (U : Matrix.UnitaryOneParameterSubgroup n) :
+lemma existsUnique_antiHermitian_generator (U : Matrix.UnitaryOneParameterSubgroup n) :
     ∃! A : Matrix (Fin n) (Fin n) ℂ,
       A.IsAntiHermitian ∧ ∀ t : ℝ, value U t = NormedSpace.exp ((t : ℂ) • A) := by
   obtain ⟨A, hA, hA_unique⟩ := Matrix.OneParameterSubgroup.existsUnique_generator U.toMatrix
@@ -156,14 +155,14 @@ theorem existsUnique_antiHermitian_generator (U : Matrix.UnitaryOneParameterSubg
   exact (toMatrix_value U t).trans (hB.2 t)
 
 /-- Multiplication by `i` turns an anti-Hermitian matrix into a Hermitian matrix. -/
-theorem isSelfAdjoint_I_smul {A : Matrix (Fin n) (Fin n) ℂ}
+lemma isSelfAdjoint_I_smul {A : Matrix (Fin n) (Fin n) ℂ}
     (hA : A.IsAntiHermitian) : IsSelfAdjoint (Complex.I • A) := by
   rw [isSelfAdjoint_iff, star_smul, Complex.star_def, Complex.conj_I, hA]
   module
 
 /-- A unitary one-parameter subgroup has a unique Hermitian generator `H` satisfying
 `U(t) = exp (-itH)`. -/
-theorem existsUnique_hermitian_generator (U : Matrix.UnitaryOneParameterSubgroup n) :
+lemma existsUnique_hermitian_generator (U : Matrix.UnitaryOneParameterSubgroup n) :
     ∃! H : Matrix (Fin n) (Fin n) ℂ,
       IsSelfAdjoint H ∧
         ∀ t : ℝ, value U t = NormedSpace.exp ((-(t : ℂ) * Complex.I) • H) := by
@@ -232,7 +231,7 @@ def expMonoidHom (A : Matrix (Fin n) (Fin n) ℂ) :
 -- internally for exactly this reason; opening them here keeps every instance in this proof
 -- consistent with the ambient (norm-independent) topology on matrices.
 open scoped Norms.Operator in
-theorem continuous_expMonoidHom (A : Matrix (Fin n) (Fin n) ℂ) :
+lemma continuous_expMonoidHom (A : Matrix (Fin n) (Fin n) ℂ) :
     Continuous (expMonoidHom A) := by
   change Continuous
     (fun t : Multiplicative ℝ => NormedSpace.exp (((Multiplicative.toAdd t : ℝ) : ℂ) • A))
@@ -246,7 +245,7 @@ def ofAntiHermitian {A : Matrix (Fin n) (Fin n) ℂ} (hA : A.IsAntiHermitian) :
     fun t => exp_mem_unitaryGroup hA (Multiplicative.toAdd t)
   continuous_toFun := Continuous.subtype_mk (continuous_expMonoidHom A) _
 
-@[simp] theorem value_ofAntiHermitian {A : Matrix (Fin n) (Fin n) ℂ} (hA : A.IsAntiHermitian)
+@[simp] lemma value_ofAntiHermitian {A : Matrix (Fin n) (Fin n) ℂ} (hA : A.IsAntiHermitian)
     (t : ℝ) : value (ofAntiHermitian hA) t = NormedSpace.exp ((t : ℂ) • A) := by
   change (expMonoidHom A) (.ofAdd t) = _
   simp [expMonoidHom]
@@ -259,7 +258,7 @@ def ofHermitian {H : Matrix (Fin n) (Fin n) ℂ} (hH : IsSelfAdjoint H) :
     rw [Matrix.IsAntiHermitian, star_smul, Complex.star_def, map_neg, Complex.conj_I, hH.star_eq]
     module)
 
-theorem value_ofHermitian {H : Matrix (Fin n) (Fin n) ℂ} (hH : IsSelfAdjoint H) (t : ℝ) :
+lemma value_ofHermitian {H : Matrix (Fin n) (Fin n) ℂ} (hH : IsSelfAdjoint H) (t : ℝ) :
     value (ofHermitian hH) t = NormedSpace.exp ((-(t : ℂ) * Complex.I) • H) := by
   change NormedSpace.exp ((t : ℂ) • ((-Complex.I) • H)) = _
   rw [smul_smul]

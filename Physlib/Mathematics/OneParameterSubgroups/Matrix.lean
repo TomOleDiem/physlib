@@ -7,7 +7,6 @@ module
 
 public import Physlib.Mathematics.OneParameterSubgroups.Basic
 public import Mathlib.Analysis.Normed.Algebra.MatrixExponential
-public import Mathlib.Analysis.Matrix.Normed
 
 /-!
 
@@ -20,7 +19,7 @@ A continuous one-parameter subgroup of invertible complex matrices is represente
 such subgroup has a unique matrix `A` satisfying `U(t) = exp (tA)`.
 
 The Frobenius norm supplies the required Banach-algebra structure on matrices. The generator
-theorem then follows from `OneParameterSubgroup.existsUnique_generator` after identifying real
+result then follows from `OneParameterSubgroup.existsUnique_generator` after identifying real
 scalar multiplication with scalar multiplication by real complex numbers.
 
 ## ii. Key results
@@ -29,7 +28,7 @@ Definitions:
 * `Matrix.OneParameterSubgroup`: Continuous one-parameter subgroups of invertible complex
     matrices.
 
-Theorems:
+Lemmas:
 * `Matrix.OneParameterSubgroup.existsUnique_generator`: Existence and uniqueness of the matrix
     generator.
 * `Matrix.OneParameterSubgroup.generator_eq`: Uniqueness for two given exponential
@@ -89,16 +88,16 @@ variable {n : ℕ}
 def value (U : Matrix.OneParameterSubgroup n) (t : ℝ) : Matrix (Fin n) (Fin n) ℂ :=
   U (.ofAdd t)
 
-@[simp] theorem value_zero (U : Matrix.OneParameterSubgroup n) : value U 0 = 1 := by
+@[simp] lemma value_zero (U : Matrix.OneParameterSubgroup n) : value U 0 = 1 := by
   simp [value]
 
-@[simp] theorem value_add (U : Matrix.OneParameterSubgroup n) (s t : ℝ) :
+@[simp] lemma value_add (U : Matrix.OneParameterSubgroup n) (s t : ℝ) :
     value U (s + t) = value U s * value U t := by
   change (U (.ofAdd (s + t)) : Matrix (Fin n) (Fin n) ℂ) = _
   exact congrArg Units.val (map_mul U (.ofAdd s) (.ofAdd t))
 
 /-- Every continuous matrix one-parameter subgroup has a unique matrix generator. -/
-theorem existsUnique_generator (U : Matrix.OneParameterSubgroup n) :
+lemma existsUnique_generator (U : Matrix.OneParameterSubgroup n) :
     ∃! A : Matrix (Fin n) (Fin n) ℂ,
       ∀ t : ℝ, value U t = NormedSpace.exp ((t : ℂ) • A) := by
   obtain ⟨A, hA, hA_unique⟩ := _root_.OneParameterSubgroup.existsUnique_generator U
@@ -110,7 +109,7 @@ theorem existsUnique_generator (U : Matrix.OneParameterSubgroup n) :
   simpa only [value, hsmul] using hB t
 
 /-- Two global exponential representations of the same subgroup have equal generators. -/
-theorem generator_eq {U : Matrix.OneParameterSubgroup n}
+lemma generator_eq {U : Matrix.OneParameterSubgroup n}
     {A B : Matrix (Fin n) (Fin n) ℂ}
     (hA : ∀ t : ℝ, value U t = NormedSpace.exp ((t : ℂ) • A))
     (hB : ∀ t : ℝ, value U t = NormedSpace.exp ((t : ℂ) • B)) : A = B := by

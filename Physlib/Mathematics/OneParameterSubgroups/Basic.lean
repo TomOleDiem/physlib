@@ -5,19 +5,11 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Mathlib.Analysis.Calculus.Deriv.Mul
 public import Mathlib.Analysis.Calculus.Deriv.Shift
 public import Mathlib.Analysis.Calculus.MeanValue
-public import Mathlib.Analysis.Normed.Algebra.Exponential
 public import Mathlib.Analysis.SpecialFunctions.Exponential
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus
-public import Mathlib.Topology.Algebra.ContinuousMonoidHom
 public import Mathlib.Topology.Algebra.IsOpenUnits
-import Mathlib.Tactic.FieldSimp
-import Mathlib.Tactic.Linarith
-import Mathlib.Tactic.Module
-import Mathlib.Tactic.NoncommRing
-import Mathlib.Tactic.Positivity
 
 /-!
 
@@ -70,16 +62,16 @@ variable {E F : Type*} [NormedRing E] [FunLike F (Multiplicative ℝ) Eˣ]
 def ambientValue (U : F) (t : ℝ) : E := U (.ofAdd t)
 
 omit [ContinuousMapClass F (Multiplicative ℝ) Eˣ] in
-@[simp] theorem ambientValue_zero (U : F) : ambientValue U 0 = 1 := by
+@[simp] lemma ambientValue_zero (U : F) : ambientValue U 0 = 1 := by
   simp [ambientValue]
 
 omit [ContinuousMapClass F (Multiplicative ℝ) Eˣ] in
-@[simp] theorem ambientValue_add (U : F) (s t : ℝ) :
+@[simp] lemma ambientValue_add (U : F) (s t : ℝ) :
     ambientValue U (s + t) = ambientValue U s * ambientValue U t := by
   exact congrArg Units.val (map_mul U (.ofAdd s) (.ofAdd t))
 
 omit [MonoidHomClass F (Multiplicative ℝ) Eˣ] in
-theorem continuous_ambientValue (U : F) : Continuous (ambientValue U) := by
+lemma continuous_ambientValue (U : F) : Continuous (ambientValue U) := by
   exact Units.continuous_val.comp ((map_continuous U).comp continuous_ofAdd)
 
 variable [NormedAlgebra ℝ E] [CompleteSpace E]
@@ -95,7 +87,7 @@ def scalarUnit (d : ℝ) (hd : d ≠ 0) : Eˣ where
   val_inv := by rw [smul_mul_smul_comm, mul_inv_cancel₀ hd, one_smul, one_mul]
   inv_val := by rw [smul_mul_smul_comm, inv_mul_cancel₀ hd, one_smul, one_mul]
 
-theorem exists_isUnit_intervalIntegral [Nontrivial E] (U : F) :
+lemma exists_isUnit_intervalIntegral [Nontrivial E] (U : F) :
     ∃ d : ℝ, 0 < d ∧ IsUnit (∫ x in (0 : ℝ)..d, ambientValue U x) := by
   let c : ℝ := ‖(1 : E)‖⁻¹ / 2
   have hone : 0 < ‖(1 : E)‖ := norm_pos_iff.mpr one_ne_zero
@@ -143,7 +135,7 @@ theorem exists_isUnit_intervalIntegral [Nontrivial E] (U : F) :
     nlinarith [inv_pos.mpr hone]
   exact ⟨d, hd, (Units.ofNearby q _ hnear).isUnit⟩
 
-theorem differentiable_ambientValue [Nontrivial E] (U : F) :
+lemma differentiable_ambientValue [Nontrivial E] (U : F) :
     Differentiable ℝ (ambientValue U) := by
   obtain ⟨d, _, hV⟩ := exists_isUnit_intervalIntegral U
   let V : E := ∫ x in (0 : ℝ)..d, ambientValue U x
@@ -187,7 +179,7 @@ theorem differentiable_ambientValue [Nontrivial E] (U : F) :
   rw [heq]
   exact (hR.mul_const (↑v⁻¹ : E)).differentiableAt
 
-theorem exists_generator_of_nontrivial [Nontrivial E] (U : F) :
+lemma exists_generator_of_nontrivial [Nontrivial E] (U : F) :
     ∃ A : E, ∀ t : ℝ, (U (.ofAdd t) : E) = NormedSpace.exp (t • A) := by
   have hdiff : Differentiable ℝ (ambientValue U) := differentiable_ambientValue U
   let A : E := deriv (ambientValue U) 0
@@ -239,7 +231,7 @@ theorem exists_generator_of_nontrivial [Nontrivial E] (U : F) :
 
 /-- Every continuous one-parameter subgroup of the unit group of a real Banach algebra is the
 exponential of a unique element of the algebra. -/
-theorem existsUnique_generator (U : F) :
+lemma existsUnique_generator (U : F) :
     ∃! A : E, ∀ t : ℝ, (U (.ofAdd t) : E) = NormedSpace.exp (t • A) := by
   cases subsingleton_or_nontrivial E with
   | inl h =>
