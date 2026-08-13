@@ -16,8 +16,8 @@ public import Physlib.QuantumMechanics.PlanckConstant
 ## i. Overview
 
 A time-independent bounded Hamiltonian `H` evolves a quantum state by
-`U(t) = exp (-itH/ℏ)`. This file proves that norm-continuous unitary time evolutions are in
-bijection with bounded self-adjoint Hamiltonians.
+`U(t) = exp (-itH/ℏ)`. This file proves that these unitary time evolutions are in bijection
+with bounded self-adjoint Hamiltonians.
 
 For finite-dimensional systems every Hamiltonian is bounded, so this gives the finite-dimensional
 form of Stone's theorem used by `FiniteTarget` and quantum-information models. Physlib's general
@@ -48,73 +48,92 @@ noncomputable section
 namespace QuantumMechanics
 
 /-- A continuous unitary time evolution on a complex Hilbert space. -/
-abbrev UnitaryTimeEvolution (H : Type*) [NormedAddCommGroup H] [InnerProductSpace ℂ H]
-    [CompleteSpace H] :=
-  ContinuousMonoidHom (Multiplicative ℝ) (unitary (H →L[ℂ] H))
+structure UnitaryTimeEvolution (H : Type*) [NormedAddCommGroup H] [InnerProductSpace ℂ H]
+    [CompleteSpace H] where
+  /-- The additive character sending time to its unitary evolution operator. -/
+  toAddChar : AddChar ℝ (unitary (H →L[ℂ] H))
+  /-- Time evolution is continuous in the operator norm. -/
+  continuous : Continuous toAddChar
 
 namespace UnitaryTimeEvolution
 
 variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
 
-omit [CompleteSpace H] in
-lemma real_smul_operator_eq_complex_smul (t : ℝ) (A : H →L[ℂ] H) :
-    t • A = (t : ℂ) • A := by
-  ext x
+instance : CoeFun (UnitaryTimeEvolution H) fun _ => ℝ → unitary (H →L[ℂ] H) :=
+  ⟨fun U => U.toAddChar⟩
+
+/-- Time evolution at time zero is the identity operator. -/
+lemma apply_zero (U : UnitaryTimeEvolution H) : U 0 = 1 :=
+  U.toAddChar.map_zero_eq_one
+
+/-- Evolution for a total time `s + t` is the composition of the evolutions for `s` and `t`. -/
+lemma apply_add (U : UnitaryTimeEvolution H) (s t : ℝ) : U (s + t) = U s * U t :=
+  U.toAddChar.map_add_eq_mul s t
+
+/-- Backward time evolution is the inverse of forward time evolution. -/
+lemma apply_neg (U : UnitaryTimeEvolution H) (t : ℝ) : U (-t) = (U t)⁻¹ := by
+  exact U.toAddChar.map_neg_eq_inv t
+
+/-- At time zero, evolution leaves every state unchanged. -/
+lemma apply_zero_state (U : UnitaryTimeEvolution H) (state : H) :
+    (U 0 : H →L[ℂ] H) state = state := by
+  simp
+
+/-- Evolving a state for `t` and then for `s` is evolution for the total time `s + t`. -/
+lemma apply_add_state (U : UnitaryTimeEvolution H) (s t : ℝ) (state : H) :
+    (U (s + t) : H →L[ℂ] H) state =
+      (U s : H →L[ℂ] H) ((U t : H →L[ℂ] H) state) := by
+  rw [U.apply_add]
   rfl
 
-/-- The operator implementing the time evolution at time `t`. -/
-def value (U : UnitaryTimeEvolution H) (t : ℝ) : H →L[ℂ] H := U (.ofAdd t)
+@[ext]
+lemma ext {U V : UnitaryTimeEvolution H} (h : ∀ t, U t = V t) : U = V := by
+  cases U
+  cases V
+  congr
+  exact AddChar.ext _ _ h
 
-@[simp] lemma value_zero (U : UnitaryTimeEvolution H) : value U 0 = 1 := by
-  simp [value]
-
-@[simp] lemma value_add (U : UnitaryTimeEvolution H) (s t : ℝ) :
-    value U (s + t) = value U s * value U t := by
-  exact congrArg Subtype.val (map_mul U (.ofAdd s) (.ofAdd t))
-
-lemma star_value_neg (U : UnitaryTimeEvolution H) (t : ℝ) :
-    star (value U (-t)) = value U t := by
-  exact left_inv_eq_right_inv (U (.ofAdd (-t))).property.1
-    (by
-      change value U (-t) * value U t = 1
-      rw [← value_add, neg_add_cancel, value_zero])
-
-lemma isSelfAdjoint_I_smul {A : H →L[ℂ] H} (hA : star A = -A) :
-    IsSelfAdjoint (Complex.I • A) := by
-  rw [isSelfAdjoint_iff, star_smul, Complex.star_def, Complex.conj_I, hA]
-  module
+lemma star_apply_neg (U : UnitaryTimeEvolution H) (t : ℝ) :
+    star (U (-t) : H →L[ℂ] H) = U t := by
+  apply left_inv_eq_right_inv (U (-t)).property.1
+  have h := congrArg Subtype.val (U.toAddChar.map_add_eq_mul (-t) t)
+  simpa using h.symm
 
 /-- A unitary time evolution has a unique bounded self-adjoint Hamiltonian `H`
 satisfying `U(t) = exp (-itH/ℏ)`. -/
 lemma existsUnique_hamiltonian (U : UnitaryTimeEvolution H) :
     ∃! hamiltonian : H →L[ℂ] H, IsSelfAdjoint hamiltonian ∧
-      ∀ t : ℝ, value U t =
+      ∀ t : ℝ, (U t : H →L[ℂ] H) =
         NormedSpace.exp ((-(t : ℂ) * Complex.I / ℏ) • hamiltonian) := by
-  obtain ⟨A, hA, hA_unique⟩ := OneParameterSubgroup.existsUnique_generator_of_unitary U
-  have hA' (t : ℝ) : value U t = NormedSpace.exp ((t : ℂ) • A) := by
-    change (U (.ofAdd t) : H →L[ℂ] H) = _
-    rw [← real_smul_operator_eq_complex_smul]
-    exact hA t
+  let V : AddChar ℝ (H →L[ℂ] H) :=
+    (unitary (H →L[ℂ] H)).subtype.compAddChar U.1
+  have hV : Continuous V := continuous_subtype_val.comp U.2
+  let A : H →L[ℂ] H := deriv V 0
+  have hA' (t : ℝ) : (U t : H →L[ℂ] H) = NormedSpace.exp ((t : ℂ) • A) := by
+    change V t = _
+    simpa only [Complex.coe_smul] using OneParameterSubgroup.apply_eq_exp_smul_deriv V hV t
   have hAstar : star A = -A := by
-    have hnegstar : ∀ t : ℝ, (U (.ofAdd t) : H →L[ℂ] H) =
+    have hnegstar : ∀ t : ℝ, V t =
         NormedSpace.exp ((t : ℂ) • (-star A)) := by
       intro t
       calc
-        (U (.ofAdd t) : H →L[ℂ] H) = value U t := rfl
-        _ = star (value U (-t)) := (U.star_value_neg t).symm
+        V t = (U t : H →L[ℂ] H) := rfl
+        _ = star (U (-t) : H →L[ℂ] H) := (U.star_apply_neg t).symm
         _ = star (NormedSpace.exp (((-t : ℝ) : ℂ) • A)) := by rw [hA' (-t)]
         _ = NormedSpace.exp (star (((-t : ℝ) : ℂ) • A)) := NormedSpace.star_exp _
         _ = NormedSpace.exp ((t : ℂ) • (-star A)) := by
           congr 1
           simp [star_smul]
-    have hgen : -star A = A := hA_unique (-star A) fun t => by
-      rw [real_smul_operator_eq_complex_smul]
-      exact hnegstar t
+    have hgen : -star A = A := by
+      exact OneParameterSubgroup.generator_unique V (-star A) fun t => by
+        simpa only [Complex.coe_smul] using hnegstar t
     simpa using congrArg Neg.neg hgen
   let K := Complex.I • A
   have hK : IsSelfAdjoint K ∧
-      ∀ t : ℝ, value U t = NormedSpace.exp ((-(t : ℂ) * Complex.I) • K) := by
-    refine ⟨isSelfAdjoint_I_smul hAstar, fun t => ?_⟩
+      ∀ t : ℝ, (U t : H →L[ℂ] H) = NormedSpace.exp ((-(t : ℂ) * Complex.I) • K) := by
+    have hA_skew : A ∈ skewAdjoint (H →L[ℂ] H) := by
+      rwa [skewAdjoint.mem_iff]
+    refine ⟨IsSelfAdjoint.I_smul_of_mem_skewAdjoint hA_skew, fun t => ?_⟩
     rw [hA' t]
     dsimp [K]
     rw [smul_smul]
@@ -122,19 +141,21 @@ lemma existsUnique_hamiltonian (U : UnitaryTimeEvolution H) :
     rw [mul_assoc, Complex.I_mul_I]
     simp
   have hK_unique : ∀ K' : H →L[ℂ] H, IsSelfAdjoint K' ∧
-      (∀ t : ℝ, value U t = NormedSpace.exp ((-(t : ℂ) * Complex.I) • K')) → K' = K := by
+      (∀ t : ℝ, (U t : H →L[ℂ] H) =
+        NormedSpace.exp ((-(t : ℂ) * Complex.I) • K')) → K' = K := by
     intro K' hK'
-    have hKrep : ∀ t : ℝ, (U (.ofAdd t) : H →L[ℂ] H) =
+    have hKrep : ∀ t : ℝ, V t =
         NormedSpace.exp (t • ((-Complex.I) • K')) := by
       intro t
-      change value U t =
+      change (U t : H →L[ℂ] H) =
         NormedSpace.exp ((t : ℂ) • ((-Complex.I) • K'))
       rw [hK'.2 t]
       congr 1
       rw [smul_smul]
       apply congrArg (fun z : ℂ => z • K')
       ring
-    have hKA : (-Complex.I) • K' = A := hA_unique ((-Complex.I) • K') hKrep
+    have hKA : (-Complex.I) • K' = A :=
+      OneParameterSubgroup.generator_unique V ((-Complex.I) • K') hKrep
     calc
       K' = Complex.I • ((-Complex.I) • K') := by rw [smul_smul]; simp
       _ = Complex.I • A := by rw [hKA]
@@ -157,7 +178,7 @@ lemma existsUnique_hamiltonian (U : UnitaryTimeEvolution H) :
       _ = (-(t : ℂ) * Complex.I / ℏ) • ((ℏ : ℂ) • (Complex.I • A)) := by
         rw [smul_smul, smul_smul]
   · intro hamiltonian' hHamiltonian'
-    have hrep : ∀ t : ℝ, value U t =
+    have hrep : ∀ t : ℝ, (U t : H →L[ℂ] H) =
         NormedSpace.exp ((-(t : ℂ) * Complex.I) • ((ℏ : ℂ)⁻¹ • hamiltonian')) := by
       intro t
       rw [hHamiltonian'.2 t]
@@ -185,34 +206,31 @@ def ofHamiltonian {hamiltonian : H →L[ℂ] H} (hHamiltonian : IsSelfAdjoint ha
     rw [star_smul, Complex.star_def, map_div₀, map_neg, Complex.conj_I,
       Complex.conj_ofReal, hHamiltonian.star_eq]
     module
-  let E : Multiplicative ℝ →* H →L[ℂ] H := {
-    toFun t := NormedSpace.exp (((Multiplicative.toAdd t : ℝ) : ℂ) • A)
-    map_one' := by simp
-    map_mul' := fun s t => by
-      have hcomm : Commute (((Multiplicative.toAdd s : ℝ) : ℂ) • A)
-          (((Multiplicative.toAdd t : ℝ) : ℂ) • A) :=
-        ((Commute.refl A).smul_left _).smul_right _
-      change NormedSpace.exp (((Multiplicative.toAdd (s * t) : ℝ) : ℂ) • A) =
-        NormedSpace.exp (((Multiplicative.toAdd s : ℝ) : ℂ) • A) *
-          NormedSpace.exp (((Multiplicative.toAdd t : ℝ) : ℂ) • A)
-      rw [← NormedSpace.exp_add_of_commute hcomm, toAdd_mul]
-      push_cast
-      rw [add_smul] }
-  exact {
-    toMonoidHom := E.codRestrict (unitary (H →L[ℂ] H)) fun t => by
+  let E : AddChar ℝ (unitary (H →L[ℂ] H)) := {
+    toFun t := ⟨NormedSpace.exp ((t : ℂ) • A), by
       apply NormedSpace.exp_mem_unitary_of_mem_skewAdjoint
       rw [skewAdjoint.mem_iff, star_smul, Complex.star_def, Complex.conj_ofReal, hA]
-      module
-    continuous_toFun := Continuous.subtype_mk (by
-      change Continuous
-        (fun t : Multiplicative ℝ => NormedSpace.exp (((Multiplicative.toAdd t : ℝ) : ℂ) • A))
-      fun_prop) _ }
+      module⟩
+    map_zero_eq_one' := by ext; simp
+    map_add_eq_mul' := fun s t => by
+      apply Subtype.ext
+      have hcomm : Commute ((s : ℂ) • A) ((t : ℂ) • A) :=
+        ((Commute.refl A).smul_left _).smul_right _
+      change NormedSpace.exp (((s + t : ℝ) : ℂ) • A) =
+        NormedSpace.exp ((s : ℂ) • A) * NormedSpace.exp ((t : ℂ) • A)
+      rw [← NormedSpace.exp_add_of_commute hcomm]
+      push_cast
+      rw [add_smul] }
+  exact ⟨E, Continuous.subtype_mk (by
+    change Continuous (fun t : ℝ => NormedSpace.exp ((t : ℂ) • A))
+    fun_prop) _⟩
 
-@[simp] lemma value_ofHamiltonian {hamiltonian : H →L[ℂ] H}
+@[simp]
+lemma ofHamiltonian_apply {hamiltonian : H →L[ℂ] H}
     (hHamiltonian : IsSelfAdjoint hamiltonian) (t : ℝ) :
-    value (ofHamiltonian hHamiltonian) t =
+    (ofHamiltonian hHamiltonian t : H →L[ℂ] H) =
       NormedSpace.exp ((-(t : ℂ) * Complex.I / ℏ) • hamiltonian) := by
-  simp only [ofHamiltonian, value]
+  simp only [ofHamiltonian]
   change NormedSpace.exp ((t : ℂ) • ((-Complex.I / ℏ) • hamiltonian)) = _
   rw [smul_smul]
   congr 1
@@ -225,17 +243,15 @@ noncomputable def stoneEquiv :
   toFun U := ⟨U.existsUnique_hamiltonian.choose, U.existsUnique_hamiltonian.choose_spec.1.1⟩
   invFun hamiltonian := ofHamiltonian hamiltonian.2
   left_inv U := by
-    apply DFunLike.ext
+    apply ext
     intro t
-    induction t using Multiplicative.rec with
-    | ofAdd a =>
-      apply Subtype.ext
-      change value (ofHamiltonian _) a = value U a
-      rw [value_ofHamiltonian, ← U.existsUnique_hamiltonian.choose_spec.1.2]
+    exact Subtype.ext (by
+      change (ofHamiltonian (H := H) _ t : H →L[ℂ] H) = (U t : H →L[ℂ] H)
+      rw [ofHamiltonian_apply, ← U.existsUnique_hamiltonian.choose_spec.1.2])
   right_inv hamiltonian := by
     apply Subtype.ext
     exact ((ofHamiltonian hamiltonian.2).existsUnique_hamiltonian.choose_spec.2 hamiltonian.1
-      ⟨hamiltonian.2, value_ofHamiltonian hamiltonian.2⟩).symm
+      ⟨hamiltonian.2, ofHamiltonian_apply hamiltonian.2⟩).symm
 
 end UnitaryTimeEvolution
 

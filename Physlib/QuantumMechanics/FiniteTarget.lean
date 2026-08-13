@@ -6,7 +6,7 @@ Authors: Joseph Tooby-Smith
 module
 
 public import Physlib.Meta.TODO.Basic
-public import Physlib.QuantumMechanics.Stone
+public import Physlib.QuantumMechanics.UnitaryTimeEvolution
 /-!
 
 # Finite-dimensional quantum systems
@@ -46,11 +46,11 @@ noncomputable def unitaryTimeEvolution : UnitaryTimeEvolution H :=
   UnitaryTimeEvolution.ofHamiltonian A.Ham_selfAdjoint
 
 /-- The operator implementing the time evolution of `A` at time `t`. -/
-noncomputable def timeEvolution (t : ℝ) : H →L[ℂ] H := A.unitaryTimeEvolution.value t
+noncomputable def timeEvolution (t : ℝ) : H →L[ℂ] H := A.unitaryTimeEvolution t
 
 @[simp] lemma timeEvolution_eq_exp (t : ℝ) :
     A.timeEvolution t = NormedSpace.exp ((-(t : ℂ) * Complex.I / ℏ) • A.Ham) := by
-  rw [timeEvolution, unitaryTimeEvolution, UnitaryTimeEvolution.value_ofHamiltonian]
+  rw [timeEvolution, unitaryTimeEvolution, UnitaryTimeEvolution.ofHamiltonian_apply]
 
 /-- The matrix of the time-evolution operator at time `t` in the basis `b`. -/
 noncomputable def timeEvolutionMatrix (t : ℝ) (b : Basis (Fin n) ℂ H) :
