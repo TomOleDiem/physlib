@@ -117,7 +117,6 @@ lemma generator_selfAdjoint (U : UnitaryOneParameterGroup H) : IsSelfAdjoint U.g
   rw [skewAdjoint.mem_iff, U.deriv_star_eq_neg]
 
 /-- A unitary one-parameter group is the exponential of its self-adjoint generator. -/
-@[simp]
 lemma apply_eq_exp_generator (U : UnitaryOneParameterGroup H) (t : ℝ) :
     U t = NormedSpace.exp ((-(t : ℂ) * Complex.I) • U.generator) := by
   change U.operatorAddChar t = _
