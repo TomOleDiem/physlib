@@ -19,14 +19,12 @@ public import Mathlib.Algebra.Order.BigOperators.GroupWithZero.List
 ## i. Overview
 
 The occupation-number states `word (countWord d α) Ω`, indexed by degree-`n` count functions
-`α : CountFun d n`, form a genuine basis of `vacuumSpan L Ω n` -- real, zero `sorry`. Independence
-is the shortest route available: each state is a nonzero eigenvector of a single diagonal operator
+`α : CountFun d n`, form a basis of `vacuumSpan L Ω n`. For linear independence, each state is
+viewed as a nonzero eigenvector of the diagonal operator
 `M := ∑ᵢ (n+1)^i • Nᵢ`, at the pairwise-distinct eigenvalue `countEncode n α` (a positional
 encoding of `α`), so Mathlib's general "eigenvectors at distinct eigenvalues are independent" fact
-applies directly -- no shift-graph/Lagrange-interpolation combinatorics needed. The exact dimension
-formula (`(d+n-1).choose n`) and finite-dimensionality/nonzero-ness of `vacuumSpan` are then free
-corollaries, real rather than admitted -- **this is the standard fact that the `n`-th level of a
-`d`-dimensional bosonic oscillator has degeneracy `C(n+d-1,n)`, proved from the CCR alone.**
+applies. It follows that `vacuumSpan` is finite-dimensional and has dimension
+`(d+n-1).choose n`, the degeneracy of the `n`-th level of a `d`-dimensional bosonic oscillator.
 
 ## ii. Key results
 
@@ -74,7 +72,7 @@ noncomputable instance instFintypeCountFun {d n : ℕ} : Fintype (CountFun d n) 
   Fintype.ofEquiv (Sym (Fin d) n) (Sym.equivNatSumOfFintype (Fin d) n)
 
 /-- There are exactly `(d + n - 1).choose n` degree-`n` count functions on `d` colors. -/
-theorem card_countFun (d n : ℕ) : Fintype.card (CountFun d n) = (d + n - 1).choose n := by
+lemma card_countFun (d n : ℕ) : Fintype.card (CountFun d n) = (d + n - 1).choose n := by
   rw [Fintype.card_congr (countFunEquivSym d n), Sym.card_sym_eq_choose, Fintype.card_fin]
 
 attribute [local instance 100] LieRing.ofAssociativeRing
@@ -92,7 +90,7 @@ variable {K V : Type*} [Field K] [CharZero K] [AddCommGroup V] [Module K V] {d :
 
 omit [CharZero K] in
 /-- Annihilation and creation operators of different colors commute at any power. -/
-theorem pow_a_comm_ac {i c : Fin d} (hic : i ≠ c) (k : ℕ) (y : V) :
+lemma pow_a_comm_ac {i c : Fin d} (hic : i ≠ c) (k : ℕ) (y : V) :
     ((L.a i) ^ k) (L.ac c y) = L.ac c (((L.a i) ^ k) y) := by
   have h := L.comm_a_ac i c
   rw [if_neg hic, LieRing.of_associative_ring_bracket, sub_eq_zero] at h
@@ -103,7 +101,7 @@ theorem pow_a_comm_ac {i c : Fin d} (hic : i ≠ c) (k : ℕ) (y : V) :
 omit [CharZero K] in
 /-- Exact annihilation: applying `a i` exactly `count i` times removes every `i`, scaled by the
 factorial. -/
-theorem word_peel_eq_count (L : LadderSystem K V d) (i : Fin d) {x : V} (hx : L.a i x = 0) :
+lemma word_peel_eq_count (L : LadderSystem K V d) (i : Fin d) {x : V} (hx : L.a i x = 0) :
     ∀ v : List (Fin d),
       ((L.a i) ^ (v.count i)) (L.word v x) = (v.count i).factorial • L.word (v.filter (· != i)) x
   | [] => by simp [word]
@@ -128,12 +126,12 @@ omit [CharZero K] in
 @[simp] theorem annMono_nil (α : Fin d → ℕ) : L.annMono [] α = 1 := rfl
 
 omit [CharZero K] in
-theorem annMono_cons (c : Fin d) (cs : List (Fin d)) (α : Fin d → ℕ) :
+lemma annMono_cons (c : Fin d) (cs : List (Fin d)) (α : Fin d → ℕ) :
     L.annMono (c :: cs) α = (L.a c) ^ (α c) * L.annMono cs α := rfl
 
 omit [CharZero K] in
 /-- Exact annihilation of every color in the list produces the product of factorials. -/
-theorem annMono_eq_count (L : LadderSystem K V d) {x : V} (hx : ∀ i, L.a i x = 0) :
+lemma annMono_eq_count (L : LadderSystem K V d) {x : V} (hx : ∀ i, L.a i x = 0) :
     ∀ (cs : List (Fin d)), cs.Nodup → ∀ (α : Fin d → ℕ) (v : List (Fin d)),
       (∀ c ∈ cs, v.count c = α c) →
       (L.annMono cs α) (L.word v x)
@@ -167,7 +165,7 @@ theorem annMono_eq_count (L : LadderSystem K V d) {x : V} (hx : ∀ i, L.a i x =
 end LadderSystem
 
 /-- `countWord α` contains only colors from `List.finRange d`, i.e. everything. -/
-theorem countWord_filter_finRange {d : ℕ} (α : Fin d → ℕ) :
+lemma countWord_filter_finRange {d : ℕ} (α : Fin d → ℕ) :
     (LadderSystem.countWord d α).filter (fun y => !(List.finRange d).contains y) = [] :=
   List.filter_eq_nil_iff.mpr fun y _ => by simp [List.mem_finRange]
 
@@ -184,7 +182,7 @@ theorem countWord_filter_finRange {d : ℕ} (α : Fin d → ℕ) :
 -/
 
 /-- A base-`b` positional encoding is injective on tuples with digits `< b`. -/
-theorem encode_injOn_aux : ∀ (d b : ℕ), 0 < b → ∀ γ γ' : Fin d → ℕ,
+lemma encode_injOn_aux : ∀ (d b : ℕ), 0 < b → ∀ γ γ' : Fin d → ℕ,
     (∀ c, γ c < b) → (∀ c, γ' c < b) →
     (∑ i : Fin d, γ i * b ^ (i : ℕ)) = (∑ i : Fin d, γ' i * b ^ (i : ℕ)) → γ = γ' := by
   intro d
@@ -220,7 +218,7 @@ theorem encode_injOn_aux : ∀ (d b : ℕ), 0 < b → ∀ γ γ' : Fin d → ℕ
 functions. -/
 def countEncode (n : ℕ) {d : ℕ} (γ : Fin d → ℕ) : ℕ := ∑ i : Fin d, γ i * (n + 1) ^ (i : ℕ)
 
-theorem countEncode_injOn {d n : ℕ} {γ γ' : Fin d → ℕ}
+lemma countEncode_injOn {d n : ℕ} {γ γ' : Fin d → ℕ}
     (hγ : ∑ c, γ c = n) (hγ' : ∑ c, γ' c = n) (heq : countEncode n γ = countEncode n γ') :
     γ = γ' := by
   refine encode_injOn_aux d (n + 1) (Nat.succ_pos n) γ γ' (fun c => ?_) (fun c => ?_) heq
@@ -242,7 +240,7 @@ variable {K V : Type*} [Field K] [CharZero K] [AddCommGroup V] [Module K V] {d :
 
 /-- Every occupation-number state is nonzero: peeling every color's annihilation operator down to
 the vacuum leaves a nonzero factorial multiple of `Ω`. -/
-theorem word_countWord_ne_zero {Ω : V} (hΩ : L.HasVacuum Ω) (α : Fin d → ℕ) :
+lemma word_countWord_ne_zero {Ω : V} (hΩ : L.HasVacuum Ω) (α : Fin d → ℕ) :
     L.word (countWord d α) Ω ≠ 0 := by
   intro hz
   have h := L.annMono_eq_count hΩ.ann (List.finRange d) (List.nodup_finRange d) α
@@ -263,7 +261,7 @@ theorem word_countWord_ne_zero {Ω : V} (hΩ : L.HasVacuum Ω) (α : Fin d → �
 
 /-- The occupation-number states are the eigenvectors, at pairwise-distinct eigenvalues, of the
 single diagonal operator `M := ∑ᵢ (n+1)^i • Nᵢ`. -/
-theorem hasEigenvector_word_countWord {Ω : V} (hΩ : L.HasVacuum Ω) (n : ℕ) (α : CountFun d n) :
+lemma hasEigenvector_word_countWord {Ω : V} (hΩ : L.HasVacuum Ω) (n : ℕ) (α : CountFun d n) :
     Module.End.HasEigenvector (∑ i : Fin d, ((n + 1 : K)) ^ (i : ℕ) • L.N i)
       (countEncode n α.1 : K) (L.word (countWord d α.1) Ω) := by
   refine ⟨?_, L.word_countWord_ne_zero hΩ α.1⟩
@@ -281,8 +279,8 @@ theorem hasEigenvector_word_countWord {Ω : V} (hΩ : L.HasVacuum Ω) (n : ℕ) 
   push_cast
   exact Finset.sum_congr rfl (fun i _ => by ring)
 
-/-- **The occupation-number family is linearly independent** -- real, no `sorry`, via eigenvectors
-at pairwise-distinct eigenvalues (`Module.End.eigenvectors_linearIndependent'`). -/
+/-- The occupation-number family is linearly independent because its elements are eigenvectors at
+pairwise-distinct eigenvalues (`Module.End.eigenvectors_linearIndependent'`). -/
 theorem linearIndependent_word_countFun {Ω : V} (P : L.HasVacuum Ω) (n : ℕ) :
     LinearIndependent K (fun α : CountFun d n => L.word (countWord d α.1) Ω) := by
   have hinj : Function.Injective (fun α : CountFun d n => (countEncode n α.1 : K)) := by
@@ -304,7 +302,7 @@ theorem linearIndependent_word_countFun {Ω : V} (P : L.HasVacuum Ω) (n : ℕ) 
 
 omit [CharZero K] in
 /-- The occupation-number family spans `vacuumSpan L Ω n`. -/
-theorem span_word_countFun_eq_vacuumSpan (Ω : V) (n : ℕ) :
+lemma span_word_countFun_eq_vacuumSpan (Ω : V) (n : ℕ) :
     Submodule.span K (Set.range fun α : CountFun d n => L.word (countWord d α.1) Ω)
       = L.vacuumSpan Ω n := by
   apply le_antisymm
@@ -324,30 +322,28 @@ theorem span_word_countFun_eq_vacuumSpan (Ω : V) (n : ℕ) :
     rw [hperm]
     exact Submodule.subset_span ⟨⟨fun c => (List.ofFn w).count c, hsum⟩, rfl⟩
 
-/-- **A genuine basis of `vacuumSpan L Ω n`, indexed by occupation numbers** (degree-`n` count
-functions). This is what "occupation numbers label a complete basis of states" means, made
-precise. -/
+/-- A basis of `vacuumSpan L Ω n` indexed by degree-`n` occupation-count functions. -/
 noncomputable def vacuumBasis {Ω : V} (P : L.HasVacuum Ω) (n : ℕ) :
     Basis (CountFun d n) K (L.vacuumSpan Ω n) :=
   (Basis.span (L.linearIndependent_word_countFun P n)).map
     (LinearEquiv.ofEq _ _ (L.span_word_countFun_eq_vacuumSpan Ω n))
 
-theorem vacuumBasis_apply {Ω : V} (P : L.HasVacuum Ω) (n : ℕ) (α : CountFun d n) :
+lemma vacuumBasis_apply {Ω : V} (P : L.HasVacuum Ω) (n : ℕ) (α : CountFun d n) :
     (vacuumBasis L P n α : V) = L.word (countWord d α.1) Ω := by
   unfold vacuumBasis
   rw [Basis.map_apply, LinearEquiv.coe_ofEq_apply, Basis.coe_span_apply]
 
-/-- **The dimension formula, for real**: `vacuumSpan L Ω n` has dimension `(d+n-1).choose n` --
-the standard degeneracy of the `n`-th level of a `d`-mode bosonic system. -/
+/-- The dimension of `vacuumSpan L Ω n` is `(d+n-1).choose n`, the degeneracy of the `n`-th level
+of a `d`-mode bosonic system. -/
 theorem finrank_vacuumSpan_eq_choose {Ω : V} (P : L.HasVacuum Ω) (n : ℕ) :
     Module.finrank K (L.vacuumSpan Ω n) = (d + n - 1).choose n := by
   rw [Module.finrank_eq_card_basis (vacuumBasis L P n), card_countFun]
 
-theorem finiteDimensional_vacuumSpan {Ω : V} (P : L.HasVacuum Ω) (n : ℕ) :
+lemma finiteDimensional_vacuumSpan {Ω : V} (P : L.HasVacuum Ω) (n : ℕ) :
     FiniteDimensional K (L.vacuumSpan Ω n) :=
   Module.Basis.finiteDimensional_of_finite (vacuumBasis L P n)
 
-theorem vacuumSpan_ne_bot {Ω : V} (P : L.HasVacuum Ω) (hd : 0 < d) (n : ℕ) :
+lemma vacuumSpan_ne_bot {Ω : V} (P : L.HasVacuum Ω) (hd : 0 < d) (n : ℕ) :
     L.vacuumSpan Ω n ≠ ⊥ := by
   obtain ⟨α⟩ : Nonempty (CountFun d n) := ⟨⟨fun c => if c = ⟨0, hd⟩ then n else 0, by simp⟩⟩
   rw [Submodule.ne_bot_iff]

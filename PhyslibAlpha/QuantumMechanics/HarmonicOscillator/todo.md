@@ -1,3 +1,14 @@
+TIME EVOLUTION OF LADDER OPERATORS
+COHERENT STATES
+displacement operator
+CAT STATES
+EXPECTATION VALUES / MOMENT GENERATING FUNCTION???
+WIGNER AND HUSIMI TRANSFORM
+saturates the Heisenberg uncertainty relation.
+PHONONS on a lattice
+HEISENBERG GROUP, SYMPLECTIC TRAFO CCR.
+GENERAL QUADRATIC HAMILTONIAN
+
 # Finishing the harmonic oscillator: scope and ranking
 
 Six things stand between the current state of `HarmonicOscillator/` (+ `LadderSystem/`) and a

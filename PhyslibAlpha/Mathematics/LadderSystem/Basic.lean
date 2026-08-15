@@ -17,25 +17,22 @@ public import Physlib.Mathematics.KroneckerDelta.Basic
 
 ## i. Overview
 
-A `LadderSystem K V d` packages `d` independent pairs of creation/annihilation endomorphisms of a
-`K`-vector space `V` satisfying the canonical commutation relations -- the pure-algebra content
-shared by *every* bosonic system (a literal quantum harmonic oscillator, a multi-mode Fock space
-in QFT, squeezed light, ...), independent of any particular representation. The bilinears
-`E i j := acᵢaⱼ` satisfy the `gl(d)` commutation relations, giving `V` a genuine `gl(d)`-module
-structure via `toGlHom`, for free. Everything in `LadderSystem/` is proved from the three defining
-relations alone: no analysis, no Hilbert space, nothing physics-specific.
+A `LadderSystem K V d` packages `d` pairs of creation and annihilation endomorphisms of a
+`K`-vector space `V` satisfying the canonical commutation relations. The definition abstracts the
+algebraic structure shared by bosonic systems independently of a particular representation. The
+bilinears `E i j := acᵢaⱼ` satisfy the `gl(d)` commutation relations and define a `gl(d)`-module
+structure on `V` via `toGlHom`.
 
 - `Basic.lean` : this file -- the structure itself, the `gl(d)`-module structure it generates, and
     the number operator.
 - `Vacuum.lean` : a vacuum state, the creation-operator words built over it, and the excitation-
     number sector they span, bundled as a `gl(d)` Lie submodule.
-- `OccupationBasis.lean` : the occupation-number states form a genuine basis of each fixed-
+- `OccupationBasis.lean` : the occupation-number states form a basis of each fixed-
     excitation-number sector, with an explicit dimension formula.
 - `SymmetricPower.lean` : that sector is linearly isomorphic to `Sym^n(K^d)`.
 
-A concrete physical system's own job is only to exhibit its operators as a `LadderSystem` instance
-(see `QuantumMechanics/HarmonicOscillator/LadderOperators.lean`) and inherit everything here for
-free.
+The harmonic-oscillator instance is defined in
+`QuantumMechanics/HarmonicOscillator/LadderOperators.lean`.
 
 ## ii. Key results
 
@@ -100,12 +97,12 @@ namespace LadderSystem
 
 variable {K V : Type*} [Field K] [AddCommGroup V] [Module K V] {d : ℕ} (L : LadderSystem K V d)
 
-theorem assoc_leibniz (x y z : Module.End K V) :
+lemma assoc_leibniz (x y z : Module.End K V) :
     (⁅x, y * z⁆ : Module.End K V) = ⁅x, y⁆ * z + y * ⁅x, z⁆ := by
   simp only [LieRing.of_associative_ring_bracket]
   noncomm_ring
 
-theorem assoc_leibniz' (x y z : Module.End K V) :
+lemma assoc_leibniz' (x y z : Module.End K V) :
     (⁅x * y, z⁆ : Module.End K V) = x * ⁅y, z⁆ + ⁅x, z⁆ * y := by
   simp only [LieRing.of_associative_ring_bracket]
   noncomm_ring
@@ -135,7 +132,7 @@ theorem lie_E (i j k l : Fin d) :
     simp [hjk, hli, E, eq_zero_of_ne, mul_zero, zero_mul, mul_one, one_mul, sub_eq_add_neg]
 
 /-- The matrix units satisfy the same relations, at the level of `gl(d)` itself. -/
-theorem lie_single (i j k l : Fin d) :
+lemma lie_single (i j k l : Fin d) :
     (⁅Matrix.single i j (1 : K), Matrix.single k l (1 : K)⁆ : Matrix (Fin d) (Fin d) K)
       = (δ[j,k] : K) • Matrix.single i l 1 - (δ[l,i] : K) • Matrix.single k j 1 := by
   rw [LieRing.of_associative_ring_bracket]
@@ -152,12 +149,12 @@ noncomputable def toGlHomLinear (L : LadderSystem K V d) :
     L.toGlHomLinear (Matrix.stdBasis K (Fin d) (Fin d) (i, j)) = L.E i j :=
   Basis.constr_basis _ _ _ _
 
-theorem toGlHomLinear_single (L : LadderSystem K V d) (i j : Fin d) :
+lemma toGlHomLinear_single (L : LadderSystem K V d) (i j : Fin d) :
     L.toGlHomLinear (Matrix.single i j (1 : K)) = L.E i j := by
   rw [← Matrix.stdBasis_eq_single, toGlHomLinear_stdBasis]
 
 /-- `toGlHomLinear` respects brackets. -/
-theorem toGlHomLinear_lie (L : LadderSystem K V d) (x y : Matrix (Fin d) (Fin d) K) :
+lemma toGlHomLinear_lie (L : LadderSystem K V d) (x y : Matrix (Fin d) (Fin d) K) :
     L.toGlHomLinear ⁅x, y⁆ = ⁅L.toGlHomLinear x, L.toGlHomLinear y⁆ := by
   apply LinearMap.lie_apply_eq_of_lie_basis_eq (Matrix.stdBasis K (Fin d) (Fin d)) L.toGlHomLinear
   rintro ⟨i, j⟩ ⟨k, l⟩
@@ -176,7 +173,7 @@ noncomputable def toGlHom (L : LadderSystem K V d) :
   LieRingModule.compLieHom V L.toGlHom
 
 /-- The companion `LieModule` instance. -/
-theorem toLieModule (L : LadderSystem K V d) :
+lemma toLieModule (L : LadderSystem K V d) :
     @LieModule K (Matrix (Fin d) (Fin d) K) V _ _ _ _ _ L.toLieRingModule :=
   LieModule.compLieHom V L.toGlHom
 
@@ -196,7 +193,7 @@ def N (i : Fin d) : Module.End K V := L.E i i
 -/
 
 /-- `[Nᵢ, aⱼ] = -δᵢⱼaᵢ`. -/
-theorem lie_N_a (i j : Fin d) :
+lemma lie_N_a (i j : Fin d) :
     (⁅L.N i, L.a j⁆ : Module.End K V) = (-δ[i,j] : K) • L.a i := by
   show (⁅L.ac i * L.a i, L.a j⁆ : Module.End K V) = _
   rw [assoc_leibniz' (L.ac i) (L.a i) (L.a j), L.comm_a_a i j, mul_zero, zero_add]
@@ -206,7 +203,7 @@ theorem lie_N_a (i j : Fin d) :
   rw [h, smul_mul_assoc, one_mul, KroneckerDelta.symm i j]
 
 /-- `[Nᵢ, acⱼ] = δᵢⱼacᵢ`. -/
-theorem lie_N_ac (i j : Fin d) :
+lemma lie_N_ac (i j : Fin d) :
     (⁅L.N i, L.ac j⁆ : Module.End K V) = (δ[i,j] : K) • L.ac i := by
   show (⁅L.ac i * L.a i, L.ac j⁆ : Module.End K V) = _
   rw [assoc_leibniz' (L.ac i) (L.a i) (L.ac j), L.comm_a_ac i j, L.comm_ac_ac i j, zero_mul,
@@ -214,7 +211,7 @@ theorem lie_N_ac (i j : Fin d) :
   by_cases hij : i = j <;> simp [eq_zero_of_ne, hij]
 
 /-- `[Nᵢ, Nⱼ] = 0`: the number operators commute among themselves. -/
-theorem lie_N_N (i j : Fin d) : (⁅L.N i, L.N j⁆ : Module.End K V) = 0 := by
+lemma lie_N_N (i j : Fin d) : (⁅L.N i, L.N j⁆ : Module.End K V) = 0 := by
   rcases eq_or_ne i j with rfl | hij
   · exact lie_self _
   · show (⁅L.ac i * L.a i, L.N j⁆ : Module.End K V) = 0
@@ -231,7 +228,7 @@ theorem lie_N_N (i j : Fin d) : (⁅L.N i, L.N j⁆ : Module.End K V) = 0 := by
 /-- The total number operator, `∑ᵢNᵢ` -- the total excitation count across every mode. -/
 def totalN (L : LadderSystem K V d) : Module.End K V := ∑ i, L.N i
 
-/-- **The total number operator is central in `gl(d)`**: it commutes with every generator
+/-- The total number operator is central in `gl(d)`: it commutes with every generator
 `E i j`, not just the diagonal ones (contrast `lie_N_N`, which only says the diagonal `Nᵢ`
 commute *among themselves*). Consequently any operator built from `L.totalN` alone --
 in particular an *isotropic* Hamiltonian -- preserves `vacuumSpan` sector-by-sector for the same

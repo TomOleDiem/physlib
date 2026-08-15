@@ -37,7 +37,7 @@ namespace LadderSystem
 variable {K V : Type*} [Field K] [CharZero K] [AddCommGroup V] [Module K V] {d : ℕ}
     (L : LadderSystem K V d)
 
-/-- **`vacuumSpan L Ω n` is linearly isomorphic to `Sym^n(K^d)`** (realized as the free `K`-module
+/-- `vacuumSpan L Ω n` is linearly isomorphic to `Sym^n(K^d)` (realized as the free `K`-module
 on `Sym (Fin d) n`), matching the natural monomial-type basis on one side to the occupation-number
 basis on the other. -/
 noncomputable def vacuumSpanSymEquiv {Ω : V} (P : L.HasVacuum Ω) (n : ℕ) :
@@ -46,7 +46,7 @@ noncomputable def vacuumSpanSymEquiv {Ω : V} (P : L.HasVacuum Ω) (n : ℕ) :
 
 /-- The isomorphism sends the basis vector for multiset `s` to the occupation-number state with
 that multiset's count function. -/
-theorem vacuumSpanSymEquiv_single {Ω : V} (P : L.HasVacuum Ω) (n : ℕ) (s : Sym (Fin d) n) :
+lemma vacuumSpanSymEquiv_single {Ω : V} (P : L.HasVacuum Ω) (n : ℕ) (s : Sym (Fin d) n) :
     (L.vacuumSpanSymEquiv P n (Finsupp.single s 1) : V)
       = L.word (countWord d ((countFunEquivSym d n).symm s).1) Ω := by
   have h := Basis.equiv_apply (b := (Finsupp.basisSingleOne : Basis (Sym (Fin d) n) K _))

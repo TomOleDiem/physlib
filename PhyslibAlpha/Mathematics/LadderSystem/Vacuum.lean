@@ -16,11 +16,9 @@ public import Mathlib.Algebra.Lie.Submodule
 ## i. Overview
 
 A vacuum `Ω` of a `LadderSystem` is a nonzero vector killed by every annihilation operator. This
-file develops the mechanics of *words*: elements `acᵢ₁acᵢ₂⋯acᵢₙΩ` built by applying a list
-of creation operators to a vacuum, and the excitation-number sector they span (`vacuumSpan`),
-bundled as a genuine `gl(d)` Lie submodule. Real, zero `sorry`, and system-agnostic -- how many
-independent states `vacuumSpan` actually has is `OccupationBasis.lean`'s job, and that this sector
-is genuinely `gl(d)`-irreducible is `Irreducibility.lean`'s (`vacuumSpan_eq_of_ne_bot`).
+file develops creation-operator words `acᵢ₁acᵢ₂⋯acᵢₙΩ` and the excitation-number sector they span,
+`vacuumSpan`. This sector is bundled as a `gl(d)` Lie submodule. Its occupation-number basis is
+constructed in `OccupationBasis.lean`, and its irreducibility is proved in `Irreducibility.lean`.
 
 ## ii. Key results
 
@@ -29,8 +27,7 @@ Definitions:
 - `LadderSystem.word` : a word of creation operators applied to a vector.
 - `LadderSystem.vacuumSpan` : the span of all length-`n` words over a vacuum -- the
     `n`-particle sector.
-- `LadderSystem.vacuumSpanLieSubmodule` : `vacuumSpan`, bundled as a genuine `gl(d)` Lie
-    submodule -- no `sorry`, no `FiniteDimensional` hypothesis needed.
+- `LadderSystem.vacuumSpanLieSubmodule` : `vacuumSpan`, bundled as a `gl(d)` Lie submodule.
 
 Theorems:
 - `LadderSystem.word_perm` : a word depends only on the multiset of colors it represents.
@@ -83,12 +80,12 @@ variable {L}
 def word (L : LadderSystem K V d) (v : List (Fin d)) (x : V) : V :=
   (v.map L.ac).prod x
 
-theorem word_cons (L : LadderSystem K V d) (i : Fin d) (v : List (Fin d)) (x : V) :
+lemma word_cons (L : LadderSystem K V d) (i : Fin d) (v : List (Fin d)) (x : V) :
     L.word (i :: v) x = L.ac i (L.word v x) := by
   simp [word, Module.End.mul_apply]
 
 /-- A word depends only on the multiset of colors it represents, not their order. -/
-theorem word_perm (L : LadderSystem K V d) {v v' : List (Fin d)} (h : v.Perm v') (x : V) :
+lemma word_perm (L : LadderSystem K V d) {v v' : List (Fin d)} (h : v.Perm v') (x : V) :
     L.word v x = L.word v' x := by
   induction h with
   | nil => rfl
@@ -102,7 +99,7 @@ theorem word_perm (L : LadderSystem K V d) {v v' : List (Fin d)} (h : v.Perm v')
   | trans _ _ ih1 ih2 => rw [ih1, ih2]
 
 /-- Peeling: `a i` applied to a word removes one occurrence of color `i`, scaled by its count. -/
-theorem word_peel (L : LadderSystem K V d) (i : Fin d) {x : V} (hx : L.a i x = 0) :
+lemma word_peel (L : LadderSystem K V d) (i : Fin d) {x : V} (hx : L.a i x = 0) :
     ∀ v : List (Fin d), L.a i (L.word v x) = (v.count i) • L.word (v.erase i) x
   | [] => by simp [word, hx]
   | c :: v' => by
@@ -132,14 +129,14 @@ theorem word_peel (L : LadderSystem K V d) (i : Fin d) {x : V} (hx : L.a i x = 0
 
 /-- How `E i j` acts on a word: removes one occurrence of `j`, adds one of `i`, scaled by `j`'s
 count. -/
-theorem E_word (L : LadderSystem K V d) {x : V} (hx : ∀ i, L.a i x = 0) (i j : Fin d)
+lemma E_word (L : LadderSystem K V d) {x : V} (hx : ∀ i, L.a i x = 0) (i j : Fin d)
     (v : List (Fin d)) :
     (L.E i j) (L.word v x) = (v.count j) • L.word (i :: v.erase j) x := by
   show (L.ac i * L.a j) (L.word v x) = _
   rw [Module.End.mul_apply, word_peel L j (hx j) v, map_nsmul, ← word_cons]
 
 /-- Words are eigenvectors of the number operator, with eigenvalue their own color count. -/
-theorem N_word (L : LadderSystem K V d) {x : V} (hx : ∀ i, L.a i x = 0) (i : Fin d)
+lemma N_word (L : LadderSystem K V d) {x : V} (hx : ∀ i, L.a i x = 0) (i : Fin d)
     (v : List (Fin d)) : (L.N i) (L.word v x) = (v.count i) • L.word v x := by
   rw [N, E_word L hx i i v]
   by_cases hmem : i ∈ v
@@ -158,7 +155,7 @@ def countWord (d : ℕ) (α : Fin d → ℕ) : List (Fin d) :=
   (List.finRange d).flatMap (fun c => List.replicate (α c) c)
 
 /-- `countWord α` has exactly `α i` copies of color `i`. -/
-theorem count_countWord {d : ℕ} (α : Fin d → ℕ) (i : Fin d) :
+lemma count_countWord {d : ℕ} (α : Fin d → ℕ) (i : Fin d) :
     (countWord d α).count i = α i := by
   have key : ∀ (l : List (Fin d)), l.Nodup → i ∈ l →
       (l.flatMap (fun c => List.replicate (α c) c)).count i = α i := by
@@ -184,7 +181,7 @@ theorem count_countWord {d : ℕ} (α : Fin d → ℕ) (i : Fin d) :
   exact key (List.finRange d) (List.nodup_finRange d) (List.mem_finRange i)
 
 /-- A word's length is the sum of its per-color counts. -/
-theorem sum_count_eq_length {d : ℕ} : ∀ v : List (Fin d), (∑ c : Fin d, v.count c) = v.length
+lemma sum_count_eq_length {d : ℕ} : ∀ v : List (Fin d), (∑ c : Fin d, v.count c) = v.length
   | [] => by simp
   | a :: v' => by
     have hcount : ∀ c : Fin d, (a :: v').count c = v'.count c + (if a = c then 1 else 0) := by
@@ -203,7 +200,7 @@ creation words. -/
 def vacuumSpan (L : LadderSystem K V d) (Ω : V) (n : ℕ) : Submodule K V :=
   Submodule.span K (Set.range fun w : Fin n → Fin d => L.word (List.ofFn w) Ω)
 
-theorem exists_ofFn_eq_of_length_eq {l : List (Fin d)} {n : ℕ} (h : l.length = n) :
+lemma exists_ofFn_eq_of_length_eq {l : List (Fin d)} {n : ℕ} (h : l.length = n) :
     ∃ w : Fin n → Fin d, List.ofFn w = l := by
   refine ⟨fun i => l.get (Fin.cast h.symm i), List.ext_get_iff.mpr ⟨by simp [h], ?_⟩⟩
   intro k h1 h2
@@ -211,7 +208,7 @@ theorem exists_ofFn_eq_of_length_eq {l : List (Fin d)} {n : ℕ} (h : l.length =
   rfl
 
 /-- Any word of the right length lies in `vacuumSpan`. -/
-theorem word_mem_vacuumSpan_of_length_eq (L : LadderSystem K V d) (Ω : V) {n : ℕ}
+lemma word_mem_vacuumSpan_of_length_eq (L : LadderSystem K V d) (Ω : V) {n : ℕ}
     {l : List (Fin d)} (h : l.length = n) : L.word l Ω ∈ vacuumSpan L Ω n := by
   obtain ⟨w, rfl⟩ := exists_ofFn_eq_of_length_eq h
   exact Submodule.subset_span ⟨w, rfl⟩
@@ -224,7 +221,7 @@ theorem word_mem_vacuumSpan_of_length_eq (L : LadderSystem K V d) (Ω : V) {n : 
 
 /-- `E`-invariance of a submodule extends to full `gl(d)`-invariance, by linearity off the
 matrix-unit basis. -/
-theorem forall_toGlHomLinear_mem_of_forall_E_mem (L : LadderSystem K V d) {W : Submodule K V}
+lemma forall_toGlHomLinear_mem_of_forall_E_mem (L : LadderSystem K V d) {W : Submodule K V}
     (hW : ∀ i j, ∀ w ∈ W, (L.E i j) w ∈ W) (x : Matrix (Fin d) (Fin d) K) {w : V}
     (hw : w ∈ W) : L.toGlHomLinear x w ∈ W := by
   have hx : x ∈ (⊤ : Submodule K (Matrix (Fin d) (Fin d) K)) := Submodule.mem_top
@@ -240,7 +237,7 @@ theorem forall_toGlHomLinear_mem_of_forall_E_mem (L : LadderSystem K V d) {W : S
 
 /-- `vacuumSpan` is closed under every `gl(d)` generator `E i j`. Unconditional: no
 `FiniteDimensional`/spanning hypothesis on the ambient `V` is used or needed. -/
-theorem E_mem_vacuumSpan (L : LadderSystem K V d) {Ω : V} (P : L.HasVacuum Ω) (n : ℕ)
+lemma E_mem_vacuumSpan (L : LadderSystem K V d) {Ω : V} (P : L.HasVacuum Ω) (n : ℕ)
     (i j : Fin d) : ∀ v ∈ vacuumSpan L Ω n, (L.E i j) v ∈ vacuumSpan L Ω n := by
   intro v hv
   rw [vacuumSpan] at hv

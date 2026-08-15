@@ -55,7 +55,7 @@ variable {ι : Type*}
 
 /-- A `K`-linear map agreeing with the bracket on basis pairs agrees with the bracket
 everywhere. -/
-theorem LinearMap.lie_apply_eq_of_lie_basis_eq (b : Basis ι K L) (f : L →ₗ[K] L')
+lemma LinearMap.lie_apply_eq_of_lie_basis_eq (b : Basis ι K L) (f : L →ₗ[K] L')
     (h : ∀ i j, f ⁅b i, b j⁆ = ⁅f (b i), f (b j)⁆) (x y : L) :
     f ⁅x, y⁆ = ⁅f x, f y⁆ := by
   have step1 : ∀ j : ι,

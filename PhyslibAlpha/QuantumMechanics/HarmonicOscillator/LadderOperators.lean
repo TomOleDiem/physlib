@@ -24,12 +24,9 @@ elsewhere (`Operators/Unbounded.lean`) for a *proved* formal adjoint, and `annih
 defined only at the Schwartz level (as `𝐱`, `𝐩`, `𝐋` are in `Operators/`), not yet promoted to
 (partial) operators on `Q.HS` itself.
 
-**The number operator is not proved by hand.** Once `annihilationCLM i`/`creationCLM i` are known
-to satisfy the canonical commutation relations (`A.1`), `Q` is *literally* a bosonic ladder system
--- exactly the algebraic content `Physlib.Mathematics.LadderSystem` packages once, generically, for
-any associative ring (a genuine instance, not an analogy: `toLadderSystem` below). `numberCLM` and
-all three of its commutators with the ladder operators (`B.1`) are that general theory applied to
-this one instance; nothing in section B is re-derived from the CCR by hand.
+The canonical commutation relations in section A define the `LadderSystem` instance
+`toLadderSystem`. Section B obtains the number operator and its commutation relations from the
+general `LadderSystem` API.
 
 ## ii. Key results
 
@@ -178,15 +175,8 @@ theorem annihilationCLM_comm_creationCLM (Q : HarmonicOscillator d) (i j : Fin d
 
 -/
 
-/-- **`annihilationCLM`/`creationCLM` bundled as a genuine `LadderSystem` instance** on the
-underlying `ℂ`-vector space `𝓢(Space d, ℂ)`, packaging the canonical commutation relations proved
-above. `numberCLM` and everything about it below is `Physlib.Mathematics.LadderSystem`'s general
-theory applied to this one instance -- nothing in `B.1` is re-derived from the CCR by hand. (And
-`Physlib.Mathematics.LadderSystem.Vacuum`/`OccupationBasis`/`SymmetricPower` come for free too:
-once a genuine vacuum `Ω` -- a nonzero Schwartz function killed by every `annihilationCLM i` -- is
-exhibited, this same instance gives the occupation-number basis of each excitation-number sector
-and its dimension `(d+n-1).choose n`, the textbook degeneracy of the `n`-th level of a
-`d`-dimensional oscillator, for free and without further proof.) -/
+/-- The annihilation and creation operators on Schwartz space, bundled as a `LadderSystem`.
+The number operator and its commutation relations below are obtained from this structure. -/
 def toLadderSystem (Q : HarmonicOscillator d) : LadderSystem ℂ (𝓢(Space d, ℂ)) d where
   a i := (Q.annihilationCLM i).toLinearMap
   ac i := (Q.creationCLM i).toLinearMap
@@ -248,8 +238,8 @@ theorem numberCLM_comm_numberCLM (Q : HarmonicOscillator d) (i j : Fin d) :
     (⁅Q.numberCLM i, Q.numberCLM j⁆ : 𝓢(Space d, ℂ) →L[ℂ] 𝓢(Space d, ℂ)) = 0 := by
   rcases eq_or_ne i j with rfl | hij
   · exact lie_self _
-  · show (⁅Q.creationCLM i ∘L Q.annihilationCLM i, Q.numberCLM j⁆
-        : 𝓢(Space d, ℂ) →L[ℂ] 𝓢(Space d, ℂ)) = _
+  · show (⁅Q.creationCLM i ∘L Q.annihilationCLM i, Q.numberCLM j⁆ :
+        𝓢(Space d, ℂ) →L[ℂ] 𝓢(Space d, ℂ)) = _
     rw [leibniz_lie, ← lie_skew (Q.annihilationCLM i) (Q.numberCLM j),
       numberCLM_comm_annihilationCLM, ← lie_skew (Q.creationCLM i) (Q.numberCLM j),
       numberCLM_comm_creationCLM, KroneckerDelta.symm j i, eq_zero_of_ne hij]

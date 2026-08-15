@@ -13,10 +13,9 @@ public import Physlib.Mathematics.LadderSystem.OccupationBasis
 ## i. Overview
 
 `LadderSystem.vacuumSpan L Ω n` is `gl(d)`-irreducible: the only submodules of `vacuumSpan L Ω n`
-invariant under every `E i j` are `⊥` and `vacuumSpan L Ω n` itself. This is the precise, algebraic
-sense in which each fixed-excitation-number sector is "maximal" -- not literal completeness in an
-ambient Hilbert space (a separate, analytic question), but genuine `gl(d)`-irreducibility, proved
-by pure linear algebra over `CharZero K` alone.
+invariant under every `E i j` are `⊥` and `vacuumSpan L Ω n` itself. Completeness in an ambient
+Hilbert space is a separate analytic question. The proof uses linear algebra over a field of
+characteristic zero.
 
 ## ii. Key results
 
@@ -54,7 +53,7 @@ degenerate `i = j` case is handled separately by `N_word`. -/
 def moveOneTo (α : Fin d → ℕ) (i j : Fin d) : Fin d → ℕ :=
   fun c => if c = i then α i + 1 else if c = j then α j - 1 else α c
 
-theorem countWord_moveOneTo_perm {i j : Fin d} (hij : i ≠ j) {α : Fin d → ℕ} :
+lemma countWord_moveOneTo_perm {i j : Fin d} (hij : i ≠ j) {α : Fin d → ℕ} :
     List.Perm (i :: (countWord d α).erase j) (countWord d (moveOneTo α i j)) := by
   rw [List.perm_iff_count]
   intro c
@@ -74,9 +73,9 @@ theorem countWord_moveOneTo_perm {i j : Fin d} (hij : i ≠ j) {α : Fin d → �
 variable {L}
 
 omit [CharZero K] in
-/-- **The transfer formula**: `E i j` moves one quantum from color `j` to color `i`, scaled by
+/-- The transfer formula: `E i j` moves one quantum from color `j` to color `i`, scaled by
 `j`'s occupation number. -/
-theorem E_word_countWord {Ω : V} (P : L.HasVacuum Ω) {i j : Fin d} (hij : i ≠ j)
+lemma E_word_countWord {Ω : V} (P : L.HasVacuum Ω) {i j : Fin d} (hij : i ≠ j)
     {α : Fin d → ℕ} :
     L.E i j (L.word (countWord d α) Ω) =
       (α j : K) • L.word (countWord d (moveOneTo α i j)) Ω := by
@@ -91,7 +90,7 @@ theorem E_word_countWord {Ω : V} (P : L.HasVacuum Ω) {i j : Fin d} (hij : i �
 
 omit [CharZero K] in
 /-- A submodule invariant under an endomorphism `M` is invariant under any polynomial in `M`. -/
-theorem mapsTo_aeval {W : Submodule K V} {M : Module.End K V} (hW : ∀ w ∈ W, M w ∈ W)
+lemma mapsTo_aeval {W : Submodule K V} {M : Module.End K V} (hW : ∀ w ∈ W, M w ∈ W)
     (p : Polynomial K) : ∀ w ∈ W, (Polynomial.aeval M p) w ∈ W := by
   refine p.induction_on ?_ ?_ ?_
   · intro a w hw
@@ -106,11 +105,10 @@ theorem mapsTo_aeval {W : Submodule K V} {M : Module.End K V} (hW : ∀ w ∈ W,
     rw [heq, map_mul, Module.End.mul_apply, Polynomial.aeval_X]
     exact hka (M w) (hW w hw)
 
-/-- **A nonzero `E i j`-invariant submodule of `vacuumSpan L Ω n` contains a genuine
-occupation-number basis vector.** The heart of irreducibility: a Lagrange-interpolation polynomial
-in the diagonal separator `∑ᵢ(n+1)^i • Nᵢ` (`OccupationBasis.lean`'s `hasEigenvector_word_countWord`)
-projects any nonzero element onto a single basis vector, landing it back in `W`. -/
-theorem exists_word_countWord_mem_of_ne_bot {Ω : V} (P : L.HasVacuum Ω) (n : ℕ)
+/-- A nonzero `E i j`-invariant submodule of `vacuumSpan L Ω n` contains an occupation-number
+basis vector. A Lagrange-interpolation polynomial in the diagonal separator
+`∑ᵢ(n+1)^i • Nᵢ` projects a nonzero element onto one of its basis components. -/
+lemma exists_word_countWord_mem_of_ne_bot {Ω : V} (P : L.HasVacuum Ω) (n : ℕ)
     {W : Submodule K V} (hWle : W ≤ vacuumSpan L Ω n)
     (hWE : ∀ i j, ∀ w ∈ W, L.E i j w ∈ W) (hWbot : W ≠ ⊥) :
     ∃ α : CountFun d n, L.word (countWord d α.1) Ω ∈ W := by
@@ -186,13 +184,13 @@ theorem exists_word_countWord_mem_of_ne_bot {Ω : V} (P : L.HasVacuum Ω) (n : �
 
 omit [CharZero K] in
 /-- The total occupation number matches the length of the canonical word representing it. -/
-theorem sum_eq_length_countWord (α : Fin d → ℕ) : (∑ c, α c) = (countWord d α).length := by
+lemma sum_eq_length_countWord (α : Fin d → ℕ) : (∑ c, α c) = (countWord d α).length := by
   rw [← sum_count_eq_length (countWord d α)]
   exact Finset.sum_congr rfl fun c _ => (count_countWord α c).symm
 
 omit [CharZero K] in
 /-- Moving one quantum between two modes preserves the total occupation number. -/
-theorem sum_moveOneTo {i j : Fin d} (hij : i ≠ j) {α : Fin d → ℕ} (hj : α j ≠ 0) :
+lemma sum_moveOneTo {i j : Fin d} (hij : i ≠ j) {α : Fin d → ℕ} (hj : α j ≠ 0) :
     (∑ c, moveOneTo α i j c) = ∑ c, α c := by
   have hcj : (countWord d α).count j ≠ 0 := by rw [count_countWord]; exact hj
   have hmem : j ∈ countWord d α := List.count_pos_iff.mp (Nat.pos_of_ne_zero hcj)
@@ -203,13 +201,13 @@ theorem sum_moveOneTo {i j : Fin d} (hij : i ≠ j) {α : Fin d → ℕ} (hj : �
 
 omit [CharZero K] in
 /-- `moveOneTo` at the color it moves quanta *into* just increments that color's count. -/
-theorem moveOneTo_self (α : Fin d → ℕ) (i j : Fin d) : moveOneTo α i j i = α i + 1 := by
+lemma moveOneTo_self (α : Fin d → ℕ) (i j : Fin d) : moveOneTo α i j i = α i + 1 := by
   show (if i = i then α i + 1 else if i = j then α j - 1 else α i) = α i + 1
   rw [if_pos rfl]
 
 omit [CharZero K] in
 /-- Moving a quantum from `j` to `i` and then immediately back from `i` to `j` is the identity. -/
-theorem moveOneTo_moveOneTo {i j : Fin d} (hij : i ≠ j) {α : Fin d → ℕ} (hj : α j ≠ 0) :
+lemma moveOneTo_moveOneTo {i j : Fin d} (hij : i ≠ j) {α : Fin d → ℕ} (hj : α j ≠ 0) :
     moveOneTo (moveOneTo α i j) j i = α := by
   have hβj : moveOneTo α i j j = α j - 1 := by
     show (if j = i then α i + 1 else if j = j then α j - 1 else α j) = α j - 1
@@ -229,10 +227,10 @@ theorem moveOneTo_moveOneTo {i j : Fin d} (hij : i ≠ j) {α : Fin d → ℕ} (
       show (if c = i then α i + 1 else if c = j then α j - 1 else α c) = α c
       rw [if_neg hci, if_neg hcj]
 
-/-- **The atomic move**: if `W` is `E i j`-invariant and contains the word for `β`, and mode `k`
+/-- The atomic move: if `W` is `E i j`-invariant and contains the word for `β`, and mode `k`
 is occupied, `W` also contains the word obtained by moving one quantum from `k` to any other
 mode `l`. -/
-theorem word_countWord_moveOneTo_mem {Ω : V} (P : L.HasVacuum Ω) {W : Submodule K V}
+lemma word_countWord_moveOneTo_mem {Ω : V} (P : L.HasVacuum Ω) {W : Submodule K V}
     (hWE : ∀ i j, ∀ w ∈ W, L.E i j w ∈ W) {β : Fin d → ℕ}
     (hmem : L.word (countWord d β) Ω ∈ W) {l k : Fin d} (hkl : l ≠ k) (hk : β k ≠ 0) :
     L.word (countWord d (moveOneTo β l k)) Ω ∈ W := by
@@ -242,10 +240,10 @@ theorem word_countWord_moveOneTo_mem {Ω : V} (P : L.HasVacuum Ω) {W : Submodul
   have hsm := W.smul_mem (β k : K)⁻¹ hE
   rwa [smul_smul, inv_mul_cancel₀ hne, one_smul] at hsm
 
-/-- **Every occupation-number word reaches the "everything in mode `0`" hub word**, given `W`
+/-- Every occupation-number word reaches the mode-`0` hub word, given `W`
 is `E i j`-invariant and contains it. Proved by strong induction on the mass sitting outside
 mode `0`. -/
-theorem word_countWord_hub_mem_of_mem {hd : 0 < d} {Ω : V} (P : L.HasVacuum Ω)
+lemma word_countWord_hub_mem_of_mem {hd : 0 < d} {Ω : V} (P : L.HasVacuum Ω)
     {W : Submodule K V} (hWE : ∀ i j, ∀ w ∈ W, L.E i j w ∈ W) :
     ∀ m : ℕ, ∀ α : Fin d → ℕ, (∑ c, α c) - α (⟨0, hd⟩ : Fin d) = m →
       L.word (countWord d α) Ω ∈ W →
@@ -288,9 +286,9 @@ theorem word_countWord_hub_mem_of_mem {hd : 0 < d} {Ω : V} (P : L.HasVacuum Ω)
       have := ih (m - 1) (by omega) (moveOneTo α hub0 j) hdeficit' hstep
       rwa [hsum'] at this
 
-/-- **The hub word reaches every occupation-number word**, given `W` is `E i j`-invariant and
+/-- The hub word reaches every occupation-number word, given `W` is `E i j`-invariant and
 contains it. Proved by strong induction on the mass sitting outside mode `0` in the target. -/
-theorem word_countWord_mem_of_hub_mem {hd : 0 < d} {Ω : V} (P : L.HasVacuum Ω)
+lemma word_countWord_mem_of_hub_mem {hd : 0 < d} {Ω : V} (P : L.HasVacuum Ω)
     {W : Submodule K V} (hWE : ∀ i j, ∀ w ∈ W, L.E i j w ∈ W) :
     ∀ m : ℕ, ∀ α : Fin d → ℕ, (∑ c, α c) - α (⟨0, hd⟩ : Fin d) = m →
       L.word (countWord d (fun c => if c = (⟨0, hd⟩ : Fin d) then (∑ c, α c) else 0)) Ω ∈ W →
@@ -340,9 +338,9 @@ theorem word_countWord_mem_of_hub_mem {hd : 0 < d} {Ω : V} (P : L.HasVacuum Ω)
         exact moveOneTo_moveOneTo (Ne.symm hjne) hjpos
       rwa [hrev] at hstep
 
-/-- **Connectivity**: any two occupation-number words of the same total excitation number reach
+/-- Connectivity: any two occupation-number words of the same total excitation number reach
 each other, given `W` is `E i j`-invariant and contains one of them. -/
-theorem word_countWord_mem_of_mem {hd : 0 < d} {Ω : V} (P : L.HasVacuum Ω)
+lemma word_countWord_mem_of_mem {hd : 0 < d} {Ω : V} (P : L.HasVacuum Ω)
     {W : Submodule K V} (hWE : ∀ i j, ∀ w ∈ W, L.E i j w ∈ W) {α α' : Fin d → ℕ}
     (hsum : (∑ c, α c) = ∑ c, α' c) (hmem : L.word (countWord d α) Ω ∈ W) :
     L.word (countWord d α') Ω ∈ W := by
@@ -357,7 +355,7 @@ theorem word_countWord_mem_of_mem {hd : 0 < d} {Ω : V} (P : L.HasVacuum Ω)
 
 -/
 
-/-- **`vacuumSpan L Ω n` is `gl(d)`-irreducible.** The only submodules of `vacuumSpan L Ω n`
+/-- `vacuumSpan L Ω n` is `gl(d)`-irreducible. The only submodules of `vacuumSpan L Ω n`
 invariant under every `E i j` are `⊥` and `vacuumSpan L Ω n` itself. -/
 theorem vacuumSpan_eq_of_ne_bot {hd : 0 < d} {Ω : V} (P : L.HasVacuum Ω) (n : ℕ)
     {W : Submodule K V} (hWle : W ≤ vacuumSpan L Ω n)
