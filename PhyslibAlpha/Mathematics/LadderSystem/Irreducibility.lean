@@ -5,7 +5,7 @@ Authors: Tom Diem
 -/
 module
 
-public import Physlib.Mathematics.LadderSystem.OccupationBasis
+public import PhyslibAlpha.Mathematics.LadderSystem.OccupationBasis
 /-!
 
 # Irreducibility of the excitation-number sector

@@ -5,9 +5,9 @@ Authors: Gregory J. Loges, Tom Diem
 -/
 module
 
-public import Physlib.QuantumMechanics.HarmonicOscillator.Basic
+public import PhyslibAlpha.QuantumMechanics.HarmonicOscillator.Basic
 public import Physlib.QuantumMechanics.Operators.Commutation
-public import Physlib.Mathematics.LadderSystem.SymmetricPower
+public import PhyslibAlpha.Mathematics.LadderSystem.SymmetricPower
 /-!
 
 # Ladder operators

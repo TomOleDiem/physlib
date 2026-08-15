@@ -5,7 +5,7 @@ Authors: Tom Diem
 -/
 module
 
-public import Physlib.Mathematics.LadderSystem.Vacuum
+public import PhyslibAlpha.Mathematics.LadderSystem.Vacuum
 public import Mathlib.Data.Sym.Card
 public import Mathlib.Data.Finsupp.Multiset
 public import Mathlib.LinearAlgebra.Basis.Basic

@@ -5,7 +5,7 @@ Authors: Tom Diem
 -/
 module
 
-public import Physlib.QuantumMechanics.HarmonicOscillator.LadderOperators
+public import PhyslibAlpha.QuantumMechanics.HarmonicOscillator.LadderOperators
 public import Physlib.Mathematics.InnerProductSpace.Gaussian
 /-!
 
