@@ -56,18 +56,14 @@ local instance : NormedAlgebra ℚ E := .restrictScalars ℚ ℝ E
 
 lemma exists_isUnit_intervalIntegral [Nontrivial E] (U : AddChar ℝ E) (hU : Continuous U) :
     ∃ d : ℝ, 0 < d ∧ IsUnit (∫ x in (0 : ℝ)..d, U x) := by
-  let c : ℝ := ‖(1 : E)‖⁻¹ / 2
   have hone : 0 < ‖(1 : E)‖ := norm_pos_iff.mpr one_ne_zero
-  have hc : 0 < c := by dsimp [c]; positivity
-  have hevent : ∀ᶠ x : ℝ in 𝓝 0, ‖U x - 1‖ < c := by
-    have hnorm : Continuous (fun x : ℝ => ‖U x - 1‖) :=
-      continuous_norm.comp (hU.sub continuous_const)
-    have hmem : Set.Iio c ∈ 𝓝 ‖U 0 - 1‖ := by simpa using Iio_mem_nhds hc
-    exact hnorm.continuousAt hmem
-  rw [Metric.eventually_nhds_iff] at hevent
-  obtain ⟨r, hr, hrU⟩ := hevent
+  have hevent : ∀ᶠ x : ℝ in 𝓝 0, ‖U x - 1‖ < ‖(1 : E)‖⁻¹ / 2 := by
+    have hmem : Set.Iio (‖(1 : E)‖⁻¹ / 2) ∈ 𝓝 ‖U 0 - 1‖ := by
+      simpa using Iio_mem_nhds (by positivity : 0 < ‖(1 : E)‖⁻¹ / 2)
+    exact (continuous_norm.comp (hU.sub continuous_const)).continuousAt hmem
+  obtain ⟨r, hr, hrU⟩ := Metric.eventually_nhds_iff.mp hevent
   let d := r / 2
-  have hd : 0 < d := by dsimp [d]; positivity
+  have hd : 0 < d := by positivity
   let q : Eˣ := {
     val := d • 1
     inv := d⁻¹ • 1
@@ -75,31 +71,24 @@ lemma exists_isUnit_intervalIntegral [Nontrivial E] (U : AddChar ℝ E) (hU : Co
     inv_val := by rw [smul_mul_smul_comm, inv_mul_cancel₀ hd.ne', one_smul, one_mul] }
   refine ⟨d, hd, (Units.ofNearby q _ ?_).isUnit⟩
   calc
-    ‖(∫ x in (0 : ℝ)..d, U x) - (q : E)‖ =
-        ‖(∫ x in (0 : ℝ)..d, U x) - d • (1 : E)‖ := rfl
+    _ = ‖(∫ x in (0 : ℝ)..d, U x) - d • (1 : E)‖ := rfl
     _ = ‖(∫ x in (0 : ℝ)..d, U x) - ∫ _x in (0 : ℝ)..d, (1 : E)‖ := by
       rw [intervalIntegral.integral_const, sub_zero]
     _ = ‖∫ x in (0 : ℝ)..d, (U x - 1)‖ := by
       rw [intervalIntegral.integral_sub (hU.intervalIntegrable 0 d)
         (continuous_const.intervalIntegrable 0 d)]
-    _ ≤ c * d := by
-      calc
-        _ ≤ c * |d - 0| := intervalIntegral.norm_integral_le_of_norm_le_const (fun x hx => by
-          apply le_of_lt
-          apply hrU
-          rw [Real.dist_0_eq_abs]
-          rw [Set.uIoc_of_le hd.le] at hx
-          rw [abs_of_nonneg hx.1.le]
-          exact hx.2.trans_lt (by dsimp [d]; linarith))
-        _ = c * d := by rw [sub_zero, abs_of_pos hd]
-    _ < ‖(↑q⁻¹ : E)‖⁻¹ := by
-      have hright : ‖(↑q⁻¹ : E)‖⁻¹ = d * ‖(1 : E)‖⁻¹ := by
-        change ‖d⁻¹ • (1 : E)‖⁻¹ = _
-        rw [norm_smul, Real.norm_eq_abs, abs_inv, abs_of_pos hd]
-        field_simp
-      rw [hright]
-      dsimp [c]
-      nlinarith [inv_pos.mpr hone]
+    _ ≤ (‖(1 : E)‖⁻¹ / 2) * |d - 0| :=
+      intervalIntegral.norm_integral_le_of_norm_le_const (fun x hx => by
+        apply le_of_lt
+        apply hrU
+        rw [Real.dist_0_eq_abs]
+        rw [Set.uIoc_of_le hd.le] at hx
+        rw [abs_of_nonneg hx.1.le]
+        exact hx.2.trans_lt (by dsimp [d]; linarith))
+    _ = (‖(1 : E)‖⁻¹ / 2) * d := by rw [sub_zero, abs_of_pos hd]
+    _ < d * ‖(1 : E)‖⁻¹ := by nlinarith [inv_pos.mpr hone]
+    _ = ‖q.inv‖⁻¹ := by simp [q, norm_smul, mul_comm, abs_of_pos hd]
+
 
 /-- Translating a one-parameter subgroup translates its interval integral. -/
 lemma mul_intervalIntegral_eq_sub (U : AddChar ℝ E) (hU : Continuous U) (s t : ℝ) :
@@ -108,7 +97,7 @@ lemma mul_intervalIntegral_eq_sub (U : AddChar ℝ E) (hU : Continuous U) (s t :
   let L : E →L[ℝ] E :=
     (LinearMap.mulLeft ℝ (U s)).mkContinuous ‖U s‖ (fun x => norm_mul_le _ _)
   calc
-    U s * ∫ x in (0 : ℝ)..t, U x = L (∫ x in (0 : ℝ)..t, U x) := rfl
+    _ = L (∫ x in (0 : ℝ)..t, U x) := rfl
     _ = ∫ x in (0 : ℝ)..t, L (U x) :=
       (L.intervalIntegral_comp_comm (hU.intervalIntegrable 0 t)).symm
     _ = ∫ x in (0 : ℝ)..t, U (s + x) := by

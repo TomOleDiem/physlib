@@ -43,7 +43,9 @@ noncomputable section
 structure UnitaryOneParameterGroup (H : Type*) [NormedAddCommGroup H] [InnerProductSpace ℂ H]
     [CompleteSpace H] where
   /-- The additive character from the real parameter to unitary operators. -/
-  toAddChar : AddChar ℝ (unitary (H →L[ℂ] H))
+  toAddChar : AddChar ℝ (H →L[ℂ] H)
+  /-- foo -/
+  mem_unitary : ∀ t, toAddChar t ∈ unitary (H →L[ℂ] H)
   /-- The group is continuous in the operator norm. -/
   continuous : Continuous toAddChar
 
@@ -51,54 +53,47 @@ namespace UnitaryOneParameterGroup
 
 variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
 
-instance : CoeFun (UnitaryOneParameterGroup H) fun _ => ℝ → (H →L[ℂ] H) :=
-  ⟨fun U t => U.toAddChar t⟩
+attribute [coe] UnitaryOneParameterGroup.toAddChar
 
-/-- The operator-valued additive character underlying a unitary one-parameter group. -/
-def operatorAddChar (U : UnitaryOneParameterGroup H) : AddChar ℝ (H →L[ℂ] H) :=
-  (unitary (H →L[ℂ] H)).subtype.compAddChar U.toAddChar
-
-@[simp]
-lemma operatorAddChar_apply (U : UnitaryOneParameterGroup H) (t : ℝ) :
-    U.operatorAddChar t = U t := rfl
-
-lemma continuous_operatorAddChar (U : UnitaryOneParameterGroup H) :
-    Continuous U.operatorAddChar :=
-  continuous_subtype_val.comp U.continuous
+instance : CoeFun (UnitaryOneParameterGroup H) fun _ => ℝ → (H →L[ℂ] H) := ⟨fun U => U.toAddChar⟩
 
 @[ext]
 lemma ext {U V : UnitaryOneParameterGroup H} (h : ∀ t, U t = V t) : U = V := by
   cases U
   cases V
   congr
-  exact AddChar.ext _ _ fun t => Subtype.ext (h t)
+  exact AddChar.ext _ _ h
+
+lemma apply_eq_exp_deriv (U : UnitaryOneParameterGroup H) (t : ℝ) :
+    U t = NormedSpace.exp ((t : ℂ) • deriv U 0) := by
+  simpa only [Complex.coe_smul] using
+    OneParameterSubgroup.apply_eq_exp_smul_deriv U.toAddChar U.continuous t
+
+lemma deriv_unique (U : UnitaryOneParameterGroup H) (A : H →L[ℂ] H)
+    (h : ∀ t : ℝ, U t = NormedSpace.exp ((t : ℂ) • A)) :
+    A = deriv U 0 := by
+  exact OneParameterSubgroup.generator_unique U.toAddChar A (fun t => by
+    simpa only [Complex.coe_smul] using h t)
 
 @[simp]
-lemma adjoint_eq (U : UnitaryOneParameterGroup H) (t : ℝ) :
-    ContinuousLinearMap.adjoint (U t) = U (-t) := by
-  change star (U t) = U (-t)
-  apply left_inv_eq_right_inv (U.toAddChar t).property.1
-  have h := congrArg Subtype.val (U.toAddChar.map_add_eq_mul t (-t))
-  simpa using h.symm
+lemma adjoint_eq (U : UnitaryOneParameterGroup H) (t : ℝ) : (U t).adjoint = U (-t) := by
+  apply left_inv_eq_right_inv (Unitary.star_mul_self_of_mem (U.mem_unitary t))
+  simp [← AddChar.map_add_eq_mul]
 
 /-- The bounded self-adjoint generator of `U`, in the convention `U(t) = exp (-itA)`. -/
 noncomputable def generator (U : UnitaryOneParameterGroup H) : H →L[ℂ] H :=
-  Complex.I • deriv U.operatorAddChar 0
+  Complex.I • deriv U 0
 
-lemma deriv_star_eq_neg (U : UnitaryOneParameterGroup H) :
-    star (deriv U.operatorAddChar 0) = -deriv U.operatorAddChar 0 := by
-  let A : H →L[ℂ] H := deriv U.operatorAddChar 0
+lemma adjoint_deriv_eq_neg (U : UnitaryOneParameterGroup H) :
+    (deriv U 0).adjoint = -deriv U 0 := by
+  let A : H →L[ℂ] H := deriv U 0
   have hA (t : ℝ) : U t = NormedSpace.exp ((t : ℂ) • A) := by
-    change U.operatorAddChar t = _
-    dsimp only [A]
-    simpa only [Complex.coe_smul] using
-      OneParameterSubgroup.apply_eq_exp_smul_deriv U.operatorAddChar
-        U.continuous_operatorAddChar t
-  have hrep : ∀ t : ℝ, U.operatorAddChar t =
+    simpa [A] using U.apply_eq_exp_deriv t
+  have hrep : ∀ t : ℝ, U t =
       NormedSpace.exp ((t : ℂ) • (-star A)) := by
     intro t
     calc
-      U.operatorAddChar t = star (U (-t)) := by
+      U t = star (U (-t)) := by
         change U t = ContinuousLinearMap.adjoint (U (-t))
         simpa only [neg_neg] using (U.adjoint_eq (-t)).symm
       _ = star (NormedSpace.exp (((-t : ℝ) : ℂ) • A)) := by rw [hA (-t)]
@@ -106,46 +101,42 @@ lemma deriv_star_eq_neg (U : UnitaryOneParameterGroup H) :
       _ = NormedSpace.exp ((t : ℂ) • (-star A)) := by
         congr 1
         simp [star_smul]
-  have hgen : -star A = A :=
-    OneParameterSubgroup.generator_unique U.operatorAddChar (-star A) fun t => by
-      simpa only [Complex.coe_smul] using hrep t
-  simpa [A] using congrArg Neg.neg hgen
+  have hgen : A = -star A :=
+    (U.deriv_unique (-star A) hrep).symm
+  change star A = -A
+  exact (neg_eq_iff_eq_neg.mpr hgen).symm
 
 /-- The generator of a unitary one-parameter group is self-adjoint. -/
 lemma generator_selfAdjoint (U : UnitaryOneParameterGroup H) : IsSelfAdjoint U.generator := by
   apply IsSelfAdjoint.I_smul_of_mem_skewAdjoint
-  rw [skewAdjoint.mem_iff, U.deriv_star_eq_neg]
+  rw [skewAdjoint.mem_iff]
+  exact U.adjoint_deriv_eq_neg
 
-/-- A unitary one-parameter group is the exponential of its self-adjoint generator. -/
 lemma apply_eq_exp_generator (U : UnitaryOneParameterGroup H) (t : ℝ) :
     U t = NormedSpace.exp ((-(t : ℂ) * Complex.I) • U.generator) := by
-  change U.operatorAddChar t = _
-  rw [OneParameterSubgroup.apply_eq_exp_smul_deriv U.operatorAddChar
-    U.continuous_operatorAddChar]
+  rw [U.apply_eq_exp_deriv]
   apply congrArg NormedSpace.exp
   rw [generator, smul_smul]
-  apply congrArg (fun z : ℂ => z • deriv U.operatorAddChar 0)
+  apply congrArg (fun z : ℂ => z • deriv U 0)
   rw [mul_assoc, Complex.I_mul_I]
   simp
 
-/-- An operator representing `U` as `exp (-itA)` is its generator. -/
 lemma generator_unique (U : UnitaryOneParameterGroup H) (A : H →L[ℂ] H)
     (h : ∀ t : ℝ, U t = NormedSpace.exp ((-(t : ℂ) * Complex.I) • A)) :
     A = U.generator := by
-  have hrep : ∀ t : ℝ, U.operatorAddChar t =
-      NormedSpace.exp (t • ((-Complex.I) • A)) := by
+  have hrep : ∀ t : ℝ, U t =
+      NormedSpace.exp ((t : ℂ) • ((-Complex.I) • A)) := by
     intro t
-    change U t = _
     rw [h t]
     congr 1
-    rw [← Complex.coe_smul, smul_smul]
-    apply congrArg (fun z : ℂ => z • A)
+    rw [smul_smul]
+    congr 1
     ring
-  have hderiv : (-Complex.I) • A = deriv U.operatorAddChar 0 :=
-    OneParameterSubgroup.generator_unique U.operatorAddChar ((-Complex.I) • A) hrep
+  have hderiv : (-Complex.I) • A = deriv U 0 :=
+    U.deriv_unique ((-Complex.I) • A) hrep
   calc
     A = Complex.I • ((-Complex.I) • A) := by rw [smul_smul]; simp
-    _ = Complex.I • deriv U.operatorAddChar 0 := by rw [hderiv]
+    _ = Complex.I • deriv U 0 := by rw [hderiv]
     _ = U.generator := rfl
 
 /-- The unitary one-parameter group generated by a bounded self-adjoint operator. -/
@@ -157,14 +148,10 @@ def ofSelfAdjoint {A : H →L[ℂ] H} (hA : IsSelfAdjoint A) :
     dsimp [B]
     rw [star_smul, Complex.star_def, map_neg, Complex.conj_I, hA.star_eq]
     module
-  let U : AddChar ℝ (unitary (H →L[ℂ] H)) := {
-    toFun t := ⟨NormedSpace.exp ((t : ℂ) • B), by
-      apply NormedSpace.exp_mem_unitary_of_mem_skewAdjoint
-      rw [skewAdjoint.mem_iff, star_smul, Complex.star_def, Complex.conj_ofReal, hB]
-      module⟩
-    map_zero_eq_one' := by ext; simp
+  let U : AddChar ℝ (H →L[ℂ] H) := {
+    toFun t := NormedSpace.exp ((t : ℂ) • B)
+    map_zero_eq_one' := by simp
     map_add_eq_mul' := fun s t => by
-      apply Subtype.ext
       have hcomm : Commute ((s : ℂ) • B) ((t : ℂ) • B) :=
         ((Commute.refl B).smul_left _).smul_right _
       change NormedSpace.exp (((s + t : ℝ) : ℂ) • B) =
@@ -172,9 +159,19 @@ def ofSelfAdjoint {A : H →L[ℂ] H} (hA : IsSelfAdjoint A) :
       rw [← NormedSpace.exp_add_of_commute hcomm]
       push_cast
       rw [add_smul] }
-  exact ⟨U, Continuous.subtype_mk (by
+  refine {
+    toAddChar := U
+    mem_unitary := ?_
+    continuous := ?_
+  }
+  · intro t
+    dsimp [U]
+    apply NormedSpace.exp_mem_unitary_of_mem_skewAdjoint
+    rw [skewAdjoint.mem_iff]
+    simp [hB]
+  · dsimp [U]
     change Continuous (fun t : ℝ => NormedSpace.exp ((t : ℂ) • B))
-    fun_prop) _⟩
+    fun_prop
 
 @[simp]
 lemma ofSelfAdjoint_apply {A : H →L[ℂ] H} (hA : IsSelfAdjoint A) (t : ℝ) :
