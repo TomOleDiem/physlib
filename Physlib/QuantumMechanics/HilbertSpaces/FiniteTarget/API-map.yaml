@@ -1,0 +1,197 @@
+version: v0.1
+
+Title: Finite-dimensional quantum systems
+
+Overview: |
+    `QuantumInfo` already contains most of the mathematical content this API needs —
+    `HermitianMat`, `MState`, `POVM`, `Matrix.unitaryGroup`, entropy, channels — but it was
+    developed independently, indexed by a bare `Fintype d` rather than by a Hilbert space, and
+    was never integrated into the rest of Physlib's API structure (see
+    `Physlib/Meta/TODO/Global.lean`'s own standing TODO on this). Other parts of Physlib have
+    separately grown finite-dimensional pieces towards the same goal — `QuantumSystem`, the
+    top-level `FiniteTarget` structure — without a shared foundation underneath them. This API
+    organizes all of that, once and for all, into a single coherent hierarchy.
+
+    `Basic.lean` already gives the starting point: `FiniteHilbertSpace d` (`𝓗[d]`), with its
+    vector-space structure (`AddCommGroup`, `Module ℂ`) and Hilbert-space structure
+    (`NormedAddCommGroup`, `InnerProductSpace ℂ`, `FiniteDimensional ℂ`, `CompleteSpace`)
+    transferred and induced from `EuclideanSpace ℂ d`. What remains is everything about the
+    *linear maps* on this space. The observable algebra is `𝒜(H) := H →L[ℂ] H`: Mathlib already
+    gives this a full `CStarAlgebra` instance for any `H` satisfying the hypothesis bundle
+    above. Once a basis is fixed, `𝒜(H)` is exactly the matrices `Matrix d d ℂ`.
+
+    On top of `𝒜(H)` sits a fixed hierarchy, `𝒜(H) ⊃ Observable H ⊃ 𝒜(H)₊ ⊃ State H, Effect H`,
+    matching the usual physical picture. `Observable H` is the self-adjoint elements of
+    `𝒜(H)`, a real vector space: physically, these are the measurable quantities of the system
+    — energy, position, spin — and self-adjointness is exactly what forces their eigenvalues,
+    the possible measurement outcomes, to be real. `𝒜(H)₊`, the positive cone, singles out the
+    operators whose expectation value `⟨ψ, Aψ⟩` is never negative — the operator analogue of a
+    nonnegative real number, like a variance or a probability. This gives `Observable H` a
+    partial order, `A ≤ B` when `B − A` is positive, the same order used below to say a density
+    operator is `≤ 1` or that an effect lies between `0` and `1`. `State H` is the positive
+    elements of trace `1` — the density operators `ρ` — each of which assigns to every
+    observable `A` an expectation value `tr(ρA)`; abstractly, a state is any normalized
+    positive linear functional `ω : 𝒜(H) → ℂ`, and in finite dimension these two notions
+    coincide. `Effect H` is the order interval `[0, 1]`: an operator whose expectation value
+    `ω(E)` in any state is always a genuine probability, so effects are exactly the possible
+    outcomes of a quantum measurement. A POVM packages a whole measurement, with several
+    possible outcomes, as a finite family of effects summing to `1`, one per outcome, whose
+    expectation values give the outcome probabilities (the Born rule). Unitaries act on the
+    whole hierarchy at once as `*`-automorphisms `A ↦ U A U†`, which is how symmetries and time
+    evolution are represented; a Hamiltonian is a self-adjoint operator generating a
+    one-parameter family of them, `U(t) = exp(-itH)`, giving the Heisenberg picture (operators
+    evolve) and Schrödinger picture (states evolve) of the same physics.
+
+    A few more theorems round out the picture. The finite spectral theorem diagonalizes every
+    observable, `A = Σ_λ λ P_λ`: the eigenvalues are the possible measurement outcomes, and
+    the eigenprojections are the effects a projective measurement of `A` would use; a
+    commuting family of observables shares such a basis simultaneously. Stone's theorem is an
+    isomorphism between the one-parameter unitary groups `U(t) = exp(-itH)` and the
+    self-adjoint operators `H`: every norm-continuous one-parameter unitary group has a
+    unique self-adjoint generator, and every self-adjoint operator generates exactly one such
+    group. Wigner's theorem says that any bijection of the pure states which preserves the
+    transition probability `|⟨φ, ψ⟩|²` — any symmetry of the physics — is implemented by a
+    unitary or an antiunitary operator, which is why unitaries were the right notion of
+    symmetry all along. For a whole symmetry group `G` acting on the system, this becomes a
+    projective unitary or antiunitary representation of `G`, since only the ray of a state,
+    not its phase, is physical. Bargmann's theorem says that such a projective representation
+    can be realized as an honest, non-projective unitary representation — not of `G` itself,
+    but of a slightly larger group `G̃` built from `G` by tacking on an extra central factor
+    that absorbs the phases; this is why, for instance, spin representations of the rotation
+    group are genuine representations of `SU(2)`, the double cover of `SO(3)`, rather than
+    merely projective representations of `SO(3)` itself. Complete reducibility and Schur's
+    lemma then explain how such representations actually look: every unitary representation
+    of `G` splits as an orthogonal direct sum of irreducible ones, and on an irreducible
+    representation the only operators commuting with the whole group are scalar multiples of
+    the identity — together, this is why symmetry alone sorts a system's states into blocks,
+    such as energy eigenspaces labelled by angular momentum, before any particular dynamics is
+    chosen.
+
+    Composite systems bring a further set of theorems. Kraus's theorem writes any completely
+    positive map as `Φ(ρ) = Σ_i K_i ρ K_i†`; Stinespring's theorem realizes the same map as a
+    unitary evolution on a larger system followed by discarding an environment; Naimark's
+    theorem does the analogous thing for measurements, realizing any POVM as a projective
+    measurement after such an enlargement. The Schmidt decomposition puts any bipartite pure
+    state `ψ ∈ H_A ⊗ H_B` into a canonical two-index form, and Choi's theorem gives the fully
+    algebraic test for complete positivity: a map is CP exactly when its Choi matrix is
+    positive.
+
+ParentAPIs:
+  - "Development in this direction: quantum systems (Physlib/QuantumMechanics/QuantumSystem)"
+  - "Development in this direction: finite target quantum mechanics (Physlib/QuantumMechanics/FiniteTarget.lean)"
+  - "Development in this direction: Hermitian matrices (QuantumInfo/ForMathlib/HermitianMat)"
+  - "Development in this direction: mixed and pure states (QuantumInfo/States)"
+  - "Development in this direction: POVMs (QuantumInfo/Measurements/POVM.lean)"
+  - "Development in this direction: unitary operators on quantum states (QuantumInfo/Operators/Unitary.lean)"
+
+References: []
+
+Requirements:
+
+  - description: |
+      The Hilbert space of a finite target quantum system, `FiniteHilbertSpace d` (notation
+      `𝓗[d]`), is defined for a finite, decidable index type `d`, with its vector space
+      structure transferred and its Hilbert space structure (norm, inner product, finite
+      dimensionality, completeness) induced from `EuclideanSpace ℂ d`, together with its
+      standard orthonormal basis.
+    done: true
+    location: |
+      Physlib/QuantumMechanics/HilbertSpaces/FiniteTarget/Basic.lean
+
+  - description: |
+      The operator algebra `𝒜(H) := H →L[ℂ] H` shall be identified as a `CStarAlgebra`, via
+      Mathlib's existing instance for `H →L[ℂ] H` on any Hilbert space, which already gives
+      multiplication, adjoint, norm and the C*-identity `‖A† A‖ = ‖A‖²`; this file shall add
+      only the commutator `⁅A, B⁆ := A * B - B * A`.
+    done: false
+    location: N/A
+
+  - description: |
+      The trace `tr : 𝒜(H) → ℂ` shall be defined, linear, cyclic, positive on positive
+      operators, and invariant under unitary conjugation.
+    done: false
+    location: N/A
+
+  - description: |
+      `Observable H`, the self-adjoint elements of `𝒜(H)`, shall be defined as a real vector
+      space with a spectral decomposition `A = Σ_λ λ P_λ` (Mathlib's
+      `Matrix.IsHermitian.spectral_theorem` under a choice of basis), and functional
+      calculus `f(A) := Σ_λ f(λ) P_λ` for any real-valued function `f`, showing `f(A)` is
+      again self-adjoint.
+    done: false
+    location: N/A
+
+  - description: |
+      The positive cone `𝒜(H)₊ := {A | ∀ ψ, 0 ≤ ⟨ψ, A ψ⟩}` shall be defined: closed under
+      addition, nonnegative scalar multiples and conjugation `A ↦ B† A B`.
+      The order `A ≤ B := 0 ≤ B - A` on `Observable H` shall be defined here.
+    done: false
+    location: N/A
+
+  - description: |
+      Density operators `State H := {ρ : Observable H // 0 ≤ ρ ∧ tr ρ = 1}` shall be defined,
+      each inducing the positive, normalized linear functional `A ↦ tr (ρ A)` on `𝒜(H)`, and
+      proven in bijection with `MState d` under a choice of basis
+      (`QuantumInfo/States/Mixed/MState.lean`).
+    done: false
+    location: N/A
+
+  - description: |
+      Pure states shall be defined as the extreme points of `State H`, and proven equivalent
+      to `ρ² = ρ`, rank one, `tr (ρ²) = 1`, and `ρ = |ψ⟩⟨ψ|` for a unit vector `ψ` unique up
+      to a unit complex scalar.
+    done: false
+    location: N/A
+
+  - description: |
+      The von Neumann entropy `S(ρ) := -tr (ρ log ρ)` shall be defined via the functional
+      calculus above applied to `ρ`, reusing `QuantumInfo/Entropy/VonNeumann.lean`'s `Sᵥₙ`
+      under a choice of basis, with `S(ρ) ≥ 0` and `S(ρ) = 0` iff `ρ` is pure.
+    done: false
+    location: N/A
+
+  - description: |
+      `Effect H`, the self-adjoint operators `E` with `0 ≤ E ≤ 1`, shall be defined, with the
+      Born rule `p E := tr (ρ E)` recorded as the probability of an effect in a density
+      operator `ρ`.
+    done: false
+    location: N/A
+
+  - description: |
+      Finite POVMs — finite families of effects summing to `1` — shall be defined out of
+      `Effect H`, with the outcome distribution `p x := tr (ρ (E x))` they induce on a
+      density operator `ρ`, and projective measurements identified with POVMs of
+      projections.
+    done: false
+    location: N/A
+
+  - description: |
+      Conjugation by a unitary, `Ad U A := U A U†`, shall be shown to be a unital
+      `*`-automorphism of `𝒜(H)`, with preservation of positivity, order, `Observable H`,
+      `Effect H` and the trace derived from that single fact, and its action on density
+      operators, `ρ ↦ U ρ U†`, shall be defined.
+    done: false
+    location: N/A
+
+  - description: |
+      The expectation value `⟨A⟩_ρ := tr (ρ A)` and the variance
+      `Var_ρ A := tr (ρ A²) - tr (ρ A)²` shall be defined for a density operator `ρ`.
+    done: false
+    location: N/A
+
+  - description: |
+      For a time-independent self-adjoint Hamiltonian `H`, the time-evolution unitary
+      `U t := exp (-i t H)` shall be defined as a one-parameter unitary group, reusing
+      Stone's correspondence `UnitaryOneParameterGroup.stoneEquiv`
+      (`Physlib/Mathematics/OneParameterSubgroups/Unitary.lean`)
+      with the Heisenberg-picture `*`-automorphism it generates and the induced
+      Schrödinger-picture action on states; time-dependent Hamiltonians are out of scope.
+    done: false
+    location: N/A
+
+  - description: |
+      Not yet started: composite finite target quantum systems, built from the tensor
+      product of operator algebras `𝒜(A ⊗ B) ≃ 𝒜(A) ⊗ 𝒜(B)`, local `*`-homomorphisms,
+      observables, the partial trace, and separability, ...
+    done: false
+    location: N/A
