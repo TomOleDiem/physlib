@@ -15,7 +15,7 @@ public import Physlib.QuantumMechanics.QuantumSystem.Basic
 
 ## i. Overview
 
-The harmonic oscillator is one of the most public important examples in non-relativistic quantum mechanics.
+The harmonic oscillator is one of the most important examples in non-relativistic quantum mechanics.
 It describes a particle of mass `m` subject to a positive-definite quadratic potential
 in `d` dimensions.
 
