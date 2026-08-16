@@ -44,7 +44,7 @@ structure UnitaryOneParameterGroup (H : Type*) [NormedAddCommGroup H] [InnerProd
     [CompleteSpace H] where
   /-- The additive character from the real parameter to unitary operators. -/
   toAddChar : AddChar ℝ (H →L[ℂ] H)
-  /-- foo -/
+  /-- The group is valued in the unitary operators on `H`. -/
   mem_unitary : ∀ t, toAddChar t ∈ unitary (H →L[ℂ] H)
   /-- The group is continuous in the operator norm. -/
   continuous : Continuous toAddChar
@@ -65,15 +65,8 @@ lemma ext {U V : UnitaryOneParameterGroup H} (h : ∀ t, U t = V t) : U = V := b
   exact AddChar.ext _ _ h
 
 lemma apply_eq_exp_deriv (U : UnitaryOneParameterGroup H) (t : ℝ) :
-    U t = NormedSpace.exp ((t : ℂ) • deriv U 0) := by
-  simpa only [Complex.coe_smul] using
-    OneParameterSubgroup.apply_eq_exp_smul_deriv U.toAddChar U.continuous t
-
-lemma deriv_unique (U : UnitaryOneParameterGroup H) (A : H →L[ℂ] H)
-    (h : ∀ t : ℝ, U t = NormedSpace.exp ((t : ℂ) • A)) :
-    A = deriv U 0 := by
-  exact OneParameterSubgroup.generator_unique U.toAddChar A (fun t => by
-    simpa only [Complex.coe_smul] using h t)
+    U t = NormedSpace.exp ((t : ℂ) • deriv U 0) :=
+  OneParameterSubgroup.apply_eq_exp_smul_deriv U.toAddChar U.continuous t
 
 @[simp]
 lemma adjoint_eq (U : UnitaryOneParameterGroup H) (t : ℝ) : (U t).adjoint = U (-t) := by
@@ -84,34 +77,6 @@ lemma adjoint_eq (U : UnitaryOneParameterGroup H) (t : ℝ) : (U t).adjoint = U 
 noncomputable def generator (U : UnitaryOneParameterGroup H) : H →L[ℂ] H :=
   Complex.I • deriv U 0
 
-lemma adjoint_deriv_eq_neg (U : UnitaryOneParameterGroup H) :
-    (deriv U 0).adjoint = -deriv U 0 := by
-  let A : H →L[ℂ] H := deriv U 0
-  have hA (t : ℝ) : U t = NormedSpace.exp ((t : ℂ) • A) := by
-    simpa [A] using U.apply_eq_exp_deriv t
-  have hrep : ∀ t : ℝ, U t =
-      NormedSpace.exp ((t : ℂ) • (-star A)) := by
-    intro t
-    calc
-      U t = star (U (-t)) := by
-        change U t = ContinuousLinearMap.adjoint (U (-t))
-        simpa only [neg_neg] using (U.adjoint_eq (-t)).symm
-      _ = star (NormedSpace.exp (((-t : ℝ) : ℂ) • A)) := by rw [hA (-t)]
-      _ = NormedSpace.exp (star (((-t : ℝ) : ℂ) • A)) := NormedSpace.star_exp _
-      _ = NormedSpace.exp ((t : ℂ) • (-star A)) := by
-        congr 1
-        simp [star_smul]
-  have hgen : A = -star A :=
-    (U.deriv_unique (-star A) hrep).symm
-  change star A = -A
-  exact (neg_eq_iff_eq_neg.mpr hgen).symm
-
-/-- The generator of a unitary one-parameter group is self-adjoint. -/
-lemma generator_selfAdjoint (U : UnitaryOneParameterGroup H) : IsSelfAdjoint U.generator := by
-  apply IsSelfAdjoint.I_smul_of_mem_skewAdjoint
-  rw [skewAdjoint.mem_iff]
-  exact U.adjoint_deriv_eq_neg
-
 lemma apply_eq_exp_generator (U : UnitaryOneParameterGroup H) (t : ℝ) :
     U t = NormedSpace.exp ((-(t : ℂ) * Complex.I) • U.generator) := by
   rw [U.apply_eq_exp_deriv]
@@ -121,6 +86,9 @@ lemma apply_eq_exp_generator (U : UnitaryOneParameterGroup H) (t : ℝ) :
   rw [mul_assoc, Complex.I_mul_I]
   simp
 
+/-- Any exponential generator of a unitary one-parameter group equals `U.generator`; the
+uniqueness of the derivative at zero (`OneParameterSubgroup.generator_unique`) is the underlying
+fact, restated here in terms of the physics convention. -/
 lemma generator_unique (U : UnitaryOneParameterGroup H) (A : H →L[ℂ] H)
     (h : ∀ t : ℝ, U t = NormedSpace.exp ((-(t : ℂ) * Complex.I) • A)) :
     A = U.generator := by
@@ -133,11 +101,39 @@ lemma generator_unique (U : UnitaryOneParameterGroup H) (A : H →L[ℂ] H)
     congr 1
     ring
   have hderiv : (-Complex.I) • A = deriv U 0 :=
-    U.deriv_unique ((-Complex.I) • A) hrep
+    OneParameterSubgroup.generator_unique U.toAddChar ((-Complex.I) • A)
+      (fun t => by simpa only [Complex.coe_smul] using hrep t)
   calc
     A = Complex.I • ((-Complex.I) • A) := by rw [smul_smul]; simp
     _ = Complex.I • deriv U 0 := by rw [hderiv]
     _ = U.generator := rfl
+
+lemma adjoint_deriv_eq_neg (U : UnitaryOneParameterGroup H) :
+    (deriv U 0).adjoint = -deriv U 0 := by
+  let A : H →L[ℂ] H := deriv U 0
+  have hrep : ∀ t : ℝ, U t =
+      NormedSpace.exp ((t : ℂ) • (-star A)) := by
+    intro t
+    calc
+      U t = star (U (-t)) := by
+        change U t = ContinuousLinearMap.adjoint (U (-t))
+        simpa only [neg_neg] using (U.adjoint_eq (-t)).symm
+      _ = star (NormedSpace.exp (((-t : ℝ) : ℂ) • A)) := by rw [U.apply_eq_exp_deriv]
+      _ = NormedSpace.exp (star (((-t : ℝ) : ℂ) • A)) := NormedSpace.star_exp _
+      _ = NormedSpace.exp ((t : ℂ) • (-star A)) := by
+        congr 1
+        simp [star_smul]
+  have hgen : A = -star A :=
+    (OneParameterSubgroup.generator_unique U.toAddChar (-star A)
+      (fun t => by simpa only [Complex.coe_smul] using hrep t)).symm
+  change star A = -A
+  exact (neg_eq_iff_eq_neg.mpr hgen).symm
+
+/-- The generator of a unitary one-parameter group is self-adjoint. -/
+lemma generator_isSelfAdjoint (U : UnitaryOneParameterGroup H) : IsSelfAdjoint U.generator := by
+  apply IsSelfAdjoint.I_smul_of_mem_skewAdjoint
+  rw [skewAdjoint.mem_iff]
+  exact U.adjoint_deriv_eq_neg
 
 /-- The unitary one-parameter group generated by a bounded self-adjoint operator. -/
 def ofSelfAdjoint {A : H →L[ℂ] H} (hA : IsSelfAdjoint A) :
@@ -182,18 +178,29 @@ lemma ofSelfAdjoint_apply {A : H →L[ℂ] H} (hA : IsSelfAdjoint A) (t : ℝ) :
   congr 1
   ring_nf
 
+/-- `ofSelfAdjoint` recovers `U` from its own generator: this is the defining property used to
+show `stoneEquiv` is a left inverse. -/
+@[simp]
+lemma ofSelfAdjoint_generator (U : UnitaryOneParameterGroup H) :
+    ofSelfAdjoint U.generator_isSelfAdjoint = U := by
+  apply ext
+  intro t
+  rw [ofSelfAdjoint_apply, U.apply_eq_exp_generator]
+
+/-- The generator of `ofSelfAdjoint hA` is `A` itself: this is the defining property used to show
+`stoneEquiv` is a right inverse. -/
+@[simp]
+lemma generator_ofSelfAdjoint {A : H →L[ℂ] H} (hA : IsSelfAdjoint A) :
+    (ofSelfAdjoint hA).generator = A :=
+  ((ofSelfAdjoint hA).generator_unique A (ofSelfAdjoint_apply hA)).symm
+
 /-- Stone's correspondence between norm-continuous unitary one-parameter groups and bounded
 self-adjoint generators. -/
 noncomputable def stoneEquiv :
     UnitaryOneParameterGroup H ≃ {A : H →L[ℂ] H // IsSelfAdjoint A} where
-  toFun U := ⟨U.generator, U.generator_selfAdjoint⟩
+  toFun U := ⟨U.generator, U.generator_isSelfAdjoint⟩
   invFun A := ofSelfAdjoint A.2
-  left_inv U := by
-    apply ext
-    intro t
-    rw [ofSelfAdjoint_apply, U.apply_eq_exp_generator]
-  right_inv A := by
-    apply Subtype.ext
-    exact ((ofSelfAdjoint A.2).generator_unique A.1 (ofSelfAdjoint_apply A.2)).symm
+  left_inv _ := by simp
+  right_inv _ := by simp
 
 end UnitaryOneParameterGroup
