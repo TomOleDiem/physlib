@@ -172,7 +172,7 @@ def pauliBasis :
 /-! ### Pauli coordinates of self-adjoint `2 × 2` matrices -/
 
 /-- The coefficient of the identity in the Pauli decomposition. -/
-noncomputable def scalarPart
+noncomputable def scalarCoeff
     (A : selfAdjoint (Matrix (Fin 2) (Fin 2) ℂ)) : ℝ :=
   pauliCoeff A (Sum.inl 0)
 
@@ -192,12 +192,27 @@ noncomputable def pauliRadius
     (A : selfAdjoint (Matrix (Fin 2) (Fin 2) ℂ)) : ℝ :=
   Real.sqrt (∑ i : Fin 3, vectorCoeff A i ^ 2)
 
+/-- The Pauli radius is the square root of the squared Euclidean length of the
+spatial Pauli coefficients. -/
+lemma pauliRadius_sq
+    (A : selfAdjoint (Matrix (Fin 2) (Fin 2) ℂ)) :
+    pauliRadius A ^ 2 =
+      ∑ i : Fin 3, vectorCoeff A i ^ 2 := by
+  rw [pauliRadius, Real.sq_sqrt]
+  positivity
+
+@[simp]
+lemma pauliRadius_nonneg
+    (A : selfAdjoint (Matrix (Fin 2) (Fin 2) ℂ)) :
+    0 ≤ pauliRadius A :=
+  Real.sqrt_nonneg _
+
 /-! ### Explicit coefficients -/
 
 /-- A self-adjoint matrix is its scalar part plus its Pauli-vector part. -/
 lemma matrix_eq_scalar_add_vector
     (A : selfAdjoint (Matrix (Fin 2) (Fin 2) ℂ)) :
-    A.val = (scalarPart A : ℂ) • 1 + vectorPart A := by
+    A.val = (scalarCoeff A : ℂ) • 1 + vectorPart A := by
   have h := congrArg
     (fun B : selfAdjoint (Matrix (Fin 2) (Fin 2) ℂ) => B.val)
     (sum_pauliCoeff A)
@@ -205,18 +220,18 @@ lemma matrix_eq_scalar_add_vector
     Finset.sum_singleton, Fin.sum_univ_three, pauliSelfAdjoint,
     AddSubgroup.coe_add, selfAdjoint.val_smul] at h
   rw [← h]
-  simp [scalarPart, vectorPart, vectorMatrix, vectorCoeff,
+  simp [scalarCoeff, vectorPart, vectorMatrix, vectorCoeff,
     Fin.sum_univ_three, pauliMatrix_inl_zero_eq_one]
 
 /-- The trace of a self-adjoint matrix is twice its scalar Pauli coefficient. -/
-lemma trace_eq_two_mul_scalarPart
+lemma trace_eq_two_mul_scalarCoeff
     (A : selfAdjoint (Matrix (Fin 2) (Fin 2) ℂ)) :
-    Matrix.trace A.1 = 2 * scalarPart A := by
+    Matrix.trace A.1 = 2 * scalarCoeff A := by
   have htrace :
       ((Matrix.trace A.1).re : ℂ) = Matrix.trace A.1 := by
     simpa [pauliMatrix_inl_zero_eq_one] using
       trace_pauliMatrix_mul_selfAdjoint_re (Sum.inl 0) A
-  rw [scalarPart, pauliCoeff]
+  rw [scalarCoeff, pauliCoeff]
   simp only [pauliMatrix_inl_zero_eq_one, one_mul]
   calc
     Matrix.trace A.1 = ((Matrix.trace A.1).re : ℂ) := htrace.symm
@@ -231,32 +246,8 @@ lemma trace_vectorPart
     Matrix.trace (vectorPart A) = 0 := by
   have h := congrArg Matrix.trace (matrix_eq_scalar_add_vector A)
   simp only [trace_add, trace_smul, smul_eq_mul, Matrix.trace_one, Fintype.card_fin,
-    Nat.cast_ofNat, trace_eq_two_mul_scalarPart A] at h
+    Nat.cast_ofNat, trace_eq_two_mul_scalarCoeff A] at h
   linear_combination -h
-
-/-- The square of `a · σ` is `|a|² I`. -/
-lemma vectorMatrix_sq (a : Fin 3 → ℝ) :
-    vectorMatrix a * vectorMatrix a =
-      (∑ i : Fin 3, a i ^ 2 : ℝ) • 1 := by
-  have hcross : a ⨯₃ a = 0 := by
-    rw [cross_apply]
-    ext i
-    fin_cases i <;> simp <;> ring
-  have hdot : a ⬝ᵥ a = ∑ i : Fin 3, a i ^ 2 := by simp [dotProduct, pow_two]
-  rw [vectorMatrix_mul_vectorMatrix, hcross, hdot]
-  simp only [vectorMatrix, Pi.zero_apply, Complex.ofReal_zero, zero_smul, Finset.sum_const_zero,
-    smul_zero, add_zero]
-  push_cast
-  module
-
-/-- The Pauli radius is the square root of the squared Euclidean length of the
-spatial Pauli coefficients. -/
-lemma pauliRadius_sq
-    (A : selfAdjoint (Matrix (Fin 2) (Fin 2) ℂ)) :
-    pauliRadius A ^ 2 =
-      ∑ i : Fin 3, vectorCoeff A i ^ 2 := by
-  rw [pauliRadius, Real.sq_sqrt]
-  positivity
 
 /-- The square of the vector part of a self-adjoint matrix is its squared
 Pauli radius times the identity. -/
@@ -265,12 +256,6 @@ lemma vectorPart_sq
     vectorPart A * vectorPart A =
       (pauliRadius A ^ 2 : ℝ) • 1 := by
   rw [vectorPart, vectorMatrix_sq, ← pauliRadius_sq]
-
-@[simp]
-lemma pauliRadius_nonneg
-    (A : selfAdjoint (Matrix (Fin 2) (Fin 2) ℂ)) :
-    0 ≤ pauliRadius A :=
-  Real.sqrt_nonneg _
 
 /-- An auxiliary function which on `i : Fin 1 ⊕ Fin 3` returns the corresponding
   Pauli-matrix as a self-adjoint matrix with a minus sign for `Sum.inr _`. -/
