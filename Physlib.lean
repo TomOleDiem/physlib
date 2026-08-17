@@ -130,6 +130,12 @@ public import Physlib.Mathematics.List.InsertIdx
 public import Physlib.Mathematics.List.InsertionSort
 public import Physlib.Mathematics.OneParameterSubgroups.Basic
 public import Physlib.Mathematics.OneParameterSubgroups.Unitary
+public import Physlib.Mathematics.OperatorAlgebra.Basic
+public import Physlib.Mathematics.OperatorAlgebra.Effect
+public import Physlib.Mathematics.OperatorAlgebra.FiniteState
+public import Physlib.Mathematics.OperatorAlgebra.FunctionalCalculus
+public import Physlib.Mathematics.OperatorAlgebra.State
+public import Physlib.Mathematics.OperatorAlgebra.Unitary
 public import Physlib.Mathematics.OrthogonalMatrix
 public import Physlib.Mathematics.PiTensorProduct
 public import Physlib.Mathematics.RatComplexNum
@@ -316,8 +322,6 @@ public import Physlib.QuantumMechanics.HarmonicOscillator.OneDimension.Eigenfunc
 public import Physlib.QuantumMechanics.HarmonicOscillator.OneDimension.Examples
 public import Physlib.QuantumMechanics.HarmonicOscillator.OneDimension.TISE
 public import Physlib.QuantumMechanics.HilbertSpaces.FiniteTarget.Basic
-public import Physlib.QuantumMechanics.HilbertSpaces.FiniteTarget.OperatorAlgebra
-public import Physlib.QuantumMechanics.HilbertSpaces.FiniteTarget.States
 public import Physlib.QuantumMechanics.HilbertSpaces.OneDimension.Basic
 public import Physlib.QuantumMechanics.HilbertSpaces.OneDimension.Gaussians
 public import Physlib.QuantumMechanics.HilbertSpaces.OneDimension.PlaneWaves
@@ -359,6 +363,10 @@ public import Physlib.QuantumMechanics.Operators.Uncertainty
 public import Physlib.QuantumMechanics.PlanckConstant
 public import Physlib.QuantumMechanics.PoschlTeller.Basic
 public import Physlib.QuantumMechanics.QuantumSystem.Basic
+public import Physlib.QuantumMechanics.Qubit.Control
+public import Physlib.QuantumMechanics.Qubit.Hamiltonian
+public import Physlib.QuantumMechanics.Qubit.Measurement
+public import Physlib.QuantumMechanics.Qubit.State
 public import Physlib.QuantumMechanics.RectangularBarrier.Basic
 public import Physlib.QuantumMechanics.SpaceDQuantumSystem
 public import Physlib.Relativity.Bispinors.Basic
