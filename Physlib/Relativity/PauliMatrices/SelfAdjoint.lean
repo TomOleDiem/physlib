@@ -98,7 +98,7 @@ lemma pauliSelfAdjoint_linearly_independent : LinearIndependent ℝ pauliSelfAdj
   simp only [Fin.isValue, AddSubgroup.coe_add, selfAdjoint.val_smul, mul_add,
     Algebra.mul_smul_comm, trace_add, trace_smul, ZeroMemClass.coe_zero, mul_zero,
     trace_zero] at h1
-  fin_cases i <;> simpa [pauliMatrix] using h1
+  fin_cases i <;> simpa [pauliMatrix, kroneckerDelta] using h1
 
 /-- Pauli matrices are orthogonal with respect to the trace pairing: `tr(σ_μ σ_ν) = 2 δ_μν`. -/
 @[simp]
@@ -292,7 +292,7 @@ lemma pauliSelfAdjoint'_linearly_independent : LinearIndependent ℝ pauliSelfAd
   intro i
   have h1 := congrArg (fun A => (Matrix.trace (pauliMatrix i * A.1))) hg
   simp [-real_smul, mul_add] at h1
-  fin_cases i <;> simpa [pauliMatrix] using h1
+  fin_cases i <;> simpa [pauliMatrix, kroneckerDelta] using h1
 
 /-- The Pauli matrices where `σi` are negated span all Self-adjoint matrices. -/
 lemma pauliSelfAdjoint'_span : ⊤ ≤ Submodule.span ℝ (Set.range pauliSelfAdjoint') := by
