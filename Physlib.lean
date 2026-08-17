@@ -315,6 +315,7 @@ public import Physlib.QuantumMechanics.HarmonicOscillator.OneDimension.Examples
 public import Physlib.QuantumMechanics.HarmonicOscillator.OneDimension.TISE
 public import Physlib.QuantumMechanics.HilbertSpaces.FiniteTarget.Basic
 public import Physlib.QuantumMechanics.HilbertSpaces.FiniteTarget.OperatorAlgebra
+public import Physlib.QuantumMechanics.HilbertSpaces.FiniteTarget.States
 public import Physlib.QuantumMechanics.HilbertSpaces.OneDimension.Basic
 public import Physlib.QuantumMechanics.HilbertSpaces.OneDimension.Gaussians
 public import Physlib.QuantumMechanics.HilbertSpaces.OneDimension.PlaneWaves

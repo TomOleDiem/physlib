@@ -8,6 +8,7 @@ module
 public import Physlib.QuantumMechanics.HilbertSpaces.FiniteTarget.Basic
 public import Mathlib.Analysis.InnerProductSpace.StarOrder
 public import Mathlib.Analysis.CStarAlgebra.Exponential
+public import Mathlib.LinearAlgebra.Complex.Module
 
 /-!
 # Operator algebra of a finite-dimensional quantum system
@@ -42,6 +43,13 @@ abbrev OperatorAlgebra
 
 @[inherit_doc OperatorAlgebra]
 scoped notation "𝒜[" d "]" => OperatorAlgebra d
+
+noncomputable instance OperatorAlgebra.instStarModuleReal :
+    StarModule ℝ (𝒜[d]) where
+  star_smul r A := by
+    rw [← Complex.coe_smul r A]
+    rw [star_smul]
+    simp
 
 /-- The observables on `𝓗[d]`, i.e. its self-adjoint operators. -/
 noncomputable abbrev Observable
@@ -94,6 +102,9 @@ abbrev Projection
     (d : Type*) [Fintype d] [DecidableEq d] :=
   {P : 𝒜[d] // IsStarProjection P}
 
+@[inherit_doc Projection]
+scoped notation "𝒫[" d "]" => Projection d
+
 /-- A POVM on `𝓗[d]` with outcomes indexed by `X`. -/
 structure POVM
     (d : Type*) [Fintype d] [DecidableEq d]
@@ -102,13 +113,5 @@ structure POVM
   effect : X → ℰ[d]
   /-- The effects resolve the identity. -/
   sum_effect : ∑ x, (effect x : 𝒜[d]) = 1
-
-/-- A first example why these objects can be useful.
-The exponential of `i` times an observable is unitary. -/
-lemma Observable.exp_mem_unitary
-    {d : Type*} [Fintype d] [DecidableEq d]
-    (A : 𝒪[d]) :
-    NormedSpace.exp (Complex.I • (A : 𝒜[d])) ∈ unitary (𝒜[d]) := by
-  exact (selfAdjoint.expUnitary A).property
 
 end QuantumMechanics
