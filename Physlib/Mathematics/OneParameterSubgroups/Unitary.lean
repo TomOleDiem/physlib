@@ -111,23 +111,14 @@ lemma generator_unique (U : UnitaryOneParameterGroup H) (A : H →L[ℂ] H)
 lemma adjoint_deriv_eq_neg (U : UnitaryOneParameterGroup H) :
     (deriv U 0).adjoint = -deriv U 0 := by
   let A : H →L[ℂ] H := deriv U 0
-  have hrep : ∀ t : ℝ, U t =
-      NormedSpace.exp ((t : ℂ) • (-star A)) := by
-    intro t
-    calc
-      U t = star (U (-t)) := by
-        change U t = ContinuousLinearMap.adjoint (U (-t))
-        simpa only [neg_neg] using (U.adjoint_eq (-t)).symm
-      _ = star (NormedSpace.exp (((-t : ℝ) : ℂ) • A)) := by rw [U.apply_eq_exp_deriv]
-      _ = NormedSpace.exp (star (((-t : ℝ) : ℂ) • A)) := NormedSpace.star_exp _
-      _ = NormedSpace.exp ((t : ℂ) • (-star A)) := by
-        congr 1
-        simp [star_smul]
-  have hgen : A = -star A :=
-    (OneParameterSubgroup.generator_unique U.toAddChar (-star A)
-      (fun t => by simpa only [Complex.coe_smul] using hrep t)).symm
-  change star A = -A
-  exact (neg_eq_iff_eq_neg.mpr hgen).symm
+  refine (neg_eq_iff_eq_neg.mpr ?_).symm
+  refine (OneParameterSubgroup.generator_unique U.toAddChar (-A.adjoint) fun t ↦ ?_).symm
+  calc
+    _ = (U (-t)).adjoint := by simp
+    _ = (NormedSpace.exp (((-t : ℝ) : ℂ) • A)).adjoint := by simp [A, U.apply_eq_exp_deriv]
+    _ = NormedSpace.exp (((-t : ℝ) : ℂ) • A).adjoint := NormedSpace.star_exp _
+    _ = NormedSpace.exp (t • -A.adjoint) := by
+      simp [← ContinuousLinearMap.star_eq_adjoint, Complex.coe_smul]
 
 /-- The generator of a unitary one-parameter group is self-adjoint. -/
 lemma generator_isSelfAdjoint (U : UnitaryOneParameterGroup H) : IsSelfAdjoint U.generator := by
@@ -139,35 +130,23 @@ lemma generator_isSelfAdjoint (U : UnitaryOneParameterGroup H) : IsSelfAdjoint U
 def ofSelfAdjoint {A : H →L[ℂ] H} (hA : IsSelfAdjoint A) :
     UnitaryOneParameterGroup H := by
   letI : NormedAlgebra ℚ (H →L[ℂ] H) := .restrictScalars ℚ ℂ (H →L[ℂ] H)
-  let B : H →L[ℂ] H := (-Complex.I) • A
-  have hB : star B = -B := by
-    dsimp [B]
-    rw [star_smul, Complex.star_def, map_neg, Complex.conj_I, hA.star_eq]
-    module
-  let U : AddChar ℝ (H →L[ℂ] H) := {
-    toFun t := NormedSpace.exp ((t : ℂ) • B)
-    map_zero_eq_one' := by simp
-    map_add_eq_mul' := fun s t => by
-      have hcomm : Commute ((s : ℂ) • B) ((t : ℂ) • B) :=
-        ((Commute.refl B).smul_left _).smul_right _
-      change NormedSpace.exp (((s + t : ℝ) : ℂ) • B) =
-        NormedSpace.exp ((s : ℂ) • B) * NormedSpace.exp ((t : ℂ) • B)
-      rw [← NormedSpace.exp_add_of_commute hcomm]
-      push_cast
-      rw [add_smul] }
-  refine {
-    toAddChar := U
-    mem_unitary := ?_
-    continuous := ?_
+  exact {
+    toAddChar := {
+      toFun t := NormedSpace.exp ((t : ℂ) • (-Complex.I • A))
+      map_zero_eq_one' := by simp
+      map_add_eq_mul' s t := by
+        have hcomm : Commute ((s : ℂ) • (-Complex.I • A)) ((t : ℂ) • (-Complex.I • A)) :=
+          ((Commute.refl (-Complex.I • A)).smul_left _).smul_right _
+        rw [← NormedSpace.exp_add_of_commute hcomm]
+        simp [add_smul, add_comm]
+      }
+    mem_unitary t := by
+      apply NormedSpace.exp_mem_unitary_of_mem_skewAdjoint
+      simp [skewAdjoint.mem_iff, hA.star_eq]
+    continuous := by
+      change Continuous (fun t : ℝ => NormedSpace.exp ((t : ℂ) • (-Complex.I • A)))
+      fun_prop
   }
-  · intro t
-    dsimp [U]
-    apply NormedSpace.exp_mem_unitary_of_mem_skewAdjoint
-    rw [skewAdjoint.mem_iff]
-    simp [hB]
-  · dsimp [U]
-    change Continuous (fun t : ℝ => NormedSpace.exp ((t : ℂ) • B))
-    fun_prop
 
 @[simp]
 lemma ofSelfAdjoint_apply {A : H →L[ℂ] H} (hA : IsSelfAdjoint A) (t : ℝ) :
@@ -175,7 +154,6 @@ lemma ofSelfAdjoint_apply {A : H →L[ℂ] H} (hA : IsSelfAdjoint A) (t : ℝ) :
   simp only [ofSelfAdjoint]
   change NormedSpace.exp ((t : ℂ) • ((-Complex.I) • A)) = _
   rw [smul_smul]
-  congr 1
   ring_nf
 
 /-- `ofSelfAdjoint` recovers `U` from its own generator: this is the defining property used to
