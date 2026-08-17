@@ -28,9 +28,15 @@ public import Physlib.ClassicalMechanics.Scattering.RigidSphere
 public import Physlib.ClassicalMechanics.Vibrations.LinearTriatomic
 public import Physlib.ClassicalMechanics.WaveEquation.Basic
 public import Physlib.ClassicalMechanics.WaveEquation.HarmonicWave
+public import Physlib.CondensedMatter.BandTheory.Basic
 public import Physlib.CondensedMatter.Basic
+public import Physlib.CondensedMatter.Crystal.Basic
+public import Physlib.CondensedMatter.LatticeModels.Basic
+public import Physlib.CondensedMatter.ManyBody.Basic
+public import Physlib.CondensedMatter.Response.Basic
 public import Physlib.CondensedMatter.Thermoelectric.Basic
 public import Physlib.CondensedMatter.TightBindingChain.Basic
+public import Physlib.CondensedMatter.Topology.Basic
 public import Physlib.Cosmology.Basic
 public import Physlib.Cosmology.FLRW.Basic
 public import Physlib.Cosmology.FLRW.ConformalTime
@@ -307,7 +313,6 @@ public import Physlib.QuantumMechanics.HarmonicOscillator.OneDimension.Completen
 public import Physlib.QuantumMechanics.HarmonicOscillator.OneDimension.Eigenfunction
 public import Physlib.QuantumMechanics.HarmonicOscillator.OneDimension.Examples
 public import Physlib.QuantumMechanics.HarmonicOscillator.OneDimension.TISE
-public import Physlib.QuantumMechanics.HilbertSpaces.CompleteTensorProduct
 public import Physlib.QuantumMechanics.HilbertSpaces.FiniteTarget.Basic
 public import Physlib.QuantumMechanics.HilbertSpaces.OneDimension.Basic
 public import Physlib.QuantumMechanics.HilbertSpaces.OneDimension.Gaussians
@@ -317,9 +322,12 @@ public import Physlib.QuantumMechanics.HilbertSpaces.OneDimension.SchwartzSubmod
 public import Physlib.QuantumMechanics.HilbertSpaces.SpaceD.Basic
 public import Physlib.QuantumMechanics.HilbertSpaces.SpaceD.DirichletSubmodule
 public import Physlib.QuantumMechanics.HilbertSpaces.SpaceD.Fourier
+public import Physlib.QuantumMechanics.HilbertSpaces.SpaceD.MomentumStates
 public import Physlib.QuantumMechanics.HilbertSpaces.SpaceD.PolyBddSchwartzSubmodule
+public import Physlib.QuantumMechanics.HilbertSpaces.SpaceD.PositionStates
 public import Physlib.QuantumMechanics.HilbertSpaces.SpaceD.SchwartzSubmodule
 public import Physlib.QuantumMechanics.HilbertSpaces.SpaceD.SobolevSubmodule
+public import Physlib.QuantumMechanics.HilbertSpaces.TensorProducts.CompleteTensorProduct
 public import Physlib.QuantumMechanics.Hydrogen.Basic
 public import Physlib.QuantumMechanics.Hydrogen.LaplaceRungeLenzVector
 public import Physlib.QuantumMechanics.InfiniteSquareWell.Basic
@@ -345,9 +353,9 @@ public import Physlib.QuantumMechanics.Operators.StateObservables.Variance
 public import Physlib.QuantumMechanics.Operators.Unbounded
 public import Physlib.QuantumMechanics.Operators.Uncertainty
 public import Physlib.QuantumMechanics.PlanckConstant
+public import Physlib.QuantumMechanics.PoschlTeller.Basic
 public import Physlib.QuantumMechanics.QuantumSystem.Basic
 public import Physlib.QuantumMechanics.RectangularBarrier.Basic
-public import Physlib.QuantumMechanics.ReflectionlessPotential.Basic
 public import Physlib.QuantumMechanics.SpaceDQuantumSystem
 public import Physlib.Relativity.Bispinors.Basic
 public import Physlib.Relativity.CliffordAlgebra
@@ -448,6 +456,7 @@ public import Physlib.Relativity.Tensors.TensorSpecies.Basic
 public import Physlib.Relativity.Tensors.Tensorial
 public import Physlib.Relativity.Tensors.UnitTensor
 public import Physlib.SpaceAndTime.GalileanGroup.Basic
+public import Physlib.SpaceAndTime.ReferenceFrame
 public import Physlib.SpaceAndTime.Space.Basic
 public import Physlib.SpaceAndTime.Space.ConstantSliceDist
 public import Physlib.SpaceAndTime.Space.CrossProduct
