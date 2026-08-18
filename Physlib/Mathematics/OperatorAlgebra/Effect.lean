@@ -28,7 +28,7 @@ This file provides the basic structural API:
 
 @[expose] public section
 
-namespace QuantumMechanics
+namespace OperatorAlgebra
 
 open scoped ComplexOrder
 
@@ -161,4 +161,4 @@ lemma complement_le_complement_iff {E F : Effect A} :
 
 end Effect
 
-end QuantumMechanics
+end OperatorAlgebra

@@ -6,94 +6,95 @@ Authors: Tom Ole Diem
 module
 
 public import Physlib.QuantumMechanics.Qubit.Hamiltonian
-public import QuantumInfo.Operators.Unitary
-public import QuantumInfo.Entropy.VonNeumann
-public import QuantumInfo.States.Pure.Qubit
 public import Physlib.Relativity.PauliMatrices.SelfAdjoint
 public import Mathlib.LinearAlgebra.CrossProduct
 public import Mathlib.Analysis.SpecialFunctions.BinaryEntropy
+public import Mathlib.Analysis.Matrix.Spectrum
 
 /-!
 
 # Qubit states and their time evolution
 
 A qubit density matrix has the Bloch decomposition
-`rho = (I + r_1 sigma_1 + r_2 sigma_2 + r_3 sigma_3) / 2`.
-This file also applies a unitary time evolution by the usual conjugation
-`rho(t) = U(t) rho U(t)^*`.
+`ρ = (I + r₁ σ₁ + r₂ σ₂ + r₃ σ₃) / 2`. This is exactly the Pauli decomposition already provided
+by `Physlib.Relativity.PauliMatrices.SelfAdjoint`, applied to `ρ`'s own matrix, so nothing here
+is reproved by hand.
+
+This file works entirely with Physlib's own `𝒟[Fin 2]` (`QuantumMechanics.OperatorAlgebra.Basic`)
+and Mathlib's `Matrix.IsHermitian` spectral theory; it has no dependency on the external
+`QuantumInfo` library. Purity, the spectrum, and von Neumann entropy are given their usual
+closed-form descriptions directly.
+
+This file also describes the unitary evolution `ρ(t) = U(t) ρ U(t)⋆`, in the same
+scalar-plus-rotation form already established for observables in `QuantumMechanics.Qubit.Hamiltonian`:
+the Bloch vector is rotated about the Pauli-vector axis while the scalar part contributes nothing.
+
+## Main results
+
+* `eq_bloch`: the Bloch-sphere form of an arbitrary qubit density matrix.
+* `purity_eq_blochRadius`, `vonNeumannEntropy_eq_blochRadius`: the purity and von Neumann entropy
+  of a qubit state, in terms of its Bloch radius.
+* `evolvedBlochVector_eq_blochTrajectory`: Hamiltonian evolution rotates the Bloch vector by the
+  familiar Rodrigues rotation formula.
 
 -/
 
 @[expose] public section
 
-open BigOperators
-open Constants
-open scoped PauliMatrix
-open scoped Matrix
+open BigOperators Constants
+open scoped PauliMatrix Matrix
 
 noncomputable section
 
 namespace QuantumMechanics.Qubit
 
-variable (rho : MState Qubit)
+variable (rho : 𝒟[Fin 2])
 
-/-! ## Bloch decomposition and state invariants -/
 
-/-- A spatial Pauli matrix regarded as a qubit observable. -/
-def qubitPauliObservable (i : Fin 3) : HermitianMat Qubit ℂ :=
-  PauliMatrix.pauliSelfAdjoint (Sum.inr i)
+/-!
+## Bloch decomposition and state invariants
+-/
 
-/-- The coefficient of a Pauli matrix in the real Pauli-basis expansion of `rho`. -/
-noncomputable def qubitPauliCoeff (mu : Fin 1 ⊕ Fin 3) : ℝ :=
-  (1 / 2 : ℝ) * (Matrix.trace (PauliMatrix.pauliMatrix mu * rho.m)).re
+/-- The density matrix of a qubit state, as a self-adjoint `2 × 2` matrix. -/
+noncomputable def densityMat (rho : 𝒟[Fin 2]) : selfAdjoint (Matrix (Fin 2) (Fin 2) ℂ) :=
+  Observable.toMatrix (rho : 𝒪[Fin 2])
 
-/-- The Bloch-vector component `r_i = Tr(sigma_i rho)`. -/
+lemma trace_densityMat : Matrix.trace (densityMat rho : Matrix (Fin 2) (Fin 2) ℂ) = 1 := by
+  rw [densityMat, coe_observable_toMatrix, ← operatorTrace_eq_matrix_trace]
+  exact rho.property
+
+/-- The Bloch-vector component `r_i = Tr(σᵢ ρ)`. -/
 noncomputable def blochComponent (i : Fin 3) : ℝ :=
-  2 * qubitPauliCoeff rho (Sum.inr i)
+  2 * PauliMatrix.pauliCoeff (densityMat rho) (Sum.inr i)
 
 /-- The Bloch vector of a qubit state. -/
 noncomputable def blochVector : Fin 3 → ℝ := fun i ↦ blochComponent rho i
 
 /-- Length of the Bloch vector. -/
-noncomputable def blochRadius : ℝ :=
-  Real.sqrt (∑ i : Fin 3, blochVector rho i ^ 2)
+noncomputable def blochRadius : ℝ := Real.sqrt (∑ i : Fin 3, blochVector rho i ^ 2)
 
 /-- Every qubit density matrix is a real linear combination of the four Pauli matrices. -/
 lemma state_eq_sum_pauli :
-    rho.M = ∑ mu, qubitPauliCoeff rho mu • PauliMatrix.pauliSelfAdjoint mu := by
-  symm
-  apply PauliMatrix.selfAdjoint_ext
-  all_goals
-    simp only [qubitPauliCoeff, Fintype.sum_sum_type, Finset.univ_unique,
-      Fin.default_eq_zero, Finset.sum_singleton, Fin.sum_univ_three,
-      PauliMatrix.pauliSelfAdjoint, AddSubgroup.coe_add, selfAdjoint.val_smul,
-      mul_add, Algebra.mul_smul_comm, Matrix.trace_add, Matrix.trace_smul]
-  · simp [PauliMatrix.σ0_σ1_trace,
-      PauliMatrix.σ0_σ2_trace, PauliMatrix.σ0_σ3_trace]
-    ring
-  · simp [PauliMatrix.σ1_σ0_trace,
-      PauliMatrix.σ1_σ2_trace, PauliMatrix.σ1_σ3_trace]
-    ring
-  · simp [PauliMatrix.σ2_σ0_trace, PauliMatrix.σ2_σ3_trace]
-    ring
-  · simp [PauliMatrix.σ3_σ0_trace]
-    ring
+    densityMat rho =
+      ∑ mu, PauliMatrix.pauliCoeff (densityMat rho) mu • PauliMatrix.pauliSelfAdjoint mu :=
+  PauliMatrix.eq_sum_pauli (densityMat rho)
 
 /-- The identity coefficient of a density matrix is `1 / 2`, because its trace is one. -/
-lemma qubitPauliCoeff_identity :
-    qubitPauliCoeff rho (Sum.inl 0) = 1 / 2 := by
-  simp [qubitPauliCoeff, PauliMatrix.pauliMatrix, rho.tr']
+lemma pauliCoeff_identity : PauliMatrix.pauliCoeff (densityMat rho) (Sum.inl 0) = 1 / 2 := by
+  simp [PauliMatrix.pauliCoeff, PauliMatrix.pauliMatrix, trace_densityMat]
 
 /-- The Bloch-sphere form of an arbitrary qubit density matrix. -/
 lemma eq_bloch :
-    rho.M = (1 / 2 : ℝ) •
-      ((1 : HermitianMat Qubit ℂ) +
-        ∑ i : Fin 3, blochComponent rho i • qubitPauliObservable i) := by
-  rw [state_eq_sum_pauli rho]
+    densityMat rho = (1 / 2 : ℝ) •
+      ((1 : selfAdjoint (Matrix (Fin 2) (Fin 2) ℂ)) +
+        ∑ i : Fin 3, blochComponent rho i • PauliMatrix.pauliSelfAdjoint (Sum.inr i)) := by
+  conv_lhs => rw [state_eq_sum_pauli rho]
   simp only [Fintype.sum_sum_type, Finset.univ_unique, Fin.default_eq_zero,
-    Finset.sum_singleton, qubitPauliCoeff_identity, blochComponent,
-    qubitPauliObservable]
-  simp [PauliMatrix.pauliSelfAdjoint, PauliMatrix.pauliMatrix]
+    Finset.sum_singleton, pauliCoeff_identity, blochComponent]
+  rw [show PauliMatrix.pauliSelfAdjoint (Sum.inl (0 : Fin 1)) =
+      (1 : selfAdjoint (Matrix (Fin 2) (Fin 2) ℂ)) from
+    Subtype.ext PauliMatrix.pauliMatrix_inl_zero_eq_one]
+  rw [smul_add]
   congr 1
   rw [Finset.smul_sum]
   apply Finset.sum_congr rfl
@@ -102,181 +103,190 @@ lemma eq_bloch :
   congr 1
   ring
 
-/-- The existing mixed-state purity is `(1 + |r|²)/2` for a qubit. -/
-lemma purity_eq_blochRadius :
-    (rho.purity : ℝ) = (1 + blochRadius rho ^ 2) / 2 := by
-  rw [MState.purity, MState.val_inner, HermitianMat.inner_eq_re_trace, eq_bloch rho]
+/-- The purity `Tr(ρ²)` of a qubit density matrix. -/
+noncomputable def purity (rho : 𝒟[Fin 2]) : ℝ :=
+  RCLike.re (Matrix.trace ((densityMat rho : Matrix (Fin 2) (Fin 2) ℂ) *
+    (densityMat rho : Matrix (Fin 2) (Fin 2) ℂ)))
+
+/-- The purity is `(1 + |r|²)/2` for a qubit. -/
+lemma purity_eq_blochRadius : purity rho = (1 + blochRadius rho ^ 2) / 2 := by
+  rw [purity]
+  conv_lhs => rw [eq_bloch rho]
   rw [blochRadius, Real.sq_sqrt (by positivity)]
-  simp [blochVector, blochComponent, qubitPauliCoeff,
-    qubitPauliObservable, PauliMatrix.pauliMatrix, Matrix.trace_fin_two, Matrix.one_fin_two,
-    PauliMatrix.pauliSelfAdjoint, Matrix.mul_apply, Fin.sum_univ_succ]
+  simp [blochVector, blochComponent, PauliMatrix.pauliCoeff,
+    PauliMatrix.pauliSelfAdjoint, PauliMatrix.pauliMatrix, Matrix.trace_fin_two,
+    Matrix.one_fin_two, Fin.sum_univ_succ]
   ring_nf
 
-lemma spectrum_sq_sum_eq_purity :
-    ∑ i, (rho.spectrum i).val ^ 2 = (rho.purity : ℝ) := by
-  have h : ∑ i, (rho.M.H.eigenvalues i) ^ 2 = (rho.M.mat * rho.M.mat).trace := by
-    have hspectral := Matrix.IsHermitian.spectral_theorem rho.M.H
-    conv_rhs => rw [hspectral]
+/-- The density matrix is Hermitian. -/
+theorem densityMat_isHermitian (rho : 𝒟[Fin 2]) :
+    (densityMat rho : Matrix (Fin 2) (Fin 2) ℂ).IsHermitian :=
+  (densityMat rho).property
+
+/-- The eigenvalues of a qubit density matrix. -/
+noncomputable def spectrum (rho : 𝒟[Fin 2]) : Fin 2 → ℝ :=
+  (densityMat_isHermitian rho).eigenvalues
+
+lemma sum_spectrum : ∑ i, spectrum rho i = 1 := by
+  rw [spectrum]
+  have h := (densityMat_isHermitian rho).trace_eq_sum_eigenvalues (𝕜 := ℂ)
+  rw [trace_densityMat] at h
+  have hre := congrArg RCLike.re h
+  simpa using hre.symm
+
+lemma sum_spectrum_sq_eq_purity : ∑ i, spectrum rho i ^ 2 = purity rho := by
+  rw [spectrum]
+  have h : ∑ i, ((densityMat_isHermitian rho).eigenvalues i : ℂ) ^ 2 =
+      Matrix.trace ((densityMat rho : Matrix (Fin 2) (Fin 2) ℂ) *
+        (densityMat rho : Matrix (Fin 2) (Fin 2) ℂ)) := by
+    conv_rhs => rw [(densityMat_isHermitian rho).spectral_theorem]
     simp [Matrix.trace_mul_comm, Matrix.mul_assoc]
     ring
-  convert! congr_arg Complex.re h using 1
+  have hre := congrArg RCLike.re h
+  simp only [Fin.sum_univ_two, map_add, ← Complex.ofReal_pow] at hre
+  rw [purity, Fin.sum_univ_two]
+  exact hre
 
 /-- A qubit's von Neumann entropy is the binary entropy determined by its Bloch radius. -/
+noncomputable def vonNeumannEntropy (rho : 𝒟[Fin 2]) : ℝ :=
+  ∑ i, Real.negMulLog (spectrum rho i)
+
 lemma vonNeumannEntropy_eq_blochRadius :
-    Sᵥₙ rho = Real.binEntropy ((1 + blochRadius rho) / 2) := by
-  have hsum : (rho.spectrum 0 : ℝ) + (rho.spectrum 1 : ℝ) = 1 := by
-    have h := rho.spectrum.normalized
-    rw [Fin.sum_univ_two] at h
-    exact h
-  change (rho.spectrum.prob 0 : ℝ) + (rho.spectrum.prob 1 : ℝ) = 1 at hsum
-  have hsq : (rho.spectrum 0 : ℝ) ^ 2 + (rho.spectrum 1 : ℝ) ^ 2 =
-      (1 + blochRadius rho ^ 2) / 2 := by
-    rw [← purity_eq_blochRadius rho]
-    simpa [Fin.sum_univ_two] using spectrum_sq_sum_eq_purity rho
+    vonNeumannEntropy rho = Real.binEntropy ((1 + blochRadius rho) / 2) := by
+  have hsum : spectrum rho 0 + spectrum rho 1 = 1 := by
+    have h := sum_spectrum rho
+    rwa [Fin.sum_univ_two] at h
+  have hsq : spectrum rho 0 ^ 2 + spectrum rho 1 ^ 2 = (1 + blochRadius rho ^ 2) / 2 := by
+    rw [← purity_eq_blochRadius rho, ← sum_spectrum_sq_eq_purity rho, Fin.sum_univ_two]
   have hr : 0 ≤ blochRadius rho := Real.sqrt_nonneg _
-  have hroot : (rho.spectrum 0 : ℝ) = (1 + blochRadius rho) / 2 ∨
-      (rho.spectrum 0 : ℝ) = (1 - blochRadius rho) / 2 := by
+  have hroot : spectrum rho 0 = (1 + blochRadius rho) / 2 ∨
+      spectrum rho 0 = (1 - blochRadius rho) / 2 := by
     have hfactor :
-        (2 * (rho.spectrum 0 : ℝ) - 1 - blochRadius rho) *
-          (2 * (rho.spectrum 0 : ℝ) - 1 + blochRadius rho) = 0 := by
+        (2 * spectrum rho 0 - 1 - blochRadius rho) *
+          (2 * spectrum rho 0 - 1 + blochRadius rho) = 0 := by
       nlinarith
     rcases mul_eq_zero.mp hfactor with h | h
-    · left
-      nlinarith
-    · right
-      nlinarith
-  rw [Sᵥₙ, Hₛ]
-  simp only [Fin.sum_univ_two, H₁]
+    · left; nlinarith
+    · right; nlinarith
+  rw [vonNeumannEntropy, Fin.sum_univ_two]
   rw [Real.binEntropy_eq_negMulLog_add_negMulLog_one_sub]
   rcases hroot with h | h
   · rw [h]
-    have hq : (rho.spectrum.prob 1 : ℝ) = 1 - (1 + blochRadius rho) / 2 := by
-      nlinarith
+    have hq : spectrum rho 1 = 1 - (1 + blochRadius rho) / 2 := by nlinarith
     rw [hq]
   · rw [h]
-    have hq : (rho.spectrum 1 : ℝ) = (1 + blochRadius rho) / 2 := by
-      nlinarith
-    have hminus : 1 - (1 + blochRadius rho) / 2 = (1 - blochRadius rho) / 2 := by
-      ring
+    have hq : spectrum rho 1 = (1 + blochRadius rho) / 2 := by nlinarith
+    have hminus : 1 - (1 + blochRadius rho) / 2 = (1 - blochRadius rho) / 2 := by ring
     rw [hq, hminus, add_comm]
 
-/-! ## Time evolution of the Bloch vector -/
+
+/-!
+## Time evolution of the Bloch vector
+-/
+
+/-- The evolution matrix generated by the observable with components `(a₀, a)`: the matrix-level
+form of `timeEvolutionℏ_apply_observableOfComponents`. -/
+noncomputable def evolutionMatrix (a₀ : ℝ) (a : EuclideanSpace ℝ (Fin 3)) (t : ℝ) :
+    Matrix (Fin 2) (Fin 2) ℂ :=
+  operatorToMatrix (Observable.timeEvolutionℏ (observableOfComponents a₀ a) t : 𝒜[Fin 2])
+
+lemma evolutionMatrix_eq (a₀ : ℝ) (a : EuclideanSpace ℝ (Fin 3)) (t : ℝ) :
+    evolutionMatrix a₀ a t =
+      Complex.exp (-(t : ℂ) * Complex.I * a₀ / ℏ) •
+        ((Real.cos (t * ‖a‖ / ℏ) : ℂ) • (1 : Matrix (Fin 2) (Fin 2) ℂ) -
+          ((Real.sin (t * ‖a‖ / ℏ) : ℂ) * Complex.I / ‖a‖) •
+            PauliMatrix.vectorMatrix (a : Fin 3 → ℝ)) := by
+  show operatorAlgebraEquivMatrix
+      (Observable.timeEvolutionℏ (observableOfComponents a₀ a) t : 𝒜[Fin 2]) = _
+  rw [timeEvolutionℏ_apply_observableOfComponents, map_smul (M := ℂ) operatorAlgebraEquivMatrix,
+    map_sub, map_smul (M := ℂ) operatorAlgebraEquivMatrix,
+    map_smul (M := ℂ) operatorAlgebraEquivMatrix, map_one,
+    operatorAlgebraEquivMatrix_vectorObservable]
 
 /-- Rodrigues rotation of a Bloch vector about `n` through angle `θ`. -/
 noncomputable def rotateBloch (n r : Fin 3 → ℝ) (θ : ℝ) : Fin 3 → ℝ :=
   fun i ↦ Real.cos θ * r i + Real.sin θ * (n ⨯₃ r) i +
     (1 - Real.cos θ) * (n ⬝ᵥ r) * n i
 
-/-- The rotation axis determined by the non-scalar part of a Hamiltonian. -/
-noncomputable def hamiltonianAxis (A : Hamiltonian) : Fin 3 → ℝ :=
-  fun i ↦ pauliCoeff A (Sum.inr i) / pauliRadius A
+/-- For the observable `a₀ I + a · σ`, the Bloch vector rotates about `a / |a|` through the angle
+`2t|a| / ℏ` (constant when `a = 0`). The scalar part `a₀ I` has no effect. -/
+noncomputable def blochTrajectory (a : EuclideanSpace ℝ (Fin 3)) (t : ℝ) : Fin 3 → ℝ :=
+  let c := Real.cos (t * ‖a‖ / ℏ)
+  let q := Real.sin (t * ‖a‖ / ℏ) / ‖a‖
+  fun i ↦ c ^ 2 * blochVector rho i + 2 * c * q * ((a : Fin 3 → ℝ) ⨯₃ blochVector rho) i +
+    q ^ 2 * (2 * ((a : Fin 3 → ℝ) ⬝ᵥ blochVector rho) * (a : Fin 3 → ℝ) i -
+      (∑ j, (a : Fin 3 → ℝ) j ^ 2) * blochVector rho i)
 
-/-- For `A = a₀ I + a · σ`, the Bloch vector is constant when `a = 0`; otherwise it
-rotates about `a / |a|` through the angle `2t|a| / ℏ`. The scalar part `a₀ I` has no effect. -/
-noncomputable def blochTrajectory (A : Hamiltonian) (rho : MState Qubit) (t : ℝ) :
-    Fin 3 → ℝ :=
-  if pauliRadius A = 0 then blochVector rho
-  else
-    let c := Real.cos (t * pauliRadius A / ℏ)
-    let q := Real.sin (t * pauliRadius A / ℏ) / pauliRadius A
-    let a : Fin 3 → ℝ := fun i ↦ pauliCoeff A (Sum.inr i)
-    fun i ↦ c ^ 2 * blochVector rho i + 2 * c * q * (a ⨯₃ blochVector rho) i +
-      q ^ 2 * (2 * (a ⬝ᵥ blochVector rho) * a i -
-        (∑ j, a j ^ 2) * blochVector rho i)
-
-/-- The Bloch vector obtained by evolving `rho` with the time-evolution matrix generated by `A`. -/
-noncomputable def evolvedBlochVector (A : Hamiltonian) (rho : MState Qubit) (t : ℝ) :
+/-- The Bloch vector obtained by evolving `rho` under the observable with components
+`(a₀, a)` for time `t`. -/
+noncomputable def evolvedBlochVector (a₀ : ℝ) (a : EuclideanSpace ℝ (Fin 3)) (t : ℝ) :
     Fin 3 → ℝ := fun i ↦
   (Matrix.trace (PauliMatrix.pauliMatrix (Sum.inr i) *
-    (evolutionMatrix A t * rho.m * (evolutionMatrix A t).conjTranspose))).re
+    (evolutionMatrix a₀ a t * (densityMat rho : Matrix (Fin 2) (Fin 2) ℂ) *
+      (evolutionMatrix a₀ a t).conjTranspose))).re
 
 set_option maxRecDepth 2000 in
-/-- Hamiltonian time evolution rotates the initial Bloch vector according to `blochTrajectory`.
-
-I would make another file for Dynamics.
-
-Also i want to prove isomorphism of state space to Bloch ball.
-
-Yes. If you expand
-
-U(\mathbf r\cdot \boldsymbol\sigma)U^\dagger
-
-with
-
-U=cI-is\,\mathbf n\cdot\boldsymbol\sigma,
-\qquad
-c=\cos\frac\theta2,\quad s=\sin\frac\theta2,
-
-then the only nontrivial term is exactly the triple product
-
-(\mathbf n\cdot\boldsymbol\sigma)
-(\mathbf r\cdot\boldsymbol\sigma)
-(\mathbf n\cdot\boldsymbol\sigma).
-
-Using the triple-product identity with \mathbf a=\mathbf c=\mathbf n,
-
-\boxed{
-(\mathbf n\cdot\boldsymbol\sigma)
-(\mathbf r\cdot\boldsymbol\sigma)
-(\mathbf n\cdot\boldsymbol\sigma)
-=
-\left(2(\mathbf n\cdot\mathbf r)\mathbf n-\mathbf r\right)\cdot\boldsymbol\sigma
-}
-
-for \|\mathbf n\|=1.
-
-That is the specific triple-product formula needed for Bloch-vector evolution. -/
-lemma evolvedBlochVector_eq_blochTrajectory (A : Hamiltonian) (rho : MState Qubit) (t : ℝ) :
-    evolvedBlochVector A rho t = blochTrajectory A rho t := by
-  funext i
+/-- Hamiltonian time evolution rotates the initial Bloch vector according to
+`blochTrajectory`. -/
+lemma evolvedBlochVector_eq_blochTrajectory (a₀ : ℝ) (a : EuclideanSpace ℝ (Fin 3)) (t : ℝ) :
+    evolvedBlochVector rho a₀ a t = blochTrajectory rho a t := by
   have hphase :
-      Complex.exp (-((t : ℂ) * Complex.I * scalarPart A) / ℏ) *
-        starRingEnd ℂ (Complex.exp (-((t : ℂ) * Complex.I * scalarPart A) / ℏ)) = 1 := by
-    rw [Complex.mul_conj, Complex.normSq_eq_norm_sq, Complex.norm_exp]
+      Complex.exp (-((t : ℂ) * Complex.I * a₀) / ℏ) *
+        star (Complex.exp (-((t : ℂ) * Complex.I * a₀) / ℏ)) = 1 := by
+    rw [Complex.star_def, Complex.mul_conj, Complex.normSq_eq_norm_sq, Complex.norm_exp]
     simp
-  by_cases h : pauliRadius A = 0
-  · have hevol : evolutionMatrix A t * rho.m * (evolutionMatrix A t).conjTranspose =
-        rho.m := by
-      ext j k
-      fin_cases j <;> fin_cases k <;>
-        simp [evolutionMatrix, h, Matrix.mul_apply, Fin.sum_univ_two] <;>
-        rw [mul_right_comm, hphase, one_mul]
-    simp [evolvedBlochVector, blochTrajectory, h, hevol, blochVector,
-      blochComponent, qubitPauliCoeff]
-  · let phase := Complex.exp (-((t : ℂ) * Complex.I * scalarPart A) / ℏ)
-    let c := Real.cos (t * pauliRadius A / ℏ)
-    let q := Real.sin (t * pauliRadius A / ℏ) / pauliRadius A
-    let a : Fin 3 → ℝ := fun j ↦ pauliCoeff A (Sum.inr j)
-    let R : Matrix Qubit Qubit ℂ :=
-      (c : ℂ) • 1 + (-(q : ℂ) * Complex.I) • vectorPart A
-    have hevolution : evolutionMatrix A t = phase • R := by
-      simp [evolutionMatrix, h, phase, R, c, q]
+  funext i
+  fin_cases i <;>
+  by_cases h : ‖a‖ = 0
+  case pos | pos | pos =>
+    have hevol : evolutionMatrix a₀ a t * (densityMat rho : Matrix (Fin 2) (Fin 2) ℂ) *
+        (evolutionMatrix a₀ a t).conjTranspose = (densityMat rho : Matrix (Fin 2) (Fin 2) ℂ) := by
+      have heq : evolutionMatrix a₀ a t =
+          Complex.exp (-((t : ℂ) * Complex.I * a₀) / ℏ) • (1 : Matrix (Fin 2) (Fin 2) ℂ) := by
+        rw [evolutionMatrix_eq, h]
+        simp
+      rw [heq]
+      simp only [Matrix.conjTranspose_smul, Matrix.smul_mul, Matrix.mul_smul, smul_smul,
+        Matrix.one_mul, Matrix.mul_one, Matrix.conjTranspose_one]
+      rw [mul_comm (star _) _, hphase]
+      simp
+    simp only [evolvedBlochVector, hevol]
+    simp [blochTrajectory, h, blochVector, blochComponent, PauliMatrix.pauliCoeff, densityMat]
+  all_goals
+  · let phase := Complex.exp (-((t : ℂ) * Complex.I * a₀) / ℏ)
+    let c := Real.cos (t * ‖a‖ / ℏ)
+    let q := Real.sin (t * ‖a‖ / ℏ) / ‖a‖
+    let av : Fin 3 → ℝ := (a : Fin 3 → ℝ)
+    let R : Matrix (Fin 2) (Fin 2) ℂ :=
+      (c : ℂ) • 1 + (-(q : ℂ) * Complex.I) • PauliMatrix.vectorMatrix av
+    have hevolution : evolutionMatrix a₀ a t = phase • R := by
+      rw [evolutionMatrix_eq]
+      simp only [phase, R, c, q, av, sub_eq_add_neg]
+      rw [show -(t : ℂ) * Complex.I * a₀ / ↑ℏ = -((t : ℂ) * Complex.I * a₀) / ↑ℏ by ring]
       module
     have hcancel :
-        (phase • R) * rho.m * (phase • R).conjTranspose =
-          R * rho.m * R.conjTranspose := by
+        (phase • R) * (densityMat rho : Matrix (Fin 2) (Fin 2) ℂ) * (phase • R).conjTranspose =
+          R * (densityMat rho : Matrix (Fin 2) (Fin 2) ℂ) * R.conjTranspose := by
       rw [Matrix.conjTranspose_smul]
       simp only [Matrix.smul_mul, Matrix.mul_smul, smul_smul]
       rw [mul_comm (star phase) phase, show phase * star phase = 1 by exact hphase]
       simp
     simp only [evolvedBlochVector]
     rw [hevolution, hcancel]
-    have hR : R = !![(c : ℂ) - Complex.I * (q * a 2),
-        -(q * a 1 : ℝ) - Complex.I * (q * a 0);
-        (q * a 1 : ℝ) - Complex.I * (q * a 0),
-        (c : ℂ) + Complex.I * (q * a 2)] := by
+    have hR : R = !![(c : ℂ) - Complex.I * (q * av 2),
+        -(q * av 1 : ℝ) - Complex.I * (q * av 0);
+        (q * av 1 : ℝ) - Complex.I * (q * av 0),
+        (c : ℂ) + Complex.I * (q * av 2)] := by
       ext j k
       fin_cases j <;> fin_cases k <;>
-        simp [R, a, vectorPart, PauliMatrix.pauliMatrix, Fin.sum_univ_succ] <;>
+        simp [R, av, PauliMatrix.vectorMatrix, PauliMatrix.pauliMatrix, Fin.sum_univ_succ] <;>
         ring_nf <;> simp [Complex.I_sq]
       all_goals ring
     rw [hR]
-    fin_cases i <;>
-      simp [blochTrajectory, h,
-        a, blochVector, blochComponent, qubitPauliCoeff,
-        PauliMatrix.pauliMatrix, Matrix.trace_fin_two, Matrix.one_fin_two,
-        Matrix.mul_apply, Matrix.vecMul, dotProduct, Fin.sum_univ_succ, cross_apply] <;>
-      dsimp [c, q, a] <;>
-      ring
+    simp [blochTrajectory, av, blochVector, blochComponent, PauliMatrix.pauliCoeff,
+      densityMat, PauliMatrix.pauliMatrix, Matrix.trace_fin_two, Matrix.one_fin_two,
+      Matrix.mul_apply, Matrix.vecMul, dotProduct, Fin.sum_univ_succ, cross_apply]
+    dsimp [c, q, av]
+    ring
 
 end QuantumMechanics.Qubit

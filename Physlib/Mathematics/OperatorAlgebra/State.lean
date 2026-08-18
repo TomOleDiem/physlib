@@ -38,7 +38,7 @@ finite-dimensional Hilbert-space realization of this abstract theory.
 
 @[expose] public section
 
-namespace QuantumMechanics
+namespace OperatorAlgebra
 
 open scoped ComplexOrder
 
@@ -59,22 +59,25 @@ namespace State
 lemma ext {ω φ : State A}
     (h : ∀ a : A, ω a = φ a) :
     ω = φ := by
-  sorry
+  obtain ⟨f, hf⟩ := ω
+  obtain ⟨g, hg⟩ := φ
+  congr 1
+  exact PositiveLinearMap.ext h
 
 
 /-- A state takes positive elements to nonnegative values. -/
 lemma apply_nonneg
     (ω : State A) {a : A}
     (ha : 0 ≤ a) :
-    0 ≤ ω a := by
-  sorry
+    0 ≤ ω a :=
+  ω.toPositiveLinearMap.map_nonneg ha
 
 
 /-- The expectation value of `a⋆a` is nonnegative. -/
 lemma star_mul_self_nonneg
     (ω : State A) (a : A) :
-    0 ≤ ω (star a * a) := by
-  sorry
+    0 ≤ ω (star a * a) :=
+  ω.apply_nonneg (_root_.star_mul_self_nonneg a)
 
 
 /-- The expectation value of a self-adjoint element is real. -/
@@ -82,14 +85,17 @@ lemma apply_selfAdjoint_im_eq_zero
     (ω : State A) {a : A}
     (ha : IsSelfAdjoint a) :
     (ω a).im = 0 := by
-  sorry
+  have h1 := Complex.le_def.mp (ω.apply_nonneg (CFC.posPart_nonneg a))
+  have h2 := Complex.le_def.mp (ω.apply_nonneg (CFC.negPart_nonneg a))
+  rw [← CFC.posPart_sub_negPart a ha, map_sub, Complex.sub_im, ← h1.2, ← h2.2]
+  simp
 
 
 /-- The expectation value of an observable is real. -/
 lemma observable_im_eq_zero
     (ω : State A) (a : Observable A) :
-    (ω (a : A)).im = 0 := by
-  sorry
+    (ω (a : A)).im = 0 :=
+  ω.apply_selfAdjoint_im_eq_zero a.property
 
 
 /-!
@@ -104,7 +110,15 @@ lemma effect_expectation_mem_Icc
     (ω : State A) (E : Effect A) :
     0 ≤ (ω (E : A)).re ∧
       (ω (E : A)).re ≤ 1 := by
-  sorry
+  have h0 : (0 : A) ≤ (E : A) := Subtype.coe_le_coe.mpr (Effect.nonneg E)
+  have h1 : (E : A) ≤ (1 : A) := Subtype.coe_le_coe.mpr (Effect.le_one E)
+  refine ⟨?_, ?_⟩
+  · have h := Complex.le_def.mp (ω.apply_nonneg h0)
+    simpa using h.1
+  · have hsub : (0 : A) ≤ (1 : A) - (E : A) := sub_nonneg.mpr h1
+    have h := Complex.le_def.mp (ω.apply_nonneg hsub)
+    rw [map_sub, State.apply_one, Complex.sub_re, Complex.one_re, Complex.zero_re] at h
+    linarith [h.1]
 
 
 /-- The probability assigned by a state to an effect. -/
@@ -129,14 +143,14 @@ lemma probability_le_one
 lemma probability_zero
     (ω : State A) :
     probability ω (0 : Effect A) = 0 := by
-  sorry
+  simp [probability, Effect.coe_zero]
 
 
 @[simp]
 lemma probability_one
     (ω : State A) :
     probability ω (1 : Effect A) = 1 := by
-  sorry
+  simp [probability, Effect.coe_one]
 
 
 /-- Complementary effects have complementary probabilities. -/
@@ -144,7 +158,11 @@ lemma probability_complement
     (ω : State A) (E : Effect A) :
     probability ω (Effect.complement E) =
       1 - probability ω E := by
-  sorry
+  simp only [probability]
+  show (ω ((Effect.complement E : Observable A) : A)).re = 1 - (ω (E : A)).re
+  rw [Effect.coe_complement]
+  push_cast
+  rw [map_sub, State.apply_one, Complex.sub_re, Complex.one_re]
 
 
 /-!
@@ -160,8 +178,30 @@ noncomputable def mix
     (t : ℝ)
     (ht₀ : 0 ≤ t)
     (ht₁ : t ≤ 1) :
-    State A := by
-  sorry
+    State A where
+  toPositiveLinearMap := PositiveLinearMap.mk₀
+    { toFun := fun a => (t : ℂ) * ω a + ((1 - t : ℝ) : ℂ) * φ a
+      map_add' := fun a b => by
+        simp only [map_add]
+        ring
+      map_smul' := fun c a => by
+        simp only [RingHom.id_apply, map_smul, smul_eq_mul]
+        ring }
+    (fun a ha => by
+      show (0 : ℂ) ≤ (t : ℂ) * ω a + ((1 - t : ℝ) : ℂ) * φ a
+      have h1 := Complex.le_def.mp (ω.apply_nonneg ha)
+      have h2 := Complex.le_def.mp (φ.apply_nonneg ha)
+      have ht1 : (0 : ℝ) ≤ 1 - t := by linarith
+      rw [Complex.le_def]
+      simp only [Complex.add_re, Complex.add_im, Complex.mul_re, Complex.mul_im,
+        Complex.ofReal_re, Complex.ofReal_im, Complex.zero_re, Complex.zero_im] at h1 h2 ⊢
+      exact ⟨by nlinarith [h1.1, h2.1, mul_nonneg ht₀ h1.1, mul_nonneg ht1 h2.1],
+        by nlinarith [h1.2, h2.2]⟩)
+  map_one := by
+    show (t : ℂ) * ω 1 + ((1 - t : ℝ) : ℂ) * φ 1 = 1
+    rw [State.apply_one, State.apply_one]
+    push_cast
+    ring
 
 
 /-- Evaluation of a convex mixture. -/
@@ -173,22 +213,28 @@ lemma mix_apply
     (a : A) :
     mix ω φ t ht₀ ht₁ a =
       (t : ℂ) * ω a +
-        ((1 - t : ℝ) : ℂ) * φ a := by
-  sorry
+        ((1 - t : ℝ) : ℂ) * φ a :=
+  rfl
 
 
 @[simp]
 lemma mix_zero
     (ω φ : State A) :
     mix ω φ 0 le_rfl zero_le_one = φ := by
-  sorry
+  ext a
+  rw [mix_apply]
+  push_cast
+  ring
 
 
 @[simp]
 lemma mix_one
     (ω φ : State A) :
     mix ω φ 1 zero_le_one le_rfl = ω := by
-  sorry
+  ext a
+  rw [mix_apply]
+  push_cast
+  ring
 
 
 @[simp]
@@ -198,7 +244,10 @@ lemma mix_self
     (ht₀ : 0 ≤ t)
     (ht₁ : t ≤ 1) :
     mix ω ω t ht₀ ht₁ = ω := by
-  sorry
+  ext a
+  rw [mix_apply]
+  push_cast
+  ring
 
 
 /-!
@@ -239,8 +288,13 @@ variable {B : Type*}
 noncomputable def pullback
     (f : A →⋆ₐ[ℂ] B)
     (ω : State B) :
-    State A := by
-  sorry
+    State A where
+  toPositiveLinearMap := ω.toPositiveLinearMap.comp (PositiveLinearMap.ofClass f)
+  map_one := by
+    show ω.toPositiveLinearMap ((PositiveLinearMap.ofClass f : A →ₚ[ℂ] B) 1) = 1
+    have h1 : (PositiveLinearMap.ofClass f : A →ₚ[ℂ] B) 1 = 1 := _root_.map_one f
+    rw [h1]
+    exact ω.map_one
 
 
 @[simp]
@@ -248,12 +302,27 @@ lemma pullback_apply
     (f : A →⋆ₐ[ℂ] B)
     (ω : State B)
     (a : A) :
-    pullback f ω a = ω (f a) := by
-  sorry
+    pullback f ω a = ω (f a) :=
+  rfl
+
+
+@[simp]
+lemma pullback_id (ω : State A) :
+    pullback (StarAlgHom.id ℂ A) ω = ω := by
+  ext a
+  simp
+
+
+lemma pullback_comp
+    {C : Type*} [CStarAlgebra C] [PartialOrder C] [StarOrderedRing C]
+    (f : A →⋆ₐ[ℂ] B) (g : B →⋆ₐ[ℂ] C) (ω : State C) :
+    pullback (g.comp f) ω = pullback f (pullback g ω) := by
+  ext a
+  simp
 
 
 end Pullback
 
 end State
 
-end QuantumMechanics
+end OperatorAlgebra

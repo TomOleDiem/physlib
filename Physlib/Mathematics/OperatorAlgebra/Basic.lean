@@ -5,7 +5,6 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.QuantumMechanics.HilbertSpaces.FiniteTarget.Basic
 public import Mathlib.Analysis.CStarAlgebra.Classes
 public import Mathlib.Analysis.InnerProductSpace.Adjoint
 public import Mathlib.Analysis.InnerProductSpace.StarOrder
@@ -22,27 +21,17 @@ The same framework contains both classical and quantum systems:
 
 * a general C⋆-algebra describes a quantum observable algebra;
 * a commutative C⋆-algebra describes a classical observable algebra;
-* the bounded operators on a Hilbert space give a concrete realization;
-* finite-dimensional quantum systems are the special case
-  `𝓗[d] →L[ℂ] 𝓗[d]`.
+* the bounded operators on a Hilbert space give a concrete realization.
 
 The basic notions of observable, positive element, effect, state, unitary,
-projection, and finite POVM depend only on the observable algebra and should
-therefore not be tied to finite-dimensional Hilbert spaces.
+projection, and finite POVM depend only on the observable algebra and are
+therefore developed here without reference to any Hilbert space.
 
-A concrete Hilbert-space realization of an abstract observable algebra `A`
-is a ⋆-representation
-
-`A →⋆ₐ[ℂ] (H →L[ℂ] H)`.
-
-Density operators are different: they use the trace and are therefore defined
-below only for finite-dimensional Hilbert-space realizations. In finite
-dimension they provide the concrete realization of abstract states.
-
-This file develops the unital theory. Classical systems on noncompact spaces,
-whose natural observable algebra is typically the non-unital C⋆-algebra
-`C₀(X)`, should eventually be treated through the corresponding
-`NonUnitalCStarAlgebra` API.
+Density operators, traces, and other genuinely finite-dimensional Hilbert-space
+notions are *not* part of this abstract theory. They live in
+`QuantumMechanics.OperatorAlgebra`, which specializes this file's definitions
+to the concrete algebra `𝓗[d] →L[ℂ] 𝓗[d]` of a finite-dimensional quantum
+system.
 
 -/
 
@@ -50,7 +39,7 @@ whose natural observable algebra is typically the non-unital C⋆-algebra
 
 open scoped ComplexOrder
 
-namespace QuantumMechanics
+namespace OperatorAlgebra
 
 
 /-!
@@ -76,6 +65,30 @@ variable {A : Type*}
 noncomputable abbrev Observable (A : Type*)
     [CStarAlgebra A] :=
   selfAdjoint A
+
+
+/--
+A star-algebra equivalence restricts to a real-linear equivalence of the self-adjoint elements
+(observables, when `A` is an observable algebra) on each side.
+
+This is the general fact behind identifying concrete finite-dimensional observables with
+self-adjoint matrices: build the star-algebra equivalence once, then get the equivalence of
+self-adjoint elements for free. Stated for `selfAdjoint` rather than `Observable` so it applies
+even when the codomain, such as a bare matrix algebra, is not itself a `CStarAlgebra`.
+-/
+def _root_.StarAlgEquiv.selfAdjointCongr {A B : Type*}
+    [Ring A] [StarRing A] [Algebra ℂ A] [StarModule ℝ A]
+    [Ring B] [StarRing B] [Algebra ℂ B] [StarModule ℝ B]
+    (e : A ≃⋆ₐ[ℂ] B) :
+    selfAdjoint A ≃ₗ[ℝ] selfAdjoint B where
+  toFun a := ⟨e a, a.property.map e⟩
+  invFun b := ⟨e.symm b, b.property.map e.symm⟩
+  left_inv a := Subtype.ext (e.symm_apply_apply (a : A))
+  right_inv b := Subtype.ext (e.apply_symm_apply (b : B))
+  map_add' a b := Subtype.ext (map_add e (a : A) (b : A))
+  map_smul' r a := Subtype.ext (by
+    show e (r • (a : A)) = r • e (a : A)
+    rw [← Complex.coe_smul, map_smul, Complex.coe_smul])
 
 
 /-- A positive element of an observable C⋆-algebra. -/
@@ -243,138 +256,4 @@ abbrev Representation (A : Type*) (H : Type*)
 
 end Representation
 
-
-/-!
-## Finite-dimensional quantum systems
-
-A finite-dimensional quantum system with target type `d` is a concrete
-Hilbert-space realization whose observable algebra is the full operator
-C⋆-algebra on `𝓗[d]`.
-
-Everything defined above specializes directly to this algebra.
-
-The trace and density operators are genuinely finite-dimensional additions and
-therefore live in this section rather than in the general observable-algebra
-API.
--/
-
-section FiniteDimensional
-
-variable {d : Type*} [Fintype d] [DecidableEq d]
-
-
-/-- The full C⋆-algebra of bounded operators on the finite-dimensional Hilbert space `𝓗[d]`. -/
-abbrev OperatorAlgebra
-    (d : Type*) [Fintype d] [DecidableEq d] :=
-  𝓗[d] →L[ℂ] 𝓗[d]
-
-
-@[inherit_doc OperatorAlgebra]
-scoped notation "𝒜[" d "]" => OperatorAlgebra d
-
-
-/-
-The self-adjoint part is naturally a real vector space.
-
-This instance is specific to the concrete operator algebra and is useful for
-the finite-dimensional observable API.
--/
-noncomputable instance OperatorAlgebra.instStarModuleReal :
-    StarModule ℝ (𝒜[d]) where
-  star_smul r A := by
-    rw [← Complex.coe_smul r A]
-    rw [star_smul]
-    simp
-
-
-/-- The observables of a finite-dimensional quantum system. -/
-noncomputable abbrev FiniteObservable
-    (d : Type*) [Fintype d] [DecidableEq d] :=
-  Observable (𝒜[d])
-
-@[inherit_doc FiniteObservable]
-scoped notation "𝒪[" d "]" => FiniteObservable d
-
-
-/-- The positive operators of a finite-dimensional quantum system. -/
-abbrev PositiveOperator
-    (d : Type*) [Fintype d] [DecidableEq d] :=
-  PositiveElement (𝒜[d])
-
-@[inherit_doc PositiveOperator]
-scoped notation "𝒜⁺[" d "]" => PositiveOperator d
-
-
-/-- The effects of a finite-dimensional quantum system. -/
-abbrev FiniteEffect
-    (d : Type*) [Fintype d] [DecidableEq d] :=
-  Effect (𝒜[d])
-
-@[inherit_doc FiniteEffect]
-scoped notation "ℰ[" d "]" => FiniteEffect d
-
-
-/-- The unitary operators of a finite-dimensional quantum system. -/
-noncomputable abbrev UnitaryOperator
-    (d : Type*) [Fintype d] [DecidableEq d] :=
-  Unitary (𝒜[d])
-
-@[inherit_doc UnitaryOperator]
-scoped notation "𝒰[" d "]" => UnitaryOperator d
-
-
-/-- The orthogonal projections of a finite-dimensional quantum system. -/
-abbrev FiniteProjection
-    (d : Type*) [Fintype d] [DecidableEq d] :=
-  Projection (𝒜[d])
-
-@[inherit_doc FiniteProjection]
-scoped notation "𝒫[" d "]" => FiniteProjection d
-
-
-/-- The abstract states of the finite-dimensional operator algebra. -/
-abbrev FiniteState
-    (d : Type*) [Fintype d] [DecidableEq d] :=
-  State (𝒜[d])
-
-@[inherit_doc FiniteState]
-scoped notation "𝒮[" d "]" => FiniteState d
-
-
-/-- A finite POVM on a finite-dimensional quantum system. -/
-abbrev FinitePOVM
-    (d : Type*) [Fintype d] [DecidableEq d]
-    (X : Type*) [Fintype X] :=
-  POVM (𝒜[d]) X
-
-
-/-!
-### Trace and density operators
-
-These notions depend on the concrete finite-dimensional Hilbert-space
-realization and are not part of the abstract C⋆-algebraic API.
--/
-
-/-- The trace of an operator on `𝓗[d]`. -/
-noncomputable def operatorTrace
-    (A : 𝒜[d]) : ℂ :=
-  LinearMap.trace ℂ 𝓗[d] A
-
-
-/--
-A density operator on the finite-dimensional Hilbert space `𝓗[d]`.
-
-Density operators are the concrete finite-dimensional realization of abstract
-states on `𝒜[d]`.
--/
-noncomputable abbrev DensityOperator
-    (d : Type*) [Fintype d] [DecidableEq d] :=
-  {ρ : 𝒜⁺[d] // operatorTrace (ρ : 𝒜[d]) = 1}
-
-@[inherit_doc DensityOperator]
-scoped notation "𝒟[" d "]" => DensityOperator d
-
-
-end FiniteDimensional
-
-end QuantumMechanics
+end OperatorAlgebra

@@ -75,14 +75,14 @@ namespace Pulse
 /-- The rotation angle produced by a pulse. -/
 def angle (P : Pulse) : ℝ := P.rabiFrequency * P.duration
 
-/-- The constant Hamiltonian applied during a pulse. -/
-def hamiltonian (P : Pulse) : Hamiltonian :=
-  (ℏ * P.rabiFrequency / 2) •
-    ∑ i : Fin 3, P.axis i • PauliMatrix.pauliSelfAdjoint (Sum.inr i)
+/-- The Pauli-vector components of the constant Hamiltonian `H = ℏΩ(n·σ)/2` applied during a
+pulse. -/
+noncomputable def hamiltonianVector (P : Pulse) : EuclideanSpace ℝ (Fin 3) :=
+  WithLp.toLp 2 ((ℏ * P.rabiFrequency / 2) • P.axis)
 
 /-- The explicit matrix applied by a pulse. -/
-def evolutionMatrix (P : Pulse) : Matrix (Fin 2) (Fin 2) ℂ :=
-  Qubit.evolutionMatrix P.hamiltonian P.duration
+noncomputable def evolutionMatrix (P : Pulse) : Matrix (Fin 2) (Fin 2) ℂ :=
+  Qubit.evolutionMatrix 0 P.hamiltonianVector P.duration
 
 /-- A pulse whose duration produces a rotation through `θ`. -/
 def ofAngle (axis : Fin 3 → ℝ) (Ω θ : ℝ) : Pulse where
@@ -118,7 +118,7 @@ namespace PulseSequence
 def duration (S : PulseSequence) : ℝ := (S.map Pulse.duration).sum
 
 /-- Ordered product of the pulse matrices. -/
-def evolutionMatrix (S : PulseSequence) : Matrix (Fin 2) (Fin 2) ℂ :=
+noncomputable def evolutionMatrix (S : PulseSequence) : Matrix (Fin 2) (Fin 2) ℂ :=
   (S.map Pulse.evolutionMatrix).reverse.prod
 
 @[simp] lemma evolutionMatrix_nil : evolutionMatrix [] = 1 := rfl

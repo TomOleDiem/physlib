@@ -1,0 +1,149 @@
+version: v0.1
+
+Title: OperatorAlgebra
+
+Overview: |
+    Classical and quantum mechanics both reduce to the same three questions asked of a unital
+    complex C⋆-algebra `A`: what are the states, how do they evolve, what does a measurement read
+    off. This directory is the physics-agnostic layer where those questions get answered once.
+    Classicality is not a separate definition: a classical observable algebra is simply a
+    commutative `A` (`[CommCStarAlgebra A]`), and every construction here applies unchanged.
+
+    The objects are: `Observable A` (a self-adjoint element), `PositiveElement A`, `Effect A`
+    (a self-adjoint element in `[0, 1]`, a measurement outcome) with `POVM A X` (a finite family of
+    effects summing to `1`), `Unitary A` and its inner ⋆-automorphism action, `State A` (a
+    positive, normalized linear functional, giving expectation values and, via `State.pullback`,
+    transforming contravariantly along ⋆-homomorphisms), and `Representation A H` (a
+    ⋆-homomorphism into `H →L[ℂ] H`). `Dynamics.lean` adds the one genuinely dynamical piece: a
+    one-parameter group of ⋆-algebra automorphisms and the state flow it induces by pullback — the
+    abstract shape shared by a classical Hamiltonian flow and quantum unitary (Stone's-theorem)
+    evolution, with neither a phase space nor a Hilbert space in sight.
+
+    `QuantumMechanics/OperatorAlgebra/` specializes this file's definitions to the concrete algebra
+    `𝓗[d] →L[ℂ] 𝓗[d]` of a finite-dimensional quantum system.
+    `ClassicalMechanics/HarmonicOscillator/OperatorAlgebra/` specializes it to a commutative
+    algebra of bounded continuous functions on phase space, reusing
+    `BoundedContinuousFunction.lean`'s generic machinery for that specialization (evaluation at a
+    point, precomposition by a homeomorphism as a ⋆-automorphism, and the state obtained by
+    integrating against a probability measure — none of it specific to any one classical system).
+
+ParentAPIs:
+
+References:
+  - "PHYSICAL_SYSTEMS_OPERATOR_ALGEBRA.md — the architecture document this directory implements: states/measurements/dynamics on a unital C⋆-algebra, with classical vs. quantum reduced to commutative vs. noncommutative."
+  - "O. Bratteli and D. W. Robinson, Operator Algebras and Quantum Statistical Mechanics I, 2nd ed., Springer, 1987."
+  - "M. H. Stone, Linear Transformations in Hilbert Space III. Operational Methods and Group Theory, Proc. Natl. Acad. Sci. 18 (1932), 172-175."
+
+Requirements:
+
+  - description:
+      Defines the observable-algebra vocabulary that needs only `[CStarAlgebra A]`
+      (`Observable`, `Unitary`, `Projection`, `Representation`) or additionally a compatible order
+      (`PositiveElement`, `Effect`, `State`, `POVM`), all as thin wrappers around Mathlib's
+      C⋆-algebra API rather than a bundled `QuantumSystem`-style structure. Also contains
+      `StarAlgEquiv.selfAdjointCongr`, the general fact that a ⋆-algebra equivalence restricts to a
+      real-linear equivalence of self-adjoint elements on each side, and the marker
+      `IsClassicalObservableAlgebra` recording that classicality is exactly commutativity.
+    done: true
+    location:
+      Physlib/Mathematics/OperatorAlgebra/Basic.lean (Observable, PositiveElement, Effect, Unitary,
+      Projection, State, State.instCoeFun, State.apply_one, POVM, Representation,
+      StarAlgEquiv.selfAdjointCongr, IsClassicalObservableAlgebra, isClassicalObservableAlgebra)
+
+  - description:
+      Contains the basic effect API — zero and unit effects, positivity and the upper bound by the
+      identity, extensionality, the complement `1 - E` with its involution and order-reversal
+      properties, and the complementary pair summing to the identity.
+    done: true
+    location:
+      Physlib/Mathematics/OperatorAlgebra/Effect.lean (Effect.coe_zero, Effect.coe_one,
+      Effect.nonneg, Effect.le_one, Effect.ext, Effect.complement, Effect.coe_complement,
+      Effect.complement_complement, Effect.add_complement, Effect.complement_le_complement_iff)
+
+  - description:
+      Packages Mathlib's continuous functional calculus so that applying a real-valued continuous
+      function to an observable returns an observable, via the generic self-adjointness fact
+      `cfc_predicate`.
+    done: true
+    location: Physlib/Mathematics/OperatorAlgebra/FunctionalCalculus.lean (observableCFC, coe_observableCFC)
+
+  - description:
+      Packages Mathlib's inner ⋆-automorphism `a ↦ U a U⋆` of a unitary element for the
+      observable-algebra objects — observables, effects, and projections are each shown preserved,
+      via the generic facts that a ⋆-algebra equivalence preserves self-adjointness
+      (`IsSelfAdjoint.map`), order (`StarRingHomClass.instOrderHomClass`), and star-projections
+      (`IsStarProjection.map`).
+    done: true
+    location:
+      Physlib/Mathematics/OperatorAlgebra/Unitary.lean (Unitary.automorphism, Unitary.observable,
+      Unitary.effect, Unitary.projection)
+
+  - description:
+      Defines states as positive, normalized linear functionals and develops their full basic API
+      independently of any Hilbert-space representation — positivity (`apply_nonneg`,
+      `star_mul_self_nonneg`), reality of the expectation of a self-adjoint element (via Mathlib's
+      CFC Jordan decomposition `a = a⁺ - a⁻`), effect probabilities and their interval bounds, the
+      convex structure of the state space (`mix` and its group-like corollaries), the intrinsic
+      (non-vector, non-density-operator) definition of a pure state `IsPure`, and pullback of
+      states along a unital ⋆-homomorphism with its identity and composition laws.
+    done: true
+    location:
+      Physlib/Mathematics/OperatorAlgebra/State.lean (State.ext, State.apply_nonneg,
+      State.star_mul_self_nonneg, State.apply_selfAdjoint_im_eq_zero,
+      State.observable_im_eq_zero, State.effect_expectation_mem_Icc, State.probability,
+      State.probability_complement, State.mix, State.mix_apply, State.mix_zero, State.mix_one,
+      State.mix_self, State.IsPure, State.pullback, State.pullback_apply, State.pullback_id,
+      State.pullback_comp)
+
+  - description:
+      Generic machinery for a classical observable algebra of bounded continuous complex-valued
+      functions `X →ᵇ ℂ` on any topological space `X`, not specific to any one classical system —
+      precomposition by a homeomorphism of `X` as a ⋆-algebra automorphism (the tool that turns a
+      phase-space flow into an automorphism of observables), evaluation at a point as a
+      ⋆-algebra homomorphism, the generic spectral order making `X →ᵇ ℂ` an ordered C⋆-algebra, and
+      the state obtained by integrating against any probability measure on `X` — the shared
+      building block behind point states, Gaussian states, and Gibbs states of a classical system.
+    done: true
+    location:
+      Physlib/Mathematics/OperatorAlgebra/BoundedContinuousFunction.lean
+      (BoundedContinuousFunction.compHomeomorphStarAlgEquiv, BoundedContinuousFunction.evalStarAlgHom,
+      BoundedContinuousFunction.instSpectralPartialOrder, BoundedContinuousFunction.instSpectralStarOrderedRing,
+      BoundedContinuousFunction.probState)
+
+  - description:
+      Defines the abstract shape of reversible dynamics — a one-parameter group of ⋆-algebra
+      automorphisms, `AddChar ℝ (A ≃⋆ₐ[ℂ] A)`, needing no new bundled structure since `A ≃⋆ₐ[ℂ] A`
+      is already a group under composition — and the state flow it induces by pullback, with its
+      own one-parameter group law. This is the object a classical Hamiltonian flow and quantum
+      unitary evolution (Stone's theorem) both produce; building it once here is what lets the
+      classical and quantum specializations share it instead of each reimplementing the same
+      group-law bookkeeping.
+    done: true
+    location:
+      Physlib/Mathematics/OperatorAlgebra/Dynamics.lean (evolveState, evolveState_apply,
+      evolveState_zero, evolveState_add)
+
+  - description:
+      Rewires quantum's existing `UnitaryOneParameterGroup`/`Observable.timeEvolutionℏ` Hamiltonian
+      evolution (`Mathematics/OneParameterSubgroups/Unitary.lean`,
+      `QuantumMechanics/OperatorAlgebra/Hamiltonian.lean`) to produce an `AddChar ℝ (A ≃⋆ₐ[ℂ] A)`
+      and route through `evolveState`, so the quantum side becomes a genuine instance of the
+      generic dynamics rather than a parallel, independently-maintained construction. Deferred
+      until the classical side has proven the abstraction out in practice.
+    done: false
+    location: N/A
+
+  - description:
+      The GNS construction's cyclic vector `Ω_ω` (Mathlib has the representation itself,
+      `PositiveLinearMap.GNS`/`gnsStarAlgHom`, but not yet the vector realizing
+      `ω(a) = ⟪Ω_ω, π_ω(a) Ω_ω⟫`). An open gap in Mathlib, not in this directory.
+    done: false
+    location: N/A
+
+  - description:
+      General Markovian (semigroup, non-reversible) dynamics — a family of unital completely
+      positive maps `T_t` on `A` generalizing `evolveState`'s automorphism group, covering
+      classical Markov processes and quantum Lindblad evolution. No generator theory for either
+      exists yet in Physlib; a substantially larger project than completing the reversible case.
+    done: false
+    location: N/A

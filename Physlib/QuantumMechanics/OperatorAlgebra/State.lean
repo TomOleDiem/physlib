@@ -7,7 +7,7 @@ module
 
 public import Physlib.Mathematics.OperatorAlgebra.State
 public import Physlib.Mathematics.OperatorAlgebra.Unitary
-public import Physlib.QuantumMechanics.HilbertSpaces.FiniteTarget.Basic
+public import Physlib.QuantumMechanics.OperatorAlgebra.Basic
 public import Physlib.Meta.Linters.Sorry
 
 /-!
@@ -36,10 +36,11 @@ states, and unitary evolution.
 
 @[expose] public section
 
-namespace QuantumMechanics
-
 open InnerProductSpace
 open scoped ComplexOrder
+open OperatorAlgebra
+
+namespace QuantumMechanics
 
 variable {d : Type*} [Fintype d] [DecidableEq d]
 
@@ -57,7 +58,7 @@ by
 @[sorryful]
 noncomputable def DensityOperator.toState
     (ρ : 𝒟[d]) :
-    State (𝒜[d]) := by
+    OperatorAlgebra.State (𝒜[d]) := by
   sorry
 
 
@@ -77,7 +78,7 @@ unique density operator.
 -/
 @[sorryful]
 noncomputable def State.toDensityOperator
-    (ω : State (𝒜[d])) :
+    (ω : OperatorAlgebra.State (𝒜[d])) :
     𝒟[d] := by
   sorry
 
@@ -88,7 +89,7 @@ algebra are equivalent.
 -/
 @[sorryful]
 noncomputable def densityOperatorEquivState :
-    𝒟[d] ≃ State (𝒜[d]) where
+    𝒟[d] ≃ OperatorAlgebra.State (𝒜[d]) where
   toFun := DensityOperator.toState
   invFun := State.toDensityOperator
   left_inv := by
@@ -108,7 +109,7 @@ lemma densityOperatorEquivState_apply
 
 @[simp]
 lemma densityOperatorEquivState_symm_apply
-    (ω : State (𝒜[d])) :
+    (ω : OperatorAlgebra.State (𝒜[d])) :
     densityOperatorEquivState.symm ω =
       State.toDensityOperator ω :=
   rfl
@@ -117,55 +118,54 @@ lemma densityOperatorEquivState_symm_apply
 /-!
 ## Convex structure
 
-Density operators inherit the same convex structure as the abstract state
-space. We retain a concrete density-operator construction because it is useful
-for finite-dimensional calculations, and prove that it agrees with
-`State.mix`.
+Density operators inherit their convex structure entirely from the abstract state space, by
+transport along `densityOperatorEquivState`: `mix` is *defined* through `State.mix`, not
+reconstructed by hand. This is what makes it automatically positive and trace one — no separate
+proof obligation — and every one of its structural properties below is inherited for free from
+the corresponding (still-to-be-proved) fact about `State.mix`.
 -/
 
-/-- A convex combination of two density operators. -/
-@[sorryful]
+/-- A convex combination of two density operators, transported from `State.mix`. -/
 noncomputable def DensityOperator.mix
     (ρ σ : 𝒟[d])
     (t : ℝ)
     (ht₀ : 0 ≤ t)
     (ht₁ : t ≤ 1) :
-    𝒟[d] := by
-  let A : 𝒪[d] :=
-    t • (ρ.1 : 𝒪[d]) +
-      (1 - t) • (σ.1 : 𝒪[d])
-  refine ⟨⟨A, ?_⟩, ?_⟩
-  · sorry
-  · sorry
+    𝒟[d] :=
+  densityOperatorEquivState.symm (OperatorAlgebra.State.mix ρ.toState σ.toState t ht₀ ht₁)
 
 
 /--
 Taking the abstract state associated with a convex mixture of density
 operators gives the corresponding abstract convex mixture.
 -/
-@[sorryful]
+@[simp]
 lemma DensityOperator.toState_mix
     (ρ σ : 𝒟[d])
     (t : ℝ)
     (ht₀ : 0 ≤ t)
     (ht₁ : t ≤ 1) :
     (ρ.mix σ t ht₀ ht₁).toState =
-      State.mix ρ.toState σ.toState t ht₀ ht₁ := by
-  sorry
+      OperatorAlgebra.State.mix ρ.toState σ.toState t ht₀ ht₁ :=
+  densityOperatorEquivState.apply_symm_apply _
 
 
 @[simp]
 lemma DensityOperator.mix_zero
     (ρ σ : 𝒟[d]) :
-    ρ.mix σ 0 le_rfl zero_le_one = σ := by
-  sorry
+    ρ.mix σ 0 le_rfl zero_le_one = σ :=
+  densityOperatorEquivState.injective (by
+    rw [densityOperatorEquivState_apply, toState_mix, OperatorAlgebra.State.mix_zero,
+      densityOperatorEquivState_apply])
 
 
 @[simp]
 lemma DensityOperator.mix_one
     (ρ σ : 𝒟[d]) :
-    ρ.mix σ 1 zero_le_one le_rfl = ρ := by
-  sorry
+    ρ.mix σ 1 zero_le_one le_rfl = ρ :=
+  densityOperatorEquivState.injective (by
+    rw [densityOperatorEquivState_apply, toState_mix, OperatorAlgebra.State.mix_one,
+      densityOperatorEquivState_apply])
 
 
 @[simp]
@@ -174,8 +174,10 @@ lemma DensityOperator.mix_self
     (t : ℝ)
     (ht₀ : 0 ≤ t)
     (ht₁ : t ≤ 1) :
-    ρ.mix ρ t ht₀ ht₁ = ρ := by
-  sorry
+    ρ.mix ρ t ht₀ ht₁ = ρ :=
+  densityOperatorEquivState.injective (by
+    rw [densityOperatorEquivState_apply, toState_mix, OperatorAlgebra.State.mix_self,
+      densityOperatorEquivState_apply])
 
 
 /-!
@@ -191,7 +193,7 @@ extreme point of the state space.
 -/
 abbrev DensityOperator.IsPure
     (ρ : 𝒟[d]) : Prop :=
-  State.IsPure ρ.toState
+  OperatorAlgebra.State.IsPure ρ.toState
 
 
 /--
@@ -297,25 +299,44 @@ theorem DensityOperator.ofUnitVector_toState_apply
 ## Unitary action
 
 The generic operator-algebra API already knows that a unitary induces an inner
-⋆-automorphism. Here we give its concrete action on density operators and
-relate it to the corresponding action on abstract states.
+⋆-automorphism (`Unitary.automorphism`). Conjugating a density operator by `U` is *defined* by
+transporting the corresponding pullback of its state along `(Unitary.automorphism U).symm` —
+states transform contravariantly, so conjugating the operator by `U` pulls the state back along
+the inverse automorphism. As with `mix`, positivity and trace one come for free from
+`densityOperatorEquivState`, with nothing left to reprove by hand.
 -/
 
-/-- Unitary conjugation preserves density operators. -/
-@[sorryful]
+/-- Unitary conjugation of a density operator, transported from the pullback action on its
+associated state. -/
 noncomputable def DensityOperator.unitaryConjugate
     (ρ : 𝒟[d])
     (U : 𝒰[d]) :
-    𝒟[d] := by
-  refine
-    ⟨⟨⟨
-      (U : 𝒜[d]) *
-        (ρ : 𝒜[d]) *
-        star (U : 𝒜[d]),
-      ?_⟩, ?_⟩, ?_⟩
-  · sorry
-  · sorry
-  · sorry
+    𝒟[d] :=
+  densityOperatorEquivState.symm
+    (OperatorAlgebra.State.pullback (Unitary.automorphism U).symm.toStarAlgHom ρ.toState)
+
+
+/--
+The state of a unitarily-conjugated density operator is the pullback of the original state
+along the inverse automorphism.
+-/
+@[simp]
+lemma DensityOperator.toState_unitaryConjugate
+    (ρ : 𝒟[d])
+    (U : 𝒰[d]) :
+    (ρ.unitaryConjugate U).toState =
+      OperatorAlgebra.State.pullback (Unitary.automorphism U).symm.toStarAlgHom ρ.toState :=
+  densityOperatorEquivState.apply_symm_apply _
+
+
+/-- The density operator underlying `ρ.unitaryConjugate U` is `U ρ U⋆`. -/
+@[sorryful]
+lemma DensityOperator.coe_unitaryConjugate
+    (ρ : 𝒟[d])
+    (U : 𝒰[d]) :
+    (ρ.unitaryConjugate U : 𝒜[d]) =
+      (U : 𝒜[d]) * (ρ : 𝒜[d]) * star (U : 𝒜[d]) := by
+  sorry
 
 
 /--

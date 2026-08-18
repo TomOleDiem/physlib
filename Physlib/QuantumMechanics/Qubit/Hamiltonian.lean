@@ -5,26 +5,41 @@ Authors: Tom Ole Diem
 -/
 module
 
+public import Physlib.QuantumMechanics.OperatorAlgebra.Hamiltonian
+public import Physlib.QuantumMechanics.OperatorAlgebra.Matrix
 public import Physlib.Mathematics.OneParameterSubgroups.Unitary
-public import Physlib.QuantumMechanics.PlanckConstant
 public import Physlib.Relativity.PauliMatrices.SelfAdjoint
-public import QuantumInfo.States.Pure.Qubit
-public import Mathlib.Analysis.CStarAlgebra.Matrix
-public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Series
 
 /-!
 
-# Qubit Hamiltonians and time evolution
+# Qubit observables and their time evolution
 
-Every qubit Hamiltonian has a Pauli decomposition `H = a₀ I + a · σ`. This file applies Stone's
-correspondence and computes its time-evolution matrix explicitly.
+Every qubit observable admits a unique Pauli decomposition
+`A = a₀ I + a₁ σ₁ + a₂ σ₂ + a₃ σ₃`, so the real vector space of qubit observables `𝒪[Fin 2]` is
+canonically identified with its four real Pauli coefficients via `observablePauliEquiv`.
+
+Given a scalar `a₀` and a Pauli vector `a`, `observableOfComponents a₀ a` builds the
+corresponding observable directly. Its physical time evolution `Observable.timeEvolutionℏ`
+(already generic, from `QuantumMechanics.OperatorAlgebra.Hamiltonian`) then has the familiar
+closed form: a global phase from `a₀`, times a cosine-sine rotation about `a`.
+
+The whole proof rests on two facts, each doing exactly one job:
+
+* `vectorObservable_sq`, the Pauli product formula `(a · σ)² = ‖a‖² • 1`, transported in one step
+  from `PauliMatrix.vectorMatrix_sq` along `operatorAlgebraEquivMatrix`;
+* `ContinuousLinearMap.exp_neg_I_smul_of_sq_eq_smul_one`, the generic fact (from
+  `Mathematics.OneParameterSubgroups.Unitary`) that an operator squaring to a real multiple of
+  the identity has an easy exponential.
+
+## Main results
+
+* `observablePauliEquiv`: qubit observables are equivalent to their four real Pauli coefficients.
+* `observableOfComponents`: the observable with given scalar and Pauli-vector components.
+* `timeEvolutionℏ_apply_observableOfComponents`: its physical time evolution, in closed form.
 
 -/
 
 @[expose] public section
-
-open Constants
-open scoped PauliMatrix
 
 noncomputable section
 
@@ -32,347 +47,100 @@ namespace QuantumMechanics
 
 namespace Qubit
 
-section Qubit
+open Constants Matrix
 
-abbrev HilbertSpace := EuclideanSpace ℂ (Fin 2)
+/-- Qubit observables are equivalent to their four real Pauli coefficients. -/
+noncomputable def observablePauliEquiv :
+    𝒪[Fin 2] ≃ₗ[ℝ] ((Fin 1 ⊕ Fin 3) →₀ ℝ) :=
+  observableMatrixEquiv.trans (Module.Basis.repr PauliMatrix.pauliBasis)
 
-/-- A Hamiltonian of a qubit in the standard basis. -/
-abbrev Hamiltonian := selfAdjoint (Matrix (Fin 2) (Fin 2) ℂ)
 
-variable (H : Hamiltonian)
+/-!
+## The observable of a Pauli vector
+-/
 
-/-- The four real Pauli coefficients of a two-level Hamiltonian. -/
-noncomputable def pauliCoeff : Fin 1 ⊕ Fin 3 → ℝ :=
-  PauliMatrix.pauliBasis.repr H
+/-- `a · σ` is self-adjoint for any real Pauli vector `a`. -/
+lemma vectorMatrix_isSelfAdjoint (a : Fin 3 → ℝ) :
+    (PauliMatrix.vectorMatrix a)ᴴ = PauliMatrix.vectorMatrix a := by
+  simp only [PauliMatrix.vectorMatrix, conjTranspose_sum, conjTranspose_smul]
+  apply Finset.sum_congr rfl
+  intro i _
+  rw [PauliMatrix.pauliMatrix_selfAdjoint]
+  simp
 
-/-- Every Hermitian `2 × 2` matrix is a real linear combination of the identity and the three
-Pauli matrices. -/
-lemma eq_sum_pauli :
-    H = ∑ μ, pauliCoeff H μ • PauliMatrix.pauliSelfAdjoint μ := by
-  simpa only [pauliCoeff, PauliMatrix.pauliBasis, Module.Basis.mk_apply] using
-    (PauliMatrix.pauliBasis.sum_repr H).symm
-
-/-- The familiar component form `A = a₀ I + a₁ σ₁ + a₂ σ₂ + a₃ σ₃`. -/
-lemma eq_pauli_components :
-    H.val = (pauliCoeff H (Sum.inl 0) : ℂ) • (1 : Matrix (Fin 2) (Fin 2) ℂ) +
-      (pauliCoeff H (Sum.inr 0) : ℂ) • σ (Sum.inr 0) +
-      (pauliCoeff H (Sum.inr 1) : ℂ) • σ (Sum.inr 1) +
-      (pauliCoeff H (Sum.inr 2) : ℂ) • σ (Sum.inr 2) := by
-  let ι := (selfAdjoint (Matrix (Fin 2) (Fin 2) ℂ)).subtype
-  have h := congrArg ι (eq_sum_pauli H)
-  change ι H = ι (∑ μ, pauliCoeff H μ • PauliMatrix.pauliSelfAdjoint μ) at h
-  rw [map_sum] at h
-  simp_rw [show ∀ (r : ℝ) (A : Hamiltonian),
-      ι (r • A) = r • A.val by intro r A; rfl] at h
-  simp only [Fintype.sum_sum_type, Fin.sum_univ_three, Finset.univ_unique,
-    Fin.default_eq_zero, Finset.sum_singleton, PauliMatrix.pauliSelfAdjoint,
-    PauliMatrix.pauliMatrix_inl_zero_eq_one] at h
-  change H.val = _ at h
-  rw [h]
-  module
-
-/-- The coefficient of the identity in the Pauli decomposition. -/
-noncomputable def scalarPart : ℝ := pauliCoeff H (Sum.inl 0)
-
-/-- The traceless, Pauli-vector part `a₁ σ₁ + a₂ σ₂ + a₃ σ₃`. -/
-noncomputable def vectorPart : Matrix (Fin 2) (Fin 2) ℂ :=
-  ∑ i : Fin 3, (pauliCoeff H (Sum.inr i) : ℂ) • σ (Sum.inr i)
-
-/-- The length `√(a₁² + a₂² + a₃²)` of the Pauli vector. -/
-noncomputable def pauliRadius : ℝ :=
-  Real.sqrt (∑ i : Fin 3, (pauliCoeff H (Sum.inr i)) ^ 2)
-
-lemma matrix_eq_scalar_add_vector (A : Hamiltonian) :
-    A.val = (scalarPart A : ℂ) • 1 + vectorPart A := by
-  rw [eq_pauli_components A]
-  simp [scalarPart, vectorPart, Fin.sum_univ_three, PauliMatrix.pauliMatrix]
-  ext i j
-  fin_cases i <;> fin_cases j <;> simp
-
-lemma vectorPart_sq (A : Hamiltonian) :
-    vectorPart A * vectorPart A = (pauliRadius A ^ 2 : ℝ) • 1 := by
-  simp only [vectorPart, pauliRadius, Fin.sum_univ_three, PauliMatrix.pauliMatrix]
-  rw [Real.sq_sqrt]
-  · ext i j
-    fin_cases i <;> fin_cases j <;>
-      simp [Matrix.mul_apply, Fin.sum_univ_two, Matrix.one_fin_two, Complex.real_smul] <;> ring_nf
-    all_goals (rw [show Complex.I ^ 2 = -1 by rw [pow_two, Complex.I_mul_I]]; ring_nf)
-  · positivity
-
-lemma pauliRadius_nonneg (A : Hamiltonian) : 0 ≤ pauliRadius A :=
-  Real.sqrt_nonneg _
-
-lemma vectorPart_eq_zero_of_pauliRadius_eq_zero (A : Hamiltonian)
-    (h : pauliRadius A = 0) : vectorPart A = 0 := by
-  have hs : ∑ i : Fin 3, (pauliCoeff A (Sum.inr i)) ^ 2 = 0 := by
-    rw [pauliRadius, Real.sqrt_eq_zero'] at h
-    exact le_antisymm h (by positivity)
-  have hcoeff (i : Fin 3) : pauliCoeff A (Sum.inr i) = 0 := by
-    rw [Fin.sum_univ_three] at hs
-    have h0 : pauliCoeff A (Sum.inr 0) ^ 2 = 0 := by
-      nlinarith [sq_nonneg (pauliCoeff A (Sum.inr 0)),
-        sq_nonneg (pauliCoeff A (Sum.inr 1)), sq_nonneg (pauliCoeff A (Sum.inr 2))]
-    have h1 : pauliCoeff A (Sum.inr 1) ^ 2 = 0 := by
-      nlinarith [sq_nonneg (pauliCoeff A (Sum.inr 0)),
-        sq_nonneg (pauliCoeff A (Sum.inr 1)), sq_nonneg (pauliCoeff A (Sum.inr 2))]
-    have h2 : pauliCoeff A (Sum.inr 2) ^ 2 = 0 := by
-      nlinarith [sq_nonneg (pauliCoeff A (Sum.inr 0)),
-        sq_nonneg (pauliCoeff A (Sum.inr 1)), sq_nonneg (pauliCoeff A (Sum.inr 2))]
-    fin_cases i <;> simp_all
-  simp [vectorPart, hcoeff]
-
-end Qubit
-
-end Qubit
-
-/-- The bounded operator represented by a `2 × 2` matrix. -/
-def Qubit.operator (A : Matrix (Fin 2) (Fin 2) ℂ) :
-    EuclideanSpace ℂ (Fin 2) →L[ℂ] EuclideanSpace ℂ (Fin 2) :=
-  Matrix.toEuclideanCLM (n := Fin 2) (𝕜 := ℂ) A
-
-lemma Qubit.operator_isSelfAdjoint {A : Matrix (Fin 2) (Fin 2) ℂ}
-    (hA : A.IsHermitian) : IsSelfAdjoint (operator A) := by
-  rw [isSelfAdjoint_iff]
-  calc
-    star (operator A) = operator (star A) := by
-      exact (map_star (Matrix.toEuclideanCLM (n := Fin 2) (𝕜 := ℂ)) A).symm
-    _ = operator A := by
-      exact congrArg (Matrix.toEuclideanCLM (n := Fin 2) (𝕜 := ℂ)) hA
-
-/-- The unitary time evolution generated by a qubit Hamiltonian. -/
-def Qubit.timeEvolution (A : Qubit.Hamiltonian) :
-    UnitaryOneParameterGroup Qubit.HilbertSpace :=
-  UnitaryOneParameterGroup.ofSelfAdjoint (A := ((ℏ : ℂ)⁻¹) • Qubit.operator A.val)
-    ((show IsSelfAdjoint (ℏ : ℂ) by simp [isSelfAdjoint_iff]).inv₀.smul
-      (Qubit.operator_isSelfAdjoint A.property))
+/-- The observable `a · σ` for a real Pauli vector `a`. -/
+noncomputable def vectorObservable (a : EuclideanSpace ℝ (Fin 3)) :
+    𝒪[Fin 2] :=
+  observableMatrixEquiv.symm
+    ⟨PauliMatrix.vectorMatrix (a : Fin 3 → ℝ), vectorMatrix_isSelfAdjoint (a : Fin 3 → ℝ)⟩
 
 @[simp]
-lemma Qubit.timeEvolution_apply (A : Qubit.Hamiltonian) (t : ℝ) :
-    (timeEvolution A t :
-      EuclideanSpace ℂ (Fin 2) →L[ℂ] EuclideanSpace ℂ (Fin 2)) =
-      NormedSpace.exp
-        ((-(t : ℂ) * Complex.I / ℏ) • operator A.val) := by
-  rw [timeEvolution, UnitaryOneParameterGroup.ofSelfAdjoint_apply, smul_smul]
+lemma operatorAlgebraEquivMatrix_vectorObservable (a : EuclideanSpace ℝ (Fin 3)) :
+    operatorAlgebraEquivMatrix (vectorObservable a : 𝒜[Fin 2]) =
+      PauliMatrix.vectorMatrix (a : Fin 3 → ℝ) :=
+  operatorAlgebraEquivMatrix.apply_symm_apply _
+
+/-- The Pauli product formula, at the operator level: `a · σ` squares to `‖a‖² • 1`. -/
+lemma vectorObservable_sq (a : EuclideanSpace ℝ (Fin 3)) :
+    (vectorObservable a : 𝒜[Fin 2]) * (vectorObservable a : 𝒜[Fin 2]) =
+      ((‖a‖ ^ 2 : ℝ) : ℂ) • (1 : 𝒜[Fin 2]) := by
+  apply operatorAlgebraEquivMatrix.injective
+  show operatorAlgebraEquivMatrix
+      ((vectorObservable a : 𝒜[Fin 2]) * (vectorObservable a : 𝒜[Fin 2])) =
+    operatorAlgebraEquivMatrix (((‖a‖ ^ 2 : ℝ) : ℂ) • (1 : 𝒜[Fin 2]))
+  rw [map_mul operatorAlgebraEquivMatrix, map_smul (M := ℂ) operatorAlgebraEquivMatrix, map_one,
+    operatorAlgebraEquivMatrix_vectorObservable, PauliMatrix.vectorMatrix_sq]
   congr 1
+  rw [EuclideanSpace.norm_eq, Real.sq_sqrt (by positivity)]
+  simp only [Real.norm_eq_abs, sq_abs]
+  norm_cast
 
-/-- The operator `-irA`. -/
-noncomputable def ContinuousLinearMap.negIMul
-    {K : Type*} [NormedAddCommGroup K] [InnerProductSpace ℂ K] [CompleteSpace K]
-    (A : K →L[ℂ] K) (r : ℝ) : K →L[ℂ] K := (-(r : ℂ) * Complex.I) • A
 
-lemma ContinuousLinearMap.negIMul_pow_even
-    {K : Type*} [NormedAddCommGroup K] [InnerProductSpace ℂ K] [CompleteSpace K]
-    (A : K →L[ℂ] K) (hA : A * A = 1) (r : ℝ) (n : ℕ) :
-    negIMul A r ^ (2 * n) = ((-1 : ℂ) ^ n * (r : ℂ) ^ (2 * n)) • 1 := by
-  rw [negIMul, smul_pow]
-  have hApow : A ^ (2 * n) = 1 := by rw [pow_mul, pow_two, hA, one_pow]
-  rw [hApow]
-  apply congrArg (fun z : ℂ ↦ z • (1 : K →L[ℂ] K))
-  have hc : (-(r : ℂ) * Complex.I) ^ 2 = -(r : ℂ) ^ 2 := by
-    calc
-      (-(r : ℂ) * Complex.I) ^ 2 = (r : ℂ) ^ 2 * (Complex.I * Complex.I) := by ring_nf
-      _ = -(r : ℂ) ^ 2 := by rw [Complex.I_mul_I, mul_neg, mul_one]
-  rw [pow_mul, hc, neg_pow]
-  conv_rhs => rw [pow_mul]
+/-!
+## An observable given by four real numbers
+-/
 
-lemma ContinuousLinearMap.negIMul_pow_odd
-    {K : Type*} [NormedAddCommGroup K] [InnerProductSpace ℂ K] [CompleteSpace K]
-    (A : K →L[ℂ] K) (hA : A * A = 1) (r : ℝ) (n : ℕ) :
-    negIMul A r ^ (2 * n + 1) =
-      ((-1 : ℂ) ^ n * (r : ℂ) ^ (2 * n + 1) * (-Complex.I)) • A := by
-  rw [pow_succ, negIMul_pow_even A hA]
-  rw [negIMul, Algebra.smul_mul_assoc, one_mul, smul_smul]
-  apply congrArg (fun z : ℂ ↦ z • A)
-  simp only [mul_comm 2 n, pow_succ]
-  ring_nf
+/-- The qubit observable with scalar part `a₀` and Pauli-vector part `a`. -/
+noncomputable def observableOfComponents (a₀ : ℝ) (a : EuclideanSpace ℝ (Fin 3)) :
+    𝒪[Fin 2] :=
+  a₀ • 1 + vectorObservable a
 
-lemma ContinuousLinearMap.hasSum_even_negIMul
-    {K : Type*} [NormedAddCommGroup K] [InnerProductSpace ℂ K] [CompleteSpace K]
-    (A : K →L[ℂ] K) (hA : A * A = 1) (r : ℝ) :
-    HasSum (fun n : ℕ ↦ ((2 * n).factorial : ℂ)⁻¹ • negIMul A r ^ (2 * n))
-      ((Real.cos r : ℂ) • 1) := by
-  convert (Complex.hasSum_cos (r : ℂ)).smul_const (1 : K →L[ℂ] K) using 1
-  · funext n
-    rw [negIMul_pow_even A hA, smul_smul]
+lemma coe_observableOfComponents (a₀ : ℝ) (a : EuclideanSpace ℝ (Fin 3)) :
+    (observableOfComponents a₀ a : 𝒜[Fin 2]) =
+      a₀ • (1 : 𝒜[Fin 2]) + (vectorObservable a : 𝒜[Fin 2]) := by
+  simp [observableOfComponents]
+
+/-- The unitary group generated by the observable with components `(a₀, a)`, evaluated as the
+familiar phase-times-rotation formula: a global phase from the scalar part, times a cosine-sine
+rotation about the Pauli vector `a`. -/
+theorem timeEvolutionℏ_apply_observableOfComponents (a₀ : ℝ) (a : EuclideanSpace ℝ (Fin 3))
+    (t : ℝ) :
+    (Observable.timeEvolutionℏ (observableOfComponents a₀ a) t : 𝒜[Fin 2]) =
+      Complex.exp (-(t : ℂ) * Complex.I * a₀ / ℏ) •
+        ((Real.cos (t * ‖a‖ / ℏ) : ℂ) • (1 : 𝒜[Fin 2]) -
+          ((Real.sin (t * ‖a‖ / ℏ) : ℂ) * Complex.I / ‖a‖) •
+            (vectorObservable a : 𝒜[Fin 2])) := by
+  rw [Observable.timeEvolutionℏ_apply, coe_observableOfComponents,
+    smul_add (-(t : ℂ) * Complex.I / ℏ) (a₀ • (1 : 𝒜[Fin 2])) (vectorObservable a : 𝒜[Fin 2])]
+  rw [show (-(t : ℂ) * Complex.I / ℏ) • (a₀ • (1 : 𝒜[Fin 2])) =
+      (-(t : ℂ) * Complex.I * a₀ / ℏ) • (1 : 𝒜[Fin 2]) by
+    rw [show a₀ • (1 : 𝒜[Fin 2]) = (a₀ : ℂ) • (1 : 𝒜[Fin 2]) from
+      (Complex.coe_smul a₀ (1 : 𝒜[Fin 2])).symm, smul_smul]
     congr 1
-    simp [div_eq_mul_inv]
-    ring_nf
-  · simp
-
-lemma ContinuousLinearMap.hasSum_odd_negIMul
-    {K : Type*} [NormedAddCommGroup K] [InnerProductSpace ℂ K] [CompleteSpace K]
-    (A : K →L[ℂ] K) (hA : A * A = 1) (r : ℝ) :
-    HasSum (fun n : ℕ ↦ ((2 * n + 1).factorial : ℂ)⁻¹ • negIMul A r ^ (2 * n + 1))
-      ((-(Real.sin r : ℂ) * Complex.I) • A) := by
-  have hs := (Complex.hasSum_sin (r : ℂ)).smul_const ((-Complex.I) • A)
-  convert hs using 1
-  · funext n
-    rw [negIMul_pow_odd A hA]
-    simp [div_eq_mul_inv]
-    module
-  · rw [smul_smul]
-    push_cast
-    ring_nf
-
-/-- If `A² = 1`, then `exp (-irA) = cos r • 1 - i sin r • A`. -/
-lemma ContinuousLinearMap.exp_neg_I_mul_of_sq_eq_one
-    {K : Type*} [NormedAddCommGroup K] [InnerProductSpace ℂ K] [CompleteSpace K]
-    (A : K →L[ℂ] K) (hA : A * A = 1) (r : ℝ) :
-    NormedSpace.exp ((-(r : ℂ) * Complex.I) • A) =
-      (Real.cos r : ℂ) • 1 + (-(Real.sin r : ℂ) * Complex.I) • A := by
-  let x := negIMul A r
-  have hexp := NormedSpace.expSeries_hasSum_exp (𝕂 := ℂ) x
-  simp_rw [NormedSpace.expSeries_apply_eq] at hexp
-  replace hexp := (Nat.divModEquiv 2).symm.hasSum_iff.mpr hexp
-  dsimp [Function.comp_def] at hexp
-  have hsplit : HasSum
-      (fun n : ℕ ↦ ((2 * n).factorial : ℂ)⁻¹ • x ^ (2 * n) +
-        ((2 * n + 1).factorial : ℂ)⁻¹ • x ^ (2 * n + 1)) (NormedSpace.exp x) := by
-    simpa [Fin.sum_univ_two, Nat.divModEquiv, mul_comm, pow_succ] using
-      hexp.prod_fiberwise (fun k ↦ hasSum_fintype (fun j : Fin 2 ↦
-        ((Nat.divModEquiv 2).symm (k, j)).factorial.cast⁻¹ •
-          x ^ (Nat.divModEquiv 2).symm (k, j)))
-  exact HasSum.unique hsplit
-    ((hasSum_even_negIMul A hA r).add (hasSum_odd_negIMul A hA r))
-
-lemma ContinuousLinearMap.exp_smul_one
-    {K : Type*} [NormedAddCommGroup K] [InnerProductSpace ℂ K] [CompleteSpace K] (z : ℂ) :
-    NormedSpace.exp (z • (1 : K →L[ℂ] K)) = Complex.exp z • 1 := by
-  change NormedSpace.exp (algebraMap ℂ (K →L[ℂ] K) z) = _
-  rw [← NormedSpace.algebraMap_exp_comm, Complex.exp_eq_exp_ℂ]
-  simp [Algebra.algebraMap_eq_smul_one]
-
-namespace Qubit
-
-section Qubit
-
-/-- The bounded operator corresponding to the Pauli-vector part of `A`. -/
-noncomputable def vectorOperator (A : Hamiltonian) : HilbertSpace →L[ℂ] HilbertSpace :=
-  operator (vectorPart A)
-
-lemma hamiltonian_eq_scalar_add_vector (A : Hamiltonian) :
-    operator A.val = (scalarPart A : ℂ) • 1 + vectorOperator A := by
-  rw [matrix_eq_scalar_add_vector A]
-  ext v i
-  fin_cases i <;>
-  simp [operator, vectorOperator, Matrix.mulVec, dotProduct]
-
-lemma vectorOperator_sq (A : Hamiltonian) :
-    vectorOperator A * vectorOperator A = (pauliRadius A ^ 2 : ℝ) • 1 := by
-  ext v i
-  change (vectorPart A).mulVec ((vectorPart A).mulVec v.ofLp) i = _
-  rw [Matrix.mulVec_mulVec, vectorPart_sq A]
-  fin_cases i <;> simp [Matrix.mulVec, dotProduct]
-
-/-- If the Pauli vector vanishes, time evolution is the global phase generated by the scalar
-part of the Hamiltonian. -/
-lemma timeEvolution_apply_of_pauliRadius_eq_zero (A : Hamiltonian)
-    (h : pauliRadius A = 0) (t : ℝ) :
-    (timeEvolution A t :
-      EuclideanSpace ℂ (Fin 2) →L[ℂ] EuclideanSpace ℂ (Fin 2)) =
-      Complex.exp (-(t : ℂ) * Complex.I * scalarPart A / ℏ) • 1 := by
-  rw [timeEvolution_apply, hamiltonian_eq_scalar_add_vector A]
-  have hvector : vectorOperator A = 0 := by
-    rw [vectorOperator, vectorPart_eq_zero_of_pauliRadius_eq_zero A h]
-    ext
-    simp [operator]
-  rw [hvector, add_zero, smul_smul]
-  rw [ContinuousLinearMap.exp_smul_one]
-  congr 2
-  ring_nf
-
-lemma exp_vectorOperator (A : Hamiltonian) (h : pauliRadius A ≠ 0) (t : ℝ) :
-    NormedSpace.exp ((-(t : ℂ) * Complex.I / ℏ) • vectorOperator A) =
-      (Real.cos (t * pauliRadius A / ℏ) : ℂ) • 1 +
-        (-(Real.sin (t * pauliRadius A / ℏ) : ℂ) * Complex.I /
-          pauliRadius A) • vectorOperator A := by
-  let C : HilbertSpace →L[ℂ] HilbertSpace :=
-    (pauliRadius A : ℂ)⁻¹ • vectorOperator A
-  have hC : C * C = 1 := by
-    have hr : (pauliRadius A : ℂ) ≠ 0 := by exact_mod_cast h
-    change ((pauliRadius A : ℂ)⁻¹ • vectorOperator A) *
-      ((pauliRadius A : ℂ)⁻¹ • vectorOperator A) = 1
-    rw [smul_mul_smul, vectorOperator_sq]
-    ext v i
-    simp [Complex.real_smul]
-    field_simp [hr]
-  rw [show (-(t : ℂ) * Complex.I / ℏ) • vectorOperator A =
-      ((-(t * pauliRadius A / ℏ : ℝ) : ℂ) * Complex.I) • C by
-    dsimp [C]
-    rw [smul_smul]
+    ring]
+  rw [show (-(t : ℂ) * Complex.I / ℏ) • (vectorObservable a : 𝒜[Fin 2]) =
+      (-((t / ℏ : ℝ) : ℂ) * Complex.I) • (vectorObservable a : 𝒜[Fin 2]) by
     congr 1
     push_cast
-    have hr : (pauliRadius A : ℂ) ≠ 0 := by exact_mod_cast h
-    field_simp [hr]]
-  rw [ContinuousLinearMap.exp_neg_I_mul_of_sq_eq_one C hC]
-  congr 1
-  dsimp [C]
-  rw [smul_smul]
-  congr 1
-
-/-- For nonzero Pauli radius, the time evolution of `A = a₀ I + a · σ` is a global phase
-times the usual cosine–sine rotation generated by its normalized Pauli vector. -/
-lemma timeEvolution_apply_of_pauliRadius_ne_zero (A : Hamiltonian)
-    (h : pauliRadius A ≠ 0) (t : ℝ) :
-    (timeEvolution A t :
-      EuclideanSpace ℂ (Fin 2) →L[ℂ] EuclideanSpace ℂ (Fin 2)) =
-      Complex.exp (-(t : ℂ) * Complex.I * scalarPart A / ℏ) •
-        ((Real.cos (t * pauliRadius A / ℏ) : ℂ) • 1 +
-          (-(Real.sin (t * pauliRadius A / ℏ) : ℂ) * Complex.I /
-            pauliRadius A) • vectorOperator A) := by
-  letI : NormedAlgebra ℚ
-      (EuclideanSpace ℂ (Fin 2) →L[ℂ] EuclideanSpace ℂ (Fin 2)) :=
-    .restrictScalars ℚ ℂ _
-  rw [timeEvolution_apply, hamiltonian_eq_scalar_add_vector A, smul_add]
-  let c : ℂ := -(t : ℂ) * Complex.I / ℏ
-  let B := vectorOperator A
-  have hcomm : Commute (c • ((scalarPart A : ℂ) •
-      (1 : EuclideanSpace ℂ (Fin 2) →L[ℂ] EuclideanSpace ℂ (Fin 2)))) (c • B) :=
-    by simpa [smul_smul] using
-      ((Commute.one_left B).smul_left (c * scalarPart A)).smul_right c
-  rw [NormedSpace.exp_add_of_commute hcomm]
-  have hscalar : NormedSpace.exp (c • ((scalarPart A : ℂ) •
-      (1 : EuclideanSpace ℂ (Fin 2) →L[ℂ] EuclideanSpace ℂ (Fin 2)))) =
-      Complex.exp (-(t : ℂ) * Complex.I * scalarPart A / ℏ) • 1 := by
-    rw [smul_smul, ContinuousLinearMap.exp_smul_one]
-    congr 2
-    dsimp [c]
-    ring_nf
-  rw [hscalar]
-  change Complex.exp (-(t : ℂ) * Complex.I * scalarPart A / ℏ) •
-      NormedSpace.exp (c • B) = _
-  congr 1
-  exact exp_vectorOperator A h t
-
-/-- The explicit time-evolution matrix of a two-level Hamiltonian. -/
-noncomputable def evolutionMatrix (A : Hamiltonian) (t : ℝ) :
-    Matrix (Fin 2) (Fin 2) ℂ :=
-  let phase := Complex.exp (-(t : ℂ) * Complex.I * scalarPart A / ℏ)
-  if pauliRadius A = 0 then
-    phase • 1
-  else
-    phase • ((Real.cos (t * pauliRadius A / ℏ) : ℂ) • 1 +
-      (-(Real.sin (t * pauliRadius A / ℏ) : ℂ) * Complex.I /
-        pauliRadius A) • vectorPart A)
-
-/-- The evolution generated by any Hermitian `2 × 2` matrix is represented by its explicit
-Pauli-decomposition formula `e⁻ⁱᵗᵃ⁰/ℏ (cos (tr/ℏ) I - i sin (tr/ℏ) (a · σ)/r)`, with the
-scalar case included. -/
-lemma timeEvolution_apply_eq_evolutionMatrix (A : Hamiltonian) (t : ℝ) :
-    (timeEvolution A t :
-      EuclideanSpace ℂ (Fin 2) →L[ℂ] EuclideanSpace ℂ (Fin 2)) =
-      operator (evolutionMatrix A t) := by
-  by_cases h : pauliRadius A = 0
-  · rw [timeEvolution_apply_of_pauliRadius_eq_zero A h]
-    simp [evolutionMatrix, h]
-    ext v i
-    simp [operator]
-  · rw [timeEvolution_apply_of_pauliRadius_ne_zero A h]
-    simp [evolutionMatrix, h]
-    ext v i
-    simp [operator, vectorOperator, Matrix.mulVec, dotProduct]
-
-end Qubit
+    ring]
+  let _ : NormedAlgebra ℚ (𝒜[Fin 2]) := .restrictScalars ℚ ℂ _
+  have hcomm : Commute ((-(t : ℂ) * Complex.I * a₀ / ℏ) • (1 : 𝒜[Fin 2]))
+      ((-((t / ℏ : ℝ) : ℂ) * Complex.I) • (vectorObservable a : 𝒜[Fin 2])) :=
+    (Commute.one_left _).smul_left _
+  rw [NormedSpace.exp_add_of_commute hcomm, ContinuousLinearMap.exp_smul_one,
+    ContinuousLinearMap.exp_neg_I_smul_of_sq_eq_smul_one (vectorObservable a).property ‖a‖
+      (vectorObservable_sq a) (t / ℏ)]
+  rw [show ‖a‖ * (t / ℏ) = t * ‖a‖ / ℏ by ring, smul_mul_assoc, one_mul]
 
 end Qubit
 

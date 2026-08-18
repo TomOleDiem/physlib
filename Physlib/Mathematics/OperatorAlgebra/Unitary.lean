@@ -33,7 +33,7 @@ No separate notion of unitary conjugation is introduced.
 
 @[expose] public section
 
-namespace QuantumMechanics
+namespace OperatorAlgebra
 
 open scoped ComplexOrder
 
@@ -80,8 +80,7 @@ noncomputable def observable
     (U : Unitary A)
     (a : Observable A) :
     Observable A :=
-  ⟨automorphism U (a : A), by
-    sorry⟩
+  ⟨automorphism U (a : A), a.property.map (automorphism U)⟩
 
 
 @[simp]
@@ -113,8 +112,12 @@ noncomputable def effect
     Effect A :=
   ⟨observable U (E : Observable A), by
     constructor
-    · sorry
-    · sorry⟩
+    · show (0 : A) ≤ (observable U (E : Observable A) : A)
+      rw [coe_observable]
+      simpa using OrderHomClass.mono (automorphism U) (Subtype.coe_le_coe.mpr E.property.1)
+    · show (observable U (E : Observable A) : A) ≤ (1 : A)
+      rw [coe_observable]
+      simpa using OrderHomClass.mono (automorphism U) (Subtype.coe_le_coe.mpr E.property.2)⟩
 
 
 @[simp]
@@ -135,8 +138,7 @@ noncomputable def projection
     (U : Unitary A)
     (P : Projection A) :
     Projection A :=
-  ⟨automorphism U (P : A), by
-    sorry⟩
+  ⟨automorphism U (P : A), P.property.map (automorphism U)⟩
 
 
 @[simp]
@@ -150,4 +152,4 @@ lemma coe_projection
 
 end Unitary
 
-end QuantumMechanics
+end OperatorAlgebra

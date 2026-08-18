@@ -23,7 +23,7 @@ applying a real-valued function to an `Observable` again returns an
 
 @[expose] public section
 
-namespace QuantumMechanics
+namespace OperatorAlgebra
 
 open scoped ComplexOrder
 
@@ -40,8 +40,7 @@ noncomputable def observableCFC
     (f : ℝ → ℝ)
     (a : Observable A) :
     Observable A :=
-  ⟨_root_.cfc f (a : A), by
-    sorry⟩
+  ⟨_root_.cfc f (a : A), cfc_predicate f (a : A)⟩
 
 omit [PartialOrder A] [StarOrderedRing A]
 /--
@@ -56,4 +55,4 @@ lemma coe_observableCFC
       _root_.cfc f (a : A) :=
   rfl
 
-end QuantumMechanics
+end OperatorAlgebra

@@ -11,6 +11,7 @@ public import Physlib.ClassicalMechanics.HarmonicOscillator.Basic
 public import Physlib.ClassicalMechanics.HarmonicOscillator.Geometric.Basic
 public import Physlib.ClassicalMechanics.HarmonicOscillator.Geometric.KineticEnergy
 public import Physlib.ClassicalMechanics.HarmonicOscillator.Geometric.Trajectory
+public import Physlib.ClassicalMechanics.HarmonicOscillator.OperatorAlgebra.Basic
 public import Physlib.ClassicalMechanics.HarmonicOscillator.Solution
 public import Physlib.ClassicalMechanics.Lagrangian.TotalDerivativeEquivalence
 public import Physlib.ClassicalMechanics.Mass.MassUnit
@@ -129,10 +130,12 @@ public import Physlib.Mathematics.List
 public import Physlib.Mathematics.List.InsertIdx
 public import Physlib.Mathematics.List.InsertionSort
 public import Physlib.Mathematics.OneParameterSubgroups.Basic
+public import Physlib.Mathematics.OneParameterSubgroups.Rotation
 public import Physlib.Mathematics.OneParameterSubgroups.Unitary
 public import Physlib.Mathematics.OperatorAlgebra.Basic
+public import Physlib.Mathematics.OperatorAlgebra.BoundedContinuousFunction
+public import Physlib.Mathematics.OperatorAlgebra.Dynamics
 public import Physlib.Mathematics.OperatorAlgebra.Effect
-public import Physlib.Mathematics.OperatorAlgebra.FiniteState
 public import Physlib.Mathematics.OperatorAlgebra.FunctionalCalculus
 public import Physlib.Mathematics.OperatorAlgebra.State
 public import Physlib.Mathematics.OperatorAlgebra.Unitary
@@ -339,6 +342,10 @@ public import Physlib.QuantumMechanics.HilbertSpaces.TensorProducts.CompleteTens
 public import Physlib.QuantumMechanics.Hydrogen.Basic
 public import Physlib.QuantumMechanics.Hydrogen.LaplaceRungeLenzVector
 public import Physlib.QuantumMechanics.InfiniteSquareWell.Basic
+public import Physlib.QuantumMechanics.OperatorAlgebra.Basic
+public import Physlib.QuantumMechanics.OperatorAlgebra.Hamiltonian
+public import Physlib.QuantumMechanics.OperatorAlgebra.Matrix
+public import Physlib.QuantumMechanics.OperatorAlgebra.State
 public import Physlib.QuantumMechanics.Operators.AngularMomentum
 public import Physlib.QuantumMechanics.Operators.Commutation
 public import Physlib.QuantumMechanics.Operators.Covariance
