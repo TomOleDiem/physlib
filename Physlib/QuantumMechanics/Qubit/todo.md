@@ -39,10 +39,19 @@ Working step by step; only what is checked off below has been started.
       `pauliBasis` as a hypothesis; an arbitrary `QubitAlgebra A` can still be a strictly larger
       algebra.
 - [x] **`PauliVector.lean`** — `σ(v)`, the product identity `σ(u)σ(v) = (u·v)1 + iσ(u×v)`,
-      the square identity, the commutator identity (all stubbed).
+      the square identity, the commutator identity. **Fully proved, no `sorry`s**: expand `σ u`,
+      `σ v` into their three generator terms (`Fin.sum_univ_three`), substitute the Pauli
+      relations on each of the 9 generator products, close with `module`. Also proved
+      `isSelfAdjoint_σ` and a small `σ_neg` helper.
 - [x] **`Observable.lean`** — `coeff` (real, from `pauliBasis.repr`, uniqueness is free); the
-      self-adjoint ⇔ real-coefficients characterization and `observableEquiv : Observable A
-      ≃ₗ[ℝ] ℝ × (Fin 3 → ℝ)` via `(a₀, v) ↦ a₀ • 1 + σ v` (both stubbed).
+      self-adjoint ⇔ real-coefficients characterization (`isSelfAdjoint_iff_coeff`) and
+      `observableEquiv : Observable A ≃ₗ[ℝ] ℝ × (Fin 3 → ℝ)` via `(a₀, v) ↦ a₀ • 1 + σ v`.
+      **Fully proved, no `sorry`s.** New helper lemmas along the way: `isSelfAdjoint_pauliBasis`
+      (every basis element is `1` or a generator, hence self-adjoint), `coeff_eq_of_eq_sum` (read
+      off coefficients from *any* explicit `pauliBasis` combination, not just the canonical
+      `Basis.repr` one — used repeatedly), `coeff_star` (`star` conjugates every coefficient),
+      `real_smul_eq_ofReal_smul` (bridges the `ℝ`- and `ℂ`-scalar actions on `A`, needed for
+      `observableEquiv`'s `map_smul'`).
 - [x] **`Spectrum.lean`** — `spectrum ℝ (a₀ • 1 + σ v) = {a₀ ± ‖v‖}` and the positivity criterion
       `0 ≤ a₀ • 1 + σ v ↔ ‖v‖ ≤ a₀` (both stubbed). Norms of `v : Fin 3 → ℝ` go through
       `WithLp.toLp 2 v : EuclideanSpace ℝ (Fin 3)` — see the open decision below, now resolved.
@@ -60,10 +69,10 @@ Working step by step; only what is checked off below has been started.
       Metric.closedBall (0 : EuclideanSpace ℝ (Fin 3)) 1`; purity
       `isPure_iff_norm_r_eq_one : ω.IsPure ↔ ‖r ω‖ = 1` (all stubbed). Finishes roadmap §5–6.
 - [x] **`Lie.lean`** — `τ v = -i/2 • σ v` (the `su(2)`-normalized generator), skew-adjoint
-      (stubbed); `τ u * τ v - τ v * τ u = τ (u ⨯₃ v)` *exactly*, no leftover scalar (stubbed) —
-      `τ` is a genuine Lie ring homomorphism from `Cross.lieRing` on `Fin 3 → ℝ` to `A`'s
-      commutator. Also added `Qubit.isSelfAdjoint_σ` to `PauliVector.lean` as a small
-      prerequisite. Kept separate from the C⋆-representation notion, per the roadmap.
+      (`τ_mem_skewAdjoint`); `τ u * τ v - τ v * τ u = τ (u ⨯₃ v)` *exactly*, no leftover scalar
+      (`τ_mul_sub_mul`) — `τ` is a genuine Lie ring homomorphism from `Cross.lieRing` on
+      `Fin 3 → ℝ` to `A`'s commutator. **Fully proved, no `sorry`s**, from `σ_commutator` and
+      `Complex.I_pow_three`. Kept separate from the C⋆-representation notion, per the roadmap.
 - [x] **`Physlib/Mathematics/OperatorAlgebra/Unitary.lean`** — ported in, trimmed to
       `automorphism`/`automorphism_apply`/`observable`/`coe_observable(_eq)`. Real, proven, not
       stubs (mostly just Mathlib's `Unitary.conjStarAlgAut` repackaged). Effects/projections
@@ -71,7 +80,15 @@ Working step by step; only what is checked off below has been started.
 - [x] **`Qubit/Unitary.lean`** — `R U : (Fin 3 → ℝ) →ₗ[ℝ] (Fin 3 → ℝ)` characterized by
       `coe_R : U σ(v) U⋆ = σ(R U v)`; isometry (`norm_R_apply`); composition law `R (U*V) = (R
       U).comp (R V)` (verified the order from `Unitary.conjStarAlgAut`'s `map_mul'` before
-      stating it); `R_one`. All stubbed.
+      stating it); `R_one`. All stubbed. **`R`'s TODO was sharpened** once `observableEquiv`
+      became available: `R U v := (observableEquiv ⟨automorphism U (σ v), _⟩).2`, and the one
+      remaining piece of content is that the *scalar* component of `observableEquiv (...)` is `0`
+      — which reduces to `trace` being conjugation-invariant (`trace (U a U⋆) = trace a`, from
+      cyclicity `trace (x y) = trace (y x)` plus `U⋆ U = 1`), and cyclicity itself is checkable
+      abstractly by bilinear extension from the four `pauliBasis` elements (no matrices; see the
+      TODO in the file for the full worked argument). The math is checked and correct; the Lean
+      formalization of the bilinear-extension bookkeeping is not yet done — a first attempt got
+      tangled in `Finset.sum`/`Basis.repr` manipulation and was reverted rather than left broken.
 - [x] **`SO(3)`, abstractly, no matrices** — `det_R_eq_one` (`LinearMap.det` is already
       basis-independent) and `IsRotation`/`isRotation_R` (norm-preserving + `det = 1`; the
       latter is a real, non-stubbed corollary — just tupling the two stubbed facts, no new
@@ -103,10 +120,12 @@ Working step by step; only what is checked off below has been started.
 - [x] **`Qubit/Dynamics.lean`** — `unitaryEvolution Hobs t = exp(-it Hobs)`, built directly from
       Mathlib's `selfAdjoint.expUnitary` (not `OneParameterSubgroups.Unitary`, which turned out
       to be Hilbert-space-specific, `H →L[ℂ] H` — `expUnitary` is genuinely abstract, works
-      for any `CStarAlgebra A`, and is a better fit). `unitaryEvolution_zero/_add` (group law);
-      `hamiltonianFlow : AutomorphismGroup A`; `blochTrajectory`; the Bloch equation
-      `hasDerivAt_blochTrajectory : dr/dt = 2 h ⨯₃ r`, TODO spells out why only the traceless
-      part `h` survives. All stubbed. Finishes roadmap §9.
+      for any `CStarAlgebra A`, and is a better fit). `unitaryEvolution_zero/_add` (group law) and
+      `hamiltonianFlow : AutomorphismGroup A` — **fully proved/constructed, no `sorry`s**, from
+      `selfAdjoint.expUnitary_zero`/`Commute.expUnitary_add` and `automorphism`'s multiplicativity.
+      `blochTrajectory` (built from `Qubit.R`, so still tagged `sorryful`) and the Bloch equation
+      `hasDerivAt_blochTrajectory : dr/dt = 2 h ⨯₃ r` (blocked on `Qubit.R`, TODO spells out why
+      only the traceless part `h` survives) remain stubbed. Finishes roadmap §9.
 - [x] **`Physlib/Mathematics/OperatorAlgebra/JordanLie.lean`** (renamed from `Jordan.lean`; new,
       general, not qubit-specific) — the Jordan product `jordan a b = ½(ab+ba)` and observable Lie
       bracket `obsBracket a b = -i(ab-ba)` on `Observable A`, and `mul_eq_jordan_add_obsBracket :
@@ -123,14 +142,15 @@ Working step by step; only what is checked off below has been started.
       See `notes.md` §1–2 for how this connects to the qubit's dot/cross product (not yet formally
       connected).
 - [x] **`Qubit/AdjointAction.lean`** — Stone's theorem for `SO(3)`: `adjointAction Hobs : v ↦ 2 •
-      (h ⨯₃ v)` (real, no proof needed — `2 •` a partially-applied `crossProduct` is linear for
-      free) is the generator of `rotationFlow Hobs t := R (unitaryEvolution Hobs t)`, the
+      (h ⨯₃ v)` is the generator of `rotationFlow Hobs t := R (unitaryEvolution Hobs t)`, the
       one-parameter rotation group `Qubit.R` pushes `Qubit.unitaryEvolution` down to.
-      `isRotation_rotationFlow` is real (from `isRotation_R`); `rotationFlow_zero`/`_add` and
-      `hasDerivAt_rotationFlow_apply` (restating `hasDerivAt_blochTrajectory` around the named
-      generator) are stubbed. Noted, not yet checked: the relationship between `adjointAction` and
-      the abstract Lie-algebra `ad` that `JordanLie.lean`'s new `LieAlgebra ℝ (Observable A)`
-      instance now makes available.
+      `adjointAction`/`adjointAction_apply` are now **fully proved, no `sorry`s** — they were only
+      tagged `sorryful` because they depend on `Qubit.observableEquiv`, which is now real;
+      untagged once `Observable.lean`'s work landed. `rotationFlow`/`isRotation_rotationFlow` (via
+      `Qubit.R`/`isRotation_R`) and `rotationFlow_zero`/`_add`/`hasDerivAt_rotationFlow_apply`
+      remain blocked on `Qubit.R`. Noted, not yet checked: the relationship between
+      `adjointAction` and the abstract Lie-algebra `ad` that `JordanLie.lean`'s
+      `LieAlgebra ℝ (Observable A)` instance now makes available.
 - [ ] **`SO(3)` kernel/double cover** — identifying `Qubit.R`'s kernel with the scalar unitaries,
       `SU(2) → SO(3)`, kernel `{±1}`. Not started.
 - [ ] **`Matrix.lean`** — last. `𝒜[Fin 2] = B(ℂ²)`, Pauli matrices, `QubitAlgebra` instance,
