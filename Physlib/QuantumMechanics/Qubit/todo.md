@@ -34,10 +34,18 @@ Working step by step; only what is checked off below has been started.
       `τ` is a genuine Lie ring homomorphism from `Cross.lieRing` on `Fin 3 → ℝ` to `A`'s
       commutator. Also added `Qubit.isSelfAdjoint_σ` to `PauliVector.lean` as a small
       prerequisite. Kept separate from the C⋆-representation notion, per the roadmap.
-- [ ] **`Unitary.lean`** — needs `OperatorAlgebra.Unitary.automorphism`/`.observable` ported in
-      from the abandoned branch first (wraps Mathlib's `Unitary.conjStarAlgAut`). `R_U : ℝ³ → ℝ³`
-      from `U σ(v) U⋆ = σ(R_U v)`; orthogonality; lands in `Matrix.specialOrthogonalGroup (Fin 3)
-      ℝ`; `R_(UV) = R_U R_V`; kernel = scalar unitaries (double cover, kernel `{±1}`).
+- [x] **`Physlib/Mathematics/OperatorAlgebra/Unitary.lean`** — ported in, trimmed to
+      `automorphism`/`automorphism_apply`/`observable`/`coe_observable(_eq)`. Real, proven, not
+      stubs (mostly just Mathlib's `Unitary.conjStarAlgAut` repackaged). Effects/projections
+      left out, not needed here.
+- [x] **`Qubit/Unitary.lean`** — `R U : (Fin 3 → ℝ) →ₗ[ℝ] (Fin 3 → ℝ)` characterized by
+      `coe_R : U σ(v) U⋆ = σ(R U v)`; isometry (`norm_R_apply`); composition law `R (U*V) = (R
+      U).comp (R V)` (verified the order from `Unitary.conjStarAlgAut`'s `map_mul'` before
+      stating it); `R_one`. All stubbed.
+- [ ] Not yet started, deferred from §8: landing `R U` inside `Matrix.specialOrthogonalGroup
+      (Fin 3) ℝ` (needs a chosen basis/matrix representation and an orientation/determinant
+      argument), and identifying the kernel with the scalar unitaries — the `SU(2) → SO(3)`
+      double cover, kernel `{±1}`.
 - [ ] **`Dynamics.lean`** — `H = h₀1 + σ h`; Bloch equation `dr/dt = 2h × r` from the Pauli
       commutator, hooked into `Physlib.Mathematics.OneParameterSubgroups.Unitary` (already on
       `upstream/master`, no Stone/exponential theory to redevelop). Finite-time evolution as a

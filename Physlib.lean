@@ -132,6 +132,7 @@ public import Physlib.Mathematics.OneParameterSubgroups.Basic
 public import Physlib.Mathematics.OneParameterSubgroups.Unitary
 public import Physlib.Mathematics.OperatorAlgebra.Basic
 public import Physlib.Mathematics.OperatorAlgebra.State
+public import Physlib.Mathematics.OperatorAlgebra.Unitary
 public import Physlib.Mathematics.OrthogonalMatrix
 public import Physlib.Mathematics.PiTensorProduct
 public import Physlib.Mathematics.RatComplexNum
@@ -366,6 +367,7 @@ public import Physlib.QuantumMechanics.Qubit.Observable
 public import Physlib.QuantumMechanics.Qubit.PauliVector
 public import Physlib.QuantumMechanics.Qubit.Spectrum
 public import Physlib.QuantumMechanics.Qubit.State
+public import Physlib.QuantumMechanics.Qubit.Unitary
 public import Physlib.QuantumMechanics.RectangularBarrier.Basic
 public import Physlib.QuantumMechanics.SpaceDQuantumSystem
 public import Physlib.Relativity.Bispinors.Basic
