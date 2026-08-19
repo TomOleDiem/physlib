@@ -15,7 +15,13 @@ system, states as positive unital functionals, dynamics as maps of the algebra.
 
 Together they recover the original product: `ab = a∘b + (i/2)[a,b]_obs`. **Implemented**:
 `OperatorAlgebra.Observable.mul_eq_jordan_add_obsBracket`. All three are fully proved, no
-`sorry`s — see `Physlib/Mathematics/OperatorAlgebra/Jordan.lean`.
+`sorry`s — see `Physlib/Mathematics/OperatorAlgebra/JordanLie.lean`. `obsBracket` is a genuine
+`LieRing`/`LieAlgebra ℝ` instance on `Observable A` (Mathlib's real notion,
+`Mathlib.Algebra.Lie.OfAssociative`); the Jordan identity for `jordan` is proved concretely rather
+than via a registered instance (Mathlib does have `IsJordan`/`IsCommJordan`/`SymAlg`,
+`Mathlib.Algebra.Jordan.Basic`/`Mathlib.Algebra.Symmetrized` — connecting `Observable A` to that
+abstractly is a logged `TODO`, needing `Invertible (2 : A)` and care around a `Mul` diamond with
+`selfAdjoint`'s own instance when `A` is commutative).
 
 Schematically: `C⋆-algebra ⤳ Jordan geometry + Lie dynamics`.
 

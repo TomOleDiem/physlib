@@ -65,12 +65,32 @@ Working step by step; only what is checked off below has been started.
       `hamiltonianFlow : AutomorphismGroup A`; `blochTrajectory`; the Bloch equation
       `hasDerivAt_blochTrajectory : dr/dt = 2 h ⨯₃ r`, TODO spells out why only the traceless
       part `h` survives. All stubbed. Finishes roadmap §9.
-- [x] **`Physlib/Mathematics/OperatorAlgebra/Jordan.lean`** (new, general, not qubit-specific)
-      — the Jordan product `jordan a b = ½(ab+ba)` and observable Lie bracket `obsBracket a b =
-      -i(ab-ba)` on `Observable A`, and `mul_eq_jordan_add_obsBracket : ab = a∘b +
-      (i/2)⁅a,b⁆ₒ`. **Fully proved, no `sorry`s** — genuinely easy, matching self-adjointness
-      through `star_add`/`star_mul`/`star_smul` plus `Complex.I_mul_I`. See `notes.md` §1–2 for
-      how this connects to the qubit's dot/cross product (not yet formally connected).
+- [x] **`Physlib/Mathematics/OperatorAlgebra/JordanLie.lean`** (renamed from `Jordan.lean`; new,
+      general, not qubit-specific) — the Jordan product `jordan a b = ½(ab+ba)` and observable Lie
+      bracket `obsBracket a b = -i(ab-ba)` on `Observable A`, and `mul_eq_jordan_add_obsBracket :
+      ab = a∘b + (i/2)⁅a,b⁆ₒ`. **Fully proved, no `sorry`s.** Then: `⁅·,·⁆ₒ` is registered as a
+      genuine `LieRing (Observable A)`/`LieAlgebra ℝ (Observable A)` instance (Mathlib's real
+      notion, `Mathlib.Algebra.Lie.OfAssociative`), Jacobi identity transported from the ring
+      commutator on `A`; and `jordan_comm`/`jordan_jordan_identity` prove the Jordan identity
+      `(a∘a)∘(b∘a) = ((a∘a)∘b)∘a` directly (not via a registered `IsCommJordan` instance — that's
+      logged as a `TODO` in the file: needs `Invertible (2 : A)` and care to avoid a `Mul`
+      diamond with `selfAdjoint`'s own instance when `A` is commutative). **Correction:** an
+      earlier pass invented a bespoke `JordanRing`/`JordanAlgebra` class before realizing Mathlib
+      already has `IsJordan`/`IsCommJordan`/`SymAlg` (`Mathlib.Algebra.Jordan.Basic`,
+      `Mathlib.Algebra.Symmetrized`) — the invented class was removed, the concrete lemmas kept.
+      See `notes.md` §1–2 for how this connects to the qubit's dot/cross product (not yet formally
+      connected).
+- [x] **`Qubit/AdjointAction.lean`** — Stone's theorem for `SO(3)`: `adjointAction Hobs : v ↦ 2 •
+      (h ⨯₃ v)` (real, no proof needed — `2 •` a partially-applied `crossProduct` is linear for
+      free) is the generator of `rotationFlow Hobs t := R (unitaryEvolution Hobs t)`, the
+      one-parameter rotation group `Qubit.R` pushes `Qubit.unitaryEvolution` down to.
+      `isRotation_rotationFlow` is real (from `isRotation_R`); `rotationFlow_zero`/`_add` and
+      `hasDerivAt_rotationFlow_apply` (restating `hasDerivAt_blochTrajectory` around the named
+      generator) are stubbed. Noted, not yet checked: the relationship between `adjointAction` and
+      the abstract Lie-algebra `ad` that `JordanLie.lean`'s new `LieAlgebra ℝ (Observable A)`
+      instance now makes available.
+- [ ] **`SO(3)` kernel/double cover** — identifying `Qubit.R`'s kernel with the scalar unitaries,
+      `SU(2) → SO(3)`, kernel `{±1}`. Not started.
 - [ ] **`Matrix.lean`** — last. `𝒜[Fin 2] = B(ℂ²)`, Pauli matrices, `QubitAlgebra` instance,
       then everything above specializes for free.
 - [ ] **Representations** (possibly `Representation.lean`, or folded elsewhere) — keep the

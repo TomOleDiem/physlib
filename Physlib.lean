@@ -132,7 +132,7 @@ public import Physlib.Mathematics.OneParameterSubgroups.Basic
 public import Physlib.Mathematics.OneParameterSubgroups.Unitary
 public import Physlib.Mathematics.OperatorAlgebra.Basic
 public import Physlib.Mathematics.OperatorAlgebra.Dynamics
-public import Physlib.Mathematics.OperatorAlgebra.Jordan
+public import Physlib.Mathematics.OperatorAlgebra.JordanLie
 public import Physlib.Mathematics.OperatorAlgebra.State
 public import Physlib.Mathematics.OperatorAlgebra.Unitary
 public import Physlib.Mathematics.OrthogonalMatrix
@@ -362,6 +362,7 @@ public import Physlib.QuantumMechanics.Operators.Uncertainty
 public import Physlib.QuantumMechanics.PlanckConstant
 public import Physlib.QuantumMechanics.PoschlTeller.Basic
 public import Physlib.QuantumMechanics.QuantumSystem.Basic
+public import Physlib.QuantumMechanics.Qubit.AdjointAction
 public import Physlib.QuantumMechanics.Qubit.Basic
 public import Physlib.QuantumMechanics.Qubit.Dynamics
 public import Physlib.QuantumMechanics.Qubit.Effect
