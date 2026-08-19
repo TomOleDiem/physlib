@@ -54,6 +54,17 @@ namespace State
 ## Basic properties
 -/
 
+noncomputable instance instCoeFun :
+    CoeFun (State A) (fun _ => A → ℂ) where
+  coe ω := ω.toPositiveLinearMap
+
+
+@[simp]
+lemma apply_one (ω : State A) :
+    ω 1 = 1 :=
+  ω.map_one
+
+
 /-- Two states are equal if they agree on every element of the algebra. -/
 @[ext]
 lemma ext {ω φ : State A}

@@ -115,10 +115,13 @@ lemma _root_.Matrix.toEuclideanCLM_exp (x : Matrix d d ℂ) :
   exact NormedSpace.map_exp (Matrix.toEuclideanCLM (n := d) (𝕜 := ℂ))
     Matrix.toEuclideanCLM_continuous x
 
+-- The `synthInstance.maxHeartbeats` bump is needed because of the size of the ambient instance
+-- cache, not because this instance search is actually hard; it is otherwise the same proof.
+set_option synthInstance.maxHeartbeats 400000 in
 /-- `operatorAlgebraEquivMatrix` is continuous: both of its two constituent pieces
 (conjugation by a Hilbert-space isometry, and the identification of matrices with Euclidean
 operators) are isometries. -/
-lemma operatorAlgebraEquivMatrix_continuous :
+theorem operatorAlgebraEquivMatrix_continuous :
     Continuous (operatorAlgebraEquivMatrix (d := d)) := by
   have h1 : Continuous (FiniteHilbertSpace.isometryEquivEuclidean (d := d)).conjStarAlgEquiv := by
     have h : ⇑(FiniteHilbertSpace.isometryEquivEuclidean (d := d)).conjStarAlgEquiv =

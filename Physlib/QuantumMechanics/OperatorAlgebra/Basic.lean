@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.Mathematics.OperatorAlgebra.Basic
+public import Physlib.Mathematics.OperatorAlgebra.Effect
 public import Physlib.QuantumMechanics.HilbertSpaces.FiniteTarget.Basic
 
 /-!

@@ -134,9 +134,11 @@ public import Physlib.Mathematics.OneParameterSubgroups.Rotation
 public import Physlib.Mathematics.OneParameterSubgroups.Unitary
 public import Physlib.Mathematics.OperatorAlgebra.Basic
 public import Physlib.Mathematics.OperatorAlgebra.BoundedContinuousFunction
+public import Physlib.Mathematics.OperatorAlgebra.Channel
 public import Physlib.Mathematics.OperatorAlgebra.Dynamics
 public import Physlib.Mathematics.OperatorAlgebra.Effect
 public import Physlib.Mathematics.OperatorAlgebra.FunctionalCalculus
+public import Physlib.Mathematics.OperatorAlgebra.Observable
 public import Physlib.Mathematics.OperatorAlgebra.State
 public import Physlib.Mathematics.OperatorAlgebra.Unitary
 public import Physlib.Mathematics.OrthogonalMatrix

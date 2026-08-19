@@ -161,4 +161,28 @@ lemma complement_le_complement_iff {E F : Effect A} :
 
 end Effect
 
+
+/-!
+## Projections
+
+An orthogonal projection is automatically an effect: a self-adjoint idempotent has spectrum
+`⊆ {0, 1} ⊆ [0, 1]` (`IsStarProjection.mem_Icc`).
+-/
+
+/-- An orthogonal projection in `A`. -/
+abbrev Projection (A : Type*)
+    [CStarAlgebra A] :=
+  {p : A // IsStarProjection p}
+
+
+/-- Every projection is an effect. -/
+def Projection.toEffect (P : Projection A) : Effect A :=
+  ⟨⟨(P : A), P.property.isSelfAdjoint⟩, P.property.mem_Icc⟩
+
+
+@[simp]
+lemma Projection.coe_toEffect (P : Projection A) :
+    ((P.toEffect : Observable A) : A) = (P : A) :=
+  rfl
+
 end OperatorAlgebra
