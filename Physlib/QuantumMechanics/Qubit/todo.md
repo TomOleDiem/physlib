@@ -13,10 +13,11 @@ Working step by step; only what is checked off below has been started.
 - [x] **`Observable.lean`** — `coeff` (real, from `pauliBasis.repr`, uniqueness is free); the
       self-adjoint ⇔ real-coefficients characterization and `observableEquiv : Observable A
       ≃ₗ[ℝ] ℝ × (Fin 3 → ℝ)` via `(a₀, v) ↦ a₀ • 1 + σ v` (both stubbed).
-- [ ] **Spectral/order structure** (file TBD, maybe folds into `Observable.lean`) — spectrum of
-      `a₀ • 1 + σ v` is `{a₀ ± ‖v‖}` (needs deciding: `Fin 3 → ℝ` with `v ⬝ᵥ v`, or switch to
-      `EuclideanSpace ℝ (Fin 3)` for a genuine norm — see the note in `PauliVector.lean`);
-      positivity criterion `0 ≤ a₀1 + σ v ↔ ‖v‖ ≤ a₀`; effects, projections.
+- [x] **`Spectrum.lean`** — `spectrum ℝ (a₀ • 1 + σ v) = {a₀ ± ‖v‖}` and the positivity criterion
+      `0 ≤ a₀ • 1 + σ v ↔ ‖v‖ ≤ a₀` (both stubbed). Norms of `v : Fin 3 → ℝ` go through
+      `WithLp.toLp 2 v : EuclideanSpace ℝ (Fin 3)` — see the open decision below, now resolved.
+- [ ] Effects `0 ≤ E ≤ 1` and projections in Pauli coordinates, and rank-one/pure projective
+      effects where appropriate — the rest of roadmap §4, not yet started.
 - [ ] **`State.lean`** — needs `OperatorAlgebra.State.mix`/`.IsPure` ported in (minimally
       trimmed) from the abandoned `operator-algebra` branch first. Bloch vector
       `r(ω) = (ω X, ω Y, ω Z)`; `‖r(ω)‖ ≤ 1`; the converse construction `ωᵣ`; main theorem
@@ -40,9 +41,13 @@ Working step by step; only what is checked off below has been started.
       `SU(2) → SO(3)` explicitly distinct; note the covariance relation
       `π(α_g a) = U_g π(a) U_g⋆`.
 
-## Open decisions
+## Resolved decisions
 
-- Bloch-vector type: currently plain `Fin 3 → ℝ` (has `⬝ᵥ`, `⨯₃` natively). Revisit once norms
-  are needed — either state everything via `v ⬝ᵥ v` instead of `‖v‖²`, or switch to
-  `EuclideanSpace ℝ (Fin 3)` and transport `⨯₃` through `Mathlib`'s existing
-  `norm_ofLp_crossProduct`/`toLp`/`ofLp` bridge.
+- Bloch-vector type: stayed with `Fin 3 → ℝ` (has `⬝ᵥ`, `⨯₃` natively) rather than switching to
+  `EuclideanSpace ℝ (Fin 3)`. Norms are only ever needed at the boundary (spectrum, positivity,
+  later the Bloch ball and `SO(3)`), so those statements wrap the vector in `WithLp.toLp 2 v :
+  EuclideanSpace ℝ (Fin 3)` locally instead of changing the type everywhere — this is the same
+  pattern Mathlib itself uses in `InnerProductGeometry.norm_toLp_symm_crossProduct`. Keeps
+  `Basic.lean`/`PauliVector.lean`/`Observable.lean` untouched and avoids ever writing a bare
+  `‖v‖` for `v : Fin 3 → ℝ`, which would silently pick up the wrong (sup) norm if one were ever
+  registered for that type.
