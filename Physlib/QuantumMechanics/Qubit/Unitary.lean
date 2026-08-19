@@ -43,13 +43,25 @@ variable {A : Type*} [OperatorAlgebra A] [QubitAlgebra A]
 noncomputable def R (U : Unitary A) : (Fin 3 → ℝ) →ₗ[ℝ] (Fin 3 → ℝ) :=
   sorry
 
-TODO "Construct `Qubit.R`. First show conjugation fixes the scalar part and preserves the
-  traceless sector: `Unitary.automorphism U (σ v)` is self-adjoint (`Qubit.isSelfAdjoint_σ` and
-  that ⋆-algebra automorphisms preserve `IsSelfAdjoint`), and has zero `pauliBasis` scalar
-  coefficient (expand `U σ(v) U⋆` and use `QubitAlgebra.gen_mul_cyc`/`gen_sq`-style relations,
-  or trace/`Observable`-coordinate reasoning once available), so `Qubit.observableEquiv` gives it
-  a genuine Bloch vector; take `R U v` to be that vector. Linearity in `v` follows from linearity
-  of `σ` and of conjugation."
+TODO "Construct `Qubit.R`, now that `Qubit.observableEquiv` exists. `Unitary.automorphism U (σ v)`
+  is self-adjoint (`Qubit.isSelfAdjoint_σ`, ⋆-algebra automorphisms preserve `IsSelfAdjoint`), so
+  `observableEquiv ⟨automorphism U (σ v), _⟩ : ℝ × (Fin 3 → ℝ)` always makes sense; the real
+  content is showing its *first* (scalar) component is `0`, so only the second component is
+  needed for `R U v`. Concretely: `Qubit.trace (U a U⋆) = Qubit.trace a` for every `a`, hence
+  `σ v`'s (already-zero, since `σ v` is a pure Pauli vector) trace is preserved. The conjugation
+  invariance itself reduces to *cyclicity* of `trace`, `trace (x y) = trace (y x)` for all
+  `x y : A` (then `trace (U a U⋆) = trace ((U a) U⋆) = trace (U⋆ (U a)) = trace ((U⋆ U) a) =
+  trace a` using `U⋆ U = 1`) — and cyclicity itself is checkable abstractly, no matrices: `trace`
+  is `ℂ`-bilinear in a product `trace (x y)`, so it suffices to check `trace (pauliBasis j *
+  pauliBasis k) = trace (pauliBasis k * pauliBasis j)` on the 16 pairs of basis elements, which
+  collapses to two trivial families (`j = 0` or `k = 0`: multiplying by `1` doesn't change the
+  product; `j = k`: same term) plus the six `i ≠ j` generator pairs, each of which has *both*
+  sides trace `0` (`gen i * gen j = ± i • gen k` for the third index `k`, and every generator is
+  traceless, `coeff (gen k) 0 = 0` since `gen k = pauliBasis k.succ ≠ pauliBasis 0`). Once `R U v`
+  is defined as `(observableEquiv ⟨automorphism U (σ v), _⟩).2`, linearity in `v` follows from
+  linearity of `σ`, `automorphism U`, and `observableEquiv`. (A first attempt at formalizing this
+  exact argument got tangled in `Finset.sum`/`Basis.repr` bookkeeping for the bilinear-extension
+  step; the mathematical content above is checked and correct, just not yet pushed through Lean.)"
 
 /-- The defining property of `Qubit.R`: `U σ(v) U⋆ = σ(R U v)`. -/
 @[sorryful]
