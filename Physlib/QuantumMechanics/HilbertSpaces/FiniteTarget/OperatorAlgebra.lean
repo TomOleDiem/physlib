@@ -8,6 +8,7 @@ module
 public import Physlib.QuantumMechanics.HilbertSpaces.FiniteTarget.Basic
 public import Mathlib.Analysis.InnerProductSpace.StarOrder
 public import Mathlib.Analysis.CStarAlgebra.Exponential
+public import Mathlib.LinearAlgebra.Complex.Module
 
 /-!
 # Operator algebra of a finite-dimensional quantum system
@@ -42,6 +43,13 @@ abbrev OperatorAlgebra
 
 @[inherit_doc OperatorAlgebra]
 scoped notation "𝒜[" d "]" => OperatorAlgebra d
+
+noncomputable instance OperatorAlgebra.instStarModuleReal :
+    StarModule ℝ (𝒜[d]) where
+  star_smul r A := by
+    rw [← Complex.coe_smul r A]
+    rw [star_smul]
+    simp
 
 /-- The observables on `𝓗[d]`, i.e. its self-adjoint operators. -/
 noncomputable abbrev Observable
@@ -93,6 +101,9 @@ scoped notation "𝒰[" d "]" => UnitaryOperator d
 abbrev Projection
     (d : Type*) [Fintype d] [DecidableEq d] :=
   {P : 𝒜[d] // IsStarProjection P}
+
+@[inherit_doc Projection]
+scoped notation "𝒫[" d "]" => Projection d
 
 /-- A POVM on `𝓗[d]` with outcomes indexed by `X`. -/
 structure POVM
