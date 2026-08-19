@@ -122,12 +122,6 @@ theorem isSelfAdjoint_iff_coeff (a : A) :
         Complex.conj_eq_iff_im.mpr (h j)]
     rw [IsSelfAdjoint, hstar, ← ha]
 
-omit [QubitAlgebra A] in
-/-- A real scalar acts on `A` the same way whether taken through `ℝ` directly or through `ℂ`. -/
-theorem real_smul_eq_ofReal_smul (x : ℝ) (b : A) : x • b = (x : ℂ) • b := by
-  have : (x : ℂ) = algebraMap ℝ ℂ x := by norm_cast
-  rw [this, IsScalarTower.algebraMap_smul]
-
 /-- The real-linear equivalence between observables and `ℝ × (Fin 3 → ℝ)`: the scalar part `a₀`
 and Pauli vector `v` of `a₀ • 1 + σ v`. -/
 noncomputable def observableEquiv : Observable A ≃ₗ[ℝ] ℝ × (Fin 3 → ℝ) where

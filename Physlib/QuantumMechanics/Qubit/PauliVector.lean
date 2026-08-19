@@ -41,6 +41,21 @@ variable {A : Type*} [OperatorAlgebra A] [QubitAlgebra A]
 noncomputable def σ (v : Fin 3 → ℝ) : A :=
   ∑ i, (v i : ℂ) • (QubitAlgebra.gen (A := A) i : A)
 
+omit [QubitAlgebra A] in
+/-- A real scalar acts on `A` the same way whether taken through `ℝ` directly or through `ℂ`. -/
+theorem real_smul_eq_ofReal_smul (x : ℝ) (b : A) : x • b = (x : ℂ) • b := by
+  have : (x : ℂ) = algebraMap ℝ ℂ x := by norm_cast
+  rw [this, IsScalarTower.algebraMap_smul]
+
+/-- `σ` is additive. -/
+theorem σ_add (u v : Fin 3 → ℝ) : (σ (u + v) : A) = σ u + σ v := by
+  simp only [σ, Pi.add_apply, Complex.ofReal_add, add_smul, Finset.sum_add_distrib]
+
+/-- `σ` is ℝ-homogeneous. -/
+theorem σ_smul (r : ℝ) (v : Fin 3 → ℝ) : (σ (r • v) : A) = r • σ v := by
+  simp only [σ, Pi.smul_apply, smul_eq_mul, Complex.ofReal_mul, mul_smul, real_smul_eq_ofReal_smul,
+    Finset.smul_sum]
+
 /-- `σ(v)` is self-adjoint: a real-linear combination of the self-adjoint generators. -/
 theorem isSelfAdjoint_σ (v : Fin 3 → ℝ) : IsSelfAdjoint (σ v : A) := by
   rw [σ]
