@@ -70,9 +70,15 @@ Working step by step; only what is checked off below has been started.
       `isPure_iff_norm_r_eq_one : ω.IsPure ↔ ‖r ω‖ = 1` (all stubbed). Finishes roadmap §5–6.
 - [x] **`Lie.lean`** — `τ v = -i/2 • σ v` (the `su(2)`-normalized generator), skew-adjoint
       (`τ_mem_skewAdjoint`); `τ u * τ v - τ v * τ u = τ (u ⨯₃ v)` *exactly*, no leftover scalar
-      (`τ_mul_sub_mul`) — `τ` is a genuine Lie ring homomorphism from `Cross.lieRing` on
-      `Fin 3 → ℝ` to `A`'s commutator. **Fully proved, no `sorry`s**, from `σ_commutator` and
-      `Complex.I_pow_three`. Kept separate from the C⋆-representation notion, per the roadmap.
+      (`τ_mul_sub_mul`). **Fully proved, no `sorry`s.** Initially left as just this
+      bracket-compatibility fact, which the user correctly pointed out is not yet an
+      *isomorphism* — fixed by adding `τ_injective` (from `σ`'s injectivity, itself from the
+      three generators being a linearly-independent sub-family of `QubitAlgebra.pauliBasis`),
+      registering `Fin 3 → ℝ` as a genuine `LieAlgebra ℝ` (`Cross.lieRing` is only a `LieRing` in
+      Mathlib) and bringing `A`'s commutator into scope via `LieRing.ofAssociativeRing`, bundling
+      `τ` as an actual `LieHom` (`τHom`), and concluding with `τLieEquiv : (Fin 3 → ℝ) ≃ₗ⁅ℝ⁆
+      τHom.range` via `LieEquiv.ofInjective` — a genuine, checked `LieEquiv`, not just a
+      bracket-compatible map. Kept separate from the C⋆-representation notion, per the roadmap.
 - [x] **`Physlib/Mathematics/OperatorAlgebra/Unitary.lean`** — ported in, trimmed to
       `automorphism`/`automorphism_apply`/`observable`/`coe_observable(_eq)`. Real, proven, not
       stubs (mostly just Mathlib's `Unitary.conjStarAlgAut` repackaged). Effects/projections
