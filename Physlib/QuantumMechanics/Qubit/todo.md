@@ -29,9 +29,11 @@ Working step by step; only what is checked off below has been started.
       `ofBlochVector`/`r_ofBlochVector`; the main theorem `stateEquivClosedBall : State A ≃
       Metric.closedBall (0 : EuclideanSpace ℝ (Fin 3)) 1`; purity
       `isPure_iff_norm_r_eq_one : ω.IsPure ↔ ‖r ω‖ = 1` (all stubbed). Finishes roadmap §5–6.
-- [ ] **`Lie.lean`** — traceless observable sector / `skewAdjoint` copy of `i • σ(v)` as a Lie
-      algebra under the commutator, identified with `(Fin 3 → ℝ, ⨯₃)`'s existing `Cross.lieRing`
-      instance (`su(2)` picture). Keep separate from the C⋆-representation notion.
+- [x] **`Lie.lean`** — `τ v = -i/2 • σ v` (the `su(2)`-normalized generator), skew-adjoint
+      (stubbed); `τ u * τ v - τ v * τ u = τ (u ⨯₃ v)` *exactly*, no leftover scalar (stubbed) —
+      `τ` is a genuine Lie ring homomorphism from `Cross.lieRing` on `Fin 3 → ℝ` to `A`'s
+      commutator. Also added `Qubit.isSelfAdjoint_σ` to `PauliVector.lean` as a small
+      prerequisite. Kept separate from the C⋆-representation notion, per the roadmap.
 - [ ] **`Unitary.lean`** — needs `OperatorAlgebra.Unitary.automorphism`/`.observable` ported in
       from the abandoned branch first (wraps Mathlib's `Unitary.conjStarAlgAut`). `R_U : ℝ³ → ℝ³`
       from `U σ(v) U⋆ = σ(R_U v)`; orthogonality; lands in `Matrix.specialOrthogonalGroup (Fin 3)

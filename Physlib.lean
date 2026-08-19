@@ -361,6 +361,7 @@ public import Physlib.QuantumMechanics.PoschlTeller.Basic
 public import Physlib.QuantumMechanics.QuantumSystem.Basic
 public import Physlib.QuantumMechanics.Qubit.Basic
 public import Physlib.QuantumMechanics.Qubit.Effect
+public import Physlib.QuantumMechanics.Qubit.Lie
 public import Physlib.QuantumMechanics.Qubit.Observable
 public import Physlib.QuantumMechanics.Qubit.PauliVector
 public import Physlib.QuantumMechanics.Qubit.Spectrum

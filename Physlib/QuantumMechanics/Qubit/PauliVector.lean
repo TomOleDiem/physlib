@@ -41,6 +41,16 @@ variable {A : Type*} [CStarAlgebra A] [PartialOrder A] [StarOrderedRing A] [Qubi
 noncomputable def σ (v : Fin 3 → ℝ) : A :=
   ∑ i, (v i : ℂ) • (QubitAlgebra.gen (A := A) i : A)
 
+/-- `σ(v)` is self-adjoint: a real-linear combination of the self-adjoint generators. -/
+@[sorryful]
+theorem isSelfAdjoint_σ (v : Fin 3 → ℝ) : IsSelfAdjoint (σ v : A) :=
+  sorry
+
+TODO "Prove `Qubit.isSelfAdjoint_σ`. Each summand `(v i : ℂ) • (gen i : A)` is self-adjoint:
+  `v i` is a real scalar (fixed by complex conjugation) and `gen i` is self-adjoint by
+  definition (`Observable A = selfAdjoint A`). A finite sum of self-adjoint elements is
+  self-adjoint (`IsSelfAdjoint.add`/`Finset.sum`)."
+
 /-- The fundamental Pauli vector identity: `σ(u) σ(v) = (u ⬝ᵥ v) • 1 + i • σ(u ⨯₃ v)`. -/
 @[sorryful]
 theorem σ_mul_σ (u v : Fin 3 → ℝ) :
