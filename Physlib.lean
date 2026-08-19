@@ -359,6 +359,7 @@ public import Physlib.QuantumMechanics.PlanckConstant
 public import Physlib.QuantumMechanics.PoschlTeller.Basic
 public import Physlib.QuantumMechanics.QuantumSystem.Basic
 public import Physlib.QuantumMechanics.Qubit.Basic
+public import Physlib.QuantumMechanics.Qubit.Observable
 public import Physlib.QuantumMechanics.Qubit.PauliVector
 public import Physlib.QuantumMechanics.RectangularBarrier.Basic
 public import Physlib.QuantumMechanics.SpaceDQuantumSystem

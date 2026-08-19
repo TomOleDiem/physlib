@@ -10,9 +10,9 @@ Working step by step; only what is checked off below has been started.
       reversed products `YX/ZY/XZ` (stubbed).
 - [x] **`PauliVector.lean`** — `σ(v)`, the product identity `σ(u)σ(v) = (u·v)1 + iσ(u×v)`,
       the square identity, the commutator identity (all stubbed).
-- [ ] **`Observable.lean`** — uniqueness of the Pauli decomposition `a = c₀1 + c₁X + c₂Y + c₃Z`
-      from `pauliBasis`; self-adjoint ⇔ real coefficients; the real-linear equivalence
-      `Observable A ≃ₗ[ℝ] ℝ × (Fin 3 → ℝ)` via `(a₀, v) ↦ a₀ • 1 + σ v`.
+- [x] **`Observable.lean`** — `coeff` (real, from `pauliBasis.repr`, uniqueness is free); the
+      self-adjoint ⇔ real-coefficients characterization and `observableEquiv : Observable A
+      ≃ₗ[ℝ] ℝ × (Fin 3 → ℝ)` via `(a₀, v) ↦ a₀ • 1 + σ v` (both stubbed).
 - [ ] **Spectral/order structure** (file TBD, maybe folds into `Observable.lean`) — spectrum of
       `a₀ • 1 + σ v` is `{a₀ ± ‖v‖}` (needs deciding: `Fin 3 → ℝ` with `v ⬝ᵥ v`, or switch to
       `EuclideanSpace ℝ (Fin 3)` for a genuine norm — see the note in `PauliVector.lean`);
