@@ -1,5 +1,8 @@
 # Abstract Qubit — roadmap
 
+See also `notes.md` for research notes on where this is headed (Jordan/Lie structure, CCR/Fock
+for the oscillator, the Lindblad hierarchy) — not all queued yet, but the map of the territory.
+
 Formalize the qubit from its abstract observable-algebra structure first; matrices are a
 concrete instance added last. See individual `TODO "..."` entries in each file for the
 proof obligations of what is already stubbed.
@@ -62,6 +65,12 @@ Working step by step; only what is checked off below has been started.
       `hamiltonianFlow : AutomorphismGroup A`; `blochTrajectory`; the Bloch equation
       `hasDerivAt_blochTrajectory : dr/dt = 2 h ⨯₃ r`, TODO spells out why only the traceless
       part `h` survives. All stubbed. Finishes roadmap §9.
+- [x] **`Physlib/Mathematics/OperatorAlgebra/Jordan.lean`** (new, general, not qubit-specific)
+      — the Jordan product `jordan a b = ½(ab+ba)` and observable Lie bracket `obsBracket a b =
+      -i(ab-ba)` on `Observable A`, and `mul_eq_jordan_add_obsBracket : ab = a∘b +
+      (i/2)⁅a,b⁆ₒ`. **Fully proved, no `sorry`s** — genuinely easy, matching self-adjointness
+      through `star_add`/`star_mul`/`star_smul` plus `Complex.I_mul_I`. See `notes.md` §1–2 for
+      how this connects to the qubit's dot/cross product (not yet formally connected).
 - [ ] **`Matrix.lean`** — last. `𝒜[Fin 2] = B(ℂ²)`, Pauli matrices, `QubitAlgebra` instance,
       then everything above specializes for free.
 - [ ] **Representations** (possibly `Representation.lean`, or folded elsewhere) — keep the
