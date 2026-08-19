@@ -42,10 +42,19 @@ Working step by step; only what is checked off below has been started.
       `coe_R : U σ(v) U⋆ = σ(R U v)`; isometry (`norm_R_apply`); composition law `R (U*V) = (R
       U).comp (R V)` (verified the order from `Unitary.conjStarAlgAut`'s `map_mul'` before
       stating it); `R_one`. All stubbed.
-- [ ] Not yet started, deferred from §8: landing `R U` inside `Matrix.specialOrthogonalGroup
-      (Fin 3) ℝ` (needs a chosen basis/matrix representation and an orientation/determinant
-      argument), and identifying the kernel with the scalar unitaries — the `SU(2) → SO(3)`
-      double cover, kernel `{±1}`.
+- [x] **`SO(3)`, abstractly, no matrices** — `det_R_eq_one` (`LinearMap.det` is already
+      basis-independent) and `IsRotation`/`isRotation_R` (norm-preserving + `det = 1`; the
+      latter is a real, non-stubbed corollary — just tupling the two stubbed facts, no new
+      axiom). Still not started: identifying the kernel with the scalar unitaries — the `SU(2)
+      → SO(3)` double cover, kernel `{±1}`.
+- [x] **`Physlib/Mathematics/OperatorAlgebra/Dynamics.lean`** (new, general, not qubit-specific)
+      — the levels of dynamics: `Channel A A` (already existed, timeless/no time index, the
+      baseline) ⊂ `DynamicalSemigroup A` (`ℝ≥0 → Channel A A`, semigroup law, possibly
+      irreversible) ⊂ `AutomorphismGroup A` (`ℝ → (A ≃⋆ₐ[ℂ] A)`, group law, fully reversible —
+      where Hamiltonian/unitary evolution lives). Structures only, real (not stubbed) — the
+      *inclusion* `AutomorphismGroup A → DynamicalSemigroup A` is logged as a TODO in the file
+      itself, blocked on "⋆-algebra automorphisms are completely positive" not yet being in
+      Mathlib.
 - [ ] **`Dynamics.lean`** — `H = h₀1 + σ h`; Bloch equation `dr/dt = 2h × r` from the Pauli
       commutator, hooked into `Physlib.Mathematics.OneParameterSubgroups.Unitary` (already on
       `upstream/master`, no Stone/exponential theory to redevelop). Finite-time evolution as a

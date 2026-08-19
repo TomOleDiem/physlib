@@ -131,6 +131,7 @@ public import Physlib.Mathematics.List.InsertionSort
 public import Physlib.Mathematics.OneParameterSubgroups.Basic
 public import Physlib.Mathematics.OneParameterSubgroups.Unitary
 public import Physlib.Mathematics.OperatorAlgebra.Basic
+public import Physlib.Mathematics.OperatorAlgebra.Dynamics
 public import Physlib.Mathematics.OperatorAlgebra.State
 public import Physlib.Mathematics.OperatorAlgebra.Unitary
 public import Physlib.Mathematics.OrthogonalMatrix
