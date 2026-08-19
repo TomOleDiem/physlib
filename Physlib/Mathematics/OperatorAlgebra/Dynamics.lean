@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.Mathematics.OperatorAlgebra.Basic
+public import Physlib.QuantumMechanics.OperatorAlgebra.Basic
 public import Physlib.Meta.TODO.Basic
 public import Mathlib.Data.NNReal.Basic
 
@@ -13,7 +13,7 @@ public import Mathlib.Data.NNReal.Basic
 
 # Levels of dynamics
 
-A `Channel A A` (`Physlib.Mathematics.OperatorAlgebra.Basic`) is a single, timeless unital
+A `Channel A A` (`Physlib.QuantumMechanics.OperatorAlgebra.Basic`) is a single, timeless unital
 completely positive map — the most general notion of "what a physical process can do to
 observables" this framework expresses, with no reference to time at all. Actual *dynamics*
 comes from indexing channels by time and imposing a compatibility law; how strong a law you
@@ -39,10 +39,7 @@ namespace OperatorAlgebra
 
 open scoped ComplexOrder CStarAlgebra NNReal
 
-variable {A : Type*}
-  [CStarAlgebra A]
-  [PartialOrder A]
-  [StarOrderedRing A]
+variable {A : Type*} [OperatorAlgebra A]
 
 /--
 A dynamical semigroup: a time-homogeneous one-parameter family of channels satisfying the
@@ -51,7 +48,7 @@ semigroup law `T (s + t) = T s ∘ T t`, `T 0 = id`.
 This is the general notion of dynamics — in particular it need not be reversible.
 -/
 structure DynamicalSemigroup (A : Type*)
-    [CStarAlgebra A] [PartialOrder A] [StarOrderedRing A] where
+    [OperatorAlgebra A] where
   /-- The channel driving the system after time `t`. -/
   toFun : ℝ≥0 → Channel A A
   /-- At time `0`, nothing has happened. -/

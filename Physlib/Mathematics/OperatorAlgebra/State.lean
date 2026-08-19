@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.Mathematics.OperatorAlgebra.Basic
+public import Physlib.QuantumMechanics.OperatorAlgebra.Basic
 public import Mathlib.Analysis.CStarAlgebra.PositiveLinearMap
 public import Mathlib.Analysis.CStarAlgebra.SpecialFunctions.PosPart
 
@@ -32,10 +32,7 @@ namespace OperatorAlgebra
 
 open scoped ComplexOrder
 
-variable {A : Type*}
-  [CStarAlgebra A]
-  [PartialOrder A]
-  [StarOrderedRing A]
+variable {A : Type*} [OperatorAlgebra A]
 
 namespace State
 

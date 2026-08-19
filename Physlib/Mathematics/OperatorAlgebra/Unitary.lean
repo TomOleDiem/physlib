@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.Mathematics.OperatorAlgebra.Basic
+public import Physlib.QuantumMechanics.OperatorAlgebra.Basic
 public import Mathlib.Algebra.Star.UnitaryStarAlgAut
 
 /-!
