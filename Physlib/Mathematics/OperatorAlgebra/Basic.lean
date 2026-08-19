@@ -58,6 +58,8 @@ noncomputable abbrev Observable (A : Type*)
 
 
 /-- A positive element of `A`. -/
+@[nolint unusedArguments] -- `StarOrderedRing A` is not used in the statement, but is what
+-- makes `≤` the C⋆-algebra order, so that "positive" agrees with the usual notion.
 abbrev PositiveElement (A : Type*)
     [CStarAlgebra A]
     [PartialOrder A]
@@ -71,6 +73,7 @@ An effect is an observable between zero and the identity.
 Effects represent yes/no measurement outcomes or, more generally, individual
 outcomes of a POVM.
 -/
+@[nolint unusedArguments] -- see `PositiveElement`
 abbrev Effect (A : Type*)
     [CStarAlgebra A]
     [PartialOrder A]
