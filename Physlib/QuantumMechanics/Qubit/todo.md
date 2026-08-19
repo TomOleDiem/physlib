@@ -16,8 +16,10 @@ Working step by step; only what is checked off below has been started.
 - [x] **`Spectrum.lean`** — `spectrum ℝ (a₀ • 1 + σ v) = {a₀ ± ‖v‖}` and the positivity criterion
       `0 ≤ a₀ • 1 + σ v ↔ ‖v‖ ≤ a₀` (both stubbed). Norms of `v : Fin 3 → ℝ` go through
       `WithLp.toLp 2 v : EuclideanSpace ℝ (Fin 3)` — see the open decision below, now resolved.
-- [ ] Effects `0 ≤ E ≤ 1` and projections in Pauli coordinates, and rank-one/pure projective
-      effects where appropriate — the rest of roadmap §4, not yet started.
+- [x] **`Effect.lean`** — effects `0 ≤ E ≤ 1` iff `‖v‖ ≤ min a₀ (1 - a₀)`; projections
+      (`IsStarProjection`) iff spectrum `⊆ {0, 1}`; the nontrivial ones forced to `a₀ = ‖v‖ =
+      1/2` — rank-one projections, one per direction on the Bloch sphere of radius `1/2` (all
+      stubbed). This finishes roadmap §4.
 - [ ] **`State.lean`** — needs `OperatorAlgebra.State.mix`/`.IsPure` ported in (minimally
       trimmed) from the abandoned `operator-algebra` branch first. Bloch vector
       `r(ω) = (ω X, ω Y, ω Z)`; `‖r(ω)‖ ≤ 1`; the converse construction `ωᵣ`; main theorem
