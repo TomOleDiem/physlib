@@ -43,36 +43,29 @@ variable {A : Type*} [OperatorAlgebra A] [QubitAlgebra A]
 noncomputable def unitaryEvolution (Hobs : Observable A) (t : ℝ) : Unitary A :=
   selfAdjoint.expUnitary (t • Hobs)
 
+omit [QubitAlgebra A] in
 /-- At time `0`, nothing has happened. -/
-@[sorryful]
-theorem unitaryEvolution_zero (Hobs : Observable A) : unitaryEvolution Hobs 0 = 1 :=
-  sorry
+theorem unitaryEvolution_zero (Hobs : Observable A) : unitaryEvolution Hobs 0 = 1 := by
+  rw [unitaryEvolution, zero_smul, selfAdjoint.expUnitary_zero]
 
-TODO "Prove `Qubit.unitaryEvolution_zero` from `(0 : ℝ) • Hobs = 0` and
-  `selfAdjoint.expUnitary_zero`."
-
+omit [QubitAlgebra A] in
 /-- The group law: `t • Hobs` and `s • Hobs` always commute (same underlying element), so
 `selfAdjoint.expUnitary` turns addition into multiplication (`Commute.expUnitary_add`). -/
-@[sorryful]
 theorem unitaryEvolution_add (Hobs : Observable A) (s t : ℝ) :
-    unitaryEvolution Hobs (s + t) = unitaryEvolution Hobs s * unitaryEvolution Hobs t :=
-  sorry
-
-TODO "Prove `Qubit.unitaryEvolution_add` from `(s + t) • Hobs = s • Hobs + t • Hobs`,
-  `Commute.expUnitary_add` (with the commutation hypothesis from `Commute.smul_smul` or similar,
-  since `s • Hobs` and `t • Hobs` are real multiples of the same element), and
-  `unitaryEvolution`'s definition."
+    unitaryEvolution Hobs (s + t) = unitaryEvolution Hobs s * unitaryEvolution Hobs t := by
+  rw [unitaryEvolution, unitaryEvolution, unitaryEvolution, add_smul]
+  exact Commute.expUnitary_add
+    (((Commute.refl (Hobs : A)).smul_left s).smul_right t)
 
 /-- Hamiltonian evolution as a genuine reversible dynamics driver
 (`OperatorAlgebra.AutomorphismGroup`). -/
-@[sorryful]
-noncomputable def hamiltonianFlow (Hobs : Observable A) : AutomorphismGroup A :=
-  sorry
-
-TODO "Construct `Qubit.hamiltonianFlow` with `toFun t := Unitary.automorphism (unitaryEvolution
-  Hobs t)`, `map_zero_apply` from `Qubit.unitaryEvolution_zero`, `map_add_apply` from
-  `Qubit.unitaryEvolution_add` and `OperatorAlgebra.Unitary.automorphism_apply`'s
-  multiplicativity."
+noncomputable def hamiltonianFlow (Hobs : Observable A) : AutomorphismGroup A where
+  toFun t := Unitary.automorphism (unitaryEvolution Hobs t)
+  map_zero_apply a := by rw [unitaryEvolution_zero]; simp
+  map_add_apply s t a := by
+    rw [unitaryEvolution_add]
+    simp only [Unitary.automorphism_apply, MulMemClass.coe_mul, star_mul]
+    noncomm_ring
 
 /-- The Bloch-vector trajectory of a fixed Pauli vector `v`, Heisenberg-evolving under `Hobs`.
 Tagged `sorryful`: it is built from `Qubit.R`, itself not yet constructed. -/
