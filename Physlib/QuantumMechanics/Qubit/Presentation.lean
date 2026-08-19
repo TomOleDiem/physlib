@@ -7,9 +7,7 @@ module
 
 public import Mathlib.Algebra.Quaternion
 public import Mathlib.Data.Complex.Basic
-public import Mathlib.LinearAlgebra.Basis.Defs
 public import Mathlib.LinearAlgebra.StdBasis
-public import Mathlib.Data.Fin.VecNotation
 
 /-!
 
@@ -43,7 +41,7 @@ Associativity, distributivity, and the rest of the ring axioms transfer for free
 `QuaternionAlgebra` instance; the only work below is this relabelling and reading off a basis.
 
 This is *not* a matrix representation, and is not in tension with the `SO(3)`/`{±1}`-kernel
-correction elsewhere in this development (`Qubit/Unitary.lean`): the concern there was that
+correction elsewhere in this development, `Qubit/Unitary.lean`: the concern there was that
 *definitions* stated for a general `QubitAlgebra A` must not secretly depend on a chosen
 representation of `A`. Here there is no general `A` in sight — `PauliAlgebra` is one fixed,
 concrete algebra, and any witness that its multiplication is consistent (whether a rewriting

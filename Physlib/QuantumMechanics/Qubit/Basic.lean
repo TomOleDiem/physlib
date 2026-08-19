@@ -8,8 +8,6 @@ module
 public import Physlib.QuantumMechanics.OperatorAlgebra.Basic
 public import Physlib.Meta.Linters.Sorry
 public import Physlib.Meta.TODO.Basic
-public import Mathlib.LinearAlgebra.Basis.Defs
-public import Mathlib.Data.Fin.VecNotation
 
 /-!
 
