@@ -362,6 +362,7 @@ public import Physlib.QuantumMechanics.PlanckConstant
 public import Physlib.QuantumMechanics.PoschlTeller.Basic
 public import Physlib.QuantumMechanics.QuantumSystem.Basic
 public import Physlib.QuantumMechanics.Qubit.Basic
+public import Physlib.QuantumMechanics.Qubit.Dynamics
 public import Physlib.QuantumMechanics.Qubit.Effect
 public import Physlib.QuantumMechanics.Qubit.Lie
 public import Physlib.QuantumMechanics.Qubit.Observable

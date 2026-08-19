@@ -55,10 +55,13 @@ Working step by step; only what is checked off below has been started.
       *inclusion* `AutomorphismGroup A → DynamicalSemigroup A` is logged as a TODO in the file
       itself, blocked on "⋆-algebra automorphisms are completely positive" not yet being in
       Mathlib.
-- [ ] **`Dynamics.lean`** — `H = h₀1 + σ h`; Bloch equation `dr/dt = 2h × r` from the Pauli
-      commutator, hooked into `Physlib.Mathematics.OneParameterSubgroups.Unitary` (already on
-      `upstream/master`, no Stone/exponential theory to redevelop). Finite-time evolution as a
-      rotation.
+- [x] **`Qubit/Dynamics.lean`** — `unitaryEvolution Hobs t = exp(-it Hobs)`, built directly from
+      Mathlib's `selfAdjoint.expUnitary` (not `OneParameterSubgroups.Unitary`, which turned out
+      to be Hilbert-space-specific, `H →L[ℂ] H` — `expUnitary` is genuinely abstract, works
+      for any `CStarAlgebra A`, and is a better fit). `unitaryEvolution_zero/_add` (group law);
+      `hamiltonianFlow : AutomorphismGroup A`; `blochTrajectory`; the Bloch equation
+      `hasDerivAt_blochTrajectory : dr/dt = 2 h ⨯₃ r`, TODO spells out why only the traceless
+      part `h` survives. All stubbed. Finishes roadmap §9.
 - [ ] **`Matrix.lean`** — last. `𝒜[Fin 2] = B(ℂ²)`, Pauli matrices, `QubitAlgebra` instance,
       then everything above specializes for free.
 - [ ] **Representations** (possibly `Representation.lean`, or folded elsewhere) — keep the
