@@ -38,6 +38,45 @@ variable {A : Type*} [CStarAlgebra A] [PartialOrder A] [StarOrderedRing A] [Qubi
 noncomputable def coeff (a : A) : Fin 4 → ℂ :=
   QubitAlgebra.pauliBasis.repr a
 
+/-- `pauliBasis 0 = 1`, i.e. `coeff a 0` really is the scalar (`1`-)coefficient — the fact
+`Qubit.trace`, below, is built on. -/
+theorem pauliBasis_zero : (QubitAlgebra.pauliBasis (A := A) : Fin 4 → A) 0 = 1 := by
+  rw [QubitAlgebra.pauliBasis_eq, Fin.cons_zero]
+
+/-- The coefficient of `1` in an algebra element's Pauli decomposition. -/
+theorem coeff_one_zero : coeff (1 : A) 0 = 1 := by
+  rw [coeff, ← pauliBasis_zero, Basis.repr_self, Finsupp.single_eq_same]
+
+/-- The trace of an algebra element: twice its scalar (`1`-)coefficient, matching the physical
+normalization `trace (1 : A) = 2`, `trace (gen i : A) = 0` — the trace of a `2 × 2` identity and
+of a traceless Pauli matrix. Purely algebraic, no matrices: `coeff` already comes from
+`QubitAlgebra.pauliBasis` being a basis. -/
+noncomputable def trace (a : A) : ℂ :=
+  2 * coeff a 0
+
+@[simp]
+theorem trace_one : trace (1 : A) = 2 := by
+  rw [trace, coeff_one_zero, mul_one]
+
+theorem trace_smul (c : ℂ) (a : A) : trace (c • a) = c * trace a := by
+  rw [trace, trace, coeff, coeff, map_smul, Finsupp.smul_apply, smul_eq_mul, mul_left_comm]
+
+/-- The determinant of an algebra element, via the `2 × 2` Cayley–Hamilton formula `det a =
+(trace a ^ 2 - trace (a * a)) / 2` — purely a formula in the trace, so needs no separate proof of
+existence and no matrices. (That this is genuinely multiplicative, or agrees with the usual
+determinant once `Qubit/Matrix.lean` identifies `A` with `Matrix (Fin 2) (Fin 2) ℂ`, is not
+needed below and not yet checked.) -/
+noncomputable def det (a : A) : ℂ :=
+  (trace a ^ 2 - trace (a * a)) / 2
+
+/-- The determinant of a scalar element: `det (c • 1) = c ^ 2`, matching `det (c • I) = c ^ 2`
+for `2 × 2` matrices. -/
+theorem det_smul_one (c : ℂ) : det (c • (1 : A)) = c ^ 2 := by
+  have h1 : (c • (1 : A)) * (c • (1 : A)) = c ^ 2 • (1 : A) := by
+    rw [smul_mul_smul_comm, mul_one, sq]
+  rw [det, trace_smul, trace_one, h1, trace_smul, trace_one]
+  ring
+
 /-- An algebra element is self-adjoint iff all four of its Pauli coefficients are real. -/
 @[sorryful]
 theorem isSelfAdjoint_iff_coeff (a : A) :

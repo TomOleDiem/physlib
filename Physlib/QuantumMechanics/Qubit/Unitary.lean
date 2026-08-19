@@ -117,4 +117,61 @@ theorem R_one : R (A := A) 1 = LinearMap.id :=
 TODO "Prove `Qubit.R_one` from `Qubit.coe_R` at `U = 1` (`1 * σ v * star 1 = σ v`) and
   injectivity of `Qubit.σ`."
 
+/-! ### The kernel of `R`: the `SU(2) → SO(3)` double cover, abstractly
+
+`R`'s kernel is the *center* of `Unitary A` — the scalar unitaries `{c • 1 : ‖c‖ = 1}`, an
+abstract circle `U(1)`. This is the honest statement for `Unitary A`, the *full* unitary group
+(the analogue of `U(2)`, acting through its quotient `U(2)/U(1) ≅ PU(2) ≅ SO(3)`).
+
+Restricting to the *special* (determinant-`1`) unitaries cuts this down to the familiar textbook
+kernel `{±1}` — and this needs no matrices and no `Qubit/Matrix.lean`: `SO(3)` is already abstract
+(`Qubit.IsRotation`/`Qubit.isRotation_R` use only `LinearMap.det`, basis-free), and a `2 × 2`
+determinant on `A` itself is *equally* abstract, since it is just the Cayley–Hamilton formula
+`det a = (trace a ^ 2 - trace (a * a)) / 2` in the trace `Qubit.trace` already built from
+`QubitAlgebra.pauliBasis` (`Qubit/Observable.lean`) — no chosen matrix representation anywhere. -/
+
+/-- A scalar unitary: a unimodular complex multiple of `1`. -/
+def IsScalarUnitary (U : Unitary A) : Prop :=
+  ∃ c : ℂ, ‖c‖ = 1 ∧ (U : A) = c • 1
+
+/-- `R`'s kernel is exactly the scalar unitaries. -/
+@[sorryful]
+theorem R_eq_id_iff_isScalarUnitary (U : Unitary A) :
+    R U = LinearMap.id ↔ IsScalarUnitary U :=
+  sorry
+
+TODO "Prove `Qubit.R_eq_id_iff_isScalarUnitary`.
+  (⇐, easy) If `U = c • 1` with `‖c‖ = 1`: `(c • 1) * σ v * star (c • 1) = (c * star c) • σ v =
+  (‖c‖ ^ 2 : ℂ) • σ v = σ v`, so `Qubit.coe_R` gives `σ (R U v) = σ v` for all `v`; conclude
+  `R U v = v` by injectivity of `Qubit.σ` (from `QubitAlgebra.pauliBasis`).
+  (⇒, the substantive direction) If `R U = LinearMap.id`, `Qubit.coe_R` gives `U * σ v * star U =
+  σ v` for every `v`, i.e. `U` commutes with every `σ v` (multiply both sides by `star U` and use
+  unitarity); together with commuting with `1`, and `QubitAlgebra.pauliBasis_eq`, `U` is central
+  in `A`. Finish by showing `A`'s center is exactly the scalars `{c • 1}` — a form of Schur's
+  lemma resting on `QubitAlgebra`'s relations (`gen_sq`, `gen_mul_cyc`) pinning `A` down as a
+  simple, matrix-like algebra with trivial center; not yet available as a standalone fact, and the
+  reason this whole iff is one `sorry` rather than two."
+
+/-- A special unitary: a unitary of determinant `1` — the abstract, matrix-free `SU(2)`. -/
+def IsSpecialUnitary (U : Unitary A) : Prop :=
+  det (U : A) = 1
+
+/-- **`SU(2) → SO(3)`, the familiar double cover**: among the *special* unitaries, `R`'s kernel is
+exactly `{1, -1}`. Combines `Qubit.R_eq_id_iff_isScalarUnitary` (kernel = scalar unitaries `c • 1`)
+with `Qubit.det_smul_one` (`det (c • 1) = c ^ 2`, so `IsSpecialUnitary` forces `c ^ 2 = 1`, i.e.
+`c = 1 ∨ c = -1` over `ℂ`). -/
+@[sorryful]
+theorem R_eq_id_iff_eq_one_or_eq_neg_one_of_isSpecialUnitary
+    (U : Unitary A) (hU : IsSpecialUnitary U) :
+    R U = LinearMap.id ↔ (U : A) = 1 ∨ (U : A) = -1 :=
+  sorry
+
+TODO "Prove `Qubit.R_eq_id_iff_eq_one_or_eq_neg_one_of_isSpecialUnitary` from
+  `Qubit.R_eq_id_iff_isScalarUnitary`: `R U = id ↔ ∃ c, ‖c‖ = 1 ∧ (U : A) = c • 1`. Given `hU :
+  det (U : A) = 1`, substituting `(U : A) = c • 1` and `Qubit.det_smul_one` forces `c ^ 2 = 1`,
+  hence (`sq_eq_one_iff_of_ne_neg_one`-style case split over `ℂ`, or `Complex`'s
+  root-of-unity/factorization lemmas) `c = 1 ∨ c = -1`; conversely `‖(1 : ℂ)‖ = ‖(-1 : ℂ)‖ = 1` so
+  both directions of the outer iff close by substitution back into
+  `Qubit.R_eq_id_iff_isScalarUnitary`."
+
 end Qubit

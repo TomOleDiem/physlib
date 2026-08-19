@@ -48,8 +48,23 @@ Working step by step; only what is checked off below has been started.
 - [x] **`SO(3)`, abstractly, no matrices** — `det_R_eq_one` (`LinearMap.det` is already
       basis-independent) and `IsRotation`/`isRotation_R` (norm-preserving + `det = 1`; the
       latter is a real, non-stubbed corollary — just tupling the two stubbed facts, no new
-      axiom). Still not started: identifying the kernel with the scalar unitaries — the `SU(2)
-      → SO(3)` double cover, kernel `{±1}`.
+      axiom).
+- [x] **`Qubit/Observable.lean`: trace and determinant, still no matrices** — `trace a = 2 *
+      coeff a 0` and `det a = (trace a ^ 2 - trace (a * a)) / 2` (the `2 × 2` Cayley–Hamilton
+      formula). **Both fully proved, real defs, no `sorry`s** — a determinant is exactly as
+      abstract as `SO(3)` already was: just a formula in `Qubit.coeff`/`QubitAlgebra.pauliBasis`,
+      no chosen matrix representation. Also proved: `pauliBasis_zero`, `coeff_one_zero`,
+      `trace_one`, `trace_smul`, `det_smul_one : det (c • 1) = c ^ 2`.
+- [x] **Kernel of `R`** — `IsScalarUnitary` (real def: `U = c • 1`, `‖c‖ = 1`) and
+      `R_eq_id_iff_isScalarUnitary : R U = LinearMap.id ↔ IsScalarUnitary U` (one `sorry`; TODO
+      spells out both directions — the reverse is easy, the forward needs "`A`'s center is
+      exactly the scalars," a form of Schur's lemma not yet available): this is the honest kernel
+      for `Unitary A`, the *full* unitary group — an abstract circle `U(1)`, not `{±1}`.
+      `IsSpecialUnitary U := det (U:A) = 1` (real def) then gives the familiar textbook statement,
+      `R_eq_id_iff_eq_one_or_eq_neg_one_of_isSpecialUnitary` (stubbed): among special unitaries,
+      `R`'s kernel is exactly `{1, -1}` — genuinely the `SU(2) → SO(3)` double cover, entirely
+      matrix-free. (An earlier pass wrongly claimed this last step needed `Matrix.lean`; it
+      doesn't — corrected once caught.)
 - [x] **`Physlib/Mathematics/OperatorAlgebra/Dynamics.lean`** (new, general, not qubit-specific)
       — the levels of dynamics: `Channel A A` (already existed, timeless/no time index, the
       baseline) ⊂ `DynamicalSemigroup A` (`ℝ≥0 → Channel A A`, semigroup law, possibly
