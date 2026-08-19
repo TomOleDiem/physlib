@@ -43,15 +43,11 @@ variable {A : Type*} [OperatorAlgebra A] [QubitAlgebra A]
 
 /-- The adjoint action of an observable on Bloch vectors: `adjointAction Hobs v = 2 • (h ⨯₃ v)`,
 where `h` is `Hobs`'s traceless part (`Qubit.observableEquiv`). This is the generator, in `so(3)`,
-of the one-parameter rotation group `Qubit.rotationFlow Hobs` below. No proof obligation of its
-own: `2 •` a partially-applied `crossProduct` is already linear. Tagged `sorryful` anyway, since
-it is built from `Qubit.observableEquiv`, itself not yet constructed. -/
-@[sorryful]
+of the one-parameter rotation group `Qubit.rotationFlow Hobs` below. No proof obligation: `2 •` a
+partially-applied `crossProduct` is already linear. -/
 noncomputable def adjointAction (Hobs : Observable A) : (Fin 3 → ℝ) →ₗ[ℝ] (Fin 3 → ℝ) :=
   (2 : ℝ) • crossProduct (observableEquiv Hobs).2
 
-omit [QubitAlgebra A] in
-@[sorryful]
 theorem adjointAction_apply (Hobs : Observable A) (v : Fin 3 → ℝ) :
     adjointAction Hobs v = (2 : ℝ) • ((observableEquiv Hobs).2 ⨯₃ v) :=
   rfl

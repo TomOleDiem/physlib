@@ -77,27 +77,105 @@ theorem det_smul_one (c : ℂ) : det (c • (1 : A)) = c ^ 2 := by
   rw [det, trace_smul, trace_one, h1, trace_smul, trace_one]
   ring
 
-/-- An algebra element is self-adjoint iff all four of its Pauli coefficients are real. -/
-@[sorryful]
-theorem isSelfAdjoint_iff_coeff (a : A) :
-    IsSelfAdjoint a ↔ ∀ i, (coeff (A := A) a i).im = 0 :=
-  sorry
+/-- Every element of `pauliBasis` is self-adjoint: it is either `1` or a generator. -/
+theorem isSelfAdjoint_pauliBasis (j : Fin 4) :
+    IsSelfAdjoint (QubitAlgebra.pauliBasis (A := A) j : A) := by
+  rw [QubitAlgebra.pauliBasis_eq]
+  refine Fin.cases ?_ (fun i => ?_) j
+  · simp [IsSelfAdjoint.one]
+  · simp
 
-TODO "Prove `Qubit.isSelfAdjoint_iff_coeff`. Forward: apply `star` to the basis expansion of `a`
-  and use that `1, gen 0, gen 1, gen 2` are each self-adjoint together with uniqueness of the
-  `pauliBasis` decomposition to force `conj (coeff a i) = coeff a i`. Backward: a real linear
-  combination of self-adjoint elements is self-adjoint."
+/-- `coeff` reads off the coefficients of *any* explicit `pauliBasis` combination, not just the
+canonical one produced by `Basis.repr` — the basis property makes the two agree. -/
+theorem coeff_eq_of_eq_sum {a : A} {c : Fin 4 → ℂ}
+    (h : a = ∑ j, c j • (QubitAlgebra.pauliBasis (A := A) j : A)) (i : Fin 4) :
+    coeff a i = c i := by
+  rw [coeff, h, map_sum]
+  simp [Basis.repr_self, Finsupp.single_apply, Finset.sum_ite_eq']
+
+/-- Taking `star` conjugates every Pauli coefficient. -/
+theorem coeff_star (a : A) (i : Fin 4) :
+    coeff (star a : A) i = (starRingEnd ℂ) (coeff a i) := by
+  refine coeff_eq_of_eq_sum (c := fun j => (starRingEnd ℂ) (coeff a j)) ?_ i
+  conv_lhs => rw [← QubitAlgebra.pauliBasis.sum_repr a]
+  rw [star_sum]
+  refine Finset.sum_congr rfl fun j _ => ?_
+  rw [star_smul, (isSelfAdjoint_pauliBasis (A := A) j).star_eq]
+  rfl
+
+/-- An algebra element is self-adjoint iff all four of its Pauli coefficients are real. -/
+theorem isSelfAdjoint_iff_coeff (a : A) :
+    IsSelfAdjoint a ↔ ∀ i, (coeff (A := A) a i).im = 0 := by
+  constructor
+  · intro ha i
+    have h := coeff_star (A := A) a i
+    rw [ha.star_eq] at h
+    exact Complex.conj_eq_iff_im.mp h.symm
+  · intro h
+    have ha : (a : A) = ∑ j, coeff a j • (QubitAlgebra.pauliBasis (A := A) j : A) :=
+      (QubitAlgebra.pauliBasis.sum_repr a).symm
+    have hstar : star (a : A) = ∑ j, coeff a j • (QubitAlgebra.pauliBasis (A := A) j : A) := by
+      conv_lhs => rw [ha]
+      rw [star_sum]
+      refine Finset.sum_congr rfl fun j _ => ?_
+      rw [star_smul, (isSelfAdjoint_pauliBasis (A := A) j).star_eq, Complex.star_def,
+        Complex.conj_eq_iff_im.mpr (h j)]
+    rw [IsSelfAdjoint, hstar, ← ha]
+
+omit [QubitAlgebra A] in
+/-- A real scalar acts on `A` the same way whether taken through `ℝ` directly or through `ℂ`. -/
+theorem real_smul_eq_ofReal_smul (x : ℝ) (b : A) : x • b = (x : ℂ) • b := by
+  have : (x : ℂ) = algebraMap ℝ ℂ x := by norm_cast
+  rw [this, IsScalarTower.algebraMap_smul]
 
 /-- The real-linear equivalence between observables and `ℝ × (Fin 3 → ℝ)`: the scalar part `a₀`
 and Pauli vector `v` of `a₀ • 1 + σ v`. -/
-@[sorryful]
-noncomputable def observableEquiv : Observable A ≃ₗ[ℝ] ℝ × (Fin 3 → ℝ) :=
-  sorry
-
-TODO "Construct `Qubit.observableEquiv`. Forward map: from `Qubit.isSelfAdjoint_iff_coeff`, an
-  observable's `coeff` at `0` and at `i.succ` (for `i : Fin 3`) are real; take those real parts
-  as `(a₀, v)`. Inverse map: `(a₀, v) ↦ ⟨a₀ • 1 + σ v, _⟩`, self-adjoint since `1` and each
-  `gen i` are self-adjoint and self-adjoint elements are closed under real-linear combinations.
-  Left/right inverse and ℝ-linearity both reduce to uniqueness of the `pauliBasis` decomposition."
+noncomputable def observableEquiv : Observable A ≃ₗ[ℝ] ℝ × (Fin 3 → ℝ) where
+  toFun a := ((coeff (a : A) 0).re, fun i => (coeff (a : A) i.succ).re)
+  invFun p := ⟨p.1 • 1 + σ p.2,
+    IsSelfAdjoint.add
+      (by rw [real_smul_eq_ofReal_smul]
+          exact IsSelfAdjoint.smul (IsSelfAdjoint.all p.1) (IsSelfAdjoint.one A))
+      (isSelfAdjoint_σ p.2)⟩
+  map_add' a b := by
+    ext <;> simp [coeff, AddSubgroup.coe_add]
+  map_smul' r a := by
+    have hcast : ∀ i : Fin 4, coeff (A := A) (r • (a : A)) i = r * coeff (A := A) (a : A) i := by
+      intro i
+      rw [real_smul_eq_ofReal_smul]
+      show QubitAlgebra.pauliBasis.repr ((r : ℂ) • (a : A)) i =
+        r * QubitAlgebra.pauliBasis.repr (a : A) i
+      rw [map_smul, Finsupp.smul_apply, smul_eq_mul]
+    ext <;> simp [hcast, RingHom.id_apply]
+  left_inv a := by
+    have hre : ∀ i, ((coeff (a : A) i).re : ℂ) = coeff (a : A) i := fun i => by
+      have him := (isSelfAdjoint_iff_coeff (A := A) (a : A)).mp a.2 i
+      apply Complex.ext <;> simp [him]
+    have ha : (a : A) = ∑ j, coeff (a : A) j • (QubitAlgebra.pauliBasis (A := A) j : A) :=
+      (QubitAlgebra.pauliBasis.sum_repr (a : A)).symm
+    have hsum : (a : A) = coeff (a : A) 0 • (1 : A)
+        + ∑ i : Fin 3, coeff (a : A) i.succ • (QubitAlgebra.gen (A := A) i : A) := by
+      conv_lhs => rw [ha]
+      rw [Fin.sum_univ_succ, QubitAlgebra.pauliBasis_eq]
+      simp
+    ext
+    show ((coeff (a : A) 0).re : ℝ) • (1 : A) + σ (fun i => (coeff (a : A) i.succ).re) = (a : A)
+    rw [real_smul_eq_ofReal_smul, hre, σ]
+    simp only [hre]
+    exact hsum.symm
+  right_inv p := by
+    obtain ⟨a₀, v⟩ := p
+    have heq : (a₀ • (1 : A) + σ v : A) =
+        ∑ j : Fin 4, (Fin.cons (a₀ : ℂ) (fun i => (v i : ℂ)) : Fin 4 → ℂ) j •
+          (QubitAlgebra.pauliBasis (A := A) j : A) := by
+      rw [Fin.sum_univ_succ]
+      simp only [QubitAlgebra.pauliBasis_eq, Fin.cons_zero, Fin.cons_succ, σ]
+      rw [real_smul_eq_ofReal_smul]
+    have hc0 := coeff_eq_of_eq_sum heq 0
+    have hci : ∀ i : Fin 3, coeff (A := A) (a₀ • (1 : A) + σ v) i.succ = (v i : ℂ) :=
+      fun i => coeff_eq_of_eq_sum heq i.succ
+    show ((coeff (A := A) (a₀ • (1 : A) + σ v) 0).re,
+      fun i => (coeff (A := A) (a₀ • (1 : A) + σ v) i.succ).re) = (a₀, v)
+    simp only [hc0, hci, Fin.cons_zero, Complex.ofReal_re]
 
 end Qubit
