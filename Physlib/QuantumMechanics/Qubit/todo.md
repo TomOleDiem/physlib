@@ -20,11 +20,15 @@ Working step by step; only what is checked off below has been started.
       (`IsStarProjection`) iff spectrum `⊆ {0, 1}`; the nontrivial ones forced to `a₀ = ‖v‖ =
       1/2` — rank-one projections, one per direction on the Bloch sphere of radius `1/2` (all
       stubbed). This finishes roadmap §4.
-- [ ] **`State.lean`** — needs `OperatorAlgebra.State.mix`/`.IsPure` ported in (minimally
-      trimmed) from the abandoned `operator-algebra` branch first. Bloch vector
-      `r(ω) = (ω X, ω Y, ω Z)`; `‖r(ω)‖ ≤ 1`; the converse construction `ωᵣ`; main theorem
-      `State A ≃ closedBall (0 : ℝ³) 1`.
-- [ ] **Pure states** — `ω.IsPure ↔ ‖r(ω)‖ = 1` (Bloch sphere).
+- [x] **`Physlib/Mathematics/OperatorAlgebra/State.lean`** — ported in, trimmed to exactly what
+      `Qubit/State.lean` needs: `instCoeFun`, `apply_one`, `apply_nonneg`,
+      `apply_selfAdjoint_im_eq_zero`/`observable_im_eq_zero`, `mix`, `IsPure`. All real, proven
+      (not stubs) — probabilities-of-effects and pullback-of-states were left out, not needed
+      here; pull them back in from physlib's history if something later needs them.
+- [x] **`Qubit/State.lean`** — `r` (real, Bloch vector); `norm_r_le_one`; the converse
+      `ofBlochVector`/`r_ofBlochVector`; the main theorem `stateEquivClosedBall : State A ≃
+      Metric.closedBall (0 : EuclideanSpace ℝ (Fin 3)) 1`; purity
+      `isPure_iff_norm_r_eq_one : ω.IsPure ↔ ‖r ω‖ = 1` (all stubbed). Finishes roadmap §5–6.
 - [ ] **`Lie.lean`** — traceless observable sector / `skewAdjoint` copy of `i • σ(v)` as a Lie
       algebra under the commutator, identified with `(Fin 3 → ℝ, ⨯₃)`'s existing `Cross.lieRing`
       instance (`su(2)` picture). Keep separate from the C⋆-representation notion.
