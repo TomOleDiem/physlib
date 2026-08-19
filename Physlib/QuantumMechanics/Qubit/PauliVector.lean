@@ -35,7 +35,7 @@ open OperatorAlgebra
 
 namespace Qubit
 
-variable {A : Type*} [CStarAlgebra A] [PartialOrder A] [StarOrderedRing A] [QubitAlgebra A]
+variable {A : Type*} [OperatorAlgebra A] [QubitAlgebra A]
 
 /-- The Pauli vector `σ(v) = ∑ᵢ vᵢ genᵢ` associated with `v : Fin 3 → ℝ`. -/
 noncomputable def σ (v : Fin 3 → ℝ) : A :=

@@ -31,7 +31,7 @@ open Module OperatorAlgebra
 
 namespace Qubit
 
-variable {A : Type*} [CStarAlgebra A] [PartialOrder A] [StarOrderedRing A] [QubitAlgebra A]
+variable {A : Type*} [OperatorAlgebra A] [QubitAlgebra A]
 
 /-- The Pauli coefficients of an algebra element: `coeff a 0` is the scalar part, `coeff a
 (i.succ)` is the coefficient of `gen i`. Unique since `pauliBasis` is a basis. -/

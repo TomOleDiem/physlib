@@ -35,7 +35,7 @@ open Module OperatorAlgebra
 
 namespace Qubit
 
-variable {A : Type*} [CStarAlgebra A] [PartialOrder A] [StarOrderedRing A] [QubitAlgebra A]
+variable {A : Type*} [OperatorAlgebra A] [QubitAlgebra A]
 
 /-- The real-linear map on Bloch vectors induced by unitary conjugation, characterized by
 `Qubit.coe_R`: `U σ(v) U⋆ = σ(R U v)`. -/
@@ -94,7 +94,9 @@ def IsRotation (f : (Fin 3 → ℝ) →ₗ[ℝ] (Fin 3 → ℝ)) : Prop :=
   (∀ v, ‖(WithLp.toLp 2 (f v) : EuclideanSpace ℝ (Fin 3))‖ =
     ‖(WithLp.toLp 2 v : EuclideanSpace ℝ (Fin 3))‖) ∧ LinearMap.det f = 1
 
-/-- `R U` is a rotation, for every unitary `U`. -/
+/-- `R U` is a rotation, for every unitary `U`. Tagged `sorryful`: it just tuples
+`Qubit.norm_R_apply` and `Qubit.det_R_eq_one`, both themselves not yet proved. -/
+@[sorryful]
 theorem isRotation_R (U : Unitary A) : IsRotation (R U) :=
   ⟨norm_R_apply U, det_R_eq_one U⟩
 

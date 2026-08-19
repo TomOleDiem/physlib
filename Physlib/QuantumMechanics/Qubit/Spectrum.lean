@@ -35,7 +35,7 @@ open Module OperatorAlgebra
 
 namespace Qubit
 
-variable {A : Type*} [CStarAlgebra A] [PartialOrder A] [StarOrderedRing A] [QubitAlgebra A]
+variable {A : Type*} [OperatorAlgebra A] [QubitAlgebra A]
 
 /-- The spectrum of `a₀ • 1 + σ v` is `{a₀ + ‖v‖, a₀ - ‖v‖}`. -/
 @[sorryful]

@@ -38,7 +38,7 @@ open Module OperatorAlgebra
 
 namespace Qubit
 
-variable {A : Type*} [CStarAlgebra A] [PartialOrder A] [StarOrderedRing A] [QubitAlgebra A]
+variable {A : Type*} [OperatorAlgebra A] [QubitAlgebra A]
 
 /-- The `su(2)`-normalized generator associated with a Pauli vector `v`: `τ v = -i/2 • σ v`. -/
 noncomputable def τ (v : Fin 3 → ℝ) : A :=

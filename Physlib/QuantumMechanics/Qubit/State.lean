@@ -31,7 +31,7 @@ open Module OperatorAlgebra
 
 namespace Qubit
 
-variable {A : Type*} [CStarAlgebra A] [PartialOrder A] [StarOrderedRing A] [QubitAlgebra A]
+variable {A : Type*} [OperatorAlgebra A] [QubitAlgebra A]
 
 /-- The Bloch vector of a state: its expectation values on the three Pauli generators. -/
 noncomputable def r (ω : State A) : Fin 3 → ℝ :=

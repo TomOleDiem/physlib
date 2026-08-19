@@ -33,7 +33,7 @@ open Module OperatorAlgebra
 
 namespace Qubit
 
-variable {A : Type*} [CStarAlgebra A] [PartialOrder A] [StarOrderedRing A] [QubitAlgebra A]
+variable {A : Type*} [OperatorAlgebra A] [QubitAlgebra A]
 
 /-- `a₀ • 1 + σ v` is an effect (`0 ≤ · ≤ 1`) iff `‖v‖ ≤ min a₀ (1 - a₀)`. -/
 @[sorryful]
