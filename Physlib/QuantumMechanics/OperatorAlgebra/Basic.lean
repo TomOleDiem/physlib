@@ -41,11 +41,9 @@ class OperatorAlgebra (A : Type*) extends CStarAlgebra A, PartialOrder A, StarOr
 
 namespace OperatorAlgebra
 
-
 section ObservableAlgebra
 
 variable {A : Type*} [OperatorAlgebra A]
-
 
 /-- An observable is a self-adjoint element of `A`: position, momentum, energy, spin, ... .
 Self-adjointness is exactly what makes an element a *measurable* quantity — it is what forces its
@@ -54,20 +52,17 @@ noncomputable abbrev Observable (A : Type*)
     [CStarAlgebra A] :=
   selfAdjoint A
 
-
 /-- A positive element of `A`: an observable whose measurement outcomes are all `≥ 0`.
 Positivity is what gives observables a meaningful order (`a ≤ b` meaning `b - a` is positive). -/
 abbrev PositiveElement (A : Type*)
     [OperatorAlgebra A] :=
   {a : Observable A // 0 ≤ (a : A)}
 
-
 /-- An effect is an observable between zero and the identity, representing a yes/no measurement
 outcome. -/
 abbrev Effect (A : Type*)
     [OperatorAlgebra A] :=
   Set.Icc (0 : Observable A) 1
-
 
 /-- A finite POVM on `A`: the most general notion of a measurement with outcomes in `X`,
 generalizing a single yes/no `Effect` to several possible outcomes. -/
@@ -80,13 +75,11 @@ structure POVM
   /-- The effects resolve the identity. -/
   sum_effect : ∑ x, (effect x : A) = 1
 
-
 /-- A unitary element of `A`: implements a reversible transformation of the system — a symmetry,
 or time evolution under a Hamiltonian — acting on observables by conjugation, `a ↦ U a U⋆`. -/
 noncomputable abbrev Unitary (A : Type*)
     [CStarAlgebra A] :=
   unitary A
-
 
 /-- A state on `A`: a positive complex-linear functional normalized by `ω 1 = 1`. `ω a` is the
 expected outcome of measuring observable `a` in this state — a state records everything that can
@@ -98,16 +91,13 @@ structure State (A : Type*)
   /-- A state assigns expectation one to the identity observable. -/
   map_one : toPositiveLinearMap 1 = 1
 
-
 /-- A channel from `A₁` to `A₂` — physicists' name for a unital completely positive (UCP) map,
 the most general notion of dynamics this framework expresses. -/
 abbrev Channel (A₁ A₂ : Type*)
     [OperatorAlgebra A₁] [OperatorAlgebra A₂] :=
   {φ : A₁ →CP A₂ // φ 1 = 1}
 
-
 end ObservableAlgebra
-
 
 /-!
 ## Hilbert-space representations
@@ -131,7 +121,6 @@ variable
   [InnerProductSpace ℂ H]
   [CompleteSpace H]
 
-
 /-- A Hilbert-space representation of `A`: a unital ⋆-homomorphism from `A` into the algebra of
 bounded operators on the Hilbert space `H`. -/
 abbrev Representation (A : Type*) (H : Type*)
@@ -140,7 +129,6 @@ abbrev Representation (A : Type*) (H : Type*)
     [InnerProductSpace ℂ H]
     [CompleteSpace H] :=
   A →⋆ₐ[ℂ] (H →L[ℂ] H)
-
 
 end Representation
 
