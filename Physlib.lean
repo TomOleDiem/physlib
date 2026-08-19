@@ -369,6 +369,7 @@ public import Physlib.QuantumMechanics.Qubit.Effect
 public import Physlib.QuantumMechanics.Qubit.Lie
 public import Physlib.QuantumMechanics.Qubit.Observable
 public import Physlib.QuantumMechanics.Qubit.PauliVector
+public import Physlib.QuantumMechanics.Qubit.Presentation
 public import Physlib.QuantumMechanics.Qubit.Spectrum
 public import Physlib.QuantumMechanics.Qubit.State
 public import Physlib.QuantumMechanics.Qubit.Unitary
