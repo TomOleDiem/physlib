@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.QuantumMechanics.Qubit.backup.Basic
+public import Physlib.QuantumMechanics.Qubit.Basic
 public import Mathlib.LinearAlgebra.CrossProduct
 
 /-!
