@@ -45,13 +45,13 @@ noncomputable def unitaryEvolution (Hobs : Observable A) (t : ℝ) : Unitary A :
 
 omit [QubitAlgebra A] in
 /-- At time `0`, nothing has happened. -/
-theorem unitaryEvolution_zero (Hobs : Observable A) : unitaryEvolution Hobs 0 = 1 := by
+lemma unitaryEvolution_zero (Hobs : Observable A) : unitaryEvolution Hobs 0 = 1 := by
   rw [unitaryEvolution, zero_smul, selfAdjoint.expUnitary_zero]
 
 omit [QubitAlgebra A] in
 /-- The group law: `t • Hobs` and `s • Hobs` always commute (same underlying element), so
 `selfAdjoint.expUnitary` turns addition into multiplication (`Commute.expUnitary_add`). -/
-theorem unitaryEvolution_add (Hobs : Observable A) (s t : ℝ) :
+lemma unitaryEvolution_add (Hobs : Observable A) (s t : ℝ) :
     unitaryEvolution Hobs (s + t) = unitaryEvolution Hobs s * unitaryEvolution Hobs t := by
   rw [unitaryEvolution, unitaryEvolution, unitaryEvolution, add_smul]
   exact Commute.expUnitary_add
@@ -77,7 +77,7 @@ noncomputable def blochTrajectory (Hobs : Observable A) (v : Fin 3 → ℝ) (t :
 (`Qubit.observableEquiv Hobs`'s second component) — the scalar part commutes with everything and
 never appears. Equivalently, finite-time evolution is a rotation, `r(t) = R (U t) v`. -/
 @[sorryful]
-theorem hasDerivAt_blochTrajectory (Hobs : Observable A) (v : Fin 3 → ℝ) (t : ℝ) :
+lemma hasDerivAt_blochTrajectory (Hobs : Observable A) (v : Fin 3 → ℝ) (t : ℝ) :
     HasDerivAt (blochTrajectory Hobs v)
       ((2 : ℝ) • ((observableEquiv Hobs).2 ⨯₃ blochTrajectory Hobs v t)) t :=
   sorry

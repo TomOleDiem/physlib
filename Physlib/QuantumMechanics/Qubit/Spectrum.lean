@@ -39,7 +39,7 @@ variable {A : Type*} [OperatorAlgebra A] [QubitAlgebra A]
 
 /-- The spectrum of `a₀ • 1 + σ v` is `{a₀ + ‖v‖, a₀ - ‖v‖}`. -/
 @[sorryful]
-theorem spectrum_scalar_add_σ (a₀ : ℝ) (v : Fin 3 → ℝ) :
+lemma spectrum_scalar_add_σ (a₀ : ℝ) (v : Fin 3 → ℝ) :
     spectrum ℝ (a₀ • (1 : A) + σ v) =
       {a₀ + ‖(WithLp.toLp 2 v : EuclideanSpace ℝ (Fin 3))‖,
         a₀ - ‖(WithLp.toLp 2 v : EuclideanSpace ℝ (Fin 3))‖} :=
@@ -53,7 +53,7 @@ TODO "Prove `Qubit.spectrum_scalar_add_σ`. From `Qubit.σ_sq`, `(σ v - ‖v‖
 
 /-- Positivity criterion: `a₀ • 1 + σ v` is a positive element iff `‖v‖ ≤ a₀`. -/
 @[sorryful]
-theorem nonneg_scalar_add_σ_iff (a₀ : ℝ) (v : Fin 3 → ℝ) :
+lemma nonneg_scalar_add_σ_iff (a₀ : ℝ) (v : Fin 3 → ℝ) :
     0 ≤ a₀ • (1 : A) + σ v ↔ ‖(WithLp.toLp 2 v : EuclideanSpace ℝ (Fin 3))‖ ≤ a₀ :=
   sorry
 

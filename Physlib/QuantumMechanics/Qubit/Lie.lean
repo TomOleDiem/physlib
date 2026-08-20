@@ -47,7 +47,7 @@ noncomputable def τ (v : Fin 3 → ℝ) : A :=
   (-Complex.I / 2) • σ v
 
 /-- Every `τ v` is skew-adjoint. -/
-theorem τ_mem_skewAdjoint (v : Fin 3 → ℝ) : (τ v : A) ∈ skewAdjoint A := by
+lemma τ_mem_skewAdjoint (v : Fin 3 → ℝ) : (τ v : A) ∈ skewAdjoint A := by
   rw [τ]
   refine (isSelfAdjoint_σ v).smul_mem_skewAdjoint ?_
   rw [skewAdjoint.mem_iff]
@@ -55,7 +55,7 @@ theorem τ_mem_skewAdjoint (v : Fin 3 → ℝ) : (τ v : A) ∈ skewAdjoint A :=
 
 /-- `τ` exactly intertwines the cross product with the commutator bracket: this is the
 identification `ℝ³ with cross product ≃ su(2) ≃ skew-adjoint traceless qubit generators`. -/
-theorem τ_mul_sub_mul (u v : Fin 3 → ℝ) :
+lemma τ_mul_sub_mul (u v : Fin 3 → ℝ) :
     (τ u : A) * τ v - τ v * τ u = τ (u ⨯₃ v) := by
   simp only [τ, smul_mul_smul_comm, ← smul_sub, σ_commutator, smul_smul]
   congr 1
@@ -74,17 +74,17 @@ bracket-compatible map.
 -/
 
 /-- `τ` is additive. -/
-theorem τ_add (u v : Fin 3 → ℝ) : (τ (u + v) : A) = τ u + τ v := by
+lemma τ_add (u v : Fin 3 → ℝ) : (τ (u + v) : A) = τ u + τ v := by
   rw [τ, τ, τ, σ_add, smul_add]
 
 /-- `τ` is ℝ-homogeneous. -/
-theorem τ_smul (r : ℝ) (v : Fin 3 → ℝ) : (τ (r • v) : A) = r • τ v := by
+lemma τ_smul (r : ℝ) (v : Fin 3 → ℝ) : (τ (r • v) : A) = r • τ v := by
   rw [τ, τ, σ_smul, real_smul_eq_ofReal_smul, real_smul_eq_ofReal_smul, smul_smul, smul_smul,
     mul_comm]
 
 /-- The three generators are linearly independent over `ℂ`: a sub-family of the basis
 `QubitAlgebra.pauliBasis`. -/
-theorem gen_linearIndependent :
+lemma gen_linearIndependent :
     LinearIndependent ℂ (fun i => (QubitAlgebra.gen (A := A) i : A)) := by
   have h := (QubitAlgebra.pauliBasis (A := A)).linearIndependent
   rw [QubitAlgebra.pauliBasis_eq] at h
@@ -92,7 +92,7 @@ theorem gen_linearIndependent :
 
 /-- `σ` is injective: it is exactly the coordinates against the (linearly independent) Pauli
 generators. -/
-theorem σ_eq_zero_iff (v : Fin 3 → ℝ) : (σ v : A) = 0 ↔ v = 0 := by
+lemma σ_eq_zero_iff (v : Fin 3 → ℝ) : (σ v : A) = 0 ↔ v = 0 := by
   constructor
   · intro h
     have hg := Fintype.linearIndependent_iff.mp (gen_linearIndependent (A := A))
@@ -103,7 +103,7 @@ theorem σ_eq_zero_iff (v : Fin 3 → ℝ) : (σ v : A) = 0 ↔ v = 0 := by
     simp [σ]
 
 /-- `τ` is injective: `su(2)` really is `3`-dimensional, not a further quotient of it. -/
-theorem τ_injective : Function.Injective (τ (A := A)) := by
+lemma τ_injective : Function.Injective (τ (A := A)) := by
   have hne : (-Complex.I / 2 : ℂ) ≠ 0 := by simp [Complex.ext_iff]
   intro u v huv
   rw [τ, τ] at huv

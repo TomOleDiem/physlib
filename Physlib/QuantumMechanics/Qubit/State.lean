@@ -39,7 +39,7 @@ noncomputable def r (ω : State A) : Fin 3 → ℝ :=
 
 /-- Every Bloch vector lies in the closed unit ball. -/
 @[sorryful]
-theorem norm_r_le_one (ω : State A) :
+lemma norm_r_le_one (ω : State A) :
     ‖(WithLp.toLp 2 (r ω) : EuclideanSpace ℝ (Fin 3))‖ ≤ 1 :=
   sorry
 
@@ -62,7 +62,7 @@ TODO "Construct `Qubit.ofBlochVector`. The underlying functional is `a₀ • 1 
 
 /-- The Bloch vector of `Qubit.ofBlochVector v hv` is `v`. -/
 @[sorryful]
-theorem r_ofBlochVector (v : Fin 3 → ℝ)
+lemma r_ofBlochVector (v : Fin 3 → ℝ)
     (hv : ‖(WithLp.toLp 2 v : EuclideanSpace ℝ (Fin 3))‖ ≤ 1) :
     (r (A := A) (ofBlochVector v hv)) = v :=
   sorry
@@ -88,7 +88,7 @@ TODO "Construct `Qubit.stateEquivClosedBall` from `Qubit.r`/`Qubit.norm_r_le_one
 
 /-- A state is pure iff its Bloch vector has norm exactly `1`, i.e. lies on the Bloch sphere. -/
 @[sorryful]
-theorem isPure_iff_norm_r_eq_one (ω : State A) :
+lemma isPure_iff_norm_r_eq_one (ω : State A) :
     ω.IsPure ↔ ‖(WithLp.toLp 2 (r ω) : EuclideanSpace ℝ (Fin 3))‖ = 1 :=
   sorry
 

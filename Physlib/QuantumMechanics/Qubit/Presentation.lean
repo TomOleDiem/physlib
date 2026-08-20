@@ -79,22 +79,22 @@ abbrev PauliAlgebra := QuaternionAlgebra ℂ (-1) 0 (-1)
 def gen : Fin 3 → PauliAlgebra :=
   ![⟨0, Complex.I, 0, 0⟩, ⟨0, 0, Complex.I, 0⟩, ⟨0, 0, 0, Complex.I⟩]
 
-@[simp] theorem gen_zero : gen 0 = (⟨0, Complex.I, 0, 0⟩ : PauliAlgebra) := rfl
-@[simp] theorem gen_one : gen 1 = (⟨0, 0, Complex.I, 0⟩ : PauliAlgebra) := rfl
-@[simp] theorem gen_two : gen 2 = (⟨0, 0, 0, Complex.I⟩ : PauliAlgebra) := rfl
+@[simp] lemma gen_zero : gen 0 = (⟨0, Complex.I, 0, 0⟩ : PauliAlgebra) := rfl
+@[simp] lemma gen_one : gen 1 = (⟨0, 0, Complex.I, 0⟩ : PauliAlgebra) := rfl
+@[simp] lemma gen_two : gen 2 = (⟨0, 0, 0, Complex.I⟩ : PauliAlgebra) := rfl
 
 /-- Each generator squares to `1`. -/
-theorem gen_sq (i : Fin 3) : gen i * gen i = 1 := by
+lemma gen_sq (i : Fin 3) : gen i * gen i = 1 := by
   fin_cases i <;>
     · ext <;> simp [QuaternionAlgebra.mk_mul_mk, Complex.I_mul_I]
 
 /-- The cyclic Pauli relation: `gen i * gen (i + 1) = I • gen (i + 2)`. -/
-theorem gen_mul_cyc (i : Fin 3) : gen i * gen (i + 1) = Complex.I • gen (i + 2) := by
+lemma gen_mul_cyc (i : Fin 3) : gen i * gen (i + 1) = Complex.I • gen (i + 2) := by
   fin_cases i <;>
     · ext <;> simp [QuaternionAlgebra.mk_mul_mk, QuaternionAlgebra.smul_mk, Complex.I_mul_I]
 
 /-- The reversed cyclic relation: `gen (i + 1) * gen i = -I • gen (i + 2)`. -/
-theorem gen_mul_cyc_symm (i : Fin 3) : gen (i + 1) * gen i = -Complex.I • gen (i + 2) := by
+lemma gen_mul_cyc_symm (i : Fin 3) : gen (i + 1) * gen i = -Complex.I • gen (i + 2) := by
   fin_cases i <;>
     · ext <;> simp [QuaternionAlgebra.mk_mul_mk, QuaternionAlgebra.smul_mk, Complex.I_mul_I]
 
@@ -119,7 +119,7 @@ noncomputable def pauliBasis : Basis (Fin 4) ℂ PauliAlgebra :=
   (Pi.basisFun ℂ (Fin 4)).map coordEquiv
 
 /-- The basis `pauliBasis` is exactly `1` followed by the generators. -/
-theorem pauliBasis_eq : ⇑pauliBasis = Fin.cons (1 : PauliAlgebra) gen := by
+lemma pauliBasis_eq : ⇑pauliBasis = Fin.cons (1 : PauliAlgebra) gen := by
   funext i
   fin_cases i <;> simp [pauliBasis, coordEquiv, Pi.basisFun_apply] <;> rfl
 

@@ -48,7 +48,7 @@ partially-applied `crossProduct` is already linear. -/
 noncomputable def adjointAction (Hobs : Observable A) : (Fin 3 → ℝ) →ₗ[ℝ] (Fin 3 → ℝ) :=
   (2 : ℝ) • crossProduct (observableEquiv Hobs).2
 
-theorem adjointAction_apply (Hobs : Observable A) (v : Fin 3 → ℝ) :
+lemma adjointAction_apply (Hobs : Observable A) (v : Fin 3 → ℝ) :
     adjointAction Hobs v = (2 : ℝ) • ((observableEquiv Hobs).2 ⨯₃ v) :=
   rfl
 
@@ -62,20 +62,20 @@ noncomputable def rotationFlow (Hobs : Observable A) (t : ℝ) : (Fin 3 → ℝ)
 /-- Every member of the flow is a genuine rotation — free from `Qubit.isRotation_R`, itself
 tagged `sorryful`. -/
 @[sorryful]
-theorem isRotation_rotationFlow (Hobs : Observable A) (t : ℝ) :
+lemma isRotation_rotationFlow (Hobs : Observable A) (t : ℝ) :
     IsRotation (rotationFlow Hobs t) :=
   isRotation_R (unitaryEvolution Hobs t)
 
 /-- At time `0`, the rotation flow is the identity. -/
 @[sorryful]
-theorem rotationFlow_zero (Hobs : Observable A) : rotationFlow Hobs 0 = LinearMap.id :=
+lemma rotationFlow_zero (Hobs : Observable A) : rotationFlow Hobs 0 = LinearMap.id :=
   sorry
 
 TODO "Prove `Qubit.rotationFlow_zero` from `Qubit.unitaryEvolution_zero` and `Qubit.R_one`."
 
 /-- The group law: evolving by `s + t` is evolving by `s` then by `t`. -/
 @[sorryful]
-theorem rotationFlow_add (Hobs : Observable A) (s t : ℝ) :
+lemma rotationFlow_add (Hobs : Observable A) (s t : ℝ) :
     rotationFlow Hobs (s + t) = (rotationFlow Hobs t).comp (rotationFlow Hobs s) :=
   sorry
 
@@ -90,7 +90,7 @@ has, at every time (not just `t = 0`), derivative equal to `Qubit.adjointAction 
 the current point — restating `Qubit.hasDerivAt_blochTrajectory` with the generator isolated as
 its own linear map instead of a bare expression. -/
 @[sorryful]
-theorem hasDerivAt_rotationFlow_apply (Hobs : Observable A) (v : Fin 3 → ℝ) (t : ℝ) :
+lemma hasDerivAt_rotationFlow_apply (Hobs : Observable A) (v : Fin 3 → ℝ) (t : ℝ) :
     HasDerivAt (fun t => rotationFlow Hobs t v) (adjointAction Hobs (rotationFlow Hobs t v)) t :=
   sorry
 

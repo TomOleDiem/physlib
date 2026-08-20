@@ -43,21 +43,21 @@ noncomputable def σ (v : Fin 3 → ℝ) : A :=
 
 omit [QubitAlgebra A] in
 /-- A real scalar acts on `A` the same way whether taken through `ℝ` directly or through `ℂ`. -/
-theorem real_smul_eq_ofReal_smul (x : ℝ) (b : A) : x • b = (x : ℂ) • b := by
+lemma real_smul_eq_ofReal_smul (x : ℝ) (b : A) : x • b = (x : ℂ) • b := by
   have : (x : ℂ) = algebraMap ℝ ℂ x := by norm_cast
   rw [this, IsScalarTower.algebraMap_smul]
 
 /-- `σ` is additive. -/
-theorem σ_add (u v : Fin 3 → ℝ) : (σ (u + v) : A) = σ u + σ v := by
+lemma σ_add (u v : Fin 3 → ℝ) : (σ (u + v) : A) = σ u + σ v := by
   simp only [σ, Pi.add_apply, Complex.ofReal_add, add_smul, Finset.sum_add_distrib]
 
 /-- `σ` is ℝ-homogeneous. -/
-theorem σ_smul (r : ℝ) (v : Fin 3 → ℝ) : (σ (r • v) : A) = r • σ v := by
+lemma σ_smul (r : ℝ) (v : Fin 3 → ℝ) : (σ (r • v) : A) = r • σ v := by
   simp only [σ, Pi.smul_apply, smul_eq_mul, Complex.ofReal_mul, mul_smul, real_smul_eq_ofReal_smul,
     Finset.smul_sum]
 
 /-- `σ(v)` is self-adjoint: a real-linear combination of the self-adjoint generators. -/
-theorem isSelfAdjoint_σ (v : Fin 3 → ℝ) : IsSelfAdjoint (σ v : A) := by
+lemma isSelfAdjoint_σ (v : Fin 3 → ℝ) : IsSelfAdjoint (σ v : A) := by
   rw [σ]
   refine isSelfAdjoint_sum _ fun i _ => ?_
   rw [IsSelfAdjoint, star_smul]
@@ -75,13 +75,13 @@ nine pairs `(i, j) : Fin 3 × Fin 3`.
 /-- Rotating a `Fin 3` sum to start from any `i`, not just `0`: lets `gen_mul_σ` below split
 `∑ j, ...` around a symbolic base point `i` instead of the literal `0` that `Fin.sum_univ_three`
 is stuck with. -/
-theorem sum_univ_three_rotate {M : Type*} [AddCommMonoid M] (f : Fin 3 → M) (i : Fin 3) :
+lemma sum_univ_three_rotate {M : Type*} [AddCommMonoid M] (f : Fin 3 → M) (i : Fin 3) :
     ∑ j, f j = f i + f (i + 1) + f (i + 2) := by
   fin_cases i <;> simp [Fin.sum_univ_three] <;> abel
 
 /-- A single generator against all of `σ v`, split via `sum_univ_three_rotate` into the three
 products `gen i * gen i`, `gen i * gen (i + 1)`, `gen i * gen (i + 2)`. -/
-theorem gen_mul_σ (i : Fin 3) (v : Fin 3 → ℝ) :
+lemma gen_mul_σ (i : Fin 3) (v : Fin 3 → ℝ) :
     (QubitAlgebra.gen (A := A) i : A) * σ v =
       (v i : ℂ) • (1 : A) +
         Complex.I • (v (i + 1) : ℂ) • (QubitAlgebra.gen (A := A) (i + 2) : A) -
@@ -92,7 +92,7 @@ theorem gen_mul_σ (i : Fin 3) (v : Fin 3 → ℝ) :
   module
 
 /-- The fundamental Pauli vector identity: `σ(u) σ(v) = (u ⬝ᵥ v) • 1 + i • σ(u ⨯₃ v)`. -/
-theorem σ_mul_σ (u v : Fin 3 → ℝ) :
+lemma σ_mul_σ (u v : Fin 3 → ℝ) :
     (σ u : A) * σ v = ((u ⬝ᵥ v : ℝ) : ℂ) • (1 : A) + Complex.I • (σ (u ⨯₃ v) : A) := by
   rw [σ, Finset.sum_mul]
   simp_rw [smul_mul_assoc, gen_mul_σ (A := A)]
@@ -103,18 +103,18 @@ theorem σ_mul_σ (u v : Fin 3 → ℝ) :
   module
 
 /-- `σ(v)² = ‖v‖² • 1`, i.e. `σ(v) * σ(v) = (v ⬝ᵥ v) • 1`. -/
-theorem σ_sq (v : Fin 3 → ℝ) :
+lemma σ_sq (v : Fin 3 → ℝ) :
     (σ v : A) * σ v = ((v ⬝ᵥ v : ℝ) : ℂ) • (1 : A) := by
   rw [σ_mul_σ, cross_self]
   simp [σ]
 
 /-- `σ` is odd: `σ(-w) = -σ(w)`. -/
-theorem σ_neg (w : Fin 3 → ℝ) : (σ (-w) : A) = -σ w := by
+lemma σ_neg (w : Fin 3 → ℝ) : (σ (-w) : A) = -σ w := by
   simp only [σ, Pi.neg_apply, Complex.ofReal_neg, neg_smul]
   rw [Finset.sum_neg_distrib]
 
 /-- The Pauli commutator: `[σ(u), σ(v)] = 2i • σ(u ⨯₃ v)`. -/
-theorem σ_commutator (u v : Fin 3 → ℝ) :
+lemma σ_commutator (u v : Fin 3 → ℝ) :
     (σ u : A) * σ v - σ v * σ u = (2 * Complex.I) • (σ (u ⨯₃ v) : A) := by
   rw [σ_mul_σ, σ_mul_σ, dotProduct_comm v u, ← cross_anticomm u v, σ_neg]
   module

@@ -65,7 +65,7 @@ TODO "Construct `Qubit.R`, now that `Qubit.observableEquiv` exists. `Unitary.aut
 
 /-- The defining property of `Qubit.R`: `U σ(v) U⋆ = σ(R U v)`. -/
 @[sorryful]
-theorem coe_R (U : Unitary A) (v : Fin 3 → ℝ) :
+lemma coe_R (U : Unitary A) (v : Fin 3 → ℝ) :
     (U : A) * σ v * star (U : A) = σ (R U v) :=
   sorry
 
@@ -75,7 +75,7 @@ TODO "Prove `Qubit.coe_R` directly from the construction of `Qubit.R` (it should
 
 /-- `R U` is an isometry of Bloch vectors. -/
 @[sorryful]
-theorem norm_R_apply (U : Unitary A) (v : Fin 3 → ℝ) :
+lemma norm_R_apply (U : Unitary A) (v : Fin 3 → ℝ) :
     ‖(WithLp.toLp 2 (R U v) : EuclideanSpace ℝ (Fin 3))‖ =
       ‖(WithLp.toLp 2 v : EuclideanSpace ℝ (Fin 3))‖ :=
   sorry
@@ -88,7 +88,7 @@ TODO "Prove `Qubit.norm_R_apply` from `Qubit.coe_R` and `Qubit.σ_sq`: `‖v‖�
 is chosen — `LinearMap.det` is already basis-independent. Together with `Qubit.norm_R_apply`
 (orthogonal), this is exactly "`R U` lies in `SO(3)`", stated abstractly. -/
 @[sorryful]
-theorem det_R_eq_one (U : Unitary A) :
+lemma det_R_eq_one (U : Unitary A) :
     LinearMap.det (R U : (Fin 3 → ℝ) →ₗ[ℝ] (Fin 3 → ℝ)) = 1 :=
   sorry
 
@@ -109,13 +109,13 @@ def IsRotation (f : (Fin 3 → ℝ) →ₗ[ℝ] (Fin 3 → ℝ)) : Prop :=
 /-- `R U` is a rotation, for every unitary `U`. Tagged `sorryful`: it just tuples
 `Qubit.norm_R_apply` and `Qubit.det_R_eq_one`, both themselves not yet proved. -/
 @[sorryful]
-theorem isRotation_R (U : Unitary A) : IsRotation (R U) :=
+lemma isRotation_R (U : Unitary A) : IsRotation (R U) :=
   ⟨norm_R_apply U, det_R_eq_one U⟩
 
 /-- `R` is compatible with multiplication, matching `Unitary.automorphism (U * V) =
 Unitary.automorphism U ∘ Unitary.automorphism V`. -/
 @[sorryful]
-theorem R_comp (U V : Unitary A) : R (U * V) = (R U).comp (R V) :=
+lemma R_comp (U V : Unitary A) : R (U * V) = (R U).comp (R V) :=
   sorry
 
 TODO "Prove `Qubit.R_comp` from `Qubit.coe_R` applied twice and
@@ -125,7 +125,7 @@ TODO "Prove `Qubit.R_comp` from `Qubit.coe_R` applied twice and
 
 /-- The identity unitary induces the identity map on Bloch vectors. -/
 @[sorryful]
-theorem R_one : R (A := A) 1 = LinearMap.id :=
+lemma R_one : R (A := A) 1 = LinearMap.id :=
   sorry
 
 TODO "Prove `Qubit.R_one` from `Qubit.coe_R` at `U = 1` (`1 * σ v * star 1 = σ v`) and
@@ -150,7 +150,7 @@ def IsScalarUnitary (U : Unitary A) : Prop :=
 
 /-- `R`'s kernel is exactly the scalar unitaries. -/
 @[sorryful]
-theorem R_eq_id_iff_isScalarUnitary (U : Unitary A) :
+lemma R_eq_id_iff_isScalarUnitary (U : Unitary A) :
     R U = LinearMap.id ↔ IsScalarUnitary U :=
   sorry
 
@@ -175,7 +175,7 @@ exactly `{1, -1}`. Combines `Qubit.R_eq_id_iff_isScalarUnitary` (kernel = scalar
 with `Qubit.det_smul_one` (`det (c • 1) = c ^ 2`, so `IsSpecialUnitary` forces `c ^ 2 = 1`, i.e.
 `c = 1 ∨ c = -1` over `ℂ`). -/
 @[sorryful]
-theorem R_eq_id_iff_eq_one_or_eq_neg_one_of_isSpecialUnitary
+lemma R_eq_id_iff_eq_one_or_eq_neg_one_of_isSpecialUnitary
     (U : Unitary A) (hU : IsSpecialUnitary U) :
     R U = LinearMap.id ↔ (U : A) = 1 ∨ (U : A) = -1 :=
   sorry
