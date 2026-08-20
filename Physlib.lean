@@ -364,11 +364,11 @@ public import Physlib.QuantumMechanics.PlanckConstant
 public import Physlib.QuantumMechanics.PoschlTeller.Basic
 public import Physlib.QuantumMechanics.QuantumSystem.Basic
 public import Physlib.QuantumMechanics.Qubit.Basic
+public import Physlib.QuantumMechanics.Qubit.Lie
 public import Physlib.QuantumMechanics.Qubit.PauliVector
 public import Physlib.QuantumMechanics.Qubit.backup.AdjointAction
 public import Physlib.QuantumMechanics.Qubit.backup.Dynamics
 public import Physlib.QuantumMechanics.Qubit.backup.Effect
-public import Physlib.QuantumMechanics.Qubit.backup.Lie
 public import Physlib.QuantumMechanics.Qubit.backup.Observable
 public import Physlib.QuantumMechanics.Qubit.backup.Presentation
 public import Physlib.QuantumMechanics.Qubit.backup.Spectrum
