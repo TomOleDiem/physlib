@@ -131,7 +131,6 @@ public import Physlib.Mathematics.List.InsertionSort
 public import Physlib.Mathematics.OneParameterSubgroups.Basic
 public import Physlib.Mathematics.OneParameterSubgroups.Unitary
 public import Physlib.Mathematics.OperatorAlgebra.Dynamics
-public import Physlib.Mathematics.OperatorAlgebra.JordanLie
 public import Physlib.Mathematics.OperatorAlgebra.State
 public import Physlib.Mathematics.OperatorAlgebra.Unitary
 public import Physlib.Mathematics.OrthogonalMatrix
@@ -338,6 +337,7 @@ public import Physlib.QuantumMechanics.Hydrogen.Basic
 public import Physlib.QuantumMechanics.Hydrogen.LaplaceRungeLenzVector
 public import Physlib.QuantumMechanics.InfiniteSquareWell.Basic
 public import Physlib.QuantumMechanics.OperatorAlgebra.Basic
+public import Physlib.QuantumMechanics.OperatorAlgebra.JordanLie
 public import Physlib.QuantumMechanics.OperatorAlgebra.Observable
 public import Physlib.QuantumMechanics.Operators.AngularMomentum
 public import Physlib.QuantumMechanics.Operators.Commutation
