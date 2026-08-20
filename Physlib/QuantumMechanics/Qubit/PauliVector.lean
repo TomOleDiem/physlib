@@ -119,4 +119,13 @@ lemma σ_commutator (u v : Fin 3 → ℝ) :
   rw [σ_mul_σ, σ_mul_σ, dotProduct_comm v u, ← cross_anticomm u v, σ_neg]
   module
 
+/-- The Pauli anticommutator: `{σ(u), σ(v)} = 2(u ⬝ᵥ v) • 1`. Twice the Jordan product
+`σ(u) ∘ σ(v)`, matching `notes.md` §2 (`(a⃗·σ)(b⃗·σ) = (a⃗·b⃗) I` for traceless observables) once
+`OperatorAlgebra.jordan`'s `½` is put back in — not yet connected here. -/
+lemma σ_anticommutator (u v : Fin 3 → ℝ) :
+    (σ u : A) * σ v + σ v * σ u = ((2 * (u ⬝ᵥ v) : ℝ) : ℂ) • (1 : A) := by
+  rw [σ_mul_σ, σ_mul_σ, dotProduct_comm v u, ← cross_anticomm u v, σ_neg]
+  push_cast
+  module
+
 end Qubit
