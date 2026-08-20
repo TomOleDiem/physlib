@@ -5,7 +5,6 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.Meta.TODO.Basic
 public import Physlib.QuantumMechanics.OperatorAlgebra.Lie
 public import Mathlib.Algebra.Symmetrized
 
@@ -35,11 +34,13 @@ but by transporting it from Mathlib's symmetrization construction `Aˢʸᵐ`, i.
 `CStarAlgebra A` off the shelf) — done once below, safely: it is a *new* instance, nothing in
 Mathlib already provides `Invertible (2 : A)` for a general `CStarAlgebra A` to diamond against.
 
-What's *not* done is registering `Mul (Observable A) := jordan` and an `IsCommJordan (Observable
-A)` instance outright — `selfAdjoint` already carries its own global `Mul` instance whenever `A`
-happens to be commutative (`Mathlib.Algebra.Star.SelfAdjoint`, `NonUnitalCommRing` case), and a
-second, merely propositionally-equal `Mul (Observable A)` from `jordan` would diamond with it.
-Left as a `TODO` below; the Jordan identity itself no longer needs it.
+`Mul (Observable A) := jordan` is *not* registered directly — `selfAdjoint` already carries its
+own global `Mul` instance whenever `A` happens to be commutative too
+(`Mathlib.Algebra.Star.SelfAdjoint`, `NonUnitalCommRing` case), and a second, merely
+propositionally-equal `Mul (Observable A)` from `jordan` would diamond with it. Instead,
+`JordanObservable A` — a copy of `Observable A`, exactly the `SymAlg` device applied one level up
+— carries `Mul`/`IsCommJordan`, so it never has to compete with `selfAdjoint`'s own instance; see
+the last section below.
 
 -/
 
@@ -142,12 +143,44 @@ lemma jordan_lmul_comm_rmul_rmul (a b : Observable A) :
   simp only [sym_coe_jordan]
   exact IsCommJordan.lmul_comm_rmul_rmul (SymAlg.sym (a : A)) (SymAlg.sym (b : A))
 
-TODO "Register a genuine `IsCommJordan (Observable A)` instance (`Mathlib.Algebra.Jordan.Basic`)
-  with `jordan` as its `Mul`, rather than stating `jordan_comm`/`jordan_lmul_comm_rmul_rmul` as
-  standalone facts as above. Needs care around `selfAdjoint`'s own `Mul` instance for commutative
-  `A` (`Mathlib.Algebra.Star.SelfAdjoint`) to avoid a diamond — see the module docstring. The
-  identity itself no longer blocks this (`jordan_lmul_comm_rmul_rmul`); only the instance
-  registration is left."
+/-! ### `Observable A`'s Jordan product, as a genuine `IsCommJordan` instance
+
+Registering `Mul (Observable A) := jordan` directly would diamond with `selfAdjoint`'s own `Mul`
+instance whenever `A` happens to be commutative too (`Mathlib.Algebra.Star.SelfAdjoint`,
+`NonUnitalCommRing` case) — see the module docstring. `JordanObservable A` carries the Jordan
+product instead, on a *copy* of the same underlying type: the same device `Aˢʸᵐ`/`SymAlg` itself
+uses for exactly this problem, one level up. Since `JordanObservable A` is a distinct type from
+`Observable A` (not `abbrev`, so not transparent to instance search), its `Mul` never has a chance
+to compete with `selfAdjoint`'s. -/
+
+/-- A copy of `Observable A` carrying the Jordan product as its `Mul`, kept as a separate type so
+it never competes with `selfAdjoint`'s own `Mul` instance for commutative `A` — see the section
+docstring above. Same underlying data as `Observable A`, definitionally. -/
+def JordanObservable (A : Type*) [CStarAlgebra A] : Type _ := Observable A
+
+namespace JordanObservable
+
+variable {A : Type*} [CStarAlgebra A]
+
+noncomputable instance : AddCommGroup (JordanObservable A) :=
+  (inferInstance : AddCommGroup (Observable A))
+
+noncomputable instance : Module ℝ (JordanObservable A) :=
+  (inferInstance : Module ℝ (Observable A))
+
+/-- `JordanObservable A`'s multiplication is exactly `jordan`. -/
+noncomputable instance instMul : Mul (JordanObservable A) := ⟨jordan⟩
+
+noncomputable instance instCommMagma : CommMagma (JordanObservable A) where
+  mul_comm := jordan_comm (A := A)
+
+/-- `JordanObservable A` is a genuine (commutative) Jordan algebra, in Mathlib's own sense —
+`IsJordan` (and everything built on it in `Mathlib.Algebra.Jordan.Basic`) is now available for it
+for free, via `IsCommJordan.toIsJordan`. -/
+noncomputable instance instIsCommJordan : IsCommJordan (JordanObservable A) where
+  lmul_comm_rmul_rmul := jordan_lmul_comm_rmul_rmul (A := A)
+
+end JordanObservable
 
 end Observable
 
