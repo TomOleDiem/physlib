@@ -102,4 +102,15 @@ theorem gen_mul_cyc_symm (i : Fin 3) :
     (QubitAlgebra.gen (A := A) (i + 1)).2.star_eq,
     (QubitAlgebra.gen (A := A) (i + 2)).2.star_eq, star_smul] using h
 
+/-- `gen i * gen (i + 2) = -i • gen (i + 1)`, indices mod 3: the remaining off-diagonal case,
+complementary to `gen_mul_cyc` (`i`, `i + 1`) and `gen_mul_cyc_symm` (`i + 1`, `i`). Follows from
+`gen_mul_cyc_symm` at `i + 2`, since `i + 2 + 1 = i` and `i + 2 + 2 = i + 1` mod 3. Together with
+`gen_sq` and `gen_mul_cyc`, this gives `gen i * gen j` for every `i j : Fin 3` without having to
+instantiate at each of the nine pairs by hand. -/
+theorem gen_mul_skip (i : Fin 3) :
+    (QubitAlgebra.gen (A := A) i : A) * (QubitAlgebra.gen (A := A) (i + 2) : A) =
+      -Complex.I • (QubitAlgebra.gen (A := A) (i + 1) : A) := by
+  have h := gen_mul_cyc_symm (A := A) (i + 2)
+  rwa [show i + 2 + 1 = i from by omega, show i + 2 + 2 = i + 1 from by omega] at h
+
 end Qubit

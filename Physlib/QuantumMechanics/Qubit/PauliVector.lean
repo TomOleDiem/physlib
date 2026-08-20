@@ -63,44 +63,43 @@ theorem isSelfAdjoint_σ (v : Fin 3 → ℝ) : IsSelfAdjoint (σ v : A) := by
   rw [IsSelfAdjoint, star_smul]
   simp [(QubitAlgebra.gen (A := A) i).2.star_eq]
 
+/-!
+## The product formula
+
+`σ_mul_σ` reduces to a single fact about one generator against all of `σ v` at once
+(`gen_mul_σ`), proved from the three general products `gen_sq`, `gen_mul_cyc`, `gen_mul_skip` —
+kept universally quantified in `i` throughout, rather than instantiated by hand at each of the
+nine pairs `(i, j) : Fin 3 × Fin 3`.
+-/
+
+/-- Rotating a `Fin 3` sum to start from any `i`, not just `0`: lets `gen_mul_σ` below split
+`∑ j, ...` around a symbolic base point `i` instead of the literal `0` that `Fin.sum_univ_three`
+is stuck with. -/
+theorem sum_univ_three_rotate {M : Type*} [AddCommMonoid M] (f : Fin 3 → M) (i : Fin 3) :
+    ∑ j, f j = f i + f (i + 1) + f (i + 2) := by
+  fin_cases i <;> simp [Fin.sum_univ_three] <;> abel
+
+/-- A single generator against all of `σ v`, split via `sum_univ_three_rotate` into the three
+products `gen i * gen i`, `gen i * gen (i + 1)`, `gen i * gen (i + 2)`. -/
+theorem gen_mul_σ (i : Fin 3) (v : Fin 3 → ℝ) :
+    (QubitAlgebra.gen (A := A) i : A) * σ v =
+      (v i : ℂ) • (1 : A) +
+        Complex.I • (v (i + 1) : ℂ) • (QubitAlgebra.gen (A := A) (i + 2) : A) -
+        Complex.I • (v (i + 2) : ℂ) • (QubitAlgebra.gen (A := A) (i + 1) : A) := by
+  rw [σ, Finset.mul_sum, sum_univ_three_rotate (fun j => (QubitAlgebra.gen (A := A) i : A) *
+    ((v j : ℂ) • QubitAlgebra.gen (A := A) j)) i]
+  simp only [mul_smul_comm, QubitAlgebra.gen_sq, QubitAlgebra.gen_mul_cyc, gen_mul_skip, smul_smul]
+  module
+
 /-- The fundamental Pauli vector identity: `σ(u) σ(v) = (u ⬝ᵥ v) • 1 + i • σ(u ⨯₃ v)`. -/
 theorem σ_mul_σ (u v : Fin 3 → ℝ) :
     (σ u : A) * σ v = ((u ⬝ᵥ v : ℝ) : ℂ) • (1 : A) + Complex.I • (σ (u ⨯₃ v) : A) := by
-  have hu : (σ u : A) = (u 0 : ℂ) • (QubitAlgebra.gen (A := A) 0 : A)
-      + (u 1 : ℂ) • (QubitAlgebra.gen (A := A) 1 : A)
-      + (u 2 : ℂ) • (QubitAlgebra.gen (A := A) 2 : A) := by
-    rw [σ, Fin.sum_univ_three]
-  have hv : (σ v : A) = (v 0 : ℂ) • (QubitAlgebra.gen (A := A) 0 : A)
-      + (v 1 : ℂ) • (QubitAlgebra.gen (A := A) 1 : A)
-      + (v 2 : ℂ) • (QubitAlgebra.gen (A := A) 2 : A) := by
-    rw [σ, Fin.sum_univ_three]
-  have h00 := QubitAlgebra.gen_sq (A := A) 0
-  have h11 := QubitAlgebra.gen_sq (A := A) 1
-  have h22 := QubitAlgebra.gen_sq (A := A) 2
-  have h01 : (QubitAlgebra.gen (A := A) 0 : A) * QubitAlgebra.gen (A := A) 1 =
-      Complex.I • (QubitAlgebra.gen (A := A) 2 : A) := QubitAlgebra.gen_mul_cyc (A := A) 0
-  have h12 : (QubitAlgebra.gen (A := A) 1 : A) * QubitAlgebra.gen (A := A) 2 =
-      Complex.I • (QubitAlgebra.gen (A := A) 0 : A) := QubitAlgebra.gen_mul_cyc (A := A) 1
-  have h20 : (QubitAlgebra.gen (A := A) 2 : A) * QubitAlgebra.gen (A := A) 0 =
-      Complex.I • (QubitAlgebra.gen (A := A) 1 : A) := QubitAlgebra.gen_mul_cyc (A := A) 2
-  have h10 : (QubitAlgebra.gen (A := A) 1 : A) * QubitAlgebra.gen (A := A) 0 =
-      -Complex.I • (QubitAlgebra.gen (A := A) 2 : A) := gen_mul_cyc_symm (A := A) 0
-  have h21 : (QubitAlgebra.gen (A := A) 2 : A) * QubitAlgebra.gen (A := A) 1 =
-      -Complex.I • (QubitAlgebra.gen (A := A) 0 : A) := gen_mul_cyc_symm (A := A) 1
-  have h02 : (QubitAlgebra.gen (A := A) 0 : A) * QubitAlgebra.gen (A := A) 2 =
-      -Complex.I • (QubitAlgebra.gen (A := A) 1 : A) := gen_mul_cyc_symm (A := A) 2
-  have hrhs1 : ((u ⬝ᵥ v : ℝ) : ℂ) = (u 0 : ℂ) * v 0 + (u 1 : ℂ) * v 1 + (u 2 : ℂ) * v 2 := by
-    rw [dotProduct, Fin.sum_univ_three]; push_cast; ring
-  have hrhs2 : (σ (u ⨯₃ v) : A) = ((u ⨯₃ v) 0 : ℂ) • (QubitAlgebra.gen (A := A) 0 : A)
-      + ((u ⨯₃ v) 1 : ℂ) • (QubitAlgebra.gen (A := A) 1 : A)
-      + ((u ⨯₃ v) 2 : ℂ) • (QubitAlgebra.gen (A := A) 2 : A) := by
-    rw [σ, Fin.sum_univ_three]
-  rw [hu, hv, hrhs1, hrhs2, cross_apply]
-  simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons, Matrix.cons_val_two,
-    Matrix.tail_cons]
+  rw [σ, Finset.sum_mul]
+  simp_rw [smul_mul_assoc, gen_mul_σ (A := A)]
+  rw [dotProduct, cross_apply, σ]
+  simp only [Fin.sum_univ_three, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
+    Matrix.cons_val_two, Matrix.tail_cons]
   push_cast
-  simp only [add_mul, mul_add, smul_mul_assoc, mul_smul_comm, smul_smul, h00, h11, h22, h01, h12,
-    h20, h10, h21, h02]
   module
 
 /-- `σ(v)² = ‖v‖² • 1`, i.e. `σ(v) * σ(v) = (v ⬝ᵥ v) • 1`. -/
