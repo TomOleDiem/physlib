@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.QuantumMechanics.Qubit.Observable
+public import Physlib.QuantumMechanics.Qubit.backup.Observable
 public import Mathlib.Analysis.CStarAlgebra.ContinuousFunctionalCalculus.Order
 public import Mathlib.Analysis.InnerProductSpace.PiL2
 

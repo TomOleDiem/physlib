@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.QuantumMechanics.Qubit.PauliVector
+public import Physlib.QuantumMechanics.Qubit.backup.PauliVector
 
 /-!
 

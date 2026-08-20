@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.QuantumMechanics.Qubit.Unitary
+public import Physlib.QuantumMechanics.Qubit.backup.Unitary
 public import Physlib.Mathematics.OperatorAlgebra.Dynamics
 public import Mathlib.Analysis.CStarAlgebra.Exponential
 

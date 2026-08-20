@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.QuantumMechanics.Qubit.Effect
+public import Physlib.QuantumMechanics.Qubit.backup.Effect
 public import Physlib.Mathematics.OperatorAlgebra.State
 
 /-!
