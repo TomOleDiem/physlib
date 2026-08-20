@@ -8,6 +8,7 @@ module
 public import Physlib.QuantumMechanics.OperatorAlgebra.Basic
 public import Physlib.Meta.TODO.Basic
 public import Mathlib.Algebra.Lie.OfAssociative
+public import Mathlib.Algebra.Symmetrized
 
 /-!
 
@@ -34,17 +35,21 @@ registered as a genuine `LieRing`/`LieAlgebra ℝ` instance (Mathlib's own notio
 identity ultimately comes from associativity of `A`, via the ring-commutator Lie ring Mathlib
 already builds for any associative ring, `Mathlib.Algebra.Lie.OfAssociative`).
 
-`∘` is shown to satisfy the Jordan identity `(a ∘ a) ∘ (b ∘ a) = ((a ∘ a) ∘ b) ∘ a` directly, as a
-concrete fact about `jordan`, rather than through a registered `IsCommJordan (Observable A)`
-instance. Mathlib *does* have Jordan algebras (`Mathlib.Algebra.Jordan.Basic`: `IsJordan`,
-`IsCommJordan`), and even the general symmetrization construction `Aˢʸᵐ` this file is really an
-instance of (`Mathlib.Algebra.Symmetrized`: for any `[Ring A] [Invertible (2 : A)]`, `Aˢʸᵐ` is
-`IsCommJordan` for free — no proof obligation at all, `∘` is exactly `SymAlg.sym_mul_sym`
-specialized). Registering that instance *on* `Observable A` itself is left as a `TODO` below: it
-needs `Invertible (2 : A)` (not available for a general `CStarAlgebra A` off the shelf) and some
-care, since `selfAdjoint` already carries its own `Mul` instance when `A` happens to be
-commutative (`Mathlib.Algebra.Star.SelfAdjoint`, `NonUnitalCommRing` case) — registering a second,
-merely propositionally-equal `Mul (Observable A)` from `jordan` would create a diamond with it.
+`∘` satisfies the Jordan identity, in the shape Mathlib itself uses
+(`IsCommJordan.lmul_comm_rmul_rmul : a * b * (a * a) = a * (b * (a * a))`) — proved not by hand
+but by transporting it from Mathlib's symmetrization construction `Aˢʸᵐ`, i.e. `SymAlg`
+(`Mathlib.Algebra.Symmetrized`). For any `[Ring A] [Invertible (2 : A)]`, `Aˢʸᵐ` is `IsCommJordan`
+*for free*, no proof obligation at all — `∘` is exactly `SymAlg.sym_mul_sym` specialized, and
+`sym_coe_jordan` shows `jordan` and `Aˢʸᵐ`'s multiplication agree under `SymAlg.sym`. `Invertible
+(2 : A)` itself needs constructing (`(2⁻¹ : ℝ) • (1 : A)`, not available for a general
+`CStarAlgebra A` off the shelf) — done once below, safely: it is a *new* instance, nothing in
+Mathlib already provides `Invertible (2 : A)` for a general `CStarAlgebra A` to diamond against.
+
+What's *not* done is registering `Mul (Observable A) := jordan` and an `IsCommJordan (Observable
+A)` instance outright — `selfAdjoint` already carries its own global `Mul` instance whenever `A`
+happens to be commutative (`Mathlib.Algebra.Star.SelfAdjoint`, `NonUnitalCommRing` case), and a
+second, merely propositionally-equal `Mul (Observable A)` from `jordan` would diamond with it.
+Left as a `TODO` below; the Jordan identity itself no longer needs it.
 
 -/
 
@@ -62,24 +67,14 @@ variable {A : Type*} [CStarAlgebra A]
 directly (rather than going through the `LieRing` instance, which Mathlib deliberately keeps
 `local` to avoid a diamond with `LieRingModule.ofAssociativeModule` — see the note on
 `LieRingModule.ofAssociativeModule`). Pure associative-ring algebra, closed by `noncomm_ring`. -/
-private theorem leibniz_lie_A (x y z : A) : ⁅x, ⁅y, z⁆⁆ = ⁅⁅x, y⁆, z⁆ + ⁅y, ⁅x, z⁆⁆ := by
+private lemma leibniz_lie_A (x y z : A) : ⁅x, ⁅y, z⁆⁆ = ⁅⁅x, y⁆, z⁆ + ⁅y, ⁅x, z⁆⁆ := by
   simp only [Ring.lie_def]
-  noncomm_ring
-
-/-- The Jordan identity for the ring anticommutator `x * y + y * x`, unscaled. This is the
-associative-ring computation underlying every special Jordan algebra: expand both sides in terms
-of `x`, `x*x`, `x*x*x`, `y` and check the same four terms appear. Mathlib proves the analogous
-fact abstractly for `Aˢʸᵐ` (`SymAlg`'s `IsCommJordan` instance, `Mathlib.Algebra.Symmetrized`);
-this is the same computation, spelled out concretely for the anticommutator on `A` itself. -/
-private theorem raw_jordan_identity (x y : A) :
-    x * x * (y * x + x * y) + (y * x + x * y) * (x * x)
-      = (x * x * y + y * (x * x)) * x + x * (x * x * y + y * (x * x)) := by
   noncomm_ring
 
 namespace Observable
 
 /-- `ab + ba` is self-adjoint whenever `a` and `b` are — no commutativity of `a` and `b` needed. -/
-theorem isSelfAdjoint_mul_add_mul {a b : A} (ha : IsSelfAdjoint a) (hb : IsSelfAdjoint b) :
+lemma isSelfAdjoint_mul_add_mul {a b : A} (ha : IsSelfAdjoint a) (hb : IsSelfAdjoint b) :
     IsSelfAdjoint (a * b + b * a) := by
   rw [isSelfAdjoint_iff, star_add, star_mul, star_mul, ha.star_eq, hb.star_eq, add_comm]
 
@@ -89,13 +84,13 @@ noncomputable def jordan (a b : Observable A) : Observable A :=
   (2⁻¹ : ℝ) •
     (⟨(a : A) * b + (b : A) * a, isSelfAdjoint_mul_add_mul a.property b.property⟩ : Observable A)
 
-theorem coe_jordan (a b : Observable A) :
+lemma coe_jordan (a b : Observable A) :
     (jordan a b : A) = (2⁻¹ : ℝ) • ((a : A) * b + (b : A) * a) :=
   rfl
 
 /-- `i(ba - ab)` is self-adjoint whenever `a` and `b` are: the raw commutator `ab - ba` is
 skew-adjoint, and `i` times a skew-adjoint element is self-adjoint. -/
-theorem isSelfAdjoint_I_smul_mul_sub_mul {a b : A} (ha : IsSelfAdjoint a) (hb : IsSelfAdjoint b) :
+lemma isSelfAdjoint_I_smul_mul_sub_mul {a b : A} (ha : IsSelfAdjoint a) (hb : IsSelfAdjoint b) :
     IsSelfAdjoint (Complex.I • (b * a - a * b)) := by
   rw [isSelfAdjoint_iff, star_smul, star_sub, star_mul, star_mul, ha.star_eq, hb.star_eq,
     Complex.star_def, Complex.conj_I]
@@ -106,13 +101,13 @@ the algebra product, landing back in the observables. -/
 noncomputable def obsBracket (a b : Observable A) : Observable A :=
   ⟨Complex.I • ((b : A) * a - (a : A) * b), isSelfAdjoint_I_smul_mul_sub_mul a.property b.property⟩
 
-theorem coe_obsBracket (a b : Observable A) :
+lemma coe_obsBracket (a b : Observable A) :
     (obsBracket a b : A) = Complex.I • ((b : A) * a - (a : A) * b) :=
   rfl
 
 /-- The algebra product decomposes into its Jordan (symmetric) and Lie (antisymmetric) parts:
 `ab = a ∘ b + (i/2) ⁅a, b⁆ₒ`. -/
-theorem mul_eq_jordan_add_obsBracket (a b : Observable A) :
+lemma mul_eq_jordan_add_obsBracket (a b : Observable A) :
     (a : A) * b = (jordan a b : A) + (Complex.I / 2) • (obsBracket a b : A) := by
   rw [coe_jordan, coe_obsBracket, smul_smul]
   have hI : (Complex.I / 2 * Complex.I) = (-2⁻¹ : ℂ) := by
@@ -129,24 +124,24 @@ is transported from the corresponding fact about the ring commutator on `A` itse
 
 noncomputable instance instBracket : Bracket (Observable A) (Observable A) := ⟨obsBracket⟩
 
-theorem bracket_def (a b : Observable A) : ⁅a, b⁆ = obsBracket a b := rfl
+lemma bracket_def (a b : Observable A) : ⁅a, b⁆ = obsBracket a b := rfl
 
-theorem coe_bracket (a b : Observable A) :
+lemma coe_bracket (a b : Observable A) :
     ((⁅a, b⁆ : Observable A) : A) = (-Complex.I) • ⁅(a : A), (b : A)⁆ := by
   rw [bracket_def, coe_obsBracket, Ring.lie_def, neg_smul, ← smul_neg, neg_sub]
 
 /-- `(-i) * (-i) = -1`, the constant that appears whenever two nested observable brackets are
 unfolded into raw ring commutators. -/
-private theorem neg_I_mul_neg_I : (-Complex.I) * (-Complex.I) = (-1 : ℂ) := by
+private lemma neg_I_mul_neg_I : (-Complex.I) * (-Complex.I) = (-1 : ℂ) := by
   rw [neg_mul_neg, Complex.I_mul_I]
 
-private theorem lie_smul_A (r : ℂ) (x y : A) : ⁅x, r • y⁆ = r • ⁅x, y⁆ := by
+private lemma lie_smul_A (r : ℂ) (x y : A) : ⁅x, r • y⁆ = r • ⁅x, y⁆ := by
   simp only [Ring.lie_def, mul_smul_comm, smul_mul_assoc, smul_sub]
 
-private theorem smul_lie_A (r : ℂ) (x y : A) : ⁅r • x, y⁆ = r • ⁅x, y⁆ := by
+private lemma smul_lie_A (r : ℂ) (x y : A) : ⁅r • x, y⁆ = r • ⁅x, y⁆ := by
   simp only [Ring.lie_def, mul_smul_comm, smul_mul_assoc, smul_sub]
 
-private theorem lie_smul_A_real (t : ℝ) (x y : A) : ⁅x, t • y⁆ = t • ⁅x, y⁆ := by
+private lemma lie_smul_A_real (t : ℝ) (x y : A) : ⁅x, t • y⁆ = t • ⁅x, y⁆ := by
   simp only [Ring.lie_def, mul_smul_comm, smul_mul_assoc, smul_sub]
 
 noncomputable instance instLieRing : LieRing (Observable A) where
@@ -182,56 +177,76 @@ noncomputable instance instLieAlgebra : LieAlgebra ℝ (Observable A) where
 
 /-! ### `∘` makes the observables a Jordan algebra
 
-Every fact below is transported from the corresponding fact about `A`'s own product, in the same
-style as the Lie side above. `jordan_self` collapses one layer of `2⁻¹`-bookkeeping for free
-(`a ∘ a = a * a` on the nose), which is what makes `jordan_jordan_identity`'s bookkeeping
-tractable: both sides reduce to `4⁻¹ •` the same associative-ring expression, `raw_jordan_identity`
-from the top of the file. -/
+`jordan_comm`/`jordan_self`/`add_jordan`/`jordan_smul` are transported from the corresponding fact
+about `A`'s own product, in the same style as the Lie side above. The Jordan identity itself
+(`jordan_lmul_comm_rmul_rmul`) is transported instead from `Aˢʸᵐ`'s already-proven `IsCommJordan`
+instance — see the module docstring. -/
 
-theorem jordan_comm (a b : Observable A) : jordan a b = jordan b a := by
+lemma jordan_comm (a b : Observable A) : jordan a b = jordan b a := by
   apply Subtype.ext
   simp only [coe_jordan, add_comm]
 
 /-- `a ∘ a = a * a`: the one place the `2⁻¹` in the Jordan product disappears for free, since both
 terms of `coe_jordan`'s sum coincide when the two arguments are equal. -/
-theorem jordan_self (a : Observable A) : (jordan a a : A) = (a : A) * a := by
+lemma jordan_self (a : Observable A) : (jordan a a : A) = (a : A) * a := by
   rw [coe_jordan]
   module
 
-theorem add_jordan (a b c : Observable A) : jordan (a + b) c = jordan a c + jordan b c := by
+lemma add_jordan (a b c : Observable A) : jordan (a + b) c = jordan a c + jordan b c := by
   apply Subtype.ext
   simp only [coe_jordan, AddSubgroup.coe_add, mul_add, add_mul]
   module
 
-theorem jordan_smul (t : ℝ) (a b : Observable A) : jordan a (t • b) = t • jordan a b := by
+lemma jordan_smul (t : ℝ) (a b : Observable A) : jordan a (t • b) = t • jordan a b := by
   apply Subtype.ext
   show (jordan a (t • b) : A) = ((t • jordan a b : Observable A) : A)
   simp only [coe_jordan, selfAdjoint.val_smul]
   rw [mul_smul_comm, smul_mul_assoc, ← smul_add, smul_smul, smul_smul, mul_comm (2⁻¹ : ℝ) t]
 
-/-- The Jordan identity `(a ∘ a) ∘ (b ∘ a) = ((a ∘ a) ∘ b) ∘ a`: both sides reduce, via
-`jordan_self`, to `4⁻¹ •` the same associative-ring expression in `A` (`raw_jordan_identity`). -/
-theorem jordan_jordan_identity (a b : Observable A) :
-    jordan (jordan a a) (jordan b a) = jordan (jordan (jordan a a) b) a := by
-  apply Subtype.ext
-  have hL : (jordan (jordan a a) (jordan b a) : A)
-      = (4⁻¹ : ℝ) • ((a : A) * a * ((b : A) * a + a * b) + ((b : A) * a + a * b) * ((a : A) * a)) := by
-    rw [coe_jordan, jordan_self, coe_jordan, mul_smul_comm, smul_mul_assoc, ← smul_add, smul_smul,
-      show (2⁻¹ : ℝ) * 2⁻¹ = (4⁻¹ : ℝ) by norm_num]
-  have hR : (jordan (jordan (jordan a a) b) a : A)
-      = (4⁻¹ : ℝ) • ((((a : A) * a) * b + b * ((a : A) * a)) * a
-          + a * (((a : A) * a) * b + b * ((a : A) * a))) := by
-    rw [coe_jordan, coe_jordan, jordan_self, smul_mul_assoc, mul_smul_comm, ← smul_add, smul_smul,
-      show (2⁻¹ : ℝ) * 2⁻¹ = (4⁻¹ : ℝ) by norm_num]
-  rw [hL, hR]
+/-! ### The Jordan identity, transported from `Aˢʸᵐ`
+
+`Aˢʸᵐ` (`SymAlg`, `Mathlib.Algebra.Symmetrized`) is `IsCommJordan` for free once `Invertible
+(2 : A)` holds — no proof obligation at all. `Invertible (2 : A)` itself is easy to build (`(2⁻¹ :
+ℝ) • (1 : A)` is a two-sided inverse of `2`), and `sym_coe_jordan` shows `jordan` agrees with
+`Aˢʸᵐ`'s multiplication under `SymAlg.sym`, so the Jordan identity for `jordan` is just `Aˢʸᵐ`'s,
+pulled back through `sym`'s injectivity — no `noncomm_ring` bookkeeping of our own needed. -/
+
+private lemma two_eq_two_smul_one : (2 : A) = (2 : ℝ) • (1 : A) := by
+  rw [two_smul]; norm_num
+
+/-- `2` is invertible in any `CStarAlgebra`: `(2⁻¹ : ℝ) • (1 : A)` is a two-sided inverse. A *new*
+instance — nothing in Mathlib already provides `Invertible (2 : A)` for a general `CStarAlgebra A`
+for this to diamond against (unlike registering `Mul (Observable A)`, see the module docstring). -/
+noncomputable instance instInvertibleTwo : Invertible (2 : A) where
+  invOf := (2⁻¹ : ℝ) • (1 : A)
+  invOf_mul_self := by
+    rw [smul_mul_assoc, one_mul, two_eq_two_smul_one, smul_smul]; norm_num
+  mul_invOf_self := by
+    rw [mul_smul_comm, mul_one, two_eq_two_smul_one, smul_smul]; norm_num
+
+/-- `jordan` agrees with `Aˢʸᵐ`'s own multiplication under `SymAlg.sym`. -/
+lemma sym_coe_jordan (a b : Observable A) :
+    SymAlg.sym (jordan a b : A) = SymAlg.sym (a : A) * SymAlg.sym (b : A) := by
+  rw [SymAlg.sym_mul_sym, coe_jordan]
   congr 1
-  exact raw_jordan_identity (a : A) (b : A)
+  show (2⁻¹ : ℝ) • ((a : A) * b + (b : A) * a) = ⅟(2 : A) * ((a : A) * b + (b : A) * a)
+  rw [show (⅟(2 : A) : A) = (2⁻¹ : ℝ) • (1 : A) from rfl, smul_mul_assoc, one_mul]
+
+/-- The Jordan identity, in the shape Mathlib's `IsCommJordan` uses: `(a ∘ b) ∘ (a ∘ a) = a ∘ (b ∘
+(a ∘ a))`. Pulled back from `Aˢʸᵐ`'s `IsCommJordan.lmul_comm_rmul_rmul`, not proved by hand. -/
+lemma jordan_lmul_comm_rmul_rmul (a b : Observable A) :
+    jordan (jordan a b) (jordan a a) = jordan a (jordan b (jordan a a)) := by
+  apply Subtype.ext
+  apply SymAlg.sym_injective
+  simp only [sym_coe_jordan]
+  exact IsCommJordan.lmul_comm_rmul_rmul (SymAlg.sym (a : A)) (SymAlg.sym (b : A))
 
 TODO "Register a genuine `IsCommJordan (Observable A)` instance (`Mathlib.Algebra.Jordan.Basic`)
-  with `jordan` as its `Mul`, rather than stating `jordan_comm`/`jordan_jordan_identity` as
-  standalone facts as above. Needs `Invertible (2 : A)` (constructible from `(2⁻¹ : ℝ) • (1 : A)`,
-  not yet set up) and care around `selfAdjoint`'s own `Mul` instance for commutative `A`
-  (`Mathlib.Algebra.Star.SelfAdjoint`) to avoid a diamond — see the module docstring."
+  with `jordan` as its `Mul`, rather than stating `jordan_comm`/`jordan_lmul_comm_rmul_rmul` as
+  standalone facts as above. Needs care around `selfAdjoint`'s own `Mul` instance for commutative
+  `A` (`Mathlib.Algebra.Star.SelfAdjoint`) to avoid a diamond — see the module docstring. The
+  identity itself no longer blocks this (`jordan_lmul_comm_rmul_rmul`); only the instance
+  registration is left."
 
 end Observable
 
