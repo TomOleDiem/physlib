@@ -48,7 +48,7 @@ self-adjoint observable (half the Pauli vector), not the skew-adjoint physics-co
 noncomputable def τ (v : Fin 3 → ℝ) : Observable A :=
   (2⁻¹ : ℝ) • (⟨σ v, isSelfAdjoint_σ v⟩ : Observable A)
 
-lemma coe_τ (v : Fin 3 → ℝ) : (τ (A := A) v : A) = (2⁻¹ : ℂ) • σ v := by
+private lemma coe_τ (v : Fin 3 → ℝ) : (τ (A := A) v : A) = (2⁻¹ : ℂ) • σ v := by
   rw [τ, selfAdjoint.val_smul, real_smul_eq_ofReal_smul]
   norm_num
 
@@ -87,7 +87,7 @@ lemma τ_smul (r : ℝ) (v : Fin 3 → ℝ) : (τ (A := A) (r • v) : Observabl
 
 /-- The three generators are linearly independent over `ℂ`: a sub-family of the basis
 `QubitAlgebra.pauliBasis`. -/
-lemma gen_linearIndependent :
+private lemma gen_linearIndependent :
     LinearIndependent ℂ (fun i => (QubitAlgebra.gen (A := A) i : A)) := by
   have h := (QubitAlgebra.pauliBasis (A := A)).linearIndependent
   rw [QubitAlgebra.pauliBasis_eq] at h
@@ -95,7 +95,7 @@ lemma gen_linearIndependent :
 
 /-- `σ` is injective: it is exactly the coordinates against the (linearly independent) Pauli
 generators. -/
-lemma σ_eq_zero_iff (v : Fin 3 → ℝ) : (σ v : A) = 0 ↔ v = 0 := by
+private lemma σ_eq_zero_iff (v : Fin 3 → ℝ) : (σ v : A) = 0 ↔ v = 0 := by
   constructor
   · intro h
     have hg := Fintype.linearIndependent_iff.mp (gen_linearIndependent (A := A))
