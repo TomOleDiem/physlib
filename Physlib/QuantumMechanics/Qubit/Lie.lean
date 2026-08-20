@@ -6,7 +6,7 @@ Authors: Tom Ole Diem
 module
 
 public import Physlib.QuantumMechanics.Qubit.PauliVector
-public import Physlib.QuantumMechanics.OperatorAlgebra.JordanLie
+public import Physlib.QuantumMechanics.OperatorAlgebra.Lie
 public import Mathlib.LinearAlgebra.CrossProduct
 
 /-!
@@ -16,7 +16,7 @@ public import Mathlib.LinearAlgebra.CrossProduct
 `τ v := 2⁻¹ • σ v` is a self-adjoint observable — half the Pauli vector, landing in `Observable
 A` (unlike the skew-adjoint physics convention `τ = -i/2 • σ`, chosen here so `τ` lands directly
 in the observables and uses `OperatorAlgebra.Observable`'s own Lie bracket `⁅·,·⁆`
-(`Physlib.QuantumMechanics.OperatorAlgebra.JordanLie`, `⁅a, b⁆ = -i(ab - ba)`), rather than the
+(`Physlib.QuantumMechanics.OperatorAlgebra.Lie`, `⁅a, b⁆ = -i(ab - ba)`), rather than the
 raw ring commutator on all of `A`).
 
 The Pauli commutator `σ u * σ v - σ v * σ u = 2i • σ (u ⨯₃ v)` (`Qubit.σ_commutator`) then makes
