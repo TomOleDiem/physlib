@@ -5,6 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
+public import Physlib.Meta.TODO.Basic
 public import Mathlib.Analysis.CStarAlgebra.ContinuousLinearMap
 public import Mathlib.Analysis.Normed.Operator.ContinuousAlgEquiv
 public import Mathlib.Analysis.CStarAlgebra.Hom
@@ -27,6 +28,12 @@ the projective unitary group.
 For Hamiltonian dynamics, this projective ambiguity corresponds to
 the freedom to shift a Hamiltonian by a scalar multiple of the identity.
 -/
+
+TODO "Create a Hamiltonian file that quotients Hamiltonians by scalar multiples of the
+identity, and prove that commutators are invariant under this equivalence class. For example:
+  theorem commutator_add_smul_one
+      (H A : Observable 𝒜) (c : ℝ) :
+      ⁅H + c • 1, A⁆ = ⁅H, A⁆ := ..."
 
 @[expose] public section
 
