@@ -7,6 +7,7 @@ module
 
 public import Physlib.QuantumMechanics.OperatorAlgebra.Basic
 public import Mathlib.Algebra.Lie.OfAssociative
+public import Mathlib.LinearAlgebra.Complex.Module
 
 /-!
 
@@ -69,6 +70,7 @@ lemma bracket_add (a b c : Observable A) :
         imaginaryPart ((a : A) * (c : A))
   rw [AddSubgroup.coe_add, mul_add, map_add]
 
+@[simp]
 lemma bracket_self (a : Observable A) :
     ⁅a, a⁆ = 0 := by
   apply Subtype.ext
@@ -138,6 +140,22 @@ noncomputable instance instLieAlgebra :
     LieAlgebra ℝ (Observable A) where
   toModule := inferInstance
   lie_smul := bracket_smul
+
+/-! ## Elementary identities -/
+
+@[simp]
+lemma bracket_one_right (a : Observable A) :
+    ⁅a, (1 : Observable A)⁆ = 0 := by
+  apply Subtype.ext
+  rw [coe_bracket]
+  simp
+
+@[simp]
+lemma bracket_one_left (a : Observable A) :
+    ⁅(1 : Observable A), a⁆ = 0 := by
+  apply Subtype.ext
+  rw [coe_bracket]
+  simp
 
 end Observable
 
