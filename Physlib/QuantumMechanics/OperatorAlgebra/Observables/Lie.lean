@@ -31,7 +31,7 @@ namespace OperatorAlgebra
 
 open scoped ComplexOrder
 
-variable {A : Type*} [CStarAlgebra A]
+variable {A : Type*} [OperatorAlgebra A]
 
 namespace Observable
 
