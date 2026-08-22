@@ -37,6 +37,7 @@ namespace Observable
 noncomputable def jordan (a b : Observable A) : Observable A :=
   realPart ((a : A) * (b : A))
 
+/-- The Jordan product on observables. -/
 scoped[OperatorAlgebra] infixl:70 " ⊙ " => Observable.jordan
 
 @[simp]
@@ -51,7 +52,6 @@ lemma jordan_comm (a b : Observable A) :
   apply Subtype.ext
   simp [coe_jordan, add_comm]
 
-@[simp]
 lemma jordan_self (a : Observable A) :
     (a ⊙ a : A) = (a : A) * a := by
   rw [coe_jordan]
