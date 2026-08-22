@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Mathlib.Analysis.CStarAlgebra.ContinuousLinearMap
+public import Physlib.QuantumMechanics.OperatorAlgebra.Basic
 public import Mathlib.Analysis.Normed.Operator.ContinuousAlgEquiv
 public import Mathlib.Analysis.CStarAlgebra.Hom
 
@@ -37,12 +37,9 @@ variable {H : Type*}
     [InnerProductSpace ℂ H]
     [CompleteSpace H]
 
-/--
-Every ⋆-automorphism of `B(H)` is implemented by unitary conjugation.
--/
+/-- Every ⋆-automorphism of `B(H)` is implemented by unitary conjugation. -/
 lemma conjStarAlgAut_surjective :
-    Function.Surjective
-      (Unitary.conjStarAlgAut ℂ (H →L[ℂ] H)) := by
+    Function.Surjective (Unitary.conjStarAlgAut ℂ (B(H))) := by
   intro φ
   obtain ⟨U, hU⟩ :=
     φ.eq_linearIsometryEquivConjStarAlgEquiv
@@ -51,42 +48,27 @@ lemma conjStarAlgAut_surjective :
   rw [Unitary.conjStarAlgAut_symm_unitaryLinearIsometryEquiv]
   exact hU.symm
 
-
-/--
-Two unitaries implement the same ⋆-automorphism of `B(H)` exactly when
-they differ by a scalar phase.
--/
+/-- Two unitaries implement the same ⋆-automorphism of `B(H)` exactly when they differ by a scalar
+phase. -/
 lemma conjStarAlgAut_eq_iff
-    (u v : unitary (H →L[ℂ] H)) :
-    Unitary.conjStarAlgAut ℂ (H →L[ℂ] H) u =
-        Unitary.conjStarAlgAut ℂ (H →L[ℂ] H) v ↔
+    (u v : Unitary (B(H))) :
+    Unitary.conjStarAlgAut ℂ (B(H)) u =
+        Unitary.conjStarAlgAut ℂ (B(H)) v ↔
       ∃ c : unitary ℂ, u = c • v :=
   Unitary.conjStarAlgAut_ext_iff' u v
 
-
-/--
-The projective unitary group of `H`.
-This is the unitary group modulo the scalar phases which act trivially
-by conjugation.
--/
-noncomputable def ProjectiveUnitary (H : Type*)
+/-- The projective unitary group of `H`, obtained by quotienting out scalar phases. -/
+def ProjectiveUnitary (H : Type*)
     [NormedAddCommGroup H]
     [InnerProductSpace ℂ H]
     [CompleteSpace H] :=
-  unitary (H →L[ℂ] H) ⧸
-    MonoidHom.ker (Unitary.conjStarAlgAut ℂ (H →L[ℂ] H))
+  Unitary (B(H)) ⧸ MonoidHom.ker (Unitary.conjStarAlgAut ℂ (B(H)))
 
-noncomputable instance :
-    Group (ProjectiveUnitary H) :=
-  QuotientGroup.Quotient.group _
+noncomputable instance : Group (ProjectiveUnitary H) := QuotientGroup.Quotient.group _
 
-/--
-Reversible transformations of `B(H)` are precisely projective unitaries.
--/
+/-- Reversible transformations of `B(H)` are precisely projective unitaries. -/
 noncomputable def projectiveUnitaryEquivStarAlgAut :
-    ProjectiveUnitary H ≃*
-      ((H →L[ℂ] H) ≃⋆ₐ[ℂ] (H →L[ℂ] H)) :=
-  QuotientGroup.quotientKerEquivOfSurjective
-    _ conjStarAlgAut_surjective
+    ProjectiveUnitary H ≃* ((B(H)) ≃⋆ₐ[ℂ] (B(H))) :=
+  QuotientGroup.quotientKerEquivOfSurjective _ conjStarAlgAut_surjective
 
 end OperatorAlgebra
