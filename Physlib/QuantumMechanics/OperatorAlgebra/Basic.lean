@@ -6,6 +6,7 @@ Authors: Tom Ole Diem
 module
 
 public import Mathlib.Analysis.CStarAlgebra.CompletelyPositiveMap
+public import Mathlib.Analysis.CStarAlgebra.ContinuousLinearMap
 public import Mathlib.Analysis.InnerProductSpace.StarOrder
 
 /-!
@@ -89,6 +90,26 @@ abbrev Channel (A₁ A₂ : Type*) [OperatorAlgebra A₁] [OperatorAlgebra A₂]
   {φ : A₁ →CP A₂ // φ 1 = 1}
 
 end ObservableAlgebra
+
+/-!
+## Bounded operators on Hilbert space
+
+The bounded operators on any complex Hilbert space form a C⋆-algebra. Equip them with the
+canonical spectral order so they can be used as an `OperatorAlgebra`, independently of the
+finite-dimensional matrix layer.
+-/
+
+section HilbertSpaceOperatorAlgebra
+
+variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
+
+noncomputable instance : PartialOrder (H →L[ℂ] H) := CStarAlgebra.spectralOrder _
+instance : StarOrderedRing (H →L[ℂ] H) := CStarAlgebra.spectralOrderedRing _
+
+/-- Bounded operators on a complex Hilbert space form an operator algebra via the spectral order. -/
+noncomputable instance instContinuousLinearMap : OperatorAlgebra (H →L[ℂ] H) where
+
+end HilbertSpaceOperatorAlgebra
 
 /-!
 ## Hilbert-space representations
