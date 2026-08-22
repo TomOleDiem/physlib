@@ -6,6 +6,7 @@ Authors: Tom Ole Diem
 module
 
 public import Physlib.QuantumMechanics.OperatorAlgebra.Basic
+public import Physlib.Meta.TODO.Basic
 public import Mathlib.Algebra.Jordan.Basic
 public import Mathlib.LinearAlgebra.Complex.Module
 
@@ -24,6 +25,9 @@ This product is commutative and satisfies the Jordan identity. The type
 product as its multiplication, giving a commutative Jordan algebra.
 
 -/
+
+TODO "Investigate `https://github.com/Cobord/JordanAlgebra/` and determine
+  which general Jordan-algebra results are relevant for quantum mechanics."
 
 @[expose] public section
 
