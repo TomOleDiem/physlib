@@ -33,7 +33,7 @@ TODO "Investigate `https://github.com/Cobord/JordanAlgebra/` and determine
 
 namespace OperatorAlgebra
 
-variable {A : Type*} [CStarAlgebra A]
+variable {A : Type*} [OperatorAlgebra A]
 
 namespace Observable
 
@@ -91,21 +91,17 @@ end Observable
 
 /-! ## Jordan observables
 
-`Observable A` itself cannot receive this product as a global `Mul` instance,
-since Mathlib can already provide multiplication on self-adjoint elements under
-stronger assumptions on `A`.
-
 `JordanObservable A` is the same underlying real vector space equipped with the
 symmetrized product as multiplication.
 -/
 
 /-- Observables equipped with their Jordan multiplication. -/
-noncomputable abbrev JordanObservable (A : Type*) [CStarAlgebra A] :=
+noncomputable abbrev JordanObservable (A : Type*) [OperatorAlgebra A] :=
   Observable A
 
 namespace JordanObservable
 
-variable {A : Type*} [CStarAlgebra A]
+variable {A : Type*} [OperatorAlgebra A]
 
 open scoped Observable
 
