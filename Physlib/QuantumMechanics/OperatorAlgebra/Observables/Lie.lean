@@ -96,7 +96,6 @@ lemma leibniz_bracket (a b c : Observable A) :
       s • ⁅(a : A), s • ⁅(b : A), (c : A)⁆⁆ =
         (s * s) • ⁅(a : A), ⁅(b : A), (c : A)⁆⁆
     rw [lie_smul, smul_smul]
-
   have hR :
       ((⁅⁅a, b⁆, c⁆ : Observable A) : A) +
           ((⁅b, ⁅a, c⁆⁆ : Observable A) : A) =
@@ -111,7 +110,6 @@ lemma leibniz_bracket (a b c : Observable A) :
           (⁅⁅(a : A), (b : A)⁆, (c : A)⁆ +
             ⁅(b : A), ⁅(a : A), (c : A)⁆⁆)
     rw [smul_lie, lie_smul, smul_smul, smul_smul, ← smul_add]
-
   rw [hL, hR]
   congr 1
   simp only [Ring.lie_def]
