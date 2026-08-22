@@ -88,7 +88,6 @@ lemma leibniz_bracket (a b c : Observable A) :
   apply Subtype.ext
   rw [AddSubgroup.coe_add]
   let s : ℂ := -(Complex.I / 2)
-
   have hL :
       ((⁅a, ⁅b, c⁆⁆ : Observable A) : A) =
         (s * s) • ⁅(a : A), ⁅(b : A), (c : A)⁆⁆ := by
