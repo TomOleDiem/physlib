@@ -70,7 +70,6 @@ lemma bracket_add (a b c : Observable A) :
         imaginaryPart ((a : A) * (c : A))
   rw [AddSubgroup.coe_add, mul_add, map_add]
 
-@[simp]
 lemma bracket_self (a : Observable A) :
     ⁅a, a⁆ = 0 := by
   apply Subtype.ext
