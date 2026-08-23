@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.QuantumMechanics.OperatorAlgebra.Basic
+public import Physlib.QuantumMechanics.OperatorAlgebra.HilbertSpace
 public import Mathlib.Analysis.Normed.Operator.ContinuousAlgEquiv
 public import Mathlib.Analysis.CStarAlgebra.Hom
 
