@@ -341,6 +341,8 @@ public import Physlib.QuantumMechanics.InfiniteSquareWell.Basic
 public import Physlib.QuantumMechanics.OperatorAlgebra.Basic
 public import Physlib.QuantumMechanics.OperatorAlgebra.Dynamics.Automorphism
 public import Physlib.QuantumMechanics.OperatorAlgebra.HilbertSpace
+public import Physlib.QuantumMechanics.OperatorAlgebra.Measurement.State
+public import Physlib.QuantumMechanics.OperatorAlgebra.Measurement.Uncertainty
 public import Physlib.QuantumMechanics.OperatorAlgebra.Observables.Jordan
 public import Physlib.QuantumMechanics.OperatorAlgebra.Observables.Lie
 public import Physlib.QuantumMechanics.Operators.AngularMomentum
