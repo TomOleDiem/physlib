@@ -12,7 +12,9 @@ public import Physlib.QuantumMechanics.OperatorAlgebra.Observables.Lie
 
 # States
 
-A state determines the statistical predictions of a quantum system.
+A state on `A`: a positive complex-linear functional normalized by `ω 1 = 1`. `ω a` is the
+expected outcome of measuring observable `a` in this state — a state records everything that can
+be learned about the system by measurement.
 
 For an observable `a`, `ω⟨a⟩` denotes its real expectation value in the state
 `ω`. Subtracting this expectation centers the observable. Covariance is the
@@ -32,10 +34,17 @@ namespace OperatorAlgebra
 
 variable {A : Type*} [OperatorAlgebra A]
 
-namespace State
+/-- A state on `A`: a positive complex-linear functional normalized by `ω 1 = 1`. -/
+structure State (A : Type*) [OperatorAlgebra A] where
+  /-- The positive linear functional underlying the state. -/
+  toPositiveLinearMap : A →ₚ[ℂ] ℂ
+  /-- A state assigns expectation one to the identity observable. -/
+  map_one : toPositiveLinearMap 1 = 1
 
-noncomputable instance : CoeFun (State A) (fun _ => A → ℂ) where
+noncomputable instance State.instCoeFun : CoeFun (State A) (fun _ => A → ℂ) where
   coe ω := ω.toPositiveLinearMap
+
+namespace State
 
 /-! ## Expectation -/
 

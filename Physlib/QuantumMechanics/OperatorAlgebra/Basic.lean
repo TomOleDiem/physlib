@@ -25,7 +25,8 @@ The basic notions of observable, positive element, effect, state, unitary, chann
 POVM depend only on the observable algebra.
 
 This file only defines the vocabulary. Elementary results about each notion live in their own
-file (`Observable.lean`, `Effect.lean`, `State.lean`, ...).
+file (e.g. `Measurement/State.lean` for states, `Observables/Jordan.lean` for the Jordan
+product, ...).
 
 -/
 
@@ -68,15 +69,6 @@ structure POVM (A : Type*) [OperatorAlgebra A] (X : Type*) [Fintype X] where
 /-- A unitary element of `A`: implements a reversible transformation of the system — a symmetry,
 or time evolution under a Hamiltonian — acting on observables by conjugation, `a ↦ U a U⋆`. -/
 noncomputable abbrev Unitary (A : Type*) [OperatorAlgebra A] := unitary A
-
-/-- A state on `A`: a positive complex-linear functional normalized by `ω 1 = 1`. `ω a` is the
-expected outcome of measuring observable `a` in this state — a state records everything that can
-be learned about the system by measurement. -/
-structure State (A : Type*) [OperatorAlgebra A] where
-  /-- The positive linear functional underlying the state. -/
-  toPositiveLinearMap : A →ₚ[ℂ] ℂ
-  /-- A state assigns expectation one to the identity observable. -/
-  map_one : toPositiveLinearMap 1 = 1
 
 /-- A channel from `A₁` to `A₂` — physicists' name for a unital completely positive (UCP) map,
 the most general notion of dynamics this framework expresses. -/
