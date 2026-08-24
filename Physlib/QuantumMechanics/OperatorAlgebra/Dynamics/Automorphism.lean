@@ -32,7 +32,7 @@ the freedom to shift a Hamiltonian by a scalar multiple of the identity.
 
 namespace OperatorAlgebra
 
-variable {H : Type*} [HilbertSpace H]
+variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
 
 /-- Every ⋆-automorphism of `B(H)` is implemented by unitary conjugation. -/
 lemma conjStarAlgAut_surjective :
@@ -54,7 +54,8 @@ lemma conjStarAlgAut_eq_iff (u v : Unitary (B(H))) :
   Unitary.conjStarAlgAut_ext_iff' u v
 
 /-- The projective unitary group of `H`, obtained by quotienting out scalar phases. -/
-def ProjectiveUnitary (H : Type*) [HilbertSpace H] :=
+def ProjectiveUnitary (H : Type*) [NormedAddCommGroup H] [InnerProductSpace ℂ H]
+    [CompleteSpace H] :=
   Unitary (B(H)) ⧸ MonoidHom.ker (Unitary.conjStarAlgAut ℂ (B(H)))
 
 noncomputable instance : Group (ProjectiveUnitary H) := QuotientGroup.Quotient.group _

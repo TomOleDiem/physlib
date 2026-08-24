@@ -20,17 +20,10 @@ ordered-star-ring instances for bounded operators are supplied by Mathlib.
 
 namespace OperatorAlgebra
 
-/-- A complex Hilbert space: a complete complex inner-product space. -/
-class HilbertSpace (H : Type*) extends NormedAddCommGroup H, InnerProductSpace ℂ H, CompleteSpace H
-
-/-- Mathlib's separate Hilbert-space assumptions provide Physlib's bundled physics interface. -/
-noncomputable instance (priority := low) instHilbertSpace (H : Type*) [NormedAddCommGroup H]
-    [InnerProductSpace ℂ H] [CompleteSpace H] : HilbertSpace H := {}
-
 /-- Bounded operators on a complex Hilbert space, written in the usual physics notation. -/
 notation "B(" H ")" => H →L[ℂ] H
 
-variable {H : Type*} [HilbertSpace H]
+variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
 
 /-- Bounded operators form an `OperatorAlgebra` using Mathlib's native Hilbert-space instances. -/
 noncomputable instance instOperatorAlgebraBoundedOperators : OperatorAlgebra B(H) := {}
@@ -38,7 +31,8 @@ noncomputable instance instOperatorAlgebraBoundedOperators : OperatorAlgebra B(H
 section Representation
 
 /-- A Hilbert-space representation of `A` as a unital ⋆-homomorphism into `B(H)`. -/
-abbrev Representation (A H : Type*) [OperatorAlgebra A] [HilbertSpace H] := A →⋆ₐ[ℂ] B(H)
+abbrev Representation (A H : Type*) [OperatorAlgebra A] [NormedAddCommGroup H]
+    [InnerProductSpace ℂ H] [CompleteSpace H] := A →⋆ₐ[ℂ] B(H)
 
 end Representation
 
