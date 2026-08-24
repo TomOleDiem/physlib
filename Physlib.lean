@@ -17,6 +17,7 @@ public import Physlib.ClassicalMechanics.Mass.MassUnit
 public import Physlib.ClassicalMechanics.OrbitalMechanics.VisViva
 public import Physlib.ClassicalMechanics.Pendulum.CoplanarDoublePendulum
 public import Physlib.ClassicalMechanics.Pendulum.MiscellaneousPendulumPivotMotions
+public import Physlib.ClassicalMechanics.Pendulum.SimplePendulum.Basic
 public import Physlib.ClassicalMechanics.Pendulum.SimplePendulum.Geometric.Basic
 public import Physlib.ClassicalMechanics.Pendulum.SlidingPendulum
 public import Physlib.ClassicalMechanics.RigidBody.AngularMomentum
@@ -340,6 +341,7 @@ public import Physlib.QuantumMechanics.InfiniteSquareWell.Basic
 public import Physlib.QuantumMechanics.OperatorAlgebra.Basic
 public import Physlib.QuantumMechanics.OperatorAlgebra.Dynamics.Automorphism
 public import Physlib.QuantumMechanics.OperatorAlgebra.HilbertSpace
+public import Physlib.QuantumMechanics.OperatorAlgebra.Observables.Jordan
 public import Physlib.QuantumMechanics.OperatorAlgebra.Observables.Lie
 public import Physlib.QuantumMechanics.Operators.AngularMomentum
 public import Physlib.QuantumMechanics.Operators.Commutation
