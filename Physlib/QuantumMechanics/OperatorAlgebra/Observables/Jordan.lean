@@ -44,7 +44,6 @@ noncomputable def jordan (a b : Observable A) : Observable A :=
 /-- The Jordan product on observables. -/
 scoped[OperatorAlgebra] infixl:70 " ⊙ " => Observable.jordan
 
-@[simp]
 lemma coe_jordan (a b : Observable A) :
     (a ⊙ b : A) = (2⁻¹ : ℝ) • ((a : A) * b + (b : A) * a) := by
   change (↑(realPart ((a : A) * (b : A))) : A) =
@@ -95,13 +94,23 @@ end Observable
 symmetrized product as multiplication.
 -/
 
-/-- Observables equipped with their Jordan multiplication. -/
-noncomputable abbrev JordanObservable (A : Type*) [OperatorAlgebra A] :=
+/-- Observables equipped with their Jordan multiplication.
+
+This is a type synonym for `Observable A`, kept a `def` (rather than an `abbrev`) so that the
+`NonUnitalNonAssocCommRing` structure defined below on `JordanObservable A` is not silently
+inherited by `Observable A` itself, which has no canonical multiplication of its own. -/
+noncomputable def JordanObservable (A : Type*) [OperatorAlgebra A] :=
   Observable A
 
 namespace JordanObservable
 
 variable {A : Type*} [OperatorAlgebra A]
+
+noncomputable instance instAddCommGroup : AddCommGroup (JordanObservable A) :=
+  inferInstanceAs (AddCommGroup (Observable A))
+
+noncomputable instance instModule : Module ℝ (JordanObservable A) :=
+  inferInstanceAs (Module ℝ (Observable A))
 
 open scoped Observable
 
