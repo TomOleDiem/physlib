@@ -344,6 +344,9 @@ public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.Cayley
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.CayleyInverse
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.CayleySpectralData
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.Concrete
+public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.NormalAffiliated
+public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.NormalPVM
+public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.WeakStarFunctionalCalculus
 public import Physlib.QuantumMechanics.Operators.AngularMomentum
 public import Physlib.QuantumMechanics.Operators.Commutation
 public import Physlib.QuantumMechanics.Operators.Covariance
