@@ -340,6 +340,10 @@ public import Physlib.QuantumMechanics.OperatorAlgebra.Basic
 public import Physlib.QuantumMechanics.OperatorAlgebra.Jordan
 public import Physlib.QuantumMechanics.OperatorAlgebra.Lie
 public import Physlib.QuantumMechanics.OperatorAlgebra.Observable
+public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.Cayley
+public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.CayleyInverse
+public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.CayleySpectralData
+public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.Concrete
 public import Physlib.QuantumMechanics.Operators.AngularMomentum
 public import Physlib.QuantumMechanics.Operators.Commutation
 public import Physlib.QuantumMechanics.Operators.Covariance
@@ -356,6 +360,7 @@ public import Physlib.QuantumMechanics.Operators.SpectralTheory.Basic
 public import Physlib.QuantumMechanics.Operators.SpectralTheory.SelfAdjoint
 public import Physlib.QuantumMechanics.Operators.SpectralTheory.SpectralMeasure
 public import Physlib.QuantumMechanics.Operators.SpectralTheory.Symmetric
+public import Physlib.QuantumMechanics.Operators.SpectralTheory.UnboundedSpectralIntegral
 public import Physlib.QuantumMechanics.Operators.StateObservables.ExpectedValue
 public import Physlib.QuantumMechanics.Operators.StateObservables.IsEigenvector
 public import Physlib.QuantumMechanics.Operators.StateObservables.Variance
