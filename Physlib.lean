@@ -357,6 +357,7 @@ public import Physlib.QuantumMechanics.OperatorAlgebra.Observables.Lie
 public import Physlib.QuantumMechanics.OperatorAlgebra.Observables.Observable
 public import Physlib.QuantumMechanics.OperatorAlgebra.TraceClass
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.Affiliated
+public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.AnalyticVector
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.BoundedUnitaryInfrastructure
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.Cayley
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.CayleyInverse

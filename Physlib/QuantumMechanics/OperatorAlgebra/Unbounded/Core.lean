@@ -7,8 +7,11 @@ module
 
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.FunctionalCalculus
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.InvariantCore
+public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.AnalyticVector
 public import Physlib.QuantumMechanics.OperatorAlgebra.HilbertSpace
 public import Physlib.QuantumMechanics.Operators.Unbounded
+public import Physlib.Meta.Sorry
+public import Physlib.Meta.TODO.Basic
 
 /-!
 
@@ -24,9 +27,20 @@ just an ordinary family of endomorphisms — no bespoke `EqOn`/`CommOn`-style AP
 since `Module.End ℂ D` already has everything (`Ring`, `Module ℂ`, ...) needed.
 
 We also define *strong* (spectral) commutation of two affiliated operators, `StronglyCommutes`,
-and the standard package of results connecting it to preserved subspaces.  The genuinely analytic
-Nelson implication is exposed through an explicit strong-commutation certificate below; it does
-not rely on an unproved foundational assumption.
+and the standard package of results connecting it to preserved subspaces.
+
+`AnalyticVector.lean` now supplies the actual Nelson analytic-vector vocabulary
+(`LinearPMap.IsAnalyticVector`, structural closure lemmas, and the single-operator criterion
+`IsSymmetric.isEssentiallySelfAdjoint_of_denseAnalyticVectors`, itself `@[sorryful]` — see that
+file's module docstring for exactly which hard analytic construction is missing and why). The
+`of_commonCore_comm_certificate` adapter below now genuinely *consumes* that vocabulary — analytic
+vectors on the common core, not a directly-supplied strong-commutation conclusion — rather than
+packaging a hypothesis that already was the theorem's conclusion. Deriving essential
+self-adjointness of each restriction from those analytic vectors is spelled out explicitly (via
+the single-operator criterion); the remaining joint step — that algebraically commuting essentially
+self-adjoint operators with a common analytic core have *strongly* commuting closures — is Nelson's
+1959 joint-commutation theorem and remains `@[sorryful]`, precisely scoped in the theorem's
+docstring.
 
 ## Key results
 
@@ -39,9 +53,10 @@ not rely on an unproved foundational assumption.
   its docstring for why this is now stated with an algebraic `Commute` hypothesis on
   `core.restrict`, rather than the disconnected spectral-level `StronglyCommutes` the original
   statement used).
-- `StronglyCommutes.of_commonCore_comm_certificate` : packages a supplied strong-commutation
-  certificate alongside the common-core hypotheses.  The actual Nelson implication remains a separate analytic
-  theorem to be supplied when an analytic-vector certificate is available.
+- `StronglyCommutes.of_commonCore_comm_certificate` : Nelson's joint-commutation theorem, stated
+  with genuine analytic-vector hypotheses on the common core rather than a supplied conclusion.
+  `@[sorryful]`; the essential-self-adjointness half is derived explicitly from the analytic
+  vectors, the strong-commutation half is the still-missing joint analytic argument.
 
 -/
 
@@ -150,28 +165,61 @@ lemma preserves_eigenspace {T' : Fin 2 → AffiliatedOperator A} (core : Invaria
 
 /-! ## Nelson's commutation interface -/
 
-/-- Package the common-core data together with the strong-commutation conclusion supplied by the
-analytic part of a Nelson argument.
+/-- **Nelson's joint-commutation theorem**, stated with the actual analytic-vector hypotheses
+Nelson's 1959 argument uses, rather than a directly-supplied strong-commutation conclusion.
 
-The final implication from essential self-adjointness plus a common analytic core to strong
-commutation is a substantial theorem about unitary groups and analytic vectors.  It is therefore
-an explicit input here, rather than an unsound theorem hidden behind Nelson's name.
-This adapter is useful immediately: all downstream spectral-subspace results consume the returned
-`StronglyCommutes` proposition, while a future analytic-vector proof can be plugged in without an
-API change. -/
+The hypotheses package a common invariant core `core.D`, embedded (injectively) into a concrete
+Hilbert space `H` on which two symmetric `LinearPMap`s `U 0`, `U 1` restrict to `core.restrict 0`/
+`core.restrict 1` (`hUrestrict`), commute there algebraically (`hcomm`), and have `emb`-images
+consisting of analytic vectors, densely so (`hUanalytic`, `hUanalyticDense`) — exactly Reed–Simon
+Vol. II Theorem X.39's hypotheses.
+
+**What is actually proved here.** Essential self-adjointness of each `U i` is derived honestly
+from `hUanalytic`/`hUanalyticDense`/`hUsym` via
+`LinearPMap.IsSymmetric.isEssentiallySelfAdjoint_of_denseAnalyticVectors` — so this adapter no
+longer merely assumes essential self-adjointness as an opaque input, the way the previous version
+of this file did.
+
+**What remains open (`@[sorryful]`).** The *joint* step — that two essentially self-adjoint
+operators which commute algebraically on a common core of joint analytic vectors have strongly
+commuting closures — is Nelson's actual joint-commutation theorem, distinct from (and harder than)
+the single-operator essential-self-adjointness criterion invoked above. Its standard proof
+(Reed–Simon Vol. II, Theorem X.41, or Nelson 1959 §9) builds the two local one-parameter unitary
+semigroups from the analytic power series (as in the single-operator argument), shows they commute
+on a common core using the algebraic commutation hypothesis and a Trotter-type limiting argument
+on truncated exponentials, and only then invokes Stone's theorem to transport that commutation to
+the spectral projections making up `StronglyCommutes`. None of this Trotter/semigroup-commutation
+argument is attempted here — it is additional content beyond
+`isEssentiallySelfAdjoint_of_denseAnalyticVectors`, not a corollary of it. -/
+@[sorryful]
 theorem of_commonCore_comm_certificate {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H]
     [CompleteSpace H] (π : Representation A H) {T' : Fin 2 → AffiliatedOperator A}
     (core : InvariantCore T') (emb : core.D →ₗ[ℂ] H) (hemb : Function.Injective emb)
     (U : Fin 2 → H →ₗ.[ℂ] H)
     (hUmem : ∀ i x, emb x ∈ (U i).domain)
     (hUdense : ∀ i, (U i).HasDenseDomain)
-    (hUess : ∀ i, (U i).IsEssentiallySelfAdjoint)
+    (hUsym : ∀ i, (U i).IsSymmetric)
     (hUrestrict : ∀ i (x : core.D), U i (Subtype.mk (emb x) (hUmem i x)) =
       emb (core.restrict i x))
-    (hcomm : core.restrictCommutator 0 1 = 0)
-    (hstrong : (T' 0).StronglyCommutes (T' 1)) :
+    (hUanalytic : ∀ i (x : core.D), (U i).IsAnalyticVector (emb x))
+    (hUanalyticDense :
+      ∀ i, (Submodule.span ℂ {y : H | (U i).IsAnalyticVector y}).topologicalClosure = ⊤)
+    (hcomm : core.restrictCommutator 0 1 = 0) :
     (T' 0).StronglyCommutes (T' 1) := by
-  exact hstrong
+  have hUess : ∀ i, (U i).IsEssentiallySelfAdjoint := fun i =>
+    (hUsym i).isEssentiallySelfAdjoint_of_denseAnalyticVectors (hUanalyticDense i)
+  sorry
+
+TODO "Prove the remaining joint-commutation half of \
+  `AffiliatedOperator.StronglyCommutes.of_commonCore_comm_certificate` (Nelson's 1959 \
+  joint-commutation theorem, Reed-Simon Vol. II Theorem X.41). The essential self-adjointness of \
+  each `U i` is already derived above from `hUanalytic`/`hUanalyticDense`/`hUsym` via \
+  `LinearPMap.IsSymmetric.isEssentiallySelfAdjoint_of_denseAnalyticVectors`. What is missing is the \
+  Trotter-type limiting argument showing the two Stone unitary groups generated by `U 0`/`U 1`'s \
+  closures commute (using `hcomm`'s algebraic commutation on the shared analytic core), together \
+  with transporting that unitary-group commutation, through `π` and `emb`, back to commutation of \
+  the abstract spectral projections making up `(T' 0).StronglyCommutes (T' 1)`. See the theorem's \
+  docstring for the precise decomposition."
 
 end StronglyCommutes
 
