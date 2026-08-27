@@ -345,6 +345,7 @@ public import Physlib.QuantumMechanics.OperatorAlgebra.Lie
 public import Physlib.QuantumMechanics.OperatorAlgebra.Observable
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.Affiliated
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.Cayley
+public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.CayleyCertificate
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.CayleyInverse
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.CayleySpectralData
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.Concrete
@@ -358,6 +359,7 @@ public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.Example.Spectru
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.NegativeStoneAPI
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.NormalAffiliated
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.NormalPVM
+public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.NormalPVMTraceClass
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.NormalRepresentation
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.Representation
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.Stone
