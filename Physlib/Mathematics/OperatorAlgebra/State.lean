@@ -144,6 +144,123 @@ def IsPure (ω : State A) : Prop :=
     mix φ ψ t ht₀.le ht₁.le = ω →
       φ = ω ∧ ψ = ω
 
+/-!
+## Finite convex mixtures
+
+`mix` gives binary convex combinations; `finiteMix` generalizes this to a finite convex
+combination indexed by any `Fintype`. The key fact about pure states here is `eq_of_finiteMix`:
+a pure state occurring with strictly positive weight in a finite convex decomposition must equal
+every component with positive weight.
+-/
+
+/-- A finite convex mixture of states. -/
+noncomputable def finiteMix {ι : Type*} [Fintype ι] (ω : ι → State A) (p : ι → ℝ)
+    (hp : ∀ i, 0 ≤ p i) (hsum : ∑ i, p i = 1) : State A where
+  toPositiveLinearMap := PositiveLinearMap.mk₀
+    (∑ i, (p i : ℂ) • (ω i).toPositiveLinearMap.toLinearMap)
+    (fun a ha => by
+      rw [LinearMap.sum_apply]
+      exact Finset.sum_nonneg fun i _ =>
+        mul_nonneg (RCLike.ofReal_nonneg.mpr (hp i)) ((ω i).apply_nonneg ha))
+  map_one := by
+    change (∑ i, (p i : ℂ) • (ω i).toPositiveLinearMap.toLinearMap) 1 = 1
+    rw [LinearMap.sum_apply]
+    change (∑ i, (p i : ℂ) * ω i 1) = 1
+    simp only [State.apply_one, mul_one]
+    exact_mod_cast hsum
+
+@[simp]
+lemma finiteMix_apply {ι : Type*} [Fintype ι] (ω : ι → State A) (p : ι → ℝ)
+    (hp : ∀ i, 0 ≤ p i) (hsum : ∑ i, p i = 1) (a : A) :
+    finiteMix ω p hp hsum a = ∑ i, (p i : ℂ) * ω i a := by
+  change (∑ i, (p i : ℂ) • (ω i).toPositiveLinearMap.toLinearMap) a = _
+  rw [LinearMap.sum_apply]
+  apply Finset.sum_congr rfl
+  intro i _
+  rfl
+
+/-- A pure state occurring with strictly positive weight in a finite convex decomposition must
+equal every component with positive weight. -/
+lemma IsPure.eq_of_finiteMix {ι : Type*} [Fintype ι] (ω : State A) (hω : ω.IsPure)
+    (φ : ι → State A) (p : ι → ℝ) (hp : ∀ i, 0 ≤ p i) (hsum : ∑ i, p i = 1)
+    (hmix : finiteMix φ p hp hsum = ω) {i : ι} (hi : 0 < p i) : φ i = ω := by
+  classical
+  have hpi : p i ≤ 1 := by
+    rw [← hsum]
+    exact Finset.single_le_sum (fun j _ => hp j) (Finset.mem_univ i)
+  rcases hpi.eq_or_lt with hpi | hpi
+  · have herase := Finset.sum_erase_add Finset.univ p (Finset.mem_univ i)
+    have hrest : ∑ j ∈ Finset.univ.erase i, p j = 0 := by
+      rw [hsum, hpi] at herase
+      linarith
+    have hz : ∀ j, j ≠ i → p j = 0 := by
+      intro j hji
+      exact (Finset.sum_eq_zero_iff_of_nonneg
+        (fun k _ => hp k)).mp hrest j (Finset.mem_erase.mpr ⟨hji, Finset.mem_univ j⟩)
+    have hsingle : finiteMix φ p hp hsum = φ i := by
+      rw [State.mk.injEq]
+      apply PositiveLinearMap.ext
+      intro a
+      rw [finiteMix_apply]
+      rw [Finset.sum_eq_single i]
+      · simp [hpi]
+      · intro j _ hji
+        simp [hz j hji]
+      · simp
+    exact hsingle.symm.trans hmix
+  · let q : ι → ℝ := fun j => if j = i then 0 else p j / (1 - p i)
+    have hden : 0 < 1 - p i := sub_pos.mpr hpi
+    have hq : ∀ j, 0 ≤ q j := by
+      intro j
+      simp only [q]
+      split
+      · exact le_rfl
+      · exact div_nonneg (hp j) hden.le
+    have hqsum : ∑ j, q j = 1 := by
+      have herase := Finset.sum_erase_add Finset.univ p (Finset.mem_univ i)
+      have hrest : ∑ j ∈ Finset.univ.erase i, p j = 1 - p i := by
+        rw [hsum] at herase
+        linarith
+      calc
+        ∑ j, q j = ∑ j ∈ Finset.univ.erase i, q j := by
+          rw [Finset.sum_erase (s := Finset.univ) (f := q) (by simp [q])]
+        _ = ∑ j ∈ Finset.univ.erase i, p j / (1 - p i) := by
+          apply Finset.sum_congr rfl
+          intro j hj
+          simp [q, (Finset.mem_erase.mp hj).1]
+        _ = (∑ j ∈ Finset.univ.erase i, p j) / (1 - p i) :=
+          (Finset.sum_div _ _ _).symm
+        _ = 1 := by rw [hrest, div_self (ne_of_gt hden)]
+    let χ : State A := finiteMix φ q hq hqsum
+    have hbinary : mix (φ i) χ (p i) hi.le hpi.le = finiteMix φ p hp hsum := by
+      rw [State.mk.injEq]
+      apply PositiveLinearMap.ext
+      intro a
+      rw [mix_apply, finiteMix_apply, finiteMix_apply]
+      have hscale : ((1 - p i : ℝ) : ℂ) *
+          (∑ j, (q j : ℂ) * φ j a) =
+          ∑ j ∈ Finset.univ.erase i, (p j : ℂ) * φ j a := by
+        rw [Finset.mul_sum]
+        rw [← Finset.sum_erase (s := Finset.univ)
+          (f := fun j => ((1 - p i : ℝ) : ℂ) * ((q j : ℂ) * φ j a))]
+        · apply Finset.sum_congr rfl
+          intro j hj
+          have hji := (Finset.mem_erase.mp hj).1
+          simp only [q, if_neg hji]
+          push_cast
+          have hdenC : (1 - (p i : ℂ)) ≠ 0 := by
+            exact_mod_cast ne_of_gt hden
+          calc
+            (1 - (p i : ℂ)) * ((p j : ℂ) / (1 - (p i : ℂ)) * φ j a) =
+                ((1 - (p i : ℂ)) * ((p j : ℂ) / (1 - (p i : ℂ)))) *
+                  φ j a := by ring
+            _ = (p j : ℂ) * φ j a := by rw [mul_div_cancel₀ _ hdenC]
+        · simp [q]
+      rw [hscale, add_comm]
+      exact Finset.sum_erase_add Finset.univ
+        (fun j => (p j : ℂ) * φ j a) (Finset.mem_univ i)
+    exact (hω (φ i) χ (p i) hi hpi (hbinary.trans hmix)).1
+
 end State
 
 end OperatorAlgebra

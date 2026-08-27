@@ -65,13 +65,23 @@ of `ℝ` rather than just `ℝ≥0`.
 This is the fully reversible notion of dynamics: every `α t` is invertible (with inverse
 `α (-t)`), matching Hamiltonian/unitary evolution.
 -/
-structure AutomorphismGroup (A : Type*) [CStarAlgebra A] where
+structure AutomorphismGroup (A : Type*) [OperatorAlgebra A] where
   /-- The ⋆-algebra automorphism driving the system after time `t`. -/
   toFun : ℝ → (A ≃⋆ₐ[ℂ] A)
   /-- At time `0`, nothing has happened. -/
   map_zero_apply : ∀ a : A, (toFun 0) a = a
   /-- The group law: evolving by `s + t` is evolving by `t` then by `s`. -/
   map_add_apply : ∀ (s t : ℝ) (a : A), (toFun (s + t)) a = (toFun s) ((toFun t) a)
+
+/-- An `AutomorphismGroup` is determined by its underlying function. -/
+@[ext]
+lemma AutomorphismGroup.ext {α β : AutomorphismGroup A} (h : ∀ t a, α.toFun t a = β.toFun t a) :
+    α = β := by
+  have hfun : α.toFun = β.toFun := funext fun t => StarAlgEquiv.ext (h t)
+  cases α
+  cases β
+  cases hfun
+  rfl
 
 TODO "Show `AutomorphismGroup A` embeds into `DynamicalSemigroup A`: a ⋆-algebra automorphism,
   restricted to `t ≥ 0`, gives a `Channel A A` (need: ⋆-algebra automorphisms are completely

@@ -33,7 +33,7 @@ namespace OperatorAlgebra
 open scoped ComplexOrder
 
 variable {A : Type*}
-  [CStarAlgebra A]
+  [OperatorAlgebra A]
 
 namespace Unitary
 

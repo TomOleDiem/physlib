@@ -172,10 +172,18 @@ def potentialFunction : Space d → ℝ := Q.potentialQuadraticForm ∘ Space.va
 
 lemma potentialFunction_eq : Q.potentialFunction = Q.potentialQuadraticForm ∘ Space.val := rfl
 
-/-- The potential function for the harmonic oscillator is a.e. strongly measurable. -/
-informal_lemma potentialFunction_aestronglyMeasurable where
-  deps := [``HarmonicOscillator]
-  tag := "QM-HO-potAESM"
+/-- The harmonic oscillator potential function is continuous, hence measurable. -/
+lemma potentialFunction_continuous : Continuous Q.potentialFunction := by
+  unfold potentialFunction potentialQuadraticForm
+  change Continuous (fun x : Space d =>
+    ((Matrix.toLinearMap₂' ℝ) Q.potentialMatrix) x.val x.val)
+  simp only [Matrix.toLinearMap₂'_apply]
+  fun_prop
+
+/-- The harmonic oscillator potential function, complexified, is a.e. strongly measurable. -/
+lemma potentialFunction_aestronglyMeasurable :
+    AEStronglyMeasurable (Complex.ofReal ∘ Q.potentialFunction) volume :=
+  (Complex.continuous_ofReal.comp Q.potentialFunction_continuous).aestronglyMeasurable
 
 end
 
@@ -220,10 +228,11 @@ open MeasureTheory Complex
 /-- The potential operator which maps `ψ` to `Q.potentialFunction • ψ`. -/
 def potentialOperator : Q.HS →ₗ.[ℂ] Q.HS := 𝓜 volume (ofReal ∘ Q.potentialFunction)
 
-/-- The potential operators for the harmonic oscillator is self-adjoint. -/
-informal_lemma potentialOperator_isSelfAdjoint where
-  deps := [``HarmonicOscillator.potentialFunction_aestronglyMeasurable]
-  tag := "QM-HO-potSA"
+/-- The potential operator for the harmonic oscillator is self-adjoint. -/
+lemma potentialOperator_isSelfAdjoint : IsSelfAdjoint Q.potentialOperator := by
+  apply mulOperator_isSelfAdjoint_ofReal Q.potentialFunction_aestronglyMeasurable
+  funext x
+  simp [Function.comp_def, Complex.conj_ofReal]
 
 end
 
@@ -236,20 +245,14 @@ def hamiltonian : Q.HS →ₗ.[ℂ] Q.HS := Q.kineticOperator + Q.potentialOpera
 
 lemma hamiltonain_eq : Q.hamiltonian = Q.kineticOperator + Q.potentialOperator := rfl
 
-/-- The Hamiltonian for the harmonic oscillator is essentially self-adjoint. -/
-informal_lemma hamiltonian_essentially_self_adjoint where
-  deps := [``HarmonicOscillator.hamiltonian]
-  tag := "QM-HO-hamESA"
-
 /-!
 ## G. As a quantum system
--/
 
-/-- The `d`-dimensional harmonic oscillator as a quantum system
-  (self-adjoint Hamiltonian acting on a Hilbert space). -/
-informal_definition toQuantumSystem where
-  deps := [``HarmonicOscillator.hamiltonian_essentially_self_adjoint]
-  tag := "QM-HO-sys"
+The essential-self-adjointness theorem and the construction of a `QuantumSystem` from the
+Hamiltonian's self-adjoint closure are in `HarmonicOscillator.EssentialSelfAdjointness`.  They are
+kept out of this basic-definition file because the proof needs the reusable defect-index and
+spectral infrastructure, together with the model-specific analytic certificate.
+-/
 
 end HarmonicOscillator
 end QuantumMechanics

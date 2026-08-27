@@ -47,23 +47,27 @@ literally `ofNormalPVM` applied after forgetting the extra predual-additivity wi
   norm-valued calculus — `ofNormalPVM (NormalPVM.ofPVM E)` and `NormalBorelFunctionalCalculus.ofPVM
   E` (`NormalAffiliated.lean`) agree on every bounded measurable function, not merely on the same
   type of certificate.
+- `NormalBorelFunctionalCalculus.eq_of_eq_on_simpleFunctions` : certificate-level uniqueness from
+  agreement on bounded simple functions, by uniform approximation and the contractive estimate.
+- `NormalBorelFunctionalCalculus.boundedFC_eq_of_same_normalPVM` : the preceding uniqueness is
+  unconditional for any two certificates over the same `NormalPVM`.
 
 ## What remains open
 
-Uniqueness of the *certificate itself* (any two `NormalBorelFunctionalCalculus E` agreeing on all
-bounded measurable `f`) is not proved in general: the certificate's algebra laws alone do not expose
-a norm bound on `boundedFC`, so a fully certificate-generic uniqueness argument would need to first
-derive that bound from the ⋆-homomorphism laws (`boundedFC_mul`/`boundedFC_star`/
-`boundedFC_mem_unitary`) via the general C⋆-algebra contractivity of ⋆-homomorphisms — genuinely
-more machinery than this package's scope. What *is* proved is the concrete compatibility statement
-above, which is the instance of uniqueness downstream packages actually need.
+The certificate now exposes `NormalBorelFunctionalCalculus.norm_boundedFC_le`: its algebra laws
+alone imply the C⋆-norm estimate for every bounded multiplier. This is the continuity estimate
+needed to compare two certificates through a common sequence of uniformly convergent simple
+functions. `boundedFC_of_simpleFunc_eq_simpleIntegral` derives the required simple-function
+agreement from the indicator field, and `boundedFC_eq_of_same_normalPVM` packages the resulting
+unconditional uniqueness. The concrete compatibility theorem below remains the instance used by
+the representation layer.
 -/
 
 @[expose] public section
 
 noncomputable section
 
-open scoped ComplexOrder CStarAlgebra
+open scoped ComplexOrder CStarAlgebra Topology
 open MeasureTheory Set
 
 namespace OperatorAlgebra
@@ -857,6 +861,311 @@ correct weak-⋆ spectral measure of a normal operator in the first place. -/
 noncomputable def ofPredualPVM (E : PredualPVM X A) :
     NormalBorelFunctionalCalculus E.toNormalPVM :=
   ofNormalPVM E.toNormalPVM
+
+/-! ### Simple functions and uniqueness -/
+
+/- The indicator axiom and the algebra laws determine a certificate on every bounded simple
+   function.  This is the finite-sum part of the usual uniqueness proof; the uniform-limit part is
+   packaged below in `eq_of_eq_on_simpleFunctions`. -/
+lemma boundedFC_of_simpleFunc_eq_simpleIntegral
+    {E : NormalPVM X A} (C : NormalBorelFunctionalCalculus E)
+    (f : SimpleFunc X ℂ) (hf : Measurable (fun x => f x))
+    (hfb : ∃ K : ℝ, ∀ x, ‖f x‖ ≤ K) :
+    C.boundedFC (fun x => f x) hf hfb = E.simpleIntegral f := by
+  induction f using SimpleFunc.induction with
+  | @const c s hs =>
+    have hsi : ∀ x : X, ‖normalIndicatorFunction s x‖ ≤ 1 := by
+      intro x
+      by_cases hx : x ∈ s <;> simp [normalIndicatorFunction, hx]
+    have hci : ∃ K : ℝ, ∀ x : X, ‖c * normalIndicatorFunction s x‖ ≤ K := by
+      refine ⟨‖c‖, fun x => ?_⟩
+      rw [norm_mul]
+      exact mul_le_of_le_one_right (norm_nonneg c) (hsi x)
+    have hsmul := C.boundedFC_smul (f := normalIndicatorFunction s) c
+      (normalIndicatorFunction_measurable hs) (normalIndicatorFunction_bounded s) hci
+    have hind := C.boundedFC_indicator (S := s) hs
+    have hsimple := SimpleFunc.setToSimpleFunc_indicator E.spectralCLM
+      (by simp [NormalPVM.spectralCLM, NormalPVM.spectralCLM_apply]) hs c
+    calc
+      C.boundedFC (fun x => (SimpleFunc.piecewise s hs (SimpleFunc.const X c)
+          (SimpleFunc.const X 0)) x) hf hfb =
+          C.boundedFC (fun x => c * normalIndicatorFunction s x)
+            (measurable_const.mul (normalIndicatorFunction_measurable hs)) hci := by
+        apply C.boundedFC_congr hf
+          (measurable_const.mul (normalIndicatorFunction_measurable hs)) hfb hci
+        intro x
+        by_cases hx : x ∈ s <;>
+          simp [normalIndicatorFunction, SimpleFunc.coe_piecewise, hx]
+      _ = c • C.boundedFC (normalIndicatorFunction s)
+          (normalIndicatorFunction_measurable hs)
+          (normalIndicatorFunction_bounded s) := hsmul
+      _ = c • (E s : A) := by rw [hind]
+      _ = E.simpleIntegral (SimpleFunc.piecewise s hs (SimpleFunc.const X c)
+          (SimpleFunc.const X 0)) := by
+        rw [E.simpleIntegral_eq_setToSimpleFunc]
+        simpa [NormalPVM.spectralCLM_apply] using hsimple.symm
+  | @add f g hdisj ihf ihg =>
+    have hfbf : ∃ K : ℝ, ∀ x, ‖f x‖ ≤ K := by
+      obtain ⟨K, hK⟩ := (f.finite_range.image norm).bddAbove
+      refine ⟨K, fun x => ?_⟩
+      apply hK
+      exact ⟨f x, by simp, rfl⟩
+    have hfbg : ∃ K : ℝ, ∀ x, ‖g x‖ ≤ K := by
+      obtain ⟨K, hK⟩ := (g.finite_range.image norm).bddAbove
+      refine ⟨K, fun x => ?_⟩
+      apply hK
+      exact ⟨g x, by simp, rfl⟩
+    have hif := ihf (by fun_prop) hfbf
+    have hig := ihg (by fun_prop) hfbg
+    have hadd := C.boundedFC_add (by fun_prop) (by fun_prop) hfbf hfbg hfb
+    calc
+      C.boundedFC (fun x => (f + g) x) hf hfb =
+          C.boundedFC (fun x => f x + g x) (by fun_prop) hfb := by
+        apply C.boundedFC_congr hf (by fun_prop) hfb hfb
+        intro x
+        rfl
+      _ = C.boundedFC (fun x => f x) (by fun_prop) hfbf +
+          C.boundedFC (fun x => g x) (by fun_prop) hfbg := hadd
+      _ = E.simpleIntegral f + E.simpleIntegral g := by rw [hif, hig]
+      _ = E.simpleIntegral (f + g) := (E.simpleIntegral_add f g).symm
+
+/-! ### Contractivity and uniqueness
+
+The certificate laws imply the usual C⋆-norm estimate.  This is useful independently of the
+canonical construction: it makes the calculus continuous for uniform convergence and therefore
+allows uniqueness to be stated at the certificate level. -/
+
+lemma norm_boundedFC_le {E : NormalPVM X A} (C : NormalBorelFunctionalCalculus E)
+    {f : X → ℂ} (hf : Measurable f) {M : ℝ} (hM : 0 ≤ M)
+    (hfm : ∀ x, ‖f x‖ ≤ M) :
+    ‖C.boundedFC f hf (⟨M, hfm⟩)‖ ≤ M := by
+  let g : X → ℂ := fun x => (Real.sqrt (M ^ 2 - ‖f x‖ ^ 2) : ℂ)
+  have hnonneg (x : X) : 0 ≤ M ^ 2 - ‖f x‖ ^ 2 := by
+    have hsq : ‖f x‖ ^ 2 ≤ M ^ 2 :=
+      (sq_le_sq₀ (norm_nonneg (f x)) hM).2 (hfm x)
+    linarith
+  have hg : Measurable g := by
+    dsimp [g]
+    exact Complex.measurable_ofReal.comp
+      ((measurable_const.sub ((measurable_norm.comp hf).pow_const 2)).sqrt)
+  have hgm' : ∀ x, ‖g x‖ ≤ M := by
+    intro x
+    dsimp [g]
+    rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (Real.sqrt_nonneg _)]
+    apply Real.sqrt_le_iff.mpr
+    constructor
+    · exact hM
+    · nlinarith [sq_nonneg (‖f x‖)]
+  have hgm : ∃ C' : ℝ, ∀ x, ‖g x‖ ≤ C' := ⟨M, hgm'⟩
+  have hgstar : ∃ C' : ℝ, ∀ x, ‖star (g x)‖ ≤ C' := by
+    simpa only [norm_star] using hgm
+  have hstarf : Measurable (fun x => star (f x)) :=
+    continuous_star.measurable.comp hf
+  have hstarfb : ∃ C' : ℝ, ∀ x, ‖star (f x)‖ ≤ C' := by
+    simpa only [norm_star] using ⟨M, hfm⟩
+  have hffb : ∃ C' : ℝ, ∀ x, ‖(fun x => star (f x) * f x) x‖ ≤ C' := by
+    refine ⟨M ^ 2, fun x => ?_⟩
+    rw [norm_mul]
+    simpa only [norm_star, pow_two] using
+      (mul_le_mul (hfm x) (hfm x) (norm_nonneg _) hM)
+  have hggb : ∃ C' : ℝ, ∀ x, ‖g x * g x‖ ≤ C' := by
+    refine ⟨M ^ 2, fun x => ?_⟩
+    rw [norm_mul]
+    simpa [pow_two] using (mul_le_mul (hgm' x) (hgm' x) (norm_nonneg _) hM)
+  have haddb : ∃ C' : ℝ, ∀ x, ‖star (f x) * f x + g x * g x‖ ≤ C' := by
+    refine ⟨M ^ 2, fun x => ?_⟩
+    have hff : star (f x) * f x = (‖f x‖ ^ 2 : ℝ) := by
+      calc
+        star (f x) * f x = f x * star (f x) := mul_comm _ _
+        _ = (Complex.normSq (f x) : ℂ) := by
+          rw [Complex.star_def, Complex.mul_conj]
+        _ = (‖f x‖ ^ 2 : ℝ) := by rw [Complex.normSq_eq_norm_sq]
+    have hgg : star (g x) * g x = (M ^ 2 - ‖f x‖ ^ 2 : ℝ) := by
+      calc
+        star (g x) * g x = g x * star (g x) := mul_comm _ _
+        _ = (Complex.normSq (g x) : ℂ) := by
+          rw [Complex.star_def, Complex.mul_conj]
+        _ = (M ^ 2 - ‖f x‖ ^ 2 : ℝ) := by
+          dsimp [g]
+          rw [Complex.normSq_eq_norm_sq, Complex.norm_real, Real.norm_eq_abs,
+            abs_of_nonneg (Real.sqrt_nonneg _), Real.sq_sqrt (hnonneg x)]
+    have hsum : star (f x) * f x + g x * g x = (M ^ 2 : ℝ) := by
+      rw [hff]
+      have hgg' : g x * g x = (M ^ 2 - ‖f x‖ ^ 2 : ℝ) := by
+        dsimp [g]
+        rw [← Complex.ofReal_mul, Real.mul_self_sqrt (hnonneg x)]
+      rw [hgg']
+      push_cast
+      ring
+    rw [hsum, Complex.norm_real]
+    simp
+  have hmul₁ := C.boundedFC_mul hstarf hf hstarfb (⟨M, hfm⟩) hffb
+  have hmul₂ := C.boundedFC_mul hg hg hgm hgm hggb
+  have hadd := C.boundedFC_add (hstarf.mul hf) (hg.mul hg) hffb hggb haddb
+  have hstar := C.boundedFC_star hf (⟨M, hfm⟩) hstarfb
+  have hgbstar := C.boundedFC_star hg hgm hgstar
+  have hsum :
+      star (C.boundedFC f hf (⟨M, hfm⟩)) * C.boundedFC f hf (⟨M, hfm⟩) +
+        C.boundedFC g hg hgm * C.boundedFC g hg hgm =
+      (M ^ 2 : ℂ) • (1 : A) := by
+    calc
+      _ = C.boundedFC ((fun x => star (f x)) * f)
+          (hstarf.mul hf) hffb + C.boundedFC (g * g)
+            (hg.mul hg) hggb := by rw [← hstar, ← hmul₁, ← hmul₂]
+      _ = C.boundedFC ((fun x => star (f x)) * f + g * g)
+          ((hstarf.mul hf).add (hg.mul hg)) haddb := hadd.symm
+      _ = C.boundedFC (fun _ : X => (M ^ 2 : ℂ)) measurable_const
+          (⟨M ^ 2, fun _ => by simp [hM]⟩) := by
+        apply C.boundedFC_congr _ _ haddb (⟨M ^ 2, fun _ => by simp [hM]⟩)
+        intro x
+        have hff : star (f x) * f x = (‖f x‖ ^ 2 : ℝ) := by
+          calc
+            star (f x) * f x = f x * star (f x) := mul_comm _ _
+            _ = (Complex.normSq (f x) : ℂ) := by
+              rw [Complex.star_def, Complex.mul_conj]
+            _ = (‖f x‖ ^ 2 : ℝ) := by rw [Complex.normSq_eq_norm_sq]
+        have hgg : g x * g x = (M ^ 2 - ‖f x‖ ^ 2 : ℝ) := by
+          dsimp [g]
+          rw [← Complex.ofReal_mul, Real.mul_self_sqrt (hnonneg x)]
+        rw [hff, hgg]
+        push_cast
+        ring
+      _ = _ := C.boundedFC_const (M ^ 2 : ℂ)
+  have hgbself : star (C.boundedFC g hg hgm) = C.boundedFC g hg hgm := by
+    have hfun : (fun x => star (g x)) = g := by
+      funext x
+      dsimp [g]
+      simp [Complex.star_def]
+    have hfc := C.boundedFC_congr
+      (continuous_star.measurable.comp hg) hg hgstar hgm (fun x => congrFun hfun x)
+    exact hgbstar.symm.trans hfc
+  have hle :
+      star (C.boundedFC f hf (⟨M, hfm⟩)) * C.boundedFC f hf (⟨M, hfm⟩) ≤
+        (M ^ 2 : ℂ) • (1 : A) := by
+    calc
+      _ ≤ _ + C.boundedFC g hg hgm * C.boundedFC g hg hgm := by
+        apply le_add_of_nonneg_right
+        calc
+          0 ≤ star (C.boundedFC g hg hgm) * C.boundedFC g hg hgm :=
+            star_mul_self_nonneg _
+          _ = C.boundedFC g hg hgm * C.boundedFC g hg hgm := by rw [hgbself]
+      _ = _ := hsum
+  have hn := CStarAlgebra.norm_le_norm_of_nonneg_of_le
+    (star_mul_self_nonneg (C.boundedFC f hf (⟨M, hfm⟩))) hle
+  have hn' : ‖C.boundedFC f hf (⟨M, hfm⟩)‖ ^ 2 ≤ M ^ 2 := by
+    calc
+      ‖C.boundedFC f hf (⟨M, hfm⟩)‖ ^ 2 =
+          ‖star (C.boundedFC f hf (⟨M, hfm⟩)) *
+            C.boundedFC f hf (⟨M, hfm⟩)‖ := by
+        rw [CStarRing.norm_star_mul_self, pow_two]
+      _ ≤ ‖(M ^ 2 : ℂ) • (1 : A)‖ := hn
+      _ ≤ M ^ 2 := by
+        rcases subsingleton_or_nontrivial A with hA | hA
+        · letI : Subsingleton A := hA
+          have h1 : (1 : A) = 0 := Subsingleton.elim _ _
+          rw [h1, smul_zero, norm_zero]
+          positivity
+        · letI : Nontrivial A := hA
+          rw [norm_smul, norm_pow, Complex.norm_real, Real.norm_eq_abs,
+            abs_of_nonneg hM]
+          rw [CStarRing.norm_one]
+          simp
+  nlinarith [sq_nonneg (‖C.boundedFC f hf (⟨M, hfm⟩)‖ + M)]
+
+/-- The certificate calculus is contractive for the uniform norm. -/
+lemma norm_boundedFC_sub_le {E : NormalPVM X A} (C : NormalBorelFunctionalCalculus E)
+    {f g : X → ℂ} (hf : Measurable f) (hg : Measurable g)
+    (hfb : ∃ C : ℝ, ∀ x, ‖f x‖ ≤ C) (hgb : ∃ C : ℝ, ∀ x, ‖g x‖ ≤ C)
+    {M : ℝ} (hM : 0 ≤ M) (hfg : ∀ x, ‖f x - g x‖ ≤ M) :
+    ‖C.boundedFC f hf hfb - C.boundedFC g hg hgb‖ ≤ M := by
+  obtain ⟨Cg, hCg⟩ := hgb
+  have hneg : ∃ C : ℝ, ∀ x, ‖-g x‖ ≤ C := ⟨Cg, fun x => by simpa using hCg x⟩
+  have hsumBound : ∃ C : ℝ, ∀ x, ‖f x + -g x‖ ≤ C := by
+    simpa only [sub_eq_add_neg] using ⟨M, hfg⟩
+  have hgm : Measurable (fun x => -g x) := continuous_neg.measurable.comp hg
+  have hadd := C.boundedFC_add hf hgm hfb hneg hsumBound
+  have hsmul := C.boundedFC_smul (-1) hg (⟨Cg, hCg⟩)
+    (⟨Cg, fun x => by simpa using hCg x⟩)
+  have hsub : C.boundedFC (f - g) (hf.sub hg) (⟨M, hfg⟩) =
+      C.boundedFC f hf hfb - C.boundedFC g hg (⟨Cg, hCg⟩) := by
+    calc
+      C.boundedFC (f - g) (hf.sub hg) (⟨M, hfg⟩) =
+          C.boundedFC (f + fun x => -g x) (hf.add hgm) hsumBound := by
+        apply C.boundedFC_congr (hf.sub hg) (hf.add hgm) (⟨M, hfg⟩) hsumBound
+        intro x
+        rfl
+      _ = C.boundedFC f hf hfb + C.boundedFC (fun x => -g x) hgm hneg := hadd
+      _ = C.boundedFC f hf hfb - C.boundedFC g hg (⟨Cg, hCg⟩) := by
+        have hsmul' : C.boundedFC (fun x => -g x) hgm hneg =
+            C.boundedFC (fun x => -1 * g x) (by fun_prop)
+              (⟨Cg, fun x => by simpa using hCg x⟩) := by
+          apply C.boundedFC_congr hgm (by fun_prop) hneg
+            (⟨Cg, fun x => by simpa using hCg x⟩)
+          intro x
+          simp
+        rw [hsmul', hsmul]
+        simp [sub_eq_add_neg]
+  rw [← hsub]
+  exact C.norm_boundedFC_le (hf.sub hg) hM hfg
+
+/- The following is the certificate-level uniqueness principle.  The hypothesis is deliberately
+   phrased on simple functions: it is the exact data needed to identify an arbitrary certificate
+   through the uniform simple-function approximation theorem, without making any representation
+   choices part of the public API. -/
+theorem eq_of_eq_on_simpleFunctions
+    {E : NormalPVM X A} (C D : NormalBorelFunctionalCalculus E)
+    (hCD : ∀ (s : SimpleFunc X ℂ) (hs : Measurable (fun x => s x))
+      (hsb : ∃ K : ℝ, ∀ x, ‖s x‖ ≤ K),
+      C.boundedFC (fun x => s x) hs hsb = D.boundedFC (fun x => s x) hs hsb) :
+    ∀ {f : X → ℂ} (hf : Measurable f)
+      (hfb : ∃ K : ℝ, ∀ x, ‖f x‖ ≤ K),
+      C.boundedFC f hf hfb = D.boundedFC f hf hfb := by
+  intro f hf hfb
+  rcases exists_uniform_simpleFunc_approx hf hfb with ⟨s, hs, hsB⟩
+  obtain ⟨K, hK⟩ := hsB
+  have hC : Filter.Tendsto (fun n => C.boundedFC (fun x => s n x)
+      (by fun_prop) (⟨K, hK n⟩)) Filter.atTop
+      (𝓝 (C.boundedFC f hf hfb)) := by
+    rw [Metric.tendsto_atTop]
+    intro ε hε
+    have hε2 : 0 < ε / 2 := by linarith
+    rcases hs (ε / 2) hε2 with ⟨N, hN⟩
+    refine ⟨N, fun n hn => ?_⟩
+    change dist (C.boundedFC (fun x => s n x) _ _) (C.boundedFC f hf hfb) < ε
+    have hsub := C.norm_boundedFC_sub_le (by fun_prop) hf
+      (⟨K, hK n⟩) hfb (le_of_lt hε2)
+      (fun x => le_of_lt (hN n hn x))
+    simpa [dist_eq_norm] using lt_of_le_of_lt hsub (by linarith)
+  have hD : Filter.Tendsto (fun n => D.boundedFC (fun x => s n x)
+      (by fun_prop) (⟨K, hK n⟩)) Filter.atTop
+      (𝓝 (D.boundedFC f hf hfb)) := by
+    rw [Metric.tendsto_atTop]
+    intro ε hε
+    have hε2 : 0 < ε / 2 := by linarith
+    rcases hs (ε / 2) hε2 with ⟨N, hN⟩
+    refine ⟨N, fun n hn => ?_⟩
+    change dist (D.boundedFC (fun x => s n x) _ _) (D.boundedFC f hf hfb) < ε
+    have hsub := D.norm_boundedFC_sub_le (by fun_prop) hf
+      (⟨K, hK n⟩) hfb (le_of_lt hε2)
+      (fun x => le_of_lt (hN n hn x))
+    simpa [dist_eq_norm] using lt_of_le_of_lt hsub (by linarith)
+  apply tendsto_nhds_unique hC
+  apply hD.congr'
+  exact Filter.Eventually.of_forall (fun n => hCD (s n) (by fun_prop)
+    (⟨K, hK n⟩) |>.symm)
+
+/-- Any two bounded Borel-calculus certificates over the same `NormalPVM` have identical values.
+The indicator axiom fixes the finite simple sums, and contractivity plus uniform approximation fixes
+all bounded measurable functions. -/
+theorem boundedFC_eq_of_same_normalPVM
+    {E : NormalPVM X A} (C D : NormalBorelFunctionalCalculus E)
+    {f : X → ℂ} (hf : Measurable f)
+    (hfb : ∃ K : ℝ, ∀ x, ‖f x‖ ≤ K) :
+    C.boundedFC f hf hfb = D.boundedFC f hf hfb := by
+  apply C.eq_of_eq_on_simpleFunctions D
+  intro s hs hsb
+  rw [C.boundedFC_of_simpleFunc_eq_simpleIntegral s hs hsb,
+    D.boundedFC_of_simpleFunc_eq_simpleIntegral s hs hsb]
 
 end NormalBorelFunctionalCalculus
 

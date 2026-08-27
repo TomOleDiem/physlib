@@ -6,8 +6,6 @@ Authors: Tom Ole Diem
 module
 
 public import Mathlib.Analysis.CStarAlgebra.CompletelyPositiveMap
-public import Mathlib.Analysis.CStarAlgebra.ContinuousLinearMap
-public import Mathlib.Analysis.InnerProductSpace.StarOrder
 
 /-!
 
@@ -59,9 +57,15 @@ abbrev PositiveElement (A : Type*) [OperatorAlgebra A] := {a : Observable A // 0
 outcome. -/
 abbrev Effect (A : Type*) [OperatorAlgebra A] := Set.Icc (0 : Observable A) 1
 
-/-- A finite POVM on `A`: the most general notion of a measurement with outcomes in `X`,
-generalizing a single yes/no `Effect` to several possible outcomes. -/
-structure POVM (A : Type*) [OperatorAlgebra A] (X : Type*) [Fintype X] where
+/-- A finite POVM on `A`: a measurement with finitely many outcomes in `X`, generalizing a single
+yes/no `Effect` to several possible outcomes, via a family of effects resolving the identity.
+
+This is a convenient discrete special case, not the fundamental notion: the general POVM, with
+outcomes in an arbitrary measurable space and effects assigned to every measurable *set* of
+outcomes (rather than only every single outcome), is `Unbounded.POVM`
+(`Unbounded/POVM.lean`) — see that file for the conversion `FinitePOVM.toPOVM`, viewing `X` as a
+discrete measurable space. -/
+structure FinitePOVM (A : Type*) [OperatorAlgebra A] (X : Type*) [Fintype X] where
   /-- The effect associated with each measurement outcome. -/
   effect : X → Effect A
   /-- The effects resolve the identity. -/
@@ -86,55 +90,5 @@ abbrev Channel (A₁ A₂ : Type*) [OperatorAlgebra A₁] [OperatorAlgebra A₂]
   {φ : A₁ →CP A₂ // φ 1 = 1}
 
 end ObservableAlgebra
-
-/-!
-## Bounded operators on Hilbert space
-
-The bounded operators on any complex Hilbert space form a C⋆-algebra. Equip them with the
-canonical spectral order so they can be used as an `OperatorAlgebra`.
--/
-
-section HilbertSpaceOperatorAlgebra
-
-/-- The bounded operators on a complex Hilbert space, written in the usual physics notation. -/
-notation "B(" H ")" => H →L[ℂ] H
-
-variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
-
-/-- The physical operator algebra of bounded operators on a complex Hilbert space. -/
-abbrev HilbertSpaceOperatorAlgebra (H : Type*) [NormedAddCommGroup H] [InnerProductSpace ℂ H] :=
-  OperatorAlgebra B(H)
-
-noncomputable instance : PartialOrder B(H) := CStarAlgebra.spectralOrder _
-instance : StarOrderedRing B(H) := CStarAlgebra.spectralOrderedRing _
-
-/-- Bounded operators on a complex Hilbert space form an operator algebra via the spectral order. -/
-noncomputable instance : HilbertSpaceOperatorAlgebra H := {}
-
-end HilbertSpaceOperatorAlgebra
-
-/-!
-## Hilbert-space representations
-
-The abstract observable algebra need not initially be presented as operators on
-a Hilbert space.
-
-A concrete realization is a unital ⋆-representation into the C⋆-algebra of
-bounded operators on a complex Hilbert space.
-
-This is also the target of the GNS construction associated with a state.
--/
-
-section Representation
-
-variable {A : Type*} {H : Type*} [OperatorAlgebra A] [NormedAddCommGroup H]
-  [InnerProductSpace ℂ H] [CompleteSpace H]
-
-/-- A Hilbert-space representation of `A`: a unital ⋆-homomorphism from `A` into the algebra of
-bounded operators on the Hilbert space `H`. -/
-abbrev Representation (A H : Type*) [OperatorAlgebra A] [NormedAddCommGroup H]
-    [InnerProductSpace ℂ H] [CompleteSpace H] := A →⋆ₐ[ℂ] B(H)
-
-end Representation
 
 end OperatorAlgebra

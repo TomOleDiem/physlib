@@ -88,7 +88,7 @@ open SpaceDHilbertSpace
 open SchwartzSubmodule
 
 /-- The momentum operator as a LinearPMap with domain the Schwartz submodule. -/
-def momentumOperator : SpaceDHilbertSpace d →ₗ.[ℂ] SpaceDHilbertSpace d where
+@[reducible] def momentumOperator : SpaceDHilbertSpace d →ₗ.[ℂ] SpaceDHilbertSpace d where
   domain := SchwartzSubmodule d
   toFun := (schwartzIncl volume).1 ∘ₗ (𝐩 i).1 ∘ₗ (schwartzEquiv volume).symm.1
 

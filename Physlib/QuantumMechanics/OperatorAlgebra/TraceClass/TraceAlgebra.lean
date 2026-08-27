@@ -118,6 +118,23 @@ theorem trace_mul_cycle {A T : B(H)} (hT : IsTraceClass T) :
     _ = ∑' i : w, ⟪b i, (T * A) (b i)⟫_ℂ := by
           rw [h₄]
 
+/-! ### The Hilbert--Schmidt trace cycle
+
+The bounded-factor cycle above is not enough for square-root arguments: the positive square root
+of a trace-class operator is generally Hilbert--Schmidt rather than trace class.  The product
+theorem and its basis-independent diagonal sum therefore give the following complementary cycle.
+-/
+
+/-- Cyclicity for a product of two Hilbert--Schmidt operators. -/
+theorem trace_mul_hilbertSchmidt_cycle {R S : B(H)}
+    (hR : IsHilbertSchmidt R) (hS : IsHilbertSchmidt S) :
+    trace (R * S) (isTraceClass_mul_of_isHilbertSchmidt hR hS) =
+      trace (S * R) (isTraceClass_mul_of_isHilbertSchmidt hS hR) := by
+  obtain ⟨w, b, _⟩ := exists_hilbertBasis ℂ H
+  rw [trace_eq_of_hilbertBasis (isTraceClass_mul_of_isHilbertSchmidt hR hS) b,
+    trace_eq_of_hilbertBasis (isTraceClass_mul_of_isHilbertSchmidt hS hR) b]
+  exact HilbertSchmidt.tsum_diagonal_mul_eq_tsum_diagonal_swap b b hR hS
+
 /-- The trace of an adjoint is the complex conjugate of the trace. -/
 theorem trace_star {T : B(H)} (hT : IsTraceClass T) :
     trace (star T) (isTraceClass_star hT) = starRingEnd ℂ (trace T hT) := by

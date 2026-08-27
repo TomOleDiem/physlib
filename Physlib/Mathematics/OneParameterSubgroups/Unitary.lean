@@ -55,7 +55,8 @@ variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteS
 
 attribute [coe] UnitaryOneParameterGroup.toAddChar
 
-instance : CoeFun (UnitaryOneParameterGroup H) fun _ => ℝ → (H →L[ℂ] H) := ⟨fun U => U.toAddChar⟩
+instance : CoeFun (UnitaryOneParameterGroup H) fun _ => ℝ → (H →L[ℂ] H) :=
+  ⟨fun U => U.toAddChar⟩
 
 @[ext]
 lemma ext {U V : UnitaryOneParameterGroup H} (h : ∀ t, U t = V t) : U = V := by
@@ -180,5 +181,64 @@ noncomputable def stoneEquiv :
   invFun A := ofSelfAdjoint A.2
   left_inv _ := by simp
   right_inv _ := by simp
+
+/-! ## Differential equation
+
+`U` and its adjoint each satisfy a differential equation in the generator, shared by every
+norm-continuous unitary one-parameter group regardless of what generates it (a Hamiltonian, a
+momentum operator, an angular momentum, ...). -/
+
+/-- The real-scalar structure `H →L[ℂ] H` needs to state `HasDerivAt` over `ℝ` (the differential
+equation below differentiates in the real time parameter `t`), obtained by restricting the
+ambient `ℂ`-algebra structure along `ℝ ⊆ ℂ`. -/
+noncomputable local instance : NormedAlgebra ℝ (H →L[ℂ] H) :=
+  { NormedSpace.complexToReal, NormedAlgebra.complexToReal with }
+
+omit [CompleteSpace H] in
+/-- Real and complex scalar multiplication agree on `H →L[ℂ] H` after casting; needed because the
+derivative below mixes a real time parameter with the complex generator. -/
+private lemma real_smul_eq_complex_smul (t : ℝ) (x : H →L[ℂ] H) :
+    t • x = (t : ℂ) • x := by
+  have h : (t : ℂ) = algebraMap ℝ ℂ t := by norm_cast
+  rw [h, IsScalarTower.algebraMap_smul]
+
+/-- `U'(t) = U(t) · (-i • generator)`: rewrite `U` as `exp(s • (-i • generator))` and
+differentiate the exponential. -/
+lemma hasDerivAt (U : UnitaryOneParameterGroup H) (t : ℝ) :
+    HasDerivAt (fun s : ℝ => U s) (U t * (-(Complex.I • U.generator))) t := by
+  have heq : (fun s : ℝ => U s) =
+      fun s : ℝ => NormedSpace.exp (s • (-(Complex.I • U.generator))) := by
+    funext s
+    rw [U.apply_eq_exp_generator]
+    apply congrArg NormedSpace.exp
+    rw [real_smul_eq_complex_smul, smul_neg, smul_smul, ← neg_smul]
+    congr 1
+    ring
+  rw [heq, congrFun heq t]
+  exact hasDerivAt_exp_smul_const (-(Complex.I • U.generator)) t
+
+/-- `(U(t)⋆)' = U(t)⋆ · (i • generator)`: reduce to `hasDerivAt` via `U(t)⋆ = U(-t)`. -/
+lemma hasDerivAt_star (U : UnitaryOneParameterGroup H) (t : ℝ) :
+    HasDerivAt (fun s : ℝ => star (U s)) (star (U t) * (Complex.I • U.generator)) t := by
+  have heq : (fun s : ℝ => star (U s)) =
+      fun s : ℝ => NormedSpace.exp (s • (Complex.I • U.generator)) := by
+    funext s
+    have hs : star (U s) = U (-s) := by
+      simpa [← ContinuousLinearMap.star_eq_adjoint] using U.adjoint_eq s
+    rw [hs, U.apply_eq_exp_generator]
+    apply congrArg NormedSpace.exp
+    rw [real_smul_eq_complex_smul, smul_smul]
+    congr 1
+    push_cast
+    ring
+  rw [heq, congrFun heq t]
+  exact hasDerivAt_exp_smul_const (Complex.I • U.generator) t
+
+/-- The generator commutes with the unitary group it generates, since `U(t) = exp(t • generator)`
+is built from `generator` alone. -/
+lemma commute_generator (U : UnitaryOneParameterGroup H) (t : ℝ) :
+    Commute U.generator (U t) := by
+  rw [U.apply_eq_exp_generator]
+  exact ((Commute.refl U.generator).smul_right (-(t : ℂ) * Complex.I)).exp_right
 
 end UnitaryOneParameterGroup

@@ -1312,6 +1312,37 @@ lemma representedResolvent_eq_boundedIntegral
         (AffiliatedObservable.resolventFunction_bounded z hz) := by
   rfl
 
+/-- The represented bounded resolvent is the ordinary partial-map resolvent of the represented
+maximal self-adjoint operator.  This is the general-parameter version of the two Cayley-shift
+lemmas below; it is the theorem downstream applications should use when they need the resolvent
+of the unbounded operator itself. -/
+lemma representedResolvent_apply
+    (T : NormalAffiliatedObservable A) (z : ℂ) (hz : z.im ≠ 0) (x : H) :
+    bridge.representedResolvent T z hz x =
+      (LinearPMap.resolvent (bridge.representedSelfAdjointOperator T) z)
+        (⟨x, by
+          rw [LinearPMap.inverse_domain]
+          change x ∈
+            (QuantumMechanics.WOTSpectralMeasure.maximalSpectralIntegral
+              (bridge.representedSpectralMeasure T) - z • (1 : H →ₗ.[ℂ] H)).toFun.range
+          rw [QuantumMechanics.WOTSpectralMeasure.maximalSpectralIntegral_resolvent_range hz]
+          exact Submodule.mem_top⟩) := by
+  dsimp only [representedResolvent, representedSelfAdjointOperator]
+  have hfun : AffiliatedObservable.resolventFunction z =
+      QuantumMechanics.WOTSpectralMeasure.resolventMultiplier z := by
+    funext r
+    rfl
+  have hconv := QuantumMechanics.WOTSpectralMeasure.boundedIntegral_congr
+    (μS := bridge.representedSpectralMeasure T)
+    (AffiliatedObservable.resolventFunction_measurable z)
+    (QuantumMechanics.WOTSpectralMeasure.resolventMultiplier_measurable z)
+    (AffiliatedObservable.resolventFunction_bounded z hz)
+    (QuantumMechanics.WOTSpectralMeasure.resolventMultiplier_bounded hz)
+    (congrFun hfun)
+  rw [hconv]
+  exact (QuantumMechanics.WOTSpectralMeasure.maximalSpectralIntegral_resolvent_apply
+    (μS := bridge.representedSpectralMeasure T) hz x).symm
+
 lemma representedResolvent_identity
     (T : NormalAffiliatedObservable A) (z w : ℂ)
     (hz : z.im ≠ 0) (hw : w.im ≠ 0) :

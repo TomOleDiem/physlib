@@ -390,6 +390,20 @@ lemma mulOperator_isClosed {μ : Measure (Space d)} [IsFiniteMeasureOnCompacts �
   rw [mulOperator_adjoint_eq_conj hf, mulOperator_adjoint_eq_conj (by fun_prop)]
   congr 1; ext; simp
 
+/-- A real maximal multiplication operator is already its own self-adjoint closure. -/
+lemma mulOperator_closure_eq {μ : Measure (Space d)} [IsFiniteMeasureOnCompacts μ]
+    {f : Space d → ℂ} (hf : AEStronglyMeasurable f μ) (hf' : conj ∘ f = f) :
+    (𝓜 μ f).closure = 𝓜 μ f := by
+  exact (mulOperator_isSelfAdjoint_ofReal hf hf').isClosed.closure_eq
+
+/-- Maximal multiplication operators provide a concrete source of essential self-adjoint
+operators: the maximal real multiplication operator is its own closure. -/
+lemma mulOperator_isEssentiallySelfAdjoint {μ : Measure (Space d)}
+    [IsFiniteMeasureOnCompacts μ] {f : Space d → ℂ}
+    (hf : AEStronglyMeasurable f μ) (hf' : conj ∘ f = f) :
+    (𝓜 μ f).IsEssentiallySelfAdjoint :=
+  (mulOperator_isSelfAdjoint_ofReal hf hf').isEssentiallySelfAdjoint
+
 /-!
 ## E. Basic properties
 -/

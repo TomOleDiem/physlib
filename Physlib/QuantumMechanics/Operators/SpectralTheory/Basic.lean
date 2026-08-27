@@ -6,6 +6,7 @@ Authors: Gregory J. Loges
 module
 
 public import Physlib.QuantumMechanics.Operators.Unbounded
+public import Physlib.QuantumMechanics.Operators.SpectralTheory.BoundedSesquilinear
 /-!
 
 # Spectral theory for closed operators
