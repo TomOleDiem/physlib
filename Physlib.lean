@@ -312,11 +312,14 @@ public import Physlib.QFT.QED.AnomalyCancellation.VectorLike
 public import Physlib.QuantumMechanics.FiniteTarget
 public import Physlib.QuantumMechanics.FreeParticle.Basic
 public import Physlib.QuantumMechanics.HarmonicOscillator.Basic
+public import Physlib.QuantumMechanics.HarmonicOscillator.DifferentialCore
+public import Physlib.QuantumMechanics.HarmonicOscillator.EssentialSelfAdjointness
 public import Physlib.QuantumMechanics.HarmonicOscillator.LadderOperators
 public import Physlib.QuantumMechanics.HarmonicOscillator.OneDimension.Basic
 public import Physlib.QuantumMechanics.HarmonicOscillator.OneDimension.Completeness
 public import Physlib.QuantumMechanics.HarmonicOscillator.OneDimension.Eigenfunction
 public import Physlib.QuantumMechanics.HarmonicOscillator.OneDimension.Examples
+public import Physlib.QuantumMechanics.HarmonicOscillator.OneDimension.PlancherelBridge
 public import Physlib.QuantumMechanics.HarmonicOscillator.OneDimension.TISE
 public import Physlib.QuantumMechanics.HilbertSpaces.FiniteTarget.Basic
 public import Physlib.QuantumMechanics.HilbertSpaces.OneDimension.Basic
@@ -346,6 +349,12 @@ public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.CayleyInverse
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.CayleySpectralData
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.Concrete
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.DensityOperator
+public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.Example.Dynamics
+public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.Example.HarmonicOscillator
+public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.Example.HarmonicOscillatorSpectrum
+public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.Example.LadderSystem
+public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.Example.Schwartz
+public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.Example.Spectrum
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.NegativeStoneAPI
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.NormalAffiliated
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.NormalPVM
