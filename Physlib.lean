@@ -346,10 +346,13 @@ public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.CayleyInverse
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.CayleySpectralData
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.Concrete
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.DensityOperator
+public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.NegativeStoneAPI
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.NormalAffiliated
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.NormalPVM
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.NormalRepresentation
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.Representation
+public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.Stone
+public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.StoneAPI
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.WeakStarFunctionalCalculus
 public import Physlib.QuantumMechanics.OperatorAlgebra.WStarAlgebra.InfiniteDimensional
 public import Physlib.QuantumMechanics.Operators.AngularMomentum
@@ -367,6 +370,7 @@ public import Physlib.QuantumMechanics.Operators.Position
 public import Physlib.QuantumMechanics.Operators.SpectralTheory.Basic
 public import Physlib.QuantumMechanics.Operators.SpectralTheory.SelfAdjoint
 public import Physlib.QuantumMechanics.Operators.SpectralTheory.SpectralMeasure
+public import Physlib.QuantumMechanics.Operators.SpectralTheory.Stone
 public import Physlib.QuantumMechanics.Operators.SpectralTheory.Symmetric
 public import Physlib.QuantumMechanics.Operators.SpectralTheory.UnboundedSpectralIntegral
 public import Physlib.QuantumMechanics.Operators.StateObservables.ExpectedValue

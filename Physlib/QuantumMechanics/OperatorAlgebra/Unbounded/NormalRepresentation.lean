@@ -1269,6 +1269,22 @@ lemma negativeExpUnitaryGroup_continuous_apply
     Continuous (fun t => bridge.negativeExpUnitaryGroup T t x) := by
   exact QuantumMechanics.WOTSpectralMeasure.StrongUnitaryOneParameterGroup.continuous_apply _ x
 
+/-! ### The star/inverse law -/
+
+/-- The represented canonical group satisfies the star/inverse law: adjoint at time `t` equals
+the group value at `-t`.  This is the `WOT`-level identity `expIntegral_star`, transported through
+the represented spectral measure. -/
+theorem expUnitaryGroup_star (T : NormalAffiliatedObservable A) (t : ℝ) :
+    star (bridge.expUnitaryGroup T t) = bridge.expUnitaryGroup T (-t) :=
+  QuantumMechanics.WOTSpectralMeasure.expIntegral_star (bridge.representedSpectralMeasure T) t
+
+/-- The represented quantum-dynamics group satisfies the same star/inverse law, with the sign
+inherited from the time reversal. -/
+theorem negativeExpUnitaryGroup_star (T : NormalAffiliatedObservable A) (t : ℝ) :
+    star (bridge.negativeExpUnitaryGroup T t) = bridge.negativeExpUnitaryGroup T (-t) := by
+  have h := bridge.expUnitaryGroup_star T (-t)
+  simpa [negativeExpUnitaryGroup, neg_neg] using h
+
 /-! ## The represented resolvent -/
 
 /-- The concrete bounded resolvent of the represented maximal realization.
