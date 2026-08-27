@@ -340,6 +340,7 @@ public import Physlib.QuantumMechanics.OperatorAlgebra.Basic
 public import Physlib.QuantumMechanics.OperatorAlgebra.Jordan
 public import Physlib.QuantumMechanics.OperatorAlgebra.Lie
 public import Physlib.QuantumMechanics.OperatorAlgebra.Observable
+public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.Affiliated
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.Cayley
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.CayleyInverse
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.CayleySpectralData
@@ -347,6 +348,8 @@ public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.Concrete
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.DensityOperator
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.NormalAffiliated
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.NormalPVM
+public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.NormalRepresentation
+public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.Representation
 public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.WeakStarFunctionalCalculus
 public import Physlib.QuantumMechanics.OperatorAlgebra.WStarAlgebra.InfiniteDimensional
 public import Physlib.QuantumMechanics.Operators.AngularMomentum

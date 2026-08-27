@@ -11,11 +11,11 @@ public import Physlib.QuantumMechanics.OperatorAlgebra.Unbounded.FunctionalCalcu
 /-!
 # Affiliated spectral data with normal-functional additivity
 
-`AffiliatedObservable` is the norm-valued spectral-data façade.  This file provides its
+`AffiliatedObservable` is the norm-valued spectral-data façade. This file provides its
 infinite-dimensional von Neumann counterpart: a `NormalAffiliatedObservable` stores a real
-`NormalPVM`, whose countable additivity is tested against normal states.  The measurable calculus
+`NormalPVM`, whose countable additivity is tested against normal states. The measurable calculus
 is again just pushforward of spectral data, so it has no domain hidden in the representation-free
-object.  Domains enter only when a concrete Hilbert-space realization is supplied.
+object. Domains enter only when a concrete Hilbert-space realization is supplied.
 -/
 
 @[expose] public section
@@ -31,16 +31,20 @@ variable {A : Type*} [WStarAlgebra A]
 
 /-- A real affiliated observable represented by a normal-functional PVM. -/
 structure NormalAffiliatedObservable (A : Type*) [WStarAlgebra A] where
+  /-- The (real) normal-functional spectral measure `E_T : \Borel(ℝ) → Projection A`. -/
   spectralMeasure : NormalPVM ℝ A
 
 /-- A complex affiliated operator represented by a normal-functional PVM. -/
 structure NormalAffiliatedOperator (A : Type*) [WStarAlgebra A] where
+  /-- The (complex) normal-functional spectral measure `E_T : \Borel(ℂ) → Projection A`. -/
   spectralMeasure : NormalPVM ℂ A
 
 /-! A measurable indicator has the same bounded complex-valued representative on every spectral
-space.  Keeping this primitive independent of `AffiliatedObservable` is what lets the normal
+space. Keeping this primitive independent of `AffiliatedObservable` is what lets the normal
 Borel calculus work for complex normal operators as well as real self-adjoint ones. -/
 
+/-- The bounded complex-valued indicator function of a set `S`, used as the common input to the
+normal Borel calculus for both real and complex spectral spaces. -/
 def normalIndicatorFunction {X : Type*} (S : Set X) : X → ℂ :=
   S.indicator (fun _ => (1 : ℂ))
 
@@ -60,12 +64,14 @@ lemma normalIndicatorFunction_bounded {X : Type*} (S : Set X) :
 /-- A bounded Borel functional calculus for a normal PVM.
 
 The existence of this structure is the abstract von Neumann-algebra step: its values are elements
-of `A`, while countable additivity of the underlying PVM is only normal-state additive.  The laws
+of `A`, while countable additivity of the underlying PVM is only normal-state additive. The laws
 are included in the certificate so downstream affiliated constructions never need to reopen the
 completion/ultraweak-continuity argument. -/
 structure NormalBorelFunctionalCalculus
     {X : Type*} [MeasurableSpace X] {A : Type*} [WStarAlgebra A]
     (E : NormalPVM X A) where
+  /-- The bounded measurable functional calculus itself: sends a bounded measurable
+  `f : X → ℂ` (with its boundedness witness) to the corresponding element of `A`. -/
   boundedFC : ∀ (f : X → ℂ), Measurable f →
     (∃ C : ℝ, ∀ x, ‖f x‖ ≤ C) → A
   boundedFC_congr : ∀ {f g : X → ℂ} (hf : Measurable f) (hg : Measurable g)
@@ -164,7 +170,7 @@ variable {A : Type*} [WStarAlgebra A]
 /-! ### The norm-additive special case
 
 When a norm-valued `PVM` is available, its existing completed spectral integral gives all the
-bounded-calculus laws required by `NormalBorelFunctionalCalculus`.  This constructor is the
+bounded-calculus laws required by `NormalBorelFunctionalCalculus`. This constructor is the
 one-way compatibility bridge: it does not pretend that every normal-functional PVM is
 norm-additive, but it lets the two APIs interoperate whenever the stronger object is present. -/
 
@@ -210,11 +216,13 @@ end NormalBorelFunctionalCalculus
 
 /-- An algebra-level bounded Borel calculus for bounded observables in the normal-PVM model.
 The per-measure `NormalBorelFunctionalCalculus` carries the actual measurable integration laws;
-this class chooses the spectral measure and such a calculus for each bounded observable.  Keeping
+this class chooses the spectral measure and such a calculus for each bounded observable. Keeping
 this choice explicit is necessary because a bare C⋆-algebra does not contain arbitrary Borel
 projections. -/
 class NormalObservableBorelCalculus (A : Type*) [WStarAlgebra A] where
+  /-- The normal-functional spectral measure `E_a` assigned to each bounded observable `a`. -/
   spectralMeasure : Observable A → NormalPVM ℝ A
+  /-- The bounded normal Borel calculus certificate for `spectralMeasure a`. -/
   calculus : ∀ a : Observable A,
     NormalBorelFunctionalCalculus (spectralMeasure a)
   spectralSupport : ∀ a : Observable A, ∃ C : ℝ, 0 ≤ C ∧
@@ -290,6 +298,7 @@ theorem ext {T U : NormalAffiliatedObservable A}
       congr
       exact NormalPVM.ext h
 
+/-- The spectral projection `E_T(S) ∈ A` associated to a Borel set `S ⊆ ℝ`. -/
 def spectralProjection (S : Set ℝ) : Projection A :=
   T.spectralMeasure.spectralProjection S
 
@@ -334,9 +343,9 @@ theorem measurableRealFC_id :
 
 /-! ### The complex measurable calculus
 
-The real-valued calculus above stays in `NormalAffiliatedObservable`.  The genuinely complex
+The real-valued calculus above stays in `NormalAffiliatedObservable`. The genuinely complex
 measurable calculus changes the spectral space from `ℝ` to `ℂ`, so its result is a
-`NormalAffiliatedOperator`.  Keeping this operation here (rather than only in the norm-valued
+`NormalAffiliatedOperator`. Keeping this operation here (rather than only in the norm-valued
 `AffiliatedObservable` API) is important: normal-state additivity is the correct abstract setting
 for infinite-dimensional von Neumann algebras. -/
 
@@ -455,6 +464,39 @@ lemma expUnitary_mul_neg (C : NormalBorelFunctionalCalculus T.spectralMeasure) (
       (T.expUnitary_add C t (-t)).symm
     _ = T.expUnitary C 0 := by rw [add_neg_cancel]
     _ = 1 := T.expUnitary_zero C
+
+/-! ### The conventional quantum-dynamics sign -/
+
+/-- The unitary `exp (-i t T)`, exposed as a time-reversed view of the canonical
+`exp (i t T)` calculus. -/
+noncomputable def negativeExpUnitary
+    (C : NormalBorelFunctionalCalculus T.spectralMeasure) (t : ℝ) : unitary A :=
+  T.expUnitary C (-t)
+
+@[simp]
+lemma negativeExpUnitary_zero
+    (C : NormalBorelFunctionalCalculus T.spectralMeasure) :
+    T.negativeExpUnitary C 0 = 1 := by
+  simpa [negativeExpUnitary] using T.expUnitary_zero C
+
+lemma negativeExpUnitary_add
+    (C : NormalBorelFunctionalCalculus T.spectralMeasure) (t s : ℝ) :
+    T.negativeExpUnitary C (t + s) =
+      T.negativeExpUnitary C t * T.negativeExpUnitary C s := by
+  change T.expUnitary C (-(t + s)) =
+    T.expUnitary C (-t) * T.expUnitary C (-s)
+  rw [show -(t + s) = -t + -s by ring]
+  exact T.expUnitary_add C (-t) (-s)
+
+lemma negativeExpUnitary_neg_mul
+    (C : NormalBorelFunctionalCalculus T.spectralMeasure) (t : ℝ) :
+    T.negativeExpUnitary C (-t) * T.negativeExpUnitary C t = 1 := by
+  simpa [negativeExpUnitary] using T.expUnitary_mul_neg C t
+
+lemma negativeExpUnitary_mul_neg
+    (C : NormalBorelFunctionalCalculus T.spectralMeasure) (t : ℝ) :
+    T.negativeExpUnitary C t * T.negativeExpUnitary C (-t) = 1 := by
+  simpa [negativeExpUnitary] using T.expUnitary_neg_mul C t
 
 /-- The bounded resolvent supplied by the normal Borel calculus. -/
 def resolvent (C : NormalBorelFunctionalCalculus T.spectralMeasure)
@@ -599,7 +641,7 @@ variable {A : Type*} [WStarAlgebra A] [NormalObservableBorelCalculus A]
 /-! ### Bounded observables have finite normal-state moments -/
 
 /-- Every bounded observable, included in the normal affiliated façade, has finite moments of every
-order in every normal state.  The normal calculus carries an explicit bounded-support certificate,
+order in every normal state. The normal calculus carries an explicit bounded-support certificate,
 so the proof is the same measure-theoretic fact as in the norm-additive façade: the state
 distribution is concentrated on a compact interval. -/
 lemma toNormalAffiliatedObservable_hasFiniteMoment
@@ -663,6 +705,37 @@ lemma normalExpUnitary_mul_neg (a : Observable A) (t : ℝ) :
     Observable.normalExpUnitary a t * Observable.normalExpUnitary a (-t) = 1 := by
   simpa [Observable.normalExpUnitary] using
     (NormalAffiliatedObservable.expUnitary_mul_neg
+      (Observable.toNormalAffiliatedObservable a) (Observable.normalBorelCalculus a) t)
+
+/-- The observable-level quantum-dynamics convention `exp (-i t a)`. -/
+noncomputable def normalNegativeExpUnitary (a : Observable A) (t : ℝ) : unitary A :=
+  NormalAffiliatedObservable.negativeExpUnitary
+    (Observable.toNormalAffiliatedObservable a) (Observable.normalBorelCalculus a) t
+
+@[simp]
+lemma normalNegativeExpUnitary_zero (a : Observable A) :
+    Observable.normalNegativeExpUnitary a 0 = 1 := by
+  simpa [Observable.normalNegativeExpUnitary] using
+    (NormalAffiliatedObservable.negativeExpUnitary_zero
+      (Observable.toNormalAffiliatedObservable a) (Observable.normalBorelCalculus a))
+
+lemma normalNegativeExpUnitary_add (a : Observable A) (t s : ℝ) :
+    Observable.normalNegativeExpUnitary a (t + s) =
+      Observable.normalNegativeExpUnitary a t * Observable.normalNegativeExpUnitary a s := by
+  simpa [Observable.normalNegativeExpUnitary] using
+    (NormalAffiliatedObservable.negativeExpUnitary_add
+      (Observable.toNormalAffiliatedObservable a) (Observable.normalBorelCalculus a) t s)
+
+lemma normalNegativeExpUnitary_neg_mul (a : Observable A) (t : ℝ) :
+    Observable.normalNegativeExpUnitary a (-t) * Observable.normalNegativeExpUnitary a t = 1 := by
+  simpa [Observable.normalNegativeExpUnitary] using
+    (NormalAffiliatedObservable.negativeExpUnitary_neg_mul
+      (Observable.toNormalAffiliatedObservable a) (Observable.normalBorelCalculus a) t)
+
+lemma normalNegativeExpUnitary_mul_neg (a : Observable A) (t : ℝ) :
+    Observable.normalNegativeExpUnitary a t * Observable.normalNegativeExpUnitary a (-t) = 1 := by
+  simpa [Observable.normalNegativeExpUnitary] using
+    (NormalAffiliatedObservable.negativeExpUnitary_mul_neg
       (Observable.toNormalAffiliatedObservable a) (Observable.normalBorelCalculus a) t)
 
 /-- The bounded resolvent `(a - z)⁻¹` supplied by the normal Borel calculus, for `z ∉ ℝ`. -/
