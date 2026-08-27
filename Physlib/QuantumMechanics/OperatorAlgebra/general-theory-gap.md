@@ -79,16 +79,18 @@ unresolved unbounded-domain questions.
 Unbounded/Concrete.lean, InvariantCore.lean, and RealAnalytic.lean use
 LinearPMap for densely defined operators and provide analytic-core and
 deficiency-index infrastructure. The one-dimensional oscillator module now
-proves the Schwartz-domain, symmetry, and density facts and turns an explicit
-deficiency certificate into essential self-adjointness. The certificate is
-still the genuine model-specific ODE input; it is not fabricated by the
-general operator layer.
+proves the Schwartz-domain, symmetry, and density facts, and
+`HarmonicOscillator/DifferentialCore.lean` proves essential self-adjointness
+of the actual differential Hamiltonian through the dense real Hermite
+eigenfamily. `HarmonicOscillator/EssentialSelfAdjointness.lean` also retains
+the older explicit deficiency-certificate adapter for clients that already
+have deficiency-index data.
 
 `ClosureAPI.lean` now packages the graph closure, self-adjointness, uniqueness,
 Cayley spectral measure, exact square-moment domain, and Stone unitary group once
-essential self-adjointness is supplied. The model-specific theorem still has to
-prove the actual essential self-adjointness hypothesis (the oscillator currently
-does this through its explicit defect certificate).
+essential self-adjointness is supplied. The oscillator's actual differential
+operator now supplies that hypothesis through `DifferentialCore`; its closure
+is the canonical graph closure selected by this API.
 
 ### Cayley spectral data
 
@@ -236,7 +238,8 @@ general trace-class Banach completion, two-sided ideal, `B(H)`/trace-class predu
 normal-state/density-operator correspondence, and concrete `NormalPVM` → `PredualPVM` conversion
 are also proved. There is no longer a concrete trace-class completion gap at this boundary.
 
-The general POVM/statistics layer is also pending; see todo.md.
+The general POVM/statistics layer is also implemented in `Unbounded/POVM.lean`;
+the older `todo.md` text is retained as project history.
 
 The finite-multiplicity trace calculation is now proved at both useful boundaries:
 `HasFiniteMultiplicity.finiteDimensional_range` shows unconditionally that a trace-class star
@@ -245,9 +248,11 @@ projection has finite-dimensional range, and
 dimension in finite dimension. The corresponding infinite-dimensional formula for star projections
 is also proved unconditionally by `HasFiniteMultiplicity.trace_eq_finrank_range`; it uses the
 self-adjoint Parseval/Fubini argument and does not assume the unresolved general trace theorem.
-What remains is the genuinely general non-self-adjoint trace-basis-independence theorem, exposed as
-the explicit `TraceBasisIndependence H` capability and requiring the polar-decomposition/trace-ideal
-development. No such theorem is silently assumed by the current API.
+The general non-self-adjoint trace-basis-independence theorem is now proved in
+the trace-class support modules. The former `TraceBasisIndependence H`
+capability is no longer part of the live API; the remaining compatibility
+records are retained only where they describe a genuinely external algebra or
+representation theorem.
 
 ### Representation compatibility now exposed
 
@@ -491,9 +496,9 @@ For a representation π : A → B(H), establish equivalence between:
 
 `Observable.toAffiliatedObservable` no longer hides this requirement behind a
 `sorry`: its PVM is obtained from the explicit `BorelFunctionalCalculus A`
-capability. The remaining work is to construct that capability from a faithful
-normal representation and prove its compatibility with continuous functional
-calculus.
+capability. The concrete `B(H)` normal calculus is now certificate-free; for a
+general abstract C*- or W*-algebra, constructing the required Borel calculus
+from a chosen faithful normal representation remains an external boundary.
 
 The bridge needs:
 
