@@ -353,6 +353,8 @@ public import Physlib.QuantumMechanics.OperatorAlgebra.Observables.Basic
 public import Physlib.QuantumMechanics.OperatorAlgebra.Observables.Jordan
 public import Physlib.QuantumMechanics.OperatorAlgebra.Observables.Lie
 public import Physlib.QuantumMechanics.OperatorAlgebra.States.Basic
+public import Physlib.QuantumMechanics.OperatorAlgebra.States.Statistics
+public import Physlib.QuantumMechanics.OperatorAlgebra.States.Uncertainty
 public import Physlib.QuantumMechanics.Operators.AngularMomentum
 public import Physlib.QuantumMechanics.Operators.Commutation
 public import Physlib.QuantumMechanics.Operators.Covariance
