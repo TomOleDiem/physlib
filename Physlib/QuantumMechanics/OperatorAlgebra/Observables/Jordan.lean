@@ -5,10 +5,9 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.QuantumMechanics.OperatorAlgebra.Basic
+public import Physlib.QuantumMechanics.OperatorAlgebra.Observables.Basic
 public import Physlib.Meta.TODO.Basic
 public import Mathlib.Algebra.Jordan.Basic
-public import Mathlib.LinearAlgebra.Complex.Module
 
 /-!
 
@@ -36,19 +35,6 @@ namespace OperatorAlgebra
 variable {A : Type*} [OperatorAlgebra A]
 
 namespace Observable
-
-/-- The symmetrized product of two observables. -/
-noncomputable def jordan (a b : Observable A) : Observable A :=
-  realPart ((a : A) * (b : A))
-
-/-- The Jordan product on observables. -/
-scoped[OperatorAlgebra] infixl:70 " ⊙ " => Observable.jordan
-
-lemma coe_jordan (a b : Observable A) :
-    (a ⊙ b : A) = (2⁻¹ : ℝ) • ((a : A) * b + (b : A) * a) := by
-  change (↑(realPart ((a : A) * (b : A))) : A) =
-    (2⁻¹ : ℝ) • ((a : A) * b + (b : A) * a)
-  rw [realPart_apply_coe, star_mul, a.property.star_eq, b.property.star_eq]
 
 lemma jordan_comm (a b : Observable A) :
     a ⊙ b = b ⊙ a := by

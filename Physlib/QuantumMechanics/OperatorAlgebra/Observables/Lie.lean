@@ -5,9 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.QuantumMechanics.OperatorAlgebra.Basic
-public import Mathlib.Algebra.Lie.OfAssociative
-public import Mathlib.LinearAlgebra.Complex.Module
+public import Physlib.QuantumMechanics.OperatorAlgebra.Observables.Basic
 
 /-!
 
@@ -36,21 +34,6 @@ variable {A : Type*} [OperatorAlgebra A]
 namespace Observable
 
 /-! ## Lie bracket -/
-
-/-- The observable Lie bracket is the imaginary part of the algebra product. -/
-noncomputable instance instBracket :
-    Bracket (Observable A) (Observable A) :=
-  ⟨fun a b => imaginaryPart ((a : A) * (b : A))⟩
-
-@[simp]
-lemma coe_bracket (a b : Observable A) :
-    ((⁅a, b⁆ : Observable A) : A) =
-      (-(Complex.I / 2)) • ((a : A) * b - (b : A) * a) := by
-  change
-    (↑(imaginaryPart ((a : A) * (b : A))) : A) =
-      (-(Complex.I / 2)) • ((a : A) * b - (b : A) * a)
-  rw [imaginaryPart_apply_coe, star_mul, a.property.star_eq, b.property.star_eq]
-  module
 
 /-! ## Lie ring -/
 
