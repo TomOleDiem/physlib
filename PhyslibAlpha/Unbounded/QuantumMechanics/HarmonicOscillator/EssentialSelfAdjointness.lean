@@ -93,7 +93,7 @@ lemma potentialFunction_one_eq (x : Space 1) :
   ring
 
 /-- The one-dimensional harmonic oscillator potential, complexified, is a.e. strongly measurable. -/
-lemma ofReal_potentialFunction_aestronglyMeasurable :
+private lemma ofReal_potentialFunction_aestronglyMeasurable :
     AEStronglyMeasurable (ofReal ∘ Q.potentialFunction) volume :=
   (Complex.continuous_ofReal.comp Q.potentialFunction_continuous).aestronglyMeasurable
 
@@ -110,7 +110,7 @@ private lemma ofReal_coord_hasTemperateGrowth :
 
 /-- The complexified potential function has temperate growth: it is a scalar multiple of the
   square of a continuous linear functional composed with `Complex.ofReal`. -/
-lemma potentialFunction_hasTemperateGrowth :
+private lemma potentialFunction_hasTemperateGrowth :
     Function.HasTemperateGrowth (ofReal ∘ Q.potentialFunction) := by
   have h : (ofReal ∘ Q.potentialFunction)
       = fun x ↦ ((2⁻¹ * Q.m) * (Q.ω 0) ^ 2 : ℂ) * (ofReal (x 0)) ^ 2 := by
@@ -142,7 +142,7 @@ lemma hamiltonian_domain_eq : Q.hamiltonian.domain = SchwartzSubmodule 1 := by
 
 /-- The squared momentum operator is symmetric: it agrees with `(momentumOperator i) ^ 2`
   (via `compRestricted_eq_comp`), and squares of symmetric operators are symmetric. -/
-lemma momentumSqOperator_isSymmetric : (momentumSqOperator (d := 1)).IsSymmetric := by
+private lemma momentumSqOperator_isSymmetric : (momentumSqOperator (d := 1)).IsSymmetric := by
   refine IsSymmetric.sum fun i ↦ ?_
   rw [← compRestricted_eq_comp (momentumOperator_range i), ← mul_def]
   have h := (momentumOperator_isSymmetric i).pow 2
@@ -150,7 +150,7 @@ lemma momentumSqOperator_isSymmetric : (momentumSqOperator (d := 1)).IsSymmetric
 
 /-- The potential operator is symmetric, as a maximal real multiplication operator (hence
   self-adjoint, in particular symmetric). -/
-lemma potentialOperator_isSymmetric : Q.potentialOperator.IsSymmetric := by
+private lemma potentialOperator_isSymmetric : Q.potentialOperator.IsSymmetric := by
   have hself : IsSelfAdjoint (𝓜 volume (ofReal ∘ Q.potentialFunction)) :=
     mulOperator_isSelfAdjoint_ofReal Q.ofReal_potentialFunction_aestronglyMeasurable
       (by funext x; simp [Function.comp])
@@ -178,11 +178,11 @@ structure HarmonicOscillatorDefectCertificate where
   plus : Q.hamiltonian.defectNumber I = 0
   minus : Q.hamiltonian.defectNumber (-I) = 0
 
-lemma hamiltonian_defectNumber_I_eq_zero
+private lemma hamiltonian_defectNumber_I_eq_zero
     (C : HarmonicOscillatorDefectCertificate Q) : Q.hamiltonian.defectNumber I = 0 :=
   C.plus
 
-lemma hamiltonian_defectNumber_negI_eq_zero
+private lemma hamiltonian_defectNumber_negI_eq_zero
     (C : HarmonicOscillatorDefectCertificate Q) : Q.hamiltonian.defectNumber (-I) = 0 :=
   C.minus
 
