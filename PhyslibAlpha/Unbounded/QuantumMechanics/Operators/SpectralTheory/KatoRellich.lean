@@ -26,7 +26,8 @@ to `z = ± i` using the connectedness of the (upper/lower) open half-planes insi
 domain of the symmetric operator `A + B`.
 
 The key elementary facts used are:
-- For `A` symmetric and `x ∈ A.domain`, `r : ℝ`, `‖A x - (i r) • x‖ ^ 2 = ‖A x‖ ^ 2 + r ^ 2 * ‖x‖ ^ 2`
+- For `A` symmetric and `x ∈ A.domain`, `r : ℝ`, `‖A x - (i r) • x‖ ^ 2 = ‖A x‖ ^ 2 + r ^ 2 * ‖x‖ ^
+    2`
   (`sq_norm_sub_I_smul`). This uses only symmetry (`⟪A x, x⟫` real), not self-adjointness.
 - Surjectivity of `A - (i λ) • 1` at every real `λ ≠ 0`, from self-adjointness of `A`
   (`IsSelfAdjoint.sub_smul_surjective`, already in `SelfAdjoint.lean`).
@@ -113,7 +114,8 @@ lemma sq_norm_sub_I_smul (x : A.domain) (r : ℝ) :
   have hre : ∀ z : ℂ, RCLike.re z = z.re := fun z ↦ congrFun RCLike.re_eq_complex_re z
   rw [norm_sub_sq (𝕜 := ℂ), hre]
   have hcross : (⟪u, (Complex.I * (r : ℂ)) • v⟫_ℂ).re = 0 := by
-    rw [inner_smul_right, show (⟪u, v⟫_ℂ) = ((⟪u, v⟫_ℂ).re : ℂ) from Complex.ext rfl (by simp [him])]
+    rw [inner_smul_right, show (⟪u, v⟫_ℂ) = ((⟪u, v⟫_ℂ).re : ℂ) from Complex.ext rfl (by simp
+        [him])]
     simp [Complex.mul_re]
   rw [hcross]
   have hnorm : ‖(Complex.I * (r : ℂ)) • v‖ ^ 2 = r ^ 2 * ‖v‖ ^ 2 := by
@@ -126,7 +128,8 @@ lemma norm_le_norm_sub_I_smul (x : A.domain) (r : ℝ) :
     ‖A x‖ ≤ ‖(A x : H) - (Complex.I * r) • (x : H)‖ := by
   have h := hA.sq_norm_sub_I_smul x r
   have hle : ‖A x‖ ^ 2 ≤ ‖(A x : H) - (Complex.I * r) • (x : H)‖ ^ 2 := by
-    rw [h]; nlinarith [sq_nonneg r, sq_nonneg ‖(x : H)‖, mul_nonneg (sq_nonneg r) (sq_nonneg ‖(x:H)‖)]
+    rw [h]; nlinarith [sq_nonneg r, sq_nonneg ‖(x : H)‖, mul_nonneg (sq_nonneg r) (sq_nonneg
+        ‖(x:H)‖)]
   have := Real.sqrt_le_sqrt hle
   rwa [Real.sqrt_sq (norm_nonneg _), Real.sqrt_sq (norm_nonneg _)] at this
 

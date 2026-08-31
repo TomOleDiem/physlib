@@ -91,7 +91,8 @@ def toInvariantCore (T : Fin 2 → β) : InvariantCore T where
   the general abstraction rather than by hand, exactly the ordinary-algebra interface promised by
   `InvariantCore`. -/
 theorem restrictCommutator_toInvariantCore (T : Fin 2 → β) :
-    (toInvariantCore T).restrictCommutator 0 1 = (Complex.I * (ℏ : ℂ)) • (1 : Module.End ℂ (𝓢(ℝ, ℂ))) := by
+    (toInvariantCore T).restrictCommutator 0 1 = (Complex.I * (ℏ : ℂ)) • (1 : Module.End ℂ (𝓢(ℝ,
+        ℂ))) := by
   have h := ccr
   apply_fun ContinuousLinearMap.toLinearMap at h
   simp only [toInvariantCore, InvariantCore.restrictCommutator, Matrix.cons_val_zero,

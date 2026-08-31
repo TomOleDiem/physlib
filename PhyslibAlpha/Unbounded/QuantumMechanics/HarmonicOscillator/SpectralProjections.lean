@@ -10,7 +10,8 @@ public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Unbounded.
 
 /-! # The explicit Hermite discrete-sum spectral-projection formula
 
-`DifferentialCore.lean` builds the abstract spectral measure `differentialHamiltonianSpectralMeasure`
+`DifferentialCore.lean` builds the abstract spectral measure
+    `differentialHamiltonianSpectralMeasure`
 of the differential oscillator Hamiltonian and identifies its maximal spectral integral with the
 canonical closure. `Unbounded/EigenvectorSpectralAtom.lean` proves the general fact that an exact
 eigenvector is fixed by its eigenvalue's spectral projection (and annihilated by every other

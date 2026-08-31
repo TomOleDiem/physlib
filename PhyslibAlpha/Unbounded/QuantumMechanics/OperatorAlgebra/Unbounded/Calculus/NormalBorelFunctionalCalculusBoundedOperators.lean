@@ -70,7 +70,8 @@ example : NormalObservableBorelCalculus (B(H)) := inferInstance
 /-- The concrete identity representation used for bounded normal affiliation. -/
 noncomputable def boundedObservableAffiliationBridge :
     NormalAffiliationBridge (A := B(H)) (H := H) :=
-  (BoundedOperatorsNormalRepresentation.normalRepresentationAffiliationBridge (H := H)).toNormalAffiliationBridge
+  (BoundedOperatorsNormalRepresentation.normalRepresentationAffiliationBridge (H :=
+      H)).toNormalAffiliationBridge
 
 /-- The normal spectral measure assigned to a bounded self-adjoint `B(H)` observable is represented
 by the bounded self-adjoint spectral measure constructed from that operator. -/

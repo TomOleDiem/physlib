@@ -562,7 +562,8 @@ lemma analyticExp_normSq_eq_normSq_zero
       (s := Set.Ioo (-t / 2) (t / 2)) (f := fun y : ℝ => ‖analyticExp T v y‖ ^ 2)
       (isPreconnected_Ioo (a := -t / 2) (b := t / 2)) ?_ ?_ hr hu
     · intro y hy
-      exact (analyticExp_normSq_hasDerivAt_eq_zero hsym hdense hv hy hsum).differentiableAt.differentiableWithinAt
+      exact (analyticExp_normSq_hasDerivAt_eq_zero hsym hdense hv hy
+          hsum).differentiableAt.differentiableWithinAt
     · intro y hy
       exact (analyticExp_normSq_hasDerivAt_eq_zero hsym hdense hv hy hsum).deriv
   have hzero : (0 : ℝ) ∈ Set.Ioo (-t / 2) (t / 2) := by

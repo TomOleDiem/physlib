@@ -102,12 +102,14 @@ theorem positionHeisenberg_eq (hm : 0 < m) (hω : 0 < ω) (t : ℝ) :
   have hmC : (m : ℂ) ≠ 0 := by exact_mod_cast hmR
   have hωC : (ω : ℂ) ≠ 0 := by exact_mod_cast hωR
   set θ := ω * t with hθ
-  have h1 : Complex.exp (-Complex.I * (θ : ℂ)) = (Real.cos θ : ℂ) - (Real.sin θ : ℂ) * Complex.I := by
+  have h1 : Complex.exp (-Complex.I * (θ : ℂ)) =
+      (Real.cos θ : ℂ) - (Real.sin θ : ℂ) * Complex.I := by
     have heq : (-Complex.I * (θ : ℂ)) = (-(θ : ℂ)) * Complex.I := by ring
     rw [heq, Complex.exp_mul_I, Complex.cos_neg, Complex.sin_neg, Complex.ofReal_cos,
       Complex.ofReal_sin]
     ring
-  have h2 : Complex.exp (Complex.I * (θ : ℂ)) = (Real.cos θ : ℂ) + (Real.sin θ : ℂ) * Complex.I := by
+  have h2 : Complex.exp (Complex.I * (θ : ℂ)) =
+      (Real.cos θ : ℂ) + (Real.sin θ : ℂ) * Complex.I := by
     have heq : (Complex.I * (θ : ℂ)) = (θ : ℂ) * Complex.I := by ring
     rw [heq, Complex.exp_mul_I, Complex.ofReal_cos, Complex.ofReal_sin]
   unfold positionHeisenberg annihilationHeisenberg creationHeisenberg ladderA ladderAdag
@@ -132,12 +134,14 @@ theorem momentumHeisenberg_eq (hm : 0 < m) (hω : 0 < ω) (t : ℝ) :
   have hmC : (m : ℂ) ≠ 0 := by exact_mod_cast hmR
   have hωC : (ω : ℂ) ≠ 0 := by exact_mod_cast hωR
   set θ := ω * t with hθ
-  have h1 : Complex.exp (-Complex.I * (θ : ℂ)) = (Real.cos θ : ℂ) - (Real.sin θ : ℂ) * Complex.I := by
+  have h1 : Complex.exp (-Complex.I * (θ : ℂ)) =
+      (Real.cos θ : ℂ) - (Real.sin θ : ℂ) * Complex.I := by
     have heq : (-Complex.I * (θ : ℂ)) = (-(θ : ℂ)) * Complex.I := by ring
     rw [heq, Complex.exp_mul_I, Complex.cos_neg, Complex.sin_neg, Complex.ofReal_cos,
       Complex.ofReal_sin]
     ring
-  have h2 : Complex.exp (Complex.I * (θ : ℂ)) = (Real.cos θ : ℂ) + (Real.sin θ : ℂ) * Complex.I := by
+  have h2 : Complex.exp (Complex.I * (θ : ℂ)) =
+      (Real.cos θ : ℂ) + (Real.sin θ : ℂ) * Complex.I := by
     have heq : (Complex.I * (θ : ℂ)) = (θ : ℂ) * Complex.I := by ring
     rw [heq, Complex.exp_mul_I, Complex.ofReal_cos, Complex.ofReal_sin]
   unfold momentumHeisenberg annihilationHeisenberg creationHeisenberg ladderA ladderAdag

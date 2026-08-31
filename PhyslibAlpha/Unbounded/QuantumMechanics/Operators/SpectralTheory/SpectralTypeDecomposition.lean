@@ -285,7 +285,8 @@ theorem pointSpectrumSet_countable : E.pointSpectrumSet.Countable := by
     rintro z hz hz'
     have hdist : ‖E.pointUnitVector l - E.pointUnitVector l'‖ < Real.sqrt 2 := by
       calc ‖E.pointUnitVector l - E.pointUnitVector l'‖
-          ≤ ‖E.pointUnitVector l - z‖ + ‖z - E.pointUnitVector l'‖ := norm_sub_le_norm_sub_add_norm_sub _ _ _
+          ≤ ‖E.pointUnitVector l - z‖ + ‖z - E.pointUnitVector l'‖ :=
+              norm_sub_le_norm_sub_add_norm_sub _ _ _
         _ < Real.sqrt 2 / 2 + Real.sqrt 2 / 2 := by
               have h1 : ‖E.pointUnitVector l - z‖ < Real.sqrt 2 / 2 := by
                 have := Metric.mem_ball.mp hz
@@ -569,7 +570,8 @@ omit [SeparableSpace H] in
 /-- **The general restriction identity.** The vector-state measure of `E S x` is exactly the
 restriction to `S` of the vector-state measure of `x`. For measurable `T`:
 `⟪E S x, E T (E S x)⟫ = ⟪x, (E S * E T * E S) x⟫ = ⟪x, E (T ∩ S) x⟫` using self-adjointness of
-`E S` and `comp_eq_of_inter` twice, which matches `(E.diagonalMeasure x).restrict S T = E.diagonalMeasure x (T ∩ S)`. -/
+`E S` and `comp_eq_of_inter` twice, which matches `(E.diagonalMeasure x).restrict S T =
+    E.diagonalMeasure x (T ∩ S)`. -/
 lemma diagonalMeasure_apply_eq_restrict (S : Set ℝ) (hS : MeasurableSet S) (x : H) :
     E.diagonalMeasure (E S x) = (E.diagonalMeasure x).restrict S := by
   apply MeasureTheory.Measure.ext

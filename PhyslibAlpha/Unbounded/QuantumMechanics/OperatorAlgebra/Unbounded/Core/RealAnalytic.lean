@@ -40,7 +40,8 @@ variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteS
 /-- A checkable certificate that a symmetric represented operator has self-adjoint closure.
 
 The two defect-number equalities are the analytic input.  The conclusion is deliberately stored
-as a theorem rather than as an axiom or an unproved declaration; `LinearPMap` supplies the von Neumann criterion
+as a theorem rather than as an axiom or an unproved declaration; `LinearPMap` supplies the von
+    Neumann criterion
 used in the proof. -/
 structure DefectIndexCertificate (T : H →ₗ.[ℂ] H) where
   symmetric : T.IsSymmetric
@@ -189,7 +190,8 @@ theorem isEssentiallySelfAdjoint_of_hilbertBasis_eigenvectors
       ring_nf at hdiv
       linear_combination hdiv
     -- Each single eigenbasis term already lies in `T`'s graph.
-    have hmem_graph_single : ∀ i, ((g i • e i : H), (c i • e i + ζ • (g i • e i) : H)) ∈ T.graph := by
+    have hmem_graph_single :
+        ∀ i, ((g i • e i : H), (c i • e i + ζ • (g i • e i) : H)) ∈ T.graph := by
       intro i
       have hTvi : T (v i) = (lam i : ℂ) • e i := heig i
       have hTe : T (g i • v i) = c i • e i + ζ • (g i • e i) := by
@@ -213,7 +215,8 @@ theorem isEssentiallySelfAdjoint_of_hilbertBasis_eigenvectors
     show (T.closure - ζ • (1 : H →ₗ.[ℂ] H)) ⟨z, hzdom'⟩ = y
     rw [LinearPMap.sub_apply, LinearPMap.smul_apply]
     have h1 : (1 : H →ₗ.[ℂ] H) ⟨z, (Submodule.mem_inf.mp hzdom').2⟩ = z := rfl
-    rw [h1, show T.closure ⟨z, (Submodule.mem_inf.mp hzdom').1⟩ = T.closure ⟨z, hzdom⟩ from rfl, hTz]
+    rw [h1, show T.closure ⟨z, (Submodule.mem_inf.mp hzdom').1⟩ = T.closure ⟨z, hzdom⟩ from rfl,
+        hTz]
     abel
   refine hTclosure_sym.isSelfAdjoint_of_range_eq_top hTclosure_dense ?_ ?_
   · have hI : T.closure + I • (1 : H →ₗ.[ℂ] H) = T.closure - (-I) • (1 : H →ₗ.[ℂ] H) :=

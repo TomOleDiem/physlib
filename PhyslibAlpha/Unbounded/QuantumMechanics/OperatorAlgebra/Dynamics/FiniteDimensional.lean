@@ -1896,7 +1896,7 @@ lemma exists_matrixJumpMap_compressedJumpMap
   exact isCompletelyPositive_exists_matrixJumpMap _
     (compressedJumpMap_isCompletelyPositive L hL hccp)
 
-lemma exists_matrixLindbladGenerator_of_isUnital_isHermitianPreserving_isConditionallyCompletelyPositive
+lemma exists_matrixLindbladGenerator_of_isGKSLGenerator
     (L : MatrixMap d d ℂ) (hUnital : IsUnitalInfinitesimal L)
     (hHP : MatrixMap.IsHermitianPreserving L)
     (hCCP : IsConditionallyCompletelyPositive L) :
@@ -1965,17 +1965,16 @@ lemma isGKSLGenerator_iff
       isGKSLGenerator_isHermitianPreserving L hL,
       isGKSLGenerator_isConditionallyCompletelyPositive L hL⟩
   · rintro ⟨hUnital, hHP, hCCP⟩
-    exact exists_matrixLindbladGenerator_of_isUnital_isHermitianPreserving_isConditionallyCompletelyPositive
+    exact exists_matrixLindbladGenerator_of_isGKSLGenerator
       L hUnital hHP hCCP
 
 lemma HasFiniteDimensionalHeisenbergGenerator.isGKSLGenerator
     {Φ : FiniteDimensionalHeisenbergQuantumDynamicalSemigroup d}
     (G : HasFiniteDimensionalHeisenbergGenerator Φ) :
     IsGKSLGenerator G.map (d × d) := by
-  exact exists_matrixLindbladGenerator_of_isUnital_isHermitianPreserving_isConditionallyCompletelyPositive
+  exact exists_matrixLindbladGenerator_of_isGKSLGenerator
     G.map G.is_unital_infinitesimal G.is_hermitian_preserving
-      (FiniteDimensionalHeisenbergQuantumDynamicalSemigroup.hasChoiGenerator_isConditionallyCompletelyPositive
-        Φ G.map G.has_choi_generator)
+      (Φ.hasChoiGenerator_isConditionallyCompletelyPositive G.map G.has_choi_generator)
 
 /-- The finite-dimensional GKSL converse in its explicit generator form.
 

@@ -330,13 +330,14 @@ theorem isEigenvector_of_mem_atom_range
       MeasureTheory.VectorMeasure.restrict_apply_univ,
       μS.scalarMeasure_apply]
     simp [v, inner_smul_right]
-  have hdomid : v ∈
-      (QuantumMechanics.WOTSpectralMeasure.measurableSpectralIntegral μS id measurable_id).domain := by
+  have hdomid :
+      v ∈ (QuantumMechanics.WOTSpectralMeasure.measurableSpectralIntegral μS id
+        measurable_id).domain := by
     change v ∈ QuantumMechanics.WOTSpectralMeasure.spectralSquareMomentSubmodule
       (μS.map id measurable_id)
     rw [μS.map_id]
     exact hmoment
-  have hrec := QuantumMechanics.WOTSpectralMeasure.measurableSpectralIntegral_inner_eq_complexWeakIntegral
+  have hrec := measurableSpectralIntegral_inner_eq_complexWeakIntegral
     μS id measurable_id v hdomid y hfi
   have hmapop : QuantumMechanics.WOTSpectralMeasure.maximalSpectralIntegral
       (μS.map id measurable_id) = M := by

@@ -129,7 +129,8 @@ logically inert — nothing connected it to `core.restrict` — and the lemma as
 merely hard but *unprovable*: `h` gave no information whatsoever about `core.restrict 0`/
 `core.restrict 1`. Reconstructing that missing link in general needs representation,
 embedding, and essential-self-adjointness apparatus, together with the concrete Hilbert-space
-spectral theorem (`Affiliated.lean`'s honesty note), to turn "spectral projections commute" back into
+spectral theorem (`Affiliated.lean`'s honesty note), to turn "spectral projections commute" back
+    into
 "`core.restrict` commutes" through a representation.
 
 The fix taken here: state the coherence that actually *is* available and usable at the pure

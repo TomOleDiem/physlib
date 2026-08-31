@@ -116,7 +116,8 @@ private lemma hasSum_norm_sq_apply_of_selfAdjoint {S : B(H)} (hS : IsSelfAdjoint
   have hFnonneg : 0 ≤ Function.uncurry F := fun _ => sq_nonneg _
   have hrow : ∀ i : w, HasSum (F i) (‖S (b i)‖ ^ 2) := fun i =>
     hasSum_norm_sq_inner_basis c (S (b i))
-  have hSstar : ContinuousLinearMap.adjoint S = S := (ContinuousLinearMap.star_eq_adjoint S).symm.trans hS
+  have hSstar : ContinuousLinearMap.adjoint S = S := (ContinuousLinearMap.star_eq_adjoint
+      S).symm.trans hS
   have hcol : ∀ j : w', HasSum (fun i : w => F i j) (‖S (c j)‖ ^ 2) := by
     intro j
     have e1 : ∀ i : w, ⟪c j, S (b i)⟫_ℂ = ⟪S (c j), b i⟫_ℂ := fun i => by
@@ -180,7 +181,8 @@ theorem summable_inner_abs_of_hilbertBasis {T : B(H)} (h : IsTraceClass T) {w : 
     intro w' b' i
     have hSS : S * S = A := CFC.sqrt_mul_sqrt_self A hAnonneg
     have : ⟪b' i, A (b' i)⟫_ℂ = ⟪S (b' i), S (b' i)⟫_ℂ := by
-      have hSstar : ContinuousLinearMap.adjoint S = S := (ContinuousLinearMap.star_eq_adjoint S).symm.trans hSself
+      have hSstar : ContinuousLinearMap.adjoint S = S := (ContinuousLinearMap.star_eq_adjoint
+          S).symm.trans hSself
       rw [← hSS]
       show ⟪b' i, (S * S) (b' i)⟫_ℂ = _
       rw [ContinuousLinearMap.mul_def, ContinuousLinearMap.comp_apply]

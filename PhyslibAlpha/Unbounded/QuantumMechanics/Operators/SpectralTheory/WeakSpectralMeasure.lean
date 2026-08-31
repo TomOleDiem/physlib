@@ -1666,13 +1666,15 @@ private lemma boundedIntegralOfUniformApprox_star [Nonempty α]
   have hstar' : Filter.Tendsto
       (fun n => ContinuousLinearMapWOT.toCLM (simpleIntegral μS (star (s n)))) Filter.atTop
       (𝓝 (ContinuousLinearMapWOT.toCLM
-        (boundedIntegralOfUniformApprox μS (fun x => star (f x)) (fun n => star (s n)) hstar))) := by
+        (boundedIntegralOfUniformApprox μS (fun x => star (f x)) (fun n => star (s n))
+          hstar))) := by
     rw [boundedIntegralOfUniformApprox_eq_limUnder]
     exact (simpleIntegral_toCLM_cauchySeq μS hstar).tendsto_limUnder
   have hstar'' : Filter.Tendsto
       (fun n => star (ContinuousLinearMapWOT.toCLM (simpleIntegral μS (s n)))) Filter.atTop
       (𝓝 (ContinuousLinearMapWOT.toCLM
-        (boundedIntegralOfUniformApprox μS (fun x => star (f x)) (fun n => star (s n)) hstar))) := by
+        (boundedIntegralOfUniformApprox μS (fun x => star (f x)) (fun n => star (s n))
+          hstar))) := by
     convert hstar' using 1
     · funext n
       rw [simpleIntegral_star]

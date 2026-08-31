@@ -1308,7 +1308,8 @@ lemma polarizedCfcScalarMeasure_norm_le_mul (x y : H) {S : Set (spectrum ℂ U)}
     rw [← mul_assoc, ht1, one_mul]
   rw [hkey]
   have hbound := polarizedCfcScalarMeasure_norm_le (hU := hU) U (t • x) (t⁻¹ • y) hS
-  have h1 : ‖t • x‖ ^ 2 = t ^ 2 * ‖x‖ ^ 2 := by rw [norm_smul, Real.norm_eq_abs, abs_of_pos ht]; ring
+  have h1 : ‖t • x‖ ^ 2 = t ^ 2 * ‖x‖ ^ 2 := by
+    rw [norm_smul, Real.norm_eq_abs, abs_of_pos ht]; ring
   have h2 : ‖t⁻¹ • y‖ ^ 2 = t⁻¹ ^ 2 * ‖y‖ ^ 2 := by
     rw [norm_smul, Real.norm_eq_abs, abs_of_pos (inv_pos.mpr ht)]; ring
   rw [h1, h2, htsq] at hbound
@@ -1584,7 +1585,8 @@ lemma cfcSpectralMeasureFun_inner (S : Set (spectrum ℂ U)) (x y : H) :
 /-- The Riesz-represented family of operators assembled into a genuine
 `MeasureTheory.VectorMeasure`, valued in the weak-operator-topology type `H →WOT[ℂ] H`.  Weak
 σ-additivity is transported directly from each `polarizedCfcScalarMeasure U hU x y`'s genuine
-`ComplexMeasure` σ-additivity, through `ContinuousLinearMapWOT.tendsto_iff_forall_inner_apply_tendsto`
+`ComplexMeasure` σ-additivity, through
+    `ContinuousLinearMapWOT.tendsto_iff_forall_inner_apply_tendsto`
 (the defining property of the weak operator topology) and the additivity of the evaluation
 functional `⟪y, · x⟫` over finite sums. -/
 noncomputable def cfcSpectralVectorMeasure :

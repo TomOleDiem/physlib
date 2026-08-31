@@ -25,6 +25,7 @@ noncomputable section
 
 open MeasureTheory Set Topology
 open scoped ComplexOrder CStarAlgebra InnerProductSpace
+open QuantumMechanics.WOTSpectralMeasure
 
 namespace OperatorAlgebra
 
@@ -232,7 +233,8 @@ lemma cfcSpectralMeasure_ambient_reconstruction
         id x y = ⟪y, U x⟫_ℂ := by
   unfold QuantumMechanics.WOTSpectralMeasure.complexWeakIntegral
   rw [QuantumMechanics.WOTSpectralMeasure.scalarMeasure_map]
-  rw [(MeasurableEmbedding.subtype_coe (spectrum.isClosed U).measurableSet).integral_map_vectorMeasure]
+  rw [(MeasurableEmbedding.subtype_coe (spectrum.isClosed
+      U).measurableSet).integral_map_vectorMeasure]
   change (cfcSpectralMeasure U hU).complexWeakIntegral
       (fun z : spectrum ℂ U => (z.1 : ℂ)) x y = ⟪y, U x⟫_ℂ
   exact cfcSpectralMeasure_reconstruction_coe U hU x y
@@ -314,7 +316,8 @@ lemma cayleyBoundedSpectralMeasure_reconstruction
         id x y = _
   unfold QuantumMechanics.WOTSpectralMeasure.complexWeakIntegral
   rw [QuantumMechanics.WOTSpectralMeasure.scalarMeasure_map]
-  rw [(MeasurableEmbedding.subtype_coe (spectrum.isClosed U).measurableSet).integral_map_vectorMeasure]
+  rw [(MeasurableEmbedding.subtype_coe (spectrum.isClosed
+      U).measurableSet).integral_map_vectorMeasure]
   change (cfcSpectralMeasure U hU).complexWeakIntegral
       (fun z : spectrum ℂ U => (z.1 : ℂ)) x y = ⟪y, U x⟫_ℂ
   exact cfcSpectralMeasure_reconstruction_coe U hU x y
@@ -1571,7 +1574,8 @@ lemma cayleyRealSpectralMeasure_le_maximal
         rcases QuantumMechanics.WOTSpectralMeasure.realTruncationFunction_bounded n with ⟨C, hC⟩
         letI := QuantumMechanics.WOTSpectralMeasure.scalarMeasure_isFiniteVariation E (x : H) y
         apply Integrable.of_bound
-          (QuantumMechanics.WOTSpectralMeasure.realTruncationFunction_measurable n).aestronglyMeasurable C
+          (QuantumMechanics.WOTSpectralMeasure.realTruncationFunction_measurable
+              n).aestronglyMeasurable C
         filter_upwards [] with r
         simpa [Real.norm_eq_abs] using hC r
       have hreal := QuantumMechanics.WOTSpectralMeasure.integral_real_eq_complex
@@ -1605,9 +1609,9 @@ lemma cayleyRealSpectralMeasure_le_maximal
 
 theorem cayleyRealSpectralMeasure_eq_maximal
     (T : H →ₗ.[ℂ] H) (hT : IsSelfAdjoint T) :
-    QuantumMechanics.WOTSpectralMeasure.maximalSpectralIntegral
+    maximalSpectralIntegral
         (cayleyRealSpectralMeasure T hT) = T := by
-  exact QuantumMechanics.WOTSpectralMeasure.maximalSpectralIntegral_eq_of_isSelfAdjoint_of_isWeakSpectralResolution
+  exact maximalSpectralIntegral_eq_of_isSelfAdjoint_of_isWeakSpectralResolution
       T hT
       (cayleyRealSpectralMeasure_isWeakSpectralResolution T hT)
       (fun x => cayleyRealSpectralMeasure_mem_domain T hT x)
@@ -1615,7 +1619,7 @@ theorem cayleyRealSpectralMeasure_eq_maximal
 theorem cayleyDomainAwareSelfAdjointSpectralTheorem
     (T : H →ₗ.[ℂ] H) (hT : IsSelfAdjoint T) :
     DomainAwareSelfAdjointSpectralTheorem T (cayleyRealSpectralMeasure T hT) := by
-  exact QuantumMechanics.WOTSpectralMeasure.domainAwareSelfAdjointSpectralTheorem_of_isWeakSpectralResolution
+  exact domainAwareSelfAdjointSpectralTheorem_of_isWeakSpectralResolution
       T hT
       (cayleyRealSpectralMeasure_isWeakSpectralResolution T hT)
       (fun x => cayleyRealSpectralMeasure_mem_domain T hT x)

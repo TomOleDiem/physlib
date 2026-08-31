@@ -2857,7 +2857,7 @@ lemma exists_canonical_stinespring_of_hasHamiltonianCompletelyPositiveShift
         Φ.toQuantumDynamicalSemigroup.map t a =
           D.boundedQuantumDynamicalSemigroup.toQuantumDynamicalSemigroup.map t a := by
   have hCE : IsChristensenEvansGenerator Φ.generator :=
-    OperatorAlgebra.isChristensenEvansGenerator_of_hasHamiltonianCompletelyPositiveShift
+    OperatorAlgebra.isChristensenEvansGenerator_of_hamiltonianShift
       Φ.generator Φ.generator_isUnital hshift
   obtain ⟨D, hD, hmap⟩ := Φ.exists_canonical_stinespring_realization hCE
   exact ⟨D, hD, hmap⟩
@@ -3057,7 +3057,7 @@ lemma exists_canonical_stinespring_of_hasHamiltonianCompletelyPositiveShift
           D.boundedQuantumDynamicalSemigroup.toQuantumDynamicalSemigroup.map t a := by
   let G := Φ.toHasBoundedGenerator hΦ
   have hCE : IsChristensenEvansGenerator G.generator :=
-    OperatorAlgebra.isChristensenEvansGenerator_of_hasHamiltonianCompletelyPositiveShift
+    OperatorAlgebra.isChristensenEvansGenerator_of_hamiltonianShift
       G.generator G.generator_apply_one hshift
   exact Φ.exists_canonical_stinespring_realization hΦ hCE
 

@@ -294,7 +294,8 @@ theorem isTraceClass_add {T T' : B(H)} (hT : IsTraceClass T) (hT' : IsTraceClass
     exact norm_inner_le_norm _ _
   have hTsum := hsummable_conj hT
   have hT'sum := hsummable_conj hT'
-  have habs : CFC.abs (T + T') = star W * (T + T') := (Polar.star_polarFactor_mul_self (T + T')).symm
+  have habs : CFC.abs (T + T') = star W * (T + T') := (Polar.star_polarFactor_mul_self (T +
+      T')).symm
   have hsplit : (fun i : w => ⟪b i, CFC.abs (T + T') (b i)⟫_ℂ) =
       (fun i : w => ⟪b i, (star W * T) (b i)⟫_ℂ + ⟪b i, (star W * T') (b i)⟫_ℂ) := by
     funext i

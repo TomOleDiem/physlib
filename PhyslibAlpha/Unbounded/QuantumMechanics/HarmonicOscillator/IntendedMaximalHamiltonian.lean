@@ -26,7 +26,8 @@ to the plain Schwartz-domain differential operator.
 
 The main theorem, `differentialHamiltonianMaximal_eq_closure`, proves this maximal operator
 equals the already-established canonical closure.  The proof is short because it reuses two
-already-proven general facts about unbounded operators (`PhyslibAlpha.Unbounded.QuantumMechanics.Operators.
+already-proven general facts about unbounded operators
+    (`PhyslibAlpha.Unbounded.QuantumMechanics.Operators.
 Unbounded`):
 
 * `IsUnbounded.adjoint_closure_eq_adjoint` : a densely-defined closable operator and its closure

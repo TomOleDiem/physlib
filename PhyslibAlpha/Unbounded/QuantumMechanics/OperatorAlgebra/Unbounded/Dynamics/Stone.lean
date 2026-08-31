@@ -49,8 +49,8 @@ theorem expUnitaryGroup_strong_slope_tendsto
     have hy : (y : H) ∈ (T.domain : Set H) := y.property
     rw [D.domain_eq_squareMoment] at hy
     exact hy
-  have heq : QuantumMechanics.WOTSpectralMeasure.maximalSpectralIntegral μS = T :=
-    QuantumMechanics.WOTSpectralMeasure.maximalSpectralIntegral_eq_of_isSelfAdjoint_of_isWeakSpectralResolution
+  have heq : maximalSpectralIntegral μS = T :=
+    maximalSpectralIntegral_eq_of_isSelfAdjoint_of_isWeakSpectralResolution
       T D.isSelfAdjoint_of D.reconstruction_of hdom
   have hxmax : (x : H) ∈
       (QuantumMechanics.WOTSpectralMeasure.maximalSpectralIntegral μS).domain := by

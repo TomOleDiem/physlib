@@ -25,6 +25,7 @@ noncomputable section
 open MeasureTheory Set
 open scoped ComplexOrder CStarAlgebra InnerProductSpace Topology
 open ContinuousLinearMap ContinuousLinearMapWOT
+open QuantumMechanics.WOTSpectralMeasure
 
 namespace OperatorAlgebra
 
@@ -664,9 +665,9 @@ theorem representedSelfAdjointOperator_eq_of_isWeakSpectralResolution
     (hdom : ∀ x : S.domain,
       (x : H) ∈ spectralSquareMomentDomain (representedSpectralMeasure π T)) :
     representedSelfAdjointOperator π T = S := by
-  change QuantumMechanics.WOTSpectralMeasure.maximalSpectralIntegral
+  change maximalSpectralIntegral
       (representedSpectralMeasure π T) = S
-  exact QuantumMechanics.WOTSpectralMeasure.maximalSpectralIntegral_eq_of_isSelfAdjoint_of_isWeakSpectralResolution
+  exact maximalSpectralIntegral_eq_of_isSelfAdjoint_of_isWeakSpectralResolution
     S hS hres hdom
 
 theorem representedSelfAdjointOperator_eq_of_domainAware

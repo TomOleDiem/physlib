@@ -181,7 +181,8 @@ private lemma vectorMeasure_finsetSum_apply {X : Type*} [MeasurableSpace X] {ι 
   | empty => simp
   | insert a s hx ih => rw [Finset.sum_insert hx, Finset.sum_insert hx, add_apply, ih]
 
-/-- **The finite-discrete case recovers a `POVM`**: `FinitePOVM.lean`'s `FinitePOVM A X` (a family of
+/-- **The finite-discrete case recovers a `POVM`**: `FinitePOVM.lean`'s `FinitePOVM A X` (a family
+    of
 effects resolving the identity), viewed on the discrete measurable space on `X` (every set
 measurable, so the "resolves the identity" condition transports directly to `POVM.univ'`), is a
 finite sum of Dirac vector measures `∑ x, dirac x (M.effect x)` — the textbook correspondence

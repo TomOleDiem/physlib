@@ -194,7 +194,8 @@ noncomputable instance instCompleteSpace : CompleteSpace (TraceClass H) := by
           traceNorm ((ofOperator S hS : TraceClass H) - Sn n).1
             (isTraceClass_coe ((ofOperator S hS : TraceClass H) - Sn n)) := rfl
       rw [h3]
-      exact traceNorm_transport heqfinal (isTraceClass_coe ((ofOperator S hS : TraceClass H) - Sn n))
+      exact traceNorm_transport heqfinal (isTraceClass_coe ((ofOperator S hS : TraceClass H) - Sn
+          n))
     rw [norm_sub_rev]
     rw [hnorm_eq]
     exact hSTnbound

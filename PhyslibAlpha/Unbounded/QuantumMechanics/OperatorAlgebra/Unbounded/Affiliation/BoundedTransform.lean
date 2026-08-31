@@ -62,7 +62,8 @@ data — needs `a` itself to already possess a Borel functional calculus (a way 
 `1_S(a) ∈ A` for Borel `S`), exactly the `BorelFunctionalCalculus A` capability `Affiliated.lean`
 already isolates as an explicit, unavoidable boundary for a bare C⋆-algebra (this is not a gap
 invented for this file: it is the same boundary documented at the bottom of `Affiliated.lean`,
-"recovering `a` from the spectral integral of the identity"). `AffiliatedObservable.ofBoundedTransform`
+"recovering `a` from the spectral integral of the identity").
+    `AffiliatedObservable.ofBoundedTransform`
 below is built assuming that capability; the compatibility theorem connecting it back to
 `boundedTransform` is exposed with an explicit compatibility certificate: the abstract Borel
 calculus must identify the relevant bounded spectral integral with the original observable.
@@ -301,7 +302,8 @@ theorem measurableRealFC_tanh_measurableRealFC_artanh :
         apply AffiliatedObservable.ext
         intro S hS
         rw [T.measurableRealFC_spectralMeasure_apply (measurable_artanh.comp measurable_tanh) hS,
-          T.measurableRealFC_spectralMeasure_apply (hcomp ▸ (measurable_artanh.comp measurable_tanh))
+          T.measurableRealFC_spectralMeasure_apply (hcomp ▸ (measurable_artanh.comp
+              measurable_tanh))
             hS, hcomp]
     _ = T := measurableRealFC_id T
 
@@ -383,7 +385,8 @@ spectral-data round trip `measurableRealFC_tanh_measurableRealFC_artanh`: `a` is
 bounded element built from `T`, it literally *is* the identity function evaluated (via the bounded
 calculus) at the pushed-forward observable `S`, using that `tanh`'s values always lie in
 `Icc (-1) 1` so that the (necessarily bounded, since `S`'s calculus domain is all of `ℝ`)
-truncated identity `AffiliatedObservable.realTruncateFunction 1` agrees with the true identity on all of `tanh`'s
+truncated identity `AffiliatedObservable.realTruncateFunction 1` agrees with the true identity on
+    all of `tanh`'s
 range. -/
 lemma measurable_ofReal_realTruncateFunction_one :
     Measurable (Complex.ofReal ∘ AffiliatedObservable.realTruncateFunction 1) :=
@@ -424,7 +427,8 @@ end Composition
 
 Reconstructing `T` from an arbitrary bounded self-adjoint `a ∈ A` with `‖a‖ ≤ 1` and the
 dense-range condition needs `a` to already possess a Borel functional calculus — the same
-`BorelFunctionalCalculus A` capability `Affiliated.lean` isolates for `Observable.toAffiliatedObservable`.
+`BorelFunctionalCalculus A` capability `Affiliated.lean` isolates for
+    `Observable.toAffiliatedObservable`.
 Given that capability, the natural reconstruction is `artanh` pushed forward along `a`'s own
 spectral measure. -/
 

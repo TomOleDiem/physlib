@@ -218,8 +218,9 @@ theorem expIntegral_eq_of_cayley_projection_commute
       QuantumMechanics.WOTSpectralMeasure.expIntegral
         (cayleyRealSpectralMeasure T hT) t := by
   let μR := cayleyRealSpectralMeasure T hT
-  have hμ := QuantumMechanics.WOTSpectralMeasure.spectralMeasure_invariant_of_cayley_projection_commute
-    μR u (by
+  have hμ :=
+    QuantumMechanics.WOTSpectralMeasure.spectralMeasure_invariant_of_cayley_projection_commute
+      μR u (by
       intro S hS
       have hmap := cayleyMap_cayleyRealSpectralMeasure T hT
       have hS' := congrArg (fun E : QuantumMechanics.WOTSpectralMeasure ℂ H => E S) hmap
@@ -255,7 +256,8 @@ noncomputable def unitaryConj
     change IsSelfAdjoint (LinearPMap.unitaryConj u T).closure
     rw [LinearPMap.IsClosable.unitaryConj_closure u T D.essentiallySelfAdjoint.isClosable]
     exact LinearPMap.unitaryConj_isSelfAdjoint u D.closure_isSelfAdjoint
-  spectralMeasure := QuantumMechanics.WOTSpectralMeasure.unitaryConjSpectralMeasure u D.spectralMeasure
+  spectralMeasure := QuantumMechanics.WOTSpectralMeasure.unitaryConjSpectralMeasure u
+      D.spectralMeasure
   spectralTheorem := by
     rw [LinearPMap.IsClosable.unitaryConj_closure u T D.essentiallySelfAdjoint.isClosable]
     exact D.spectralTheorem.unitaryConj u

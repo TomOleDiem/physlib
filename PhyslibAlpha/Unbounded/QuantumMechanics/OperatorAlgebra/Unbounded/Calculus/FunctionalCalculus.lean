@@ -223,7 +223,8 @@ operate directly on a projection-valued measure. -/
 def spectralCLM (T : AffiliatedObservable A) (S : Set ℝ) : ℂ →L[ℝ] A :=
   ((ContinuousLinearMap.id ℂ ℂ).smulRight (T.spectralMeasure S : A)).restrictScalars ℝ
 
-lemma spectralCLM_apply (S : Set ℝ) (z : ℂ) : spectralCLM T S z = z • (T.spectralMeasure S : A) := by
+lemma spectralCLM_apply (S : Set ℝ) (z : ℂ) :
+    spectralCLM T S z = z • (T.spectralMeasure S : A) := by
   rfl
 
 private lemma spectralCLM_finMeasAdditive (μ : Measure ℝ) :

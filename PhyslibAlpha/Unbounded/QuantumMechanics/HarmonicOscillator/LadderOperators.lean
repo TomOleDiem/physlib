@@ -129,7 +129,8 @@ lemma ladder_comm_raw :
     simp only [add_mul, mul_add, sub_mul, mul_sub, smul_mul_assoc, mul_smul_comm,
       pow_two, Complex.I_mul_I]
     module
-  have hccr : 𝐱 i * 𝐩 i - 𝐩 i * 𝐱 i = (Complex.I * (ℏ : ℂ)) • (1 : 𝓢(Space d, ℂ) →L[ℂ] 𝓢(Space d, ℂ)) := by
+  have hccr : 𝐱 i * 𝐩 i - 𝐩 i * 𝐱 i = (Complex.I * (ℏ : ℂ)) • (1 : 𝓢(Space d, ℂ) →L[ℂ] 𝓢(Space d,
+      ℂ)) := by
     simpa [KroneckerDelta.eq_one_of_same] using
       position_mul_momentum_sub_momentum_mul_position (d := d) i i
   rw [key, hccr, smul_smul]
@@ -180,11 +181,13 @@ lemma ladder_comm_cross (hij : i ≠ j) :
         - (Complex.I * (Q.m * Q.ω i : ℝ)) • (𝐱 i * 𝐩 j - 𝐩 j * 𝐱 i)
         + (Complex.I * (Q.m * Q.ω j : ℝ)) • (𝐩 i * 𝐱 j - 𝐱 j * 𝐩 i)
         + (𝐩 i * 𝐩 j - 𝐩 j * 𝐩 i) := by
-    simp only [add_mul, mul_add, sub_mul, mul_sub, smul_add, smul_sub, smul_mul_assoc, mul_smul_comm, smul_smul,
+    simp only [add_mul, mul_add, sub_mul, mul_sub, smul_add, smul_sub, smul_mul_assoc,
+        mul_smul_comm, smul_smul,
       pow_two, Complex.I_mul_I, Complex.I_sq]
     module
   rw [key, position_mul_position_sub_position_mul_position,
-    position_mul_momentum_sub_momentum_mul_position, momentum_mul_position_sub_position_mul_momentum,
+    position_mul_momentum_sub_momentum_mul_position,
+        momentum_mul_position_sub_position_mul_momentum,
     momentum_mul_momentum_sub_momentum_mul_momentum,
     KroneckerDelta.eq_zero_of_ne hij, KroneckerDelta.eq_zero_of_ne hij.symm]
   simp
@@ -360,8 +363,10 @@ lemma numberOperator_commutation_ladder :
       ladderA Q j * ladderAdag Q i - δ[j, i] • (1 : 𝓢(Space d, ℂ) →L[ℂ] 𝓢(Space d, ℂ)) := by
     have := ladder_commutation_ladderAdag Q j i
     linear_combination (norm := module) -this
-  have key : ladderAdag Q i * ladderA Q i * ladderA Q j - ladderA Q j * (ladderAdag Q i * ladderA Q i)
-      = (ladderAdag Q i * ladderA Q j) * ladderA Q i - ladderA Q j * ladderAdag Q i * ladderA Q i := by
+  have key : ladderAdag Q i * ladderA Q i * ladderA Q j - ladderA Q j * (ladderAdag Q i * ladderA Q
+      i)
+      = (ladderAdag Q i * ladderA Q j) * ladderA Q i
+        - ladderA Q j * ladderAdag Q i * ladderA Q i := by
     calc
       _ = (ladderAdag Q i * ladderA Q j) * ladderA Q i -
           ladderA Q j * ladderAdag Q i * ladderA Q i +
@@ -392,7 +397,8 @@ lemma numberOperator_commutation_ladderAdag :
     linear_combination (norm := module) this
   have key : ladderAdag Q i * ladderA Q i * ladderAdag Q j -
       ladderAdag Q j * (ladderAdag Q i * ladderA Q i)
-      = ladderAdag Q i * (ladderA Q i * ladderAdag Q j) - ladderAdag Q j * ladderAdag Q i * ladderA Q i := by
+      = ladderAdag Q i * (ladderA Q i * ladderAdag Q j) - ladderAdag Q j * ladderAdag Q i * ladderA
+          Q i := by
     simp only [mul_assoc]
   rw [key, e2, mul_add]
   simp only [mul_smul_comm, mul_one]
@@ -413,7 +419,8 @@ lemma numberOperator_commutation_ladderAdag :
 
 /-- **The number-operator Hamiltonian**, `H_N = ℏ ∑ᵢ ωᵢ (Nᵢ + 1/2)`. -/
 def numberHamiltonian (Q : HarmonicOscillator d) : 𝓢(Space d, ℂ) →L[ℂ] 𝓢(Space d, ℂ) :=
-  (ℏ : ℂ) • ∑ i, (Q.ω i : ℝ) • (numberOperator Q i + (2⁻¹ : ℝ) • (1 : 𝓢(Space d, ℂ) →L[ℂ] 𝓢(Space d, ℂ)))
+  (ℏ : ℂ) • ∑ i, (Q.ω i : ℝ) • (numberOperator Q i + (2⁻¹ : ℝ) • (1 : 𝓢(Space d, ℂ) →L[ℂ] 𝓢(Space d,
+      ℂ)))
 
 informal_lemma numberHamiltonian_commutation_numberOperator where
   deps := [``numberHamiltonian, ``numberOperator]

@@ -571,7 +571,8 @@ theorem ext {D E : BoundedNormalSpectralData U}
 
 /- A bounded-integral equality is a convenient representation-independent uniqueness criterion.
 The stronger hypothesis is intentional: reconstruction of only the identity multiplier does not
-by itself expose the spectral projections, whereas equality for all bounded Borel multipliers does. -/
+by itself expose the spectral projections, whereas equality for all bounded Borel multipliers does.
+    -/
 theorem ext_of_boundedIntegral_eq {D E : BoundedNormalSpectralData U}
     (h : ∀ (f : ℂ → ℂ) (hf : Measurable f)
       (hfb : ∃ C : ℝ, ∀ z, ‖f z‖ ≤ C),

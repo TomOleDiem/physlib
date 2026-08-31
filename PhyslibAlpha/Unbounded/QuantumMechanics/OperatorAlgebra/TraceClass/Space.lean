@@ -56,7 +56,8 @@ theorem isTraceClass_neg {T : B(H)} (hT : IsTraceClass T) : IsTraceClass (-T) :=
   rwa [neg_one_smul] at h
 
 /-- Transporting `traceNorm` across an equality of the underlying operator. Needed because `rw`
-cannot rewrite `traceNorm`'s operator argument directly (the motive depends on the witness proof). -/
+cannot rewrite `traceNorm`'s operator argument directly (the motive depends on the witness proof).
+    -/
 theorem traceNorm_transport {X Y : B(H)} (hEq : X = Y) (hX : IsTraceClass X) :
     traceNorm X hX = traceNorm Y (hEq ▸ hX) := by
   subst hEq; rfl

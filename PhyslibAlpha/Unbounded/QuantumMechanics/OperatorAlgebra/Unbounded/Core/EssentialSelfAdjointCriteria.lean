@@ -86,7 +86,8 @@ theorem isEssentiallySelfAdjoint_of_dense_eigenvectors
     (hnonreal : ∀ i, (eigenvalue i : ℂ) ≠ Complex.I ∧ (eigenvalue i : ℂ) ≠ -Complex.I)
     (hspan : (Submodule.span ℂ (Set.range v)).topologicalClosure = ⊤) :
     T.IsEssentiallySelfAdjoint := by
-  rcases defectNumber_eq_zero_of_dense_eigenvectors hT hdense v eigenvalue hv heigen hnonreal hspan with
+  rcases defectNumber_eq_zero_of_dense_eigenvectors hT hdense v eigenvalue hv heigen hnonreal hspan
+      with
     ⟨hpos, hneg⟩
   exact hT.isEssentiallySelfAdjoint_of_defectNumber_eq_zero hdense hpos hneg
 

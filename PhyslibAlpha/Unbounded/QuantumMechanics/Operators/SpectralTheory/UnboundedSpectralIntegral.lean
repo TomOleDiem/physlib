@@ -26,6 +26,7 @@ noncomputable section
 
 open scoped Topology InnerProductSpace Function
 open ContinuousLinearMap ContinuousLinearMapWOT MeasureTheory Set
+open QuantumMechanics.WOTSpectralMeasure
 
 namespace QuantumMechanics.WOTSpectralMeasure
 
@@ -2348,8 +2349,8 @@ theorem: its operator domain is the square-moment domain of its PVM.  Exposing t
 method keeps later Cayley and representation proofs from reconstructing the same argument. -/
 
 theorem maximal_eq (D : DomainAwareSelfAdjointSpectralTheorem T μS) :
-    QuantumMechanics.WOTSpectralMeasure.maximalSpectralIntegral μS = T := by
-  exact QuantumMechanics.WOTSpectralMeasure.maximalSpectralIntegral_eq_of_isSelfAdjoint_of_isWeakSpectralResolution
+    maximalSpectralIntegral μS = T := by
+  exact maximalSpectralIntegral_eq_of_isSelfAdjoint_of_isWeakSpectralResolution
     T D.isSelfAdjoint D.reconstruction_of
     (fun z => by
       change (z : H) ∈ OperatorAlgebra.spectralSquareMomentDomain μS
@@ -2370,8 +2371,8 @@ theorem maximal_eq_of_domain_inclusion
     (D : SelfAdjointSpectralTheorem T μS)
     (hdom : ∀ x : T.domain,
       (x : H) ∈ spectralSquareMomentDomain μS) :
-    QuantumMechanics.WOTSpectralMeasure.maximalSpectralIntegral μS = T := by
-  exact QuantumMechanics.WOTSpectralMeasure.maximalSpectralIntegral_eq_of_isSelfAdjoint_of_isWeakSpectralResolution
+    maximalSpectralIntegral μS = T := by
+  exact maximalSpectralIntegral_eq_of_isSelfAdjoint_of_isWeakSpectralResolution
     T D.isSelfAdjoint D.reconstruction hdom
 
 end SelfAdjointSpectralTheorem
@@ -2389,7 +2390,7 @@ theorem domainAwareSpectralTheorem
     (hdom : ∀ x : T.closure.domain,
       (x : H) ∈ spectralSquareMomentDomain D.spectralMeasure) :
     DomainAwareSelfAdjointSpectralTheorem T.closure D.spectralMeasure := by
-  exact QuantumMechanics.WOTSpectralMeasure.domainAwareSelfAdjointSpectralTheorem_of_isWeakSpectralResolution
+  exact domainAwareSelfAdjointSpectralTheorem_of_isWeakSpectralResolution
       T.closure
       D.closure_isSelfAdjoint D.spectralReconstruction hdom
 

@@ -115,7 +115,8 @@ gap). This definition is the purely topological approximation: isolated points o
 without the finite-multiplicity refinement. It agrees with the textbook notion whenever `M` is,
 e.g., a type I factor with all eigenspaces automatically finite-dimensional (as for the oscillator
 and hydrogen), but is not the fully general statement. -/
-def discreteSpectrum : Set ℝ := {l ∈ T.spectrum | ∃ ε > 0, T.spectrum ∩ Set.Ioo (l - ε) (l + ε) = {l}}
+def discreteSpectrum : Set ℝ := {l ∈ T.spectrum | ∃ ε > 0, T.spectrum ∩ Set.Ioo (l - ε) (l + ε) =
+    {l}}
 
 /-- **The essential spectrum**: everything in `σ(A)` that is not (topologically) discrete —
 accumulation points of the spectrum. Inherits `discreteSpectrum`'s honesty caveat: this excludes

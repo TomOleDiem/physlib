@@ -59,7 +59,8 @@ The classical proof proceeds via the divergence theorem applied to the vector fi
    dispensation — which only waives *differentiability*, not *continuity*, at the excluded point —
    does not apply directly to `F` on the closed ball. Rather than excising a literal ball around the
    origin and using the divergence theorem on an annulus (which would need spherical/annulus
-   divergence machinery), this file instead multiplies `F` by a smooth radial cutoff `cutoffRadial ε`
+   divergence machinery), this file instead multiplies `F` by a smooth radial cutoff `cutoffRadial
+       ε`
    that is identically `0` near the origin (built from `Real.smoothTransition`): the field
    `cutoffRadial ε • F` is then genuinely `C¹` *everywhere* (no exceptional point at all), so the
    *plain* divergence theorem applies. That base fact —
@@ -160,7 +161,8 @@ theorem divergence_invSqSmulId (x : ℝ³) (hx : x ≠ 0) :
           ℝ³ →L[ℝ] ℝ³) : ℝ³ →ₗ[ℝ] ℝ³) =
       (‖x‖ ^ 2)⁻¹ * LinearMap.trace ℝ ℝ³ (ContinuousLinearMap.id ℝ ℝ³ : ℝ³ →ₗ[ℝ] ℝ³) +
         (((-((‖x‖ ^ 2) ^ 2)⁻¹) • (2 • innerSL ℝ x) : ℝ³ →L[ℝ] ℝ)) x := by
-    rw [ContinuousLinearMap.toLinearMap_add, map_add, ContinuousLinearMap.toLinearMap_smul, map_smul,
+    rw [ContinuousLinearMap.toLinearMap_add, map_add, ContinuousLinearMap.toLinearMap_smul,
+        map_smul,
       smul_eq_mul]
     congr 1
     exact LinearMap.trace_smulRight
@@ -256,7 +258,8 @@ theorem divergence_hardyField {x : ℝ³} (hx : x ≠ 0) (hψx : HasFDerivAt ψ 
   exact LinearMap.trace_smulRight
     (((2 • (innerSL ℝ (ψ x)).comp (fderiv ℝ ψ x)) : ℝ³ →L[ℝ] ℝ) : ℝ³ →ₗ[ℝ] ℝ) (invSqSmulId x)
 
-/-- The key pointwise inequality: `‖ψ x‖ ^ 2 / ‖x‖ ^ 2 ≤ div F x + 2 * (‖ψ x‖ / ‖x‖) * ‖fderiv ℝ ψ x‖`
+/-- The key pointwise inequality: `‖ψ x‖ ^ 2 / ‖x‖ ^ 2 ≤ div F x + 2 * (‖ψ x‖ / ‖x‖) * ‖fderiv ℝ ψ
+    x‖`
 for `x ≠ 0`. Integrating this over a ball and using
 `integral_divergence_eq_zero_of_support_subset_ball` gives Hardy's inequality. -/
 theorem normSq_ψ_div_sq_le_divergence_add_two_mul
@@ -490,7 +493,8 @@ private lemma contDiff_hardyFieldCutoff (hψ : ContDiff ℝ 1 ψ) {ε : ℝ} (h�
 cutoff cannot enlarge the support, and `hardyField ψ x = 0` whenever `ψ x = 0`. -/
 private lemma tsupport_hardyFieldCutoff_subset {ε : ℝ} :
     tsupport (fun x => cutoffRadial ε x • hardyField ψ x) ⊆ tsupport ψ := by
-  have hsub : Function.support (fun x => cutoffRadial ε x • hardyField ψ x) ⊆ Function.support ψ := by
+  have hsub :
+      Function.support (fun x => cutoffRadial ε x • hardyField ψ x) ⊆ Function.support ψ := by
     intro x hx
     rw [Function.mem_support] at hx ⊢
     intro hψx
@@ -559,7 +563,8 @@ private lemma integral_trace_fderiv_eq_zero_of_compactSupport
     continuous_finsetSum Finset.univ fun i _ =>
       (continuous_apply i).comp (hfderivCont.clm_apply continuous_const)
   -- A box `Icc a b` strictly containing the (compact) image of `tsupport G`.
-  obtain ⟨C, hC⟩ := ((isCompact_closedBall (0 : ℝ³) R).image toFin3.continuous).isBounded.subset_closedBall
+  obtain ⟨C, hC⟩ := ((isCompact_closedBall (0 : ℝ³) R).image
+      toFin3.continuous).isBounded.subset_closedBall
     (0 : Fin 3 → ℝ)
   have hCbound : ∀ x ∈ closedBall (0 : ℝ³) R, ∀ i, |(toFin3 x) i| ≤ C := fun x hx i =>
     (norm_le_pi_norm (toFin3 x) i).trans (mem_closedBall_zero_iff.mp (hC ⟨x, hx, rfl⟩))
@@ -620,10 +625,12 @@ private lemma integral_trace_fderiv_eq_zero_of_compactSupport
     rw [hthm]
     apply Finset.sum_eq_zero
     intro i _
-    have hfront : (∫ x in Set.Icc (a ∘ i.succAbove) (b ∘ i.succAbove), H (i.insertNth (b i) x) i) = 0 := by
+    have hfront : (∫ x in Set.Icc (a ∘ i.succAbove) (b ∘ i.succAbove), H (i.insertNth (b i) x) i) =
+        0 := by
       simp only [hface i (b i) (habs_b i)]
       simp
-    have hback : (∫ x in Set.Icc (a ∘ i.succAbove) (b ∘ i.succAbove), H (i.insertNth (a i) x) i) = 0 := by
+    have hback :
+        (∫ x in Set.Icc (a ∘ i.succAbove) (b ∘ i.succAbove), H (i.insertNth (a i) x) i) = 0 := by
       simp only [hface i (a i) (habs_a i)]
       simp
     rw [hfront, hback, sub_zero]
@@ -794,7 +801,8 @@ theorem integral_divergence_eq_zero_of_support_subset_ball
         filter_upwards [(isOpen_compl_iff.mpr isClosed_closure).mem_nhds hxnot] with y hy
         exact image_eq_zero_of_notMem_tsupport (f := fun y => cutoffRadial ε y • hardyField ψ y) hy
       rw [hev.fderiv_eq]; simp
-    have hset : (∫ x, LinearMap.trace ℝ ℝ³ ((fderiv ℝ (fun y => cutoffRadial ε y • hardyField ψ y) x :
+    have hset : (∫ x, LinearMap.trace ℝ ℝ³ ((fderiv ℝ (fun y => cutoffRadial ε y • hardyField ψ y)
+        x :
         ℝ³ →L[ℝ] ℝ³) : ℝ³ →ₗ[ℝ] ℝ³) ∂volume) =
         ∫ x in closedBall (0 : ℝ³) R, LinearMap.trace ℝ ℝ³
           ((fderiv ℝ (fun y => cutoffRadial ε y • hardyField ψ y) x : ℝ³ →L[ℝ] ℝ³) : ℝ³ →ₗ[ℝ] ℝ³)
@@ -828,11 +836,13 @@ theorem integral_divergence_eq_zero_of_support_subset_ball
         ((fderiv ℝ (fun y => cutoffRadial ε y • hardyField ψ y) x : ℝ³ →L[ℝ] ℝ³) :
           ℝ³ →ₗ[ℝ] ℝ³)) (closedBall (0 : ℝ³) R) volume :=
       (hTraceCont.comp
-        ((contDiff_hardyFieldCutoff hψ hε).continuous_fderiv one_ne_zero)).continuousOn.integrableOn_compact
+        ((contDiff_hardyFieldCutoff hψ hε).continuous_fderiv
+            one_ne_zero)).continuousOn.integrableOn_compact
         (isCompact_closedBall 0 R)
     have hIntGrad : IntegrableOn (fun x => (fderiv ℝ (cutoffRadial ε) x) (hardyField ψ x))
         (closedBall (0 : ℝ³) R) volume :=
-      (hIntGεTrace.sub hIntCF).congr (hpt.mono fun x hx => by simp only [Pi.sub_apply]; linarith [hx])
+      (hIntGεTrace.sub hIntCF).congr (hpt.mono fun x hx => by simp only [Pi.sub_apply]; linarith
+          [hx])
     have hsplit : (∫ x in closedBall (0 : ℝ³) R, LinearMap.trace ℝ ℝ³
         ((fderiv ℝ (fun y => cutoffRadial ε y • hardyField ψ y) x : ℝ³ →L[ℝ] ℝ³) :
           ℝ³ →ₗ[ℝ] ℝ³) ∂volume) =
@@ -854,7 +864,8 @@ theorem integral_divergence_eq_zero_of_support_subset_ball
     intro ε hε hεR
     have hgzero : ∀ x : ℝ³, 2 * ε < ‖x‖ → (fderiv ℝ (cutoffRadial ε) x) (hardyField ψ x) = 0 :=
       fun x hx => by rw [fderiv_cutoffRadial_eq_zero_of_gt hε hx]; simp
-    have hgzeroR : ∀ x ∉ closedBall (0 : ℝ³) R, (fderiv ℝ (cutoffRadial ε) x) (hardyField ψ x) = 0 := by
+    have hgzeroR :
+        ∀ x ∉ closedBall (0 : ℝ³) R, (fderiv ℝ (cutoffRadial ε) x) (hardyField ψ x) = 0 := by
       intro x hx
       refine hgzero x ?_
       by_contra hle
@@ -893,7 +904,8 @@ theorem integral_divergence_eq_zero_of_support_subset_ball
               gcongr
               exact norm_fderiv_cutoffRadial_le hε hM0 hM x
           _ = M * C ^ 2 / ε ^ 2 := by ring
-    have hvol : volume (closedBall (0 : ℝ³) (2 * ε)) < ⊤ := (isCompact_closedBall 0 _).measure_lt_top
+    have hvol : volume (closedBall (0 : ℝ³) (2 * ε)) < ⊤ := (isCompact_closedBall 0
+        _).measure_lt_top
     have hnormle := norm_setIntegral_le_of_norm_le_const hvol hgbound
     have hvoleq : volume.real (closedBall (0 : ℝ³) (2 * ε)) = (2 * ε) ^ 3 * (Real.pi * 4 / 3) := by
       unfold Measure.real
@@ -910,10 +922,12 @@ theorem integral_divergence_eq_zero_of_support_subset_ball
       Filter.Tendsto (fun ε => cutoffRadial ε x) (nhdsWithin (0 : ℝ) (Set.Ioi 0)) (nhds 1) := by
     intro x hx
     have hmem : {ε : ℝ | cutoffRadial ε x = 1} ∈ nhdsWithin (0 : ℝ) (Set.Ioi 0) :=
-      (mem_nhdsGT_iff_exists_Ioo_subset' (show (0:ℝ) < ‖x‖/2 from half_pos (norm_pos_iff.mpr hx))).mpr
+      (mem_nhdsGT_iff_exists_Ioo_subset' (show (0:ℝ) < ‖x‖/2 from half_pos (norm_pos_iff.mpr
+          hx))).mpr
         ⟨‖x‖ / 2, half_pos (norm_pos_iff.mpr hx),
           fun ε hε => cutoffRadial_eq_one_of_le hε.1 (by linarith [hε.2])⟩
-    have heqfun : (fun ε => cutoffRadial ε x) =ᶠ[nhdsWithin (0 : ℝ) (Set.Ioi 0)] (fun _ => (1 : ℝ)) :=
+    have heqfun : (fun ε => cutoffRadial ε x) =ᶠ[nhdsWithin (0 : ℝ) (Set.Ioi 0)] (fun _ => (1 :
+        ℝ)) :=
       Filter.eventuallyEq_of_mem hmem (fun ε hε => hε)
     exact (Filter.tendsto_congr' heqfun).mpr tendsto_const_nhds
   -- Dominated convergence for `LHS ε := ∫ cutoffRadial ε * div F`.
@@ -922,12 +936,14 @@ theorem integral_divergence_eq_zero_of_support_subset_ball
         LinearMap.trace ℝ ℝ³ ((fderiv ℝ (hardyField ψ) x : ℝ³ →L[ℝ] ℝ³) : ℝ³ →ₗ[ℝ] ℝ³) ∂volume)
       (nhdsWithin (0 : ℝ) (Set.Ioi 0))
       (nhds (∫ x in closedBall (0 : ℝ³) R,
-        LinearMap.trace ℝ ℝ³ ((fderiv ℝ (hardyField ψ) x : ℝ³ →L[ℝ] ℝ³) : ℝ³ →ₗ[ℝ] ℝ³) ∂volume)) := by
+        LinearMap.trace ℝ ℝ³ ((fderiv ℝ (hardyField ψ) x : ℝ³ →L[ℝ] ℝ³) : ℝ³ →ₗ[ℝ] ℝ³)
+          ∂volume)) := by
     refine tendsto_integral_filter_of_dominated_convergence
       (fun x => |LinearMap.trace ℝ ℝ³ ((fderiv ℝ (hardyField ψ) x : ℝ³ →L[ℝ] ℝ³) : ℝ³ →ₗ[ℝ] ℝ³)|)
       (Filter.eventually_of_mem self_mem_nhdsWithin fun ε hε =>
         (contDiff_cutoffRadial hε).continuous.aestronglyMeasurable.mul hmeasTrace.restrict)
-      (Filter.eventually_of_mem self_mem_nhdsWithin fun ε _ => Filter.Eventually.of_forall fun x => ?_)
+      (Filter.eventually_of_mem self_mem_nhdsWithin fun ε _ => Filter.Eventually.of_forall fun x =>
+          ?_)
       hIntTrace.abs ?_
     · rw [Real.norm_eq_abs, abs_mul]
       calc |cutoffRadial ε x| *
@@ -943,7 +959,8 @@ theorem integral_divergence_eq_zero_of_support_subset_ball
         (x := LinearMap.trace ℝ ℝ³ ((fderiv ℝ (hardyField ψ) x : ℝ³ →L[ℝ] ℝ³) : ℝ³ →ₗ[ℝ] ℝ³)))
   -- The `∇(cutoffRadial ε) · F` term tends to `0`.
   have hRHStendsto0 : Filter.Tendsto
-      (fun ε => ∫ x in closedBall (0 : ℝ³) R, (fderiv ℝ (cutoffRadial ε) x) (hardyField ψ x) ∂volume)
+      (fun ε => ∫ x in closedBall (0 : ℝ³) R, (fderiv ℝ (cutoffRadial ε) x) (hardyField ψ x)
+          ∂volume)
       (nhdsWithin (0 : ℝ) (Set.Ioi 0)) (nhds 0) := by
     have hKtendsto : Filter.Tendsto (fun ε : ℝ => K * ε) (nhds (0 : ℝ)) (nhds 0) := by
       simpa using (tendsto_const_nhds (x := K)).mul (Filter.tendsto_id (x := nhds (0:ℝ)))

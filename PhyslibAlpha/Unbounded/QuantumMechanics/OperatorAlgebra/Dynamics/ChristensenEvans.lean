@@ -1399,7 +1399,7 @@ lemma isChristensenEvansGenerator_of_completelyPositiveShift
   simp only [zero_mul, mul_zero, sub_zero, zero_smul, add_zero, one_mul, mul_one]
   module
 
-lemma isChristensenEvansGenerator_of_hasHamiltonianCompletelyPositiveShift
+lemma isChristensenEvansGenerator_of_hamiltonianShift
     (L : A →L[ℂ] A) (hL1 : L 1 = 0)
     (hshift : HasHamiltonianCompletelyPositiveShift L) :
     IsChristensenEvansGenerator L := by
@@ -1707,11 +1707,11 @@ lemma isChristensenEvansGenerator_of_hasCompletelyPositiveShift
     Φ.generator Φ.generator_isUnital hshift
 
 /-- The full semigroup-facing form of the Hamiltonian-adjusted positive-shift reduction. -/
-lemma isChristensenEvansGenerator_of_hasHamiltonianCompletelyPositiveShift
+lemma isChristensenEvansGenerator_of_hamiltonianShift
     (Φ : BoundedQuantumDynamicalSemigroup A)
     (hshift : HasHamiltonianCompletelyPositiveShift Φ.generator) :
     IsChristensenEvansGenerator Φ.generator := by
-  exact OperatorAlgebra.isChristensenEvansGenerator_of_hasHamiltonianCompletelyPositiveShift
+  exact OperatorAlgebra.isChristensenEvansGenerator_of_hamiltonianShift
     Φ.generator Φ.generator_isUnital hshift
 
 end BoundedQuantumDynamicalSemigroup
@@ -1949,14 +1949,14 @@ lemma isChristensenEvansGenerator_of_hasCompletelyPositiveShift
     (Φ.toBoundedQuantumDynamicalSemigroup hΦ) hshift
 
 /-- The raw norm-continuous semigroup form of the Hamiltonian-adjusted reduction. -/
-lemma isChristensenEvansGenerator_of_hasHamiltonianCompletelyPositiveShift
+lemma isChristensenEvansGenerator_of_hamiltonianShift
     (Φ : QuantumDynamicalSemigroup A)
     (hΦ : QuantumDynamicalSemigroup.IsNormContinuous Φ)
     (hshift : HasHamiltonianCompletelyPositiveShift
       (Φ.toBoundedQuantumDynamicalSemigroup hΦ).generator) :
     IsChristensenEvansGenerator
       (Φ.toBoundedQuantumDynamicalSemigroup hΦ).generator := by
-  exact BoundedQuantumDynamicalSemigroup.isChristensenEvansGenerator_of_hasHamiltonianCompletelyPositiveShift
+  exact BoundedQuantumDynamicalSemigroup.isChristensenEvansGenerator_of_hamiltonianShift
     (Φ.toBoundedQuantumDynamicalSemigroup hΦ) hshift
 
 /-- A norm-continuous UCP semigroup has a canonical bounded Markov-generator package. -/

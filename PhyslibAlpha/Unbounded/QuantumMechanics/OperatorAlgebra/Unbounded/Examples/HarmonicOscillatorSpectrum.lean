@@ -136,7 +136,8 @@ theorem hamiltonianSpectralMeasure_apply_eigenbasis (n : ℕ) :
 
 /-- **Every physical eigenvalue is an atom of the oscillator's spectral measure.** -/
 theorem eigenValue_mem_pointSpectrumSet (n : ℕ) :
-    Q.eigenValue n ∈ WOTSpectralMeasure.pointSpectrumSet (hamiltonianSpectralData Q).spectralMeasure := by
+    Q.eigenValue n ∈
+      WOTSpectralMeasure.pointSpectrumSet (hamiltonianSpectralData Q).spectralMeasure := by
   rw [WOTSpectralMeasure.pointSpectrumSet, Set.mem_setOf_eq]
   intro hz
   have h0 : Q.eigenbasis n = 0 := by
@@ -222,7 +223,8 @@ Q.eigenValue`. Pick `x` with `v := E {c} x ≠ 0`. For each `n`, `c ≠ Q.eigenV
 (`hamiltonianSpectralMeasure_apply_eigenbasis`), the general disjoint-orthogonality lemma
 `WOTSpectralMeasure.inner_apply_apply_eq_zero_of_disjoint` gives `⟪Q.eigenbasis n, v⟫ = 0` for
 every `n`. Hence every Fourier coefficient of `v` against the Hilbert basis `Q.eigenbasis` vanishes,
-so `v = 0` (`HilbertBasis.repr` is injective and `repr v` would be the zero sequence) — contradicting
+so `v = 0` (`HilbertBasis.repr` is injective and `repr v` would be the zero sequence) —
+    contradicting
 `v ≠ 0`. This is the standard non-degeneracy argument (Reed & Simon, *Methods of Modern Mathematical
 Physics I*, the discrete-spectrum discussion following Theorem VIII.6). -/
 theorem pointSpectrumSet_eq_range_eigenValue :
