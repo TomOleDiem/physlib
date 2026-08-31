@@ -39,6 +39,8 @@ by `QuantumInfo`, so this is a genuine norm/topological finite-dimensional semig
 pointwise family of unrelated channels.
 -/
 
+/-- A norm-continuous, identity-at-zero, additive-in-time family of CPTP channels on `d`: the
+Schrödinger-picture finite-dimensional quantum dynamical semigroup. -/
 structure FiniteDimensionalQuantumDynamicalSemigroup (d : Type*) [Fintype d]
     [DecidableEq d] where
   /-- The channel at each nonnegative time. -/
@@ -56,6 +58,7 @@ noncomputable def cpuId (d : Type*) [Fintype d] [DecidableEq d] : CPUMap d d whe
   cp := MatrixMap.IsCompletelyPositive.id
   unital := MatrixMap.Unital.id
 
+/-- Composition of finite-dimensional unital completely positive maps. -/
 noncomputable def cpuCompose
     {dIn dM dOut : Type*} [Fintype dIn] [Fintype dM] [Fintype dOut]
     [DecidableEq dIn] [DecidableEq dM] [DecidableEq dOut]
@@ -217,6 +220,8 @@ composition becomes matrix multiplication.  Continuity on Hermitian inputs exten
 matrix inputs by the real/imaginary decomposition, and the Choi map is then applied as a fixed
 continuous linear map. -/
 
+/-- The Choi matrix of `Φ.map` at nonnegative time `t`, as a curve in `t : ℝ` (see
+`nonnegativeTime`). -/
 noncomputable def transferCurve
     (Φ : FiniteDimensionalHeisenbergQuantumDynamicalSemigroup d) (t : ℝ) :
     Matrix (d × d) (d × d) ℂ :=
@@ -312,6 +317,7 @@ lemma exists_transfer_generator
   refine ⟨(T a - T 0) * (↑(haunit.unit⁻¹) : Matrix (d × d) (d × d) ℂ), ?_⟩
   exact hderiv
 
+/-- The Choi-matrix map, as a continuous linear map on matrix maps. -/
 def choiLinearMap : MatrixMap d d ℂ →ₗ[ℂ]
     Matrix (d × d) (d × d) ℂ where
   toFun M := M.choi_matrix
@@ -354,6 +360,8 @@ The following certificate records a right derivative on Hermitian observables an
 Hermitian-preserving property of the matrix map explicit.
 -/
 
+/-- A right derivative on Hermitian observables for a finite-dimensional Heisenberg semigroup,
+together with the fact that the derivative is Hermitian-preserving. -/
 structure HasFiniteDimensionalHeisenbergGenerator
     (Φ : FiniteDimensionalHeisenbergQuantumDynamicalSemigroup d) where
   /-- The underlying complex-linear matrix map. -/
@@ -366,6 +374,7 @@ structure HasFiniteDimensionalHeisenbergGenerator
       (fun t : ℝ => (Φ.map (nonnegativeTime t) X : Matrix d d ℂ))
       (map X) (Set.Ici 0) 0
 
+/-- Conjugate transpose, as a continuous ℝ-linear map on matrices. -/
 noncomputable def matrixConjTransposeRealCLM : Matrix d d ℂ →L[ℝ] Matrix d d ℂ := by
   let f : Matrix d d ℂ →ₗ[ℝ] Matrix d d ℂ :=
     { toFun := Matrix.conjTranspose
@@ -373,12 +382,15 @@ noncomputable def matrixConjTransposeRealCLM : Matrix d d ℂ →L[ℝ] Matrix d
       map_smul' := by intro c X; simp [Matrix.conjTranspose_smul] }
   exact { toLinearMap := f, cont := f.continuous_of_finiteDimensional }
 
+/-- Evaluation of a Choi-matrix-indexed linear map at the fixed matrix `X`. -/
 noncomputable def transferEval (X : Matrix d d ℂ) :
     Matrix (d × d) (d × d) ℂ →ₗ[ℂ] Matrix d d ℂ where
   toFun M := (MatrixMap.toMatrix.symm M) X
   map_add' M N := by simp
   map_smul' c M := by simp
 
+/-- The generator certificate obtained from `exists_transfer_generator`, in
+`HasFiniteDimensionalHeisenbergGenerator` form. -/
 noncomputable def finiteDimensionalGenerator
     (Φ : FiniteDimensionalHeisenbergQuantumDynamicalSemigroup d) :
     HasFiniteDimensionalHeisenbergGenerator Φ := by
@@ -579,6 +591,7 @@ lemma toSchrodingerMap_isTraceAnnihilating :
   rw [G.is_unital_infinitesimal, zero_mul, one_mul] at h
   simpa [toSchrodingerMap] using h.symm
 
+/-- `G`'s generator, repackaged in Schrödinger-picture form. -/
 noncomputable def toSchrodingerGenerator : FiniteDimensionalSchrodingerGenerator d :=
   { map := G.toSchrodingerMap
     is_hermitian_preserving := G.toSchrodingerMap_isHermitianPreserving
@@ -586,7 +599,7 @@ noncomputable def toSchrodingerGenerator : FiniteDimensionalSchrodingerGenerator
 
 end FiniteDimensionalHeisenbergGenerator
 
-/- The quadratic expression is linear in the Choi matrix once the test vector is fixed.  Making
+/-- The quadratic expression is linear in the Choi matrix once the test vector is fixed.  Making
 that linearity explicit is what lets the derivative of a Choi-valued semigroup be composed with
 the positivity test in the infinitesimal argument. -/
 def choiQuadraticFunctional (x : (d × d) → ℂ) :
@@ -595,6 +608,7 @@ def choiQuadraticFunctional (x : (d × d) → ℂ) :
   map_add' C D := by simp [Matrix.add_mulVec, dotProduct_add]
   map_smul' c C := by simp [Matrix.smul_mulVec, dotProduct_smul]
 
+/-- `choiQuadraticFunctional`, as a continuous ℝ-linear map. -/
 noncomputable def choiQuadraticContinuousLinearMap (x : (d × d) → ℂ) :
     Matrix (d × d) (d × d) ℂ →L[ℝ] ℂ := by
   let q : Matrix (d × d) (d × d) ℂ →ₗ[ℝ] ℂ :=
@@ -616,6 +630,8 @@ two hypotheses separate is useful when a generator is obtained from a matrix exp
 coordinate calculation, or a dual semigroup.
 -/
 
+/-- `L` is the trace-side generator of `Φ`: the trace of `Φ.map (nonnegativeTime t) X` has right
+derivative `(L X).trace` at `t = 0`, for every `X`. -/
 def HasTraceGenerator
     (Φ : FiniteDimensionalQuantumDynamicalSemigroup d) (L : MatrixMap d d ℂ) : Prop :=
   ∀ X : Matrix d d ℂ,
@@ -696,7 +712,7 @@ lemma choi_id_quadratic_zero (x : (d × d) → ℂ)
 
 end FiniteDimensionalQuantumDynamicalSemigroup
 
-/- The correction terms in a GKSL generator have zero Choi quadratic form on this subspace.  We
+/-- The correction terms in a GKSL generator have zero Choi quadratic form on this subspace.  We
 record that property separately, since it is the exact interface needed to add them to a CP
 Kraus part. -/
 def IsChoiQuadraticNull (M : MatrixMap d d ℂ) : Prop :=
@@ -774,6 +790,9 @@ abbrev HasNormedComplexDeriv (f : ℝ → ℂ) (f' : ℂ) (s : Set ℝ) (x : ℝ
     (RCLike.toInnerProductSpaceReal : InnerProductSpace ℝ ℂ).toModule
     inferInstance inferInstance f f' s x
 
+/-- `L` is a Choi generator of `Φ` in the weaker, quadratic-form-only sense: the scalar curve
+`t ↦ ⟪x, Φ.choiCurve t x⟫` has the expected derivative, for every `x` orthogonal to the
+maximally-entangled vector. -/
 def HasChoiQuadraticGenerator
     (Φ : FiniteDimensionalQuantumDynamicalSemigroup d) (L : MatrixMap d d ℂ) : Prop :=
   ∀ x : (d × d) → ℂ,
@@ -1552,14 +1571,17 @@ lemma matrix_sub_compressedChoi_expansion
     maxEntangledComplementProjection_eq_one_sub_line]
   noncomm_ring
 
+/-- The `(d × d)`-block left coefficient of `C` along the maximally-entangled line. -/
 noncomputable def lineLeftCoefficient (C : Matrix (d × d) (d × d) ℂ) : Matrix d d ℂ :=
   fun j i => (maxEntangledNormSq (d := d))⁻¹ *
     ∑ k : d, C (j, i) (k, k)
 
+/-- The `(d × d)`-block right coefficient of `C` along the maximally-entangled line. -/
 noncomputable def lineRightCoefficient (C : Matrix (d × d) (d × d) ℂ) : Matrix d d ℂ :=
   fun i j => (maxEntangledNormSq (d := d))⁻¹ *
     ∑ k : d, C (k, k) (j, i)
 
+/-- The scalar coefficient of `C` along the maximally-entangled line. -/
 noncomputable def lineScalarCoefficient (C : Matrix (d × d) (d × d) ℂ) : ℂ :=
   (maxEntangledNormSq (d := d))⁻¹ *
     ∑ k : d, ∑ l : d, C (k, k) (l, l)
@@ -1674,11 +1696,13 @@ lemma lineScalarCoefficient_isSelfAdjoint
   simp [maxEntangledNormSq]
   ring
 
+/-- The Hermitian, scalar-multiple-of-identity part of `lineLeftCoefficient`. -/
 noncomputable def lineCorrectionCoefficient
     (C : Matrix (d × d) (d × d) ℂ) : Matrix d d ℂ :=
   ((2 : ℂ)⁻¹ * ((maxEntangledNormSq (d := d))⁻¹ *
     lineScalarCoefficient (d := d) C)) • (1 : Matrix d d ℂ)
 
+/-- What's left of `lineLeftCoefficient` after subtracting its correction term. -/
 noncomputable def lineRemainderCoefficient
     (C : Matrix (d × d) (d × d) ℂ) : Matrix d d ℂ :=
   lineLeftCoefficient (d := d) C - lineCorrectionCoefficient (d := d) C
@@ -1691,6 +1715,8 @@ lemma lineCorrectionCoefficient_isSelfAdjoint
   rw [Matrix.conjTranspose_smul]
   simp [lineScalarCoefficient_isSelfAdjoint C hC, maxEntangledNormSq]
 
+/-- The line-projection-supported part of the Choi matrix, written as a `matrixMulLeft +
+matrixMulRight` correction map. -/
 noncomputable def lineSupportedRemainderMap
     (C : Matrix (d × d) (d × d) ℂ) : MatrixMap d d ℂ :=
   matrixMulLeft (lineLeftCoefficient (d := d) C) +
@@ -1791,6 +1817,8 @@ lemma choi_matrix_isHermitian_of_isHermitianPreserving
   simpa [Matrix.conjTranspose_apply] using
     congr_fun (congr_fun hstar.symm j₁) j₂
 
+/-- The Choi matrix of `L`, compressed onto the maximally-entangled line's orthogonal
+complement. -/
 noncomputable def compressedChoi (L : MatrixMap d d ℂ) :
     Matrix (d × d) (d × d) ℂ :=
   (maxEntangledComplementProjection (d := d)).conjTranspose *
@@ -1824,6 +1852,8 @@ lemma compressedChoi_posSemidef_of_isConditionallyCompletelyPositive
   rw [Matrix.star_dotProduct]
   simp [maxEntangledComplementProjection_orthogonal]
 
+/-- The matrix map recovered from `compressedChoi`: the jump part of a GKSL generator with the
+line-supported correction removed. -/
 noncomputable def compressedJumpMap (L : MatrixMap d d ℂ) : MatrixMap d d ℂ :=
   MatrixMap.of_choi_matrix (compressedChoi (d := d) L)
 
