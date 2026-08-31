@@ -183,4 +183,6 @@ public import PhyslibAlpha.QuantumMechanics.Unbounded.Operators.SpectralTheory.K
 public import PhyslibAlpha.QuantumMechanics.Unbounded.Operators.SpectralTheory.TypeDecomposition
 public import PhyslibAlpha.QuantumMechanics.Unbounded.Operators.SpectralTheory.Stone
 public import PhyslibAlpha.QuantumMechanics.Unbounded.Operators.SpectralTheory.SpectralIntegral
+public import PhyslibAlpha.QuantumMechanics.Unbounded.Operators.SpectralTheory.SpectralIntegral.P1
+public import PhyslibAlpha.QuantumMechanics.Unbounded.Operators.SpectralTheory.SpectralIntegral.P2
 public import PhyslibAlpha.QuantumMechanics.Unbounded.Operators.SpectralTheory.WeakSpectralMeasure
