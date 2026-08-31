@@ -171,7 +171,7 @@ lemma hamiltonian_hasDenseDomain : Q.hamiltonian.HasDenseDomain := by
 ## D. The von Neumann defect-index criterion
 -/
 
-/- The remaining model-specific input is intentionally a data object.  A proof of this structure
+/-- The remaining model-specific input is intentionally a data object.  A proof of this structure
 requires the classical deficiency-ODE argument (or an independently established graph-core/
 Hermite-density theorem); neither is supplied by the reusable operator-algebra layer. -/
 structure HarmonicOscillatorDefectCertificate where

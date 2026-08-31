@@ -22,6 +22,7 @@ namespace OperatorAlgebra
 
 open scoped Topology
 
+/-- A state that is continuous for the weak-* topology of the chosen predual. -/
 structure NormalState (A : Type*) [WStarAlgebra A] extends State A where
   /-- The state is continuous for the chosen weak-* topology. -/
   weakStar_continuous :

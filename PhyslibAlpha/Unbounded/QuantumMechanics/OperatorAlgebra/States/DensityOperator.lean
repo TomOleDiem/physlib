@@ -74,7 +74,7 @@ structure DensityOperator (H : Type*) [NormedAddCommGroup H] [InnerProductSpace 
   /-- A density operator has trace one — total probability. -/
   trace_eq_one : trace ρ traceClass = 1
 
-/-! The general trace-ideal theorem supplies the right-ideal property.  It is kept as a named
+/-- The general trace-ideal theorem supplies the right-ideal property.  It is kept as a named
 interface for source compatibility with the finite-dimensional API, but the canonical instance
 below is available in every complete Hilbert space. -/
 class TraceClassRightIdeal (H : Type*) [NormedAddCommGroup H]
@@ -121,7 +121,7 @@ lemma DensityOperator.toStateFun_one [TraceClassRightIdeal H] (ρ : DensityOpera
   convert ρ.trace_eq_one using 2
   exact mul_one ρ.ρ
 
-/-! The certificate remains an explicit boundary for the product-trace presentation.  The fully
+/-- The certificate remains an explicit boundary for the product-trace presentation.  The fully
 general state construction is available as `DensityOperator.toStateQuadraticForm`, which never
 forms an unbounded product and is implemented in `DensityOperatorQuadraticForm.lean`. -/
 structure DensityOperatorStateCertificate [TraceClassRightIdeal H]

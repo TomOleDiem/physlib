@@ -140,6 +140,8 @@ namespace NormalState
 
 variable {A : Type*} [WStarAlgebra A] [FiniteDimensional ℂ A]
 
+/-- The normal state built from an arbitrary state, in finite dimension (every state is
+automatically normal there). -/
 noncomputable def ofStateFiniteDimensional (ω : State A) : NormalState A :=
   WStarAlgebra.NormalState.ofStateFiniteDimensional ω
 

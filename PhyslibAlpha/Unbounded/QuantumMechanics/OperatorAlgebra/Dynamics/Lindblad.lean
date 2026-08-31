@@ -46,9 +46,11 @@ structure, exactly as for exponentials of bounded operators themselves. -/
 noncomputable local instance : NormedAlgebra ℚ (B(H) →L[ℂ] B(H)) :=
   .restrictScalars ℚ ℂ (B(H) →L[ℂ] B(H))
 
+/-- The scalar restriction needed to view `B(H) →L[ℂ] B(H)` as an ℝ-normed algebra. -/
 noncomputable local instance : NormedAlgebra ℝ (B(H) →L[ℂ] B(H)) :=
   .restrictScalars ℝ ℂ (B(H) →L[ℂ] B(H))
 
+/-- The scalar restriction needed to view `B(H)` itself as a ℚ-normed algebra. -/
 noncomputable local instance : NormedAlgebra ℚ (B(H)) :=
   .restrictScalars ℚ ℂ (B(H))
 
@@ -123,7 +125,7 @@ noncomputable def noJumpOperator (D : LindbladData H ι) : B(H) :=
 noncomputable def jumpMap (D : LindbladData H ι) : B(H) →L[ℂ] B(H) :=
   ∑ i, completelyPositiveMapToContinuousLinearMap (conjugationCPMap (D.noise i))
 
-/- The same jump part, retained as a bundled completely positive map. -/
+/-- The same jump part, retained as a bundled completely positive map. -/
 noncomputable def jumpCPMap (D : LindbladData H ι) : B(H) →CP B(H) :=
   completelyPositiveMapFinsetSum Finset.univ
     (fun i => conjugationCPMap (D.noise i))

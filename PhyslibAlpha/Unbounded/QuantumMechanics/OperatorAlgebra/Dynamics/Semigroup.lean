@@ -30,6 +30,7 @@ open scoped NNReal
 
 variable {A : Type*} [OperatorAlgebra A]
 
+/-- The scalar restriction needed to view `A →L[ℂ] A` as a ℚ-normed algebra. -/
 noncomputable local instance : NormedAlgebra ℚ (A →L[ℂ] A) :=
   .restrictScalars ℚ ℂ (A →L[ℂ] A)
 
@@ -578,6 +579,7 @@ section NormContinuousGenerator
 open scoped Interval Topology
 open MeasureTheory intervalIntegral Filter
 
+/-- The scalar restriction needed to view `A →L[ℂ] A` as an ℝ-normed algebra. -/
 noncomputable local instance semigroupRealNormedAlgebra :
     NormedAlgebra ℝ (A →L[ℂ] A) :=
   .restrictScalars ℝ ℂ (A →L[ℂ] A)
@@ -799,6 +801,7 @@ namespace NormedAlgebraSemigroup
 
 variable {E : Type*} [NormedRing E] [NormedAlgebra ℝ E] [CompleteSpace E]
 
+/-- The time integral `∫₀ᵗ T`, of a curve `T : ℝ → E`. -/
 noncomputable def integrated (T : ℝ → E) (t : ℝ) : E :=
   ∫ x in (0 : ℝ)..t, T x
 

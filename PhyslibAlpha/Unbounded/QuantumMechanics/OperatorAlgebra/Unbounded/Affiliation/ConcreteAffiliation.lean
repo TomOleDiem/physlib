@@ -171,6 +171,7 @@ self-adjointness proof are stored once, while the Cayley spectral-projection con
 the affiliation certificate.  All spectral and dynamical consequences can then be accessed
 without repeating the dependent self-adjointness argument at every call site. -/
 structure AffiliatedSelfAdjointOperator (M : VonNeumannAlgebra H) where
+  /-- The underlying (partially defined) operator. -/
   operator : H →ₗ.[ℂ] H
   isSelfAdjoint : IsSelfAdjoint operator
   affiliated : IsAffiliated M operator isSelfAdjoint

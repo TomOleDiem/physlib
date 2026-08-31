@@ -39,6 +39,7 @@ The values on nonmeasurable sets are fixed to zero, matching Mathlib's measure c
 `m_iUnion` field is the normal-functional version of countable additivity; unlike the field of
 the norm-valued `PVM`, it does not demand a norm-convergent operator series. -/
 structure NormalPVM (X : Type*) [MeasurableSpace X] (A : Type*) [WStarAlgebra A] where
+  /-- The underlying set function. -/
   toFun : Set X → A
   isStarProjection' : ∀ S, IsStarProjection (toFun S)
   empty' : toFun ∅ = 0
@@ -329,6 +330,7 @@ lemma ofPVM_apply {X : Type*} [MeasurableSpace X] {A : Type*} [WStarAlgebra A]
 
 /-! Pushforward preserves both the state and predual-functional additivity witnesses. -/
 
+/-- Pushforward of a `PredualPVM` along a measurable map. -/
 noncomputable def map {Y : Type*} [MeasurableSpace Y]
     (E : PredualPVM X A) (f : X → Y) (hf : Measurable f) : PredualPVM Y A := by
   classical

@@ -118,6 +118,7 @@ lemma expFunction_slope_sub_derivative_norm_le {t r : ℝ} (ht : t ≠ 0)
       · simp [Complex.norm_real]
     _ = 3 * |r| := by ring
 
+/-- The difference quotient `t⁻¹(exp(itr) - 1)` of `expFunction`. -/
 def expSlope (t r : ℝ) : ℂ :=
   t⁻¹ • (expFunction t r - 1)
 

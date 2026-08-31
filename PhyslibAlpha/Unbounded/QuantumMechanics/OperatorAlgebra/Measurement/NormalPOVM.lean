@@ -30,6 +30,7 @@ variable {A : Type*} [WStarAlgebra A]
 
 /-- A POVM whose σ-additivity is expressed through all normal states. -/
 structure NormalPOVM (X : Type*) [MeasurableSpace X] (A : Type*) [WStarAlgebra A] where
+  /-- The underlying set function. -/
   toFun : Set X → A
   nonneg' : ∀ S, 0 ≤ toFun S
   empty' : toFun ∅ = 0

@@ -759,7 +759,7 @@ lemma realMultiplicationOperator_selfAdjointSpectralTheorem
     · intro y
       exact realMultiplicationOperator_weakSpectralReconstruction hf x y
 
-/- The multiplication model carries the full domain-aware spectral theorem: its maximal
+/-- The multiplication model carries the full domain-aware spectral theorem: its maximal
 operator domain is exactly the finite second moment domain of its pushed-forward PVM. -/
 def realMultiplicationOperatorDomainAwareSelfAdjointSpectralTheorem
     [IsFiniteMeasureOnCompacts μ] {f : Space d → ℝ} (hf : Measurable f) :
@@ -899,6 +899,8 @@ lemma fourierMomentumOperator_isEssentiallySelfAdjoint
   exact LinearPMap.IsSelfAdjoint.isEssentiallySelfAdjoint
     (fourierMomentumOperator_isSelfAdjoint i)
 
+/-- The essential-self-adjointness spectral data of the `i`-th Fourier-side momentum
+operator. -/
 def fourierMomentumOperatorSpectralData
     [IsFiniteMeasureOnCompacts (volume : Measure (Space d))] (i : Fin d) :
     OperatorAlgebra.EssentialSelfAdjointSpectralData (fourierMomentumOperator i) where

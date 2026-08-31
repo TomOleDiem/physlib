@@ -291,6 +291,7 @@ following definitions and identities are kept separate from the final topologica
 can also be reused for other trace-ideal approximation results.
 -/
 
+/-- The Hilbert-Schmidt partial sum `∑_{i ∈ F} |S bᵢ⟩⟨bᵢ|`. -/
 def hilbertSchmidtPartial {w : Set H} (S : B(H)) (b : HilbertBasis w ℂ H)
     (F : Finset w) : B(H) :=
   ∑ i ∈ F, InnerProductSpace.rankOne ℂ (S (b i)) (b i)
@@ -389,6 +390,7 @@ theorem hilbertSchmidt_sub_partial_tsum_norm_sq {w : Set H} (S : B(H))
       rw [hilbertSchmidt_sub_partial_apply_basis]
       simp [j.property]
 
+/-- The trace-class partial sum `∑_{i ∈ F} |R(S bᵢ)⟩⟨bᵢ|`. -/
 def traceClassPartial {w : Set H} (R S : B(H)) (b : HilbertBasis w ℂ H)
     (F : Finset w) : TraceClass H :=
   ∑ i ∈ F, ofOperator (InnerProductSpace.rankOne ℂ (R (S (b i))) (b i))

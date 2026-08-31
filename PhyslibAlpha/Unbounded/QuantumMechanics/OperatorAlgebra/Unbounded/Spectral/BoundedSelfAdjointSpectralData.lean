@@ -115,6 +115,7 @@ lemma continuousLinearMapToPMap_isSelfAdjoint
   rw [h, hadj]
   rfl
 
+/-- The self-adjoint spectral data of a bounded self-adjoint operator `A`. -/
 noncomputable def boundedSelfAdjointSpectralData
     (A : H →L[ℂ] H) (hA : IsSelfAdjoint A) :
     SelfAdjointSpectralData (continuousLinearMapToPMap A) where
@@ -186,6 +187,7 @@ noncomputable def boundedSelfAdjointSpectralData
           exact cfcSpectralMeasure_reconstruction_coe A hA.isStarNormal (x : H) y
         exact hsource.symm }
 
+/-- The domain-aware self-adjoint spectral theorem for a bounded self-adjoint operator `A`. -/
 noncomputable def boundedSelfAdjointDomainAwareSpectralTheorem
     (A : H →L[ℂ] H) (hA : IsSelfAdjoint A) :
     DomainAwareSelfAdjointSpectralTheorem (continuousLinearMapToPMap A)

@@ -39,7 +39,7 @@ theorem tracePairing_surjective :
     Function.Surjective (⇑(tracePairingLinearIsometry (H := H))) :=
   tracePairing_surjective_concrete
 
-/- The isometric identification of `B(H)` with the strong dual of its trace class. -/
+/-- The isometric identification of `B(H)` with the strong dual of its trace class. -/
 def tracePairingEquiv : B(H) ≃ₗᵢ[ℂ] StrongDual ℂ (TraceClass H) :=
   LinearIsometryEquiv.ofSurjective tracePairingLinearIsometry tracePairing_surjective
 

@@ -20,9 +20,11 @@ variable {β : Type*} {ι : Type*}
 
 /-- A common algebraic core for a family of operators. -/
 structure InvariantCore (T : ι → β) where
+  /-- The common invariant domain. -/
   D : Type*
   instAddCommGroup : AddCommGroup D
   instModule : Module ℂ D
+  /-- Each operator's restriction to `D`. -/
   restrict : ι → Module.End ℂ D
 
 attribute [instance] InvariantCore.instAddCommGroup InvariantCore.instModule

@@ -41,6 +41,7 @@ variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H]
 /-- A bounded sesquilinear form in the orientation expected by Mathlib's
 Riesz representation theorem. -/
 structure BoundedSesquilinearForm where
+  /-- The underlying sesquilinear form. -/
   form : H →ₛₗ[starRingEnd ℂ] H →ₗ[ℂ] ℂ
   bound : ∃ C : ℝ, ∀ x y, ‖form x y‖ ≤ C * ‖x‖ * ‖y‖
 
@@ -48,6 +49,7 @@ namespace BoundedSesquilinearForm
 
 variable (B : BoundedSesquilinearForm (H := H))
 
+/-- A norm bound witnessing `B.bound`. -/
 noncomputable def boundConstant : ℝ := Classical.choose B.bound
 
 @[nolint unusedArguments]

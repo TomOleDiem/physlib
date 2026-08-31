@@ -46,6 +46,7 @@ The operator remains a `LinearPMap`: its domain is explicit and the closure is t
 closure supplied by the partial-operator infrastructure.  This keeps model files responsible
 only for their actual analysis, while all spectral consequences are shared. -/
 structure EssentialSelfAdjointCore where
+  /-- The underlying (partially defined) operator. -/
   operator : H →ₗ.[ℂ] H
   essentiallySelfAdjoint : LinearPMap.IsEssentiallySelfAdjoint operator
 
