@@ -60,6 +60,8 @@ public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.C
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.ChristensenEvans.P1
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.ChristensenEvans.P2
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.FiniteDimensional
+public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.FiniteDimensional.P1
+public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.FiniteDimensional.P2
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.FiniteDimCE
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.Lindblad
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.Semigroup
