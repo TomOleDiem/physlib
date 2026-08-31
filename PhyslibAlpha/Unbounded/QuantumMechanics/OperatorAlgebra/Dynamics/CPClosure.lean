@@ -28,9 +28,11 @@ open scoped CStarAlgebra NNReal
 
 variable {A B : Type*} [OperatorAlgebra A] [OperatorAlgebra B]
 
+/-- The scalar restriction needed to view `A →L[ℂ] A` as a ℚ-normed algebra. -/
 noncomputable local instance cpClosureNormedAlgebraRat : NormedAlgebra ℚ (A →L[ℂ] A) :=
   .restrictScalars ℚ ℂ (A →L[ℂ] A)
 
+/-- The scalar restriction needed to view `A →L[ℂ] A` as an ℝ-normed algebra. -/
 noncomputable local instance cpClosureNormedAlgebraReal : NormedAlgebra ℝ (A →L[ℂ] A) :=
   .restrictScalars ℝ ℂ (A →L[ℂ] A)
 
@@ -255,7 +257,7 @@ instance completelyPositiveMap_add_associative :
     funext a
     simp [add_assoc]
 
-/- A finite sum of completely positive maps is completely positive. -/
+/-- A finite sum of completely positive maps is completely positive. -/
 noncomputable def completelyPositiveMapFinsetSum {ι : Type*} (s : Finset ι)
     (φ : ι → CompletelyPositiveMap A B) : CompletelyPositiveMap A B :=
   Finset.fold (completelyPositiveMapAdd (A := A) (B := B))
@@ -322,6 +324,7 @@ lemma completelyPositiveMap_real_smul_toLinearMap
 
 /-! ### Positive exponential approximants -/
 
+/-- The `n`-th power of `φ` under CP composition, `φ^0 = id`, `φ^(n+1) = φ ∘ φ^n`. -/
 noncomputable def cpPow (φ : CompletelyPositiveMap A A) : ℕ → CompletelyPositiveMap A A
   | 0 => completelyPositiveMapId A
   | n + 1 => completelyPositiveMapComp φ (cpPow φ n)
@@ -390,6 +393,7 @@ lemma cpExpPartial_toLinearMap (φ : CompletelyPositiveMap A A) (t : ℝ)
       congr 2
       norm_num
 
+/-- `cpExpPartial φ t n ht`, as a continuous linear map. -/
 noncomputable def cpExpPartialCLM (φ : CompletelyPositiveMap A A) (t : ℝ)
     (n : ℕ) (ht : 0 ≤ t) : A →L[ℂ] A :=
   completelyPositiveMapToContinuousLinearMap (cpExpPartial φ t n ht)

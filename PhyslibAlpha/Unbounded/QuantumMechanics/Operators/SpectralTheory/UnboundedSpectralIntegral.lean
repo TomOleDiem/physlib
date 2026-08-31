@@ -36,9 +36,11 @@ variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteS
 def truncationFunction (n : ℕ) : ℝ → ℂ :=
   (Set.Icc (-(n : ℝ)) (n : ℝ)).indicator (fun r : ℝ => (r : ℂ))
 
+/-- The real-truncation indicator function, real-valued, at cutoff `n`. -/
 def realTruncationFunction (n : ℕ) : ℝ → ℝ :=
   (Set.Icc (-(n : ℝ)) (n : ℝ)).indicator id
 
+/-- The spectral cutoff set `[-n, n]`. -/
 def spectralCutoffSet (n : ℕ) : Set ℝ := Set.Icc (-(n : ℝ)) (n : ℝ)
 
 lemma spectralCutoffSet_mono : Monotone spectralCutoffSet := by
@@ -527,6 +529,7 @@ lemma truncation_norm_lintegral_tendsto
     · exact hlim
   simpa [F, F₀, μ] using hmain
 
+/-- The limit of the truncated spectral integrals, for `x` in the finite-second-moment domain. -/
 noncomputable def truncationLimit (μS : WOTSpectralMeasure ℝ H)
     (x : spectralSquareMomentSubmodule μS) : H :=
   Filter.atTop.limUnder (fun n : ℕ => truncationIntegral μS n x)
@@ -1458,8 +1461,10 @@ construction is independent of any pre-existing self-adjoint operator; it is pur
 calculus applied to the scalar functions `(r ± i)⁻¹`.
 -/
 
+/-- The scalar multiplier `r ↦ (r + i)⁻¹`. -/
 def plusResolventMultiplier (r : ℝ) : ℂ := ((r : ℂ) + Complex.I)⁻¹
 
+/-- The scalar multiplier `r ↦ (r - i)⁻¹`. -/
 def minusResolventMultiplier (r : ℝ) : ℂ := ((r : ℂ) - Complex.I)⁻¹
 
 /-- The scalar resolvent multiplier at an arbitrary non-real parameter. -/

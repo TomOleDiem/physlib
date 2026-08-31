@@ -274,6 +274,7 @@ lemma ladder_commutation_ladderAdag_ladderAdag :
 def numberOperator (Q : HarmonicOscillator d) (i : Fin d) : 𝓢(Space d, ℂ) →L[ℂ] 𝓢(Space d, ℂ) :=
   ladderAdag Q i * ladderA Q i
 
+/-- The number operator `Nᵢ` is self-adjoint. -/
 informal_lemma numberOperator_isSelfAdjoint where
   deps := [``numberOperator]
   tag := "QM-Ladder-NselfAdj"
@@ -422,10 +423,13 @@ def numberHamiltonian (Q : HarmonicOscillator d) : 𝓢(Space d, ℂ) →L[ℂ] 
   (ℏ : ℂ) • ∑ i, (Q.ω i : ℝ) • (numberOperator Q i + (2⁻¹ : ℝ) • (1 : 𝓢(Space d, ℂ) →L[ℂ] 𝓢(Space d,
       ℂ)))
 
+/-- The number-operator Hamiltonians for distinct modes commute with each other's number
+operators. -/
 informal_lemma numberHamiltonian_commutation_numberOperator where
   deps := [``numberHamiltonian, ``numberOperator]
   tag := "QM-Ladder-HNcommN"
 
+/-- The number-operator Hamiltonian commutes with the ladder operators the expected way. -/
 informal_lemma numberHamiltonian_commutation_ladder where
   deps := [``numberHamiltonian, ``ladderA]
   tag := "QM-Ladder-HNcommA"
@@ -505,10 +509,14 @@ lemma numberHamiltonian_eq_kineticPlusPotentialCLM :
   rw [Finset.sum_congr rfl (fun i _ => hmode i)]
   rw [Finset.sum_add_distrib, ← Finset.smul_sum]
 
+/-- `numberHamiltonian`, lifted to a literal `LinearPMap`/`QuantumSystem` equality with
+`Q.hamiltonian` itself (see the module docstring). -/
 informal_lemma numberHamiltonian_eq_hamiltonian_lift where
   deps := [``numberHamiltonian_eq_kineticPlusPotentialCLM, ``HarmonicOscillator.hamiltonian]
   tag := "QM-Ladder-hamEq-lift"
 
+/-- The `QuantumSystem` built from `numberHamiltonian` agrees with the one built from
+`Q.hamiltonian`. -/
 informal_lemma numberHamiltonian_toQuantumSystem_eq where
   deps := [``numberHamiltonian_eq_hamiltonian_lift]
   tag := "QM-Ladder-sysEq"

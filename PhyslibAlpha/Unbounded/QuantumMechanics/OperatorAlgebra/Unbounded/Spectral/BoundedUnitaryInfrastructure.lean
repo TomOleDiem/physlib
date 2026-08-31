@@ -35,6 +35,7 @@ variable {X : Type*} [TopologicalSpace X] [T2Space X] [MeasurableSpace X]
 
 /-- A positive scalar functional on a compact spectrum. -/
 structure CompactPositiveFunctional where
+  /-- The underlying positive linear functional. -/
   functional : CompactlySupportedContinuousMap X ℝ →ₚ[ℝ] ℝ
 
 namespace CompactPositiveFunctional
@@ -118,6 +119,8 @@ section Complexification
 def complexSignedPairing : ℂ →L[ℝ] ℝ →L[ℝ] ℂ :=
   (ContinuousLinearMap.lsmul ℝ ℝ (E := ℂ)).flip
 
+/-- Postcompose a pairing `E →L[ℝ] F →L[ℝ] G` with a continuous linear map `G →L[ℝ] K`, giving a
+pairing `E →L[ℝ] F →L[ℝ] K`. -/
 def postcomposePairing {E F G K : Type*}
     [NormedAddCommGroup E] [NormedSpace ℝ E]
     [NormedAddCommGroup F] [NormedSpace ℝ F]
@@ -374,6 +377,7 @@ lemma integral_mapRange_ofReal_signedDifference
   rw [MeasureTheory.VectorMeasure.integral_toSignedMeasure,
     MeasureTheory.VectorMeasure.integral_toSignedMeasure]
 
+/-- Multiplication by `I`, as a continuous ℝ-linear map on `ℂ`. -/
 def imaginaryMulCLM : ℂ →L[ℝ] ℂ :=
   ContinuousLinearMap.lsmul ℝ ℂ (E := ℂ) Complex.I
 
@@ -381,6 +385,7 @@ def imaginaryMulCLM : ℂ →L[ℝ] ℂ :=
 lemma imaginaryMulCLM_apply (z : ℂ) : imaginaryMulCLM z = Complex.I * z := by
   rfl
 
+/-- The `ℂ →L[ℝ] ℝ →L[ℝ] ℂ` pairing post-composed with multiplication by `I`. -/
 def imaginarySignedPairing : ℂ →L[ℝ] ℝ →L[ℝ] ℂ :=
   postcomposePairing imaginaryMulCLM complexSignedPairing
 
@@ -679,10 +684,12 @@ lemma polarizedCfcRealIntegral_eq_inner
 /-- The scalar half of the normal-operator spectral construction.  The operator-valued assembly
 below uses this data to build the actual weak-operator spectral measure. -/
 structure VectorStateSpectralData where
+  /-- The scalar measure attached to each vector `x`. -/
   measure : H → Measure (spectrum ℂ U)
   integral_identity : ∀ x f,
     ∫ z, f z ∂measure x = RCLike.re ⟪x, cfcRealOperator U hU f x⟫_ℂ
 
+/-- The scalar spectral data of `U`'s continuous functional calculus. -/
 noncomputable def cfcVectorStateSpectralData : VectorStateSpectralData U hU where
   measure := cfcScalarMeasure U hU
   integral_identity := cfcScalarMeasure_integral U hU

@@ -27,17 +27,22 @@ open scoped ComplexOrder CStarAlgebra Matrix.Norms.L2Operator NNReal
 variable {d : Type*} [Fintype d] [DecidableEq d] [Nonempty d]
 variable {ι : Type*} [Fintype ι]
 
+/-- The C⋆-algebra spectral order on `Matrix d d ℂ`. -/
 noncomputable local instance matrixPartialOrder : PartialOrder (Matrix d d ℂ) :=
   CStarAlgebra.spectralOrder _
 noncomputable local instance matrixStarOrderedRing : StarOrderedRing (Matrix d d ℂ) :=
   CStarAlgebra.spectralOrderedRing _
+/-- `Matrix d d ℂ` as an `OperatorAlgebra`. -/
 noncomputable local instance matrixOperatorAlgebra : OperatorAlgebra (Matrix d d ℂ) := {}
 
+/-- `L`, as a continuous linear map on `Matrix d d ℂ` (finite-dimensional, so automatically
+continuous). -/
 noncomputable def matrixMapToContinuousLinearMap (L : MatrixMap d d ℂ) :
     Matrix d d ℂ →L[ℂ] Matrix d d ℂ :=
   { toLinearMap := L
     cont := L.continuous_of_finiteDimensional }
 
+/-- The Kraus jump map `X ↦ ∑ᵢ Vᵢ⋆ X Vᵢ`, as a completely positive map. -/
 noncomputable def matrixJumpCPMap (V : ι → Matrix d d ℂ) :
     Matrix d d ℂ →CP Matrix d d ℂ :=
   completelyPositiveMapFinsetSum Finset.univ
@@ -50,6 +55,7 @@ lemma matrixJumpCPMap_apply (V : ι → Matrix d d ℂ) (X : Matrix d d ℂ) :
     completelyPositiveMap_conjugation_apply, Matrix.star_eq_conjTranspose,
     Matrix.mul_assoc]
 
+/-- The matrix Christensen--Evans datum with Hamiltonian `H` and Kraus jump operators `V`. -/
 noncomputable def matrixChristensenEvansData
     (H : Matrix d d ℂ) (hH : H.conjTranspose = H)
     (V : ι → Matrix d d ℂ) : ChristensenEvansData (Matrix d d ℂ) where

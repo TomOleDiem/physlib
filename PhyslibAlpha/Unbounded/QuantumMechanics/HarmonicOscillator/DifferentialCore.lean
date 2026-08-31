@@ -32,6 +32,8 @@ open Polynomial
 
 namespace QuantumMechanics.HarmonicOscillator
 
+/-- The 1D toy oscillator `q`, repackaged as the real `d`-dimensional harmonic oscillator at
+`d = 1`. -/
 def oneDimension (q : _root_.QuantumMechanics.OneDimension.HarmonicOscillator) :
     QuantumMechanics.HarmonicOscillator 1 :=
   { m := q.m
@@ -41,10 +43,14 @@ def oneDimension (q : _root_.QuantumMechanics.OneDimension.HarmonicOscillator) :
 
 namespace DifferentialCore
 
+/-- The 1D toy model's Hilbert space, `L²(ℝ)`. -/
 abbrev OldHilbertSpace := _root_.QuantumMechanics.OneDimension.HilbertSpace
+/-- The current `SpaceDHilbertSpace` model of `L²(ℝ)`, at `d = 1`. -/
 abbrev NewHilbertSpace := SpaceDHilbertSpace 1
+/-- The 1D toy oscillator model this file bridges to the real differential operator. -/
 abbrev OldOscillator := _root_.QuantumMechanics.OneDimension.HarmonicOscillator
 
+/-- The isometry between the old and new one-dimensional `L²(ℝ)` models. -/
 noncomputable def oneEquivLp : OldHilbertSpace ≃ₗᵢ[ℂ] NewHilbertSpace :=
   LinearIsometryEquiv.ofLinearIsometry
     (Lp.compMeasurePreservingₗᵢ ℂ Space.oneEquiv Space.oneEquiv_measurePreserving)
@@ -75,6 +81,7 @@ lemma oneEquivLp_apply (f : OldHilbertSpace) :
 open _root_.QuantumMechanics.OneDimension.HarmonicOscillator
 open Physlib
 
+/-- The ground-state Gaussian, transported into the new Hilbert-space model. -/
 noncomputable def gaussianSpace (q : OldOscillator) : 𝓢(Space 1, ℂ) :=
   (gaussianVacuum q.m q.ω q.hm q.hω).compCLMOfContinuousLinearEquiv ℂ Space.oneEquivCLE
 
@@ -82,6 +89,8 @@ lemma gaussianSpace_apply (q : OldOscillator) (x : Space 1) :
     gaussianSpace q x = gaussianVacuum q.m q.ω q.hm q.hω (x 0) := by
   rfl
 
+/-- The `n`-th (physicist's) Hermite polynomial in the rescaled coordinate, transported into
+the new model. -/
 noncomputable def hermitePolynomialSpace (q : OldOscillator) (n : ℕ) : Space 1 → ℂ :=
   fun x => (physHermite n (x 0 / q.ξ) : ℂ)
 
@@ -114,6 +123,7 @@ lemma hermitePolynomialSpace_hasTemperateGrowth (q : OldOscillator) (n : ℕ) :
   rw [hcomp]
   exact hpoly
 
+/-- The `n`-th eigenfunction, as a Schwartz function on the new model. -/
 noncomputable def eigenfunctionSpaceSchwartz (q : OldOscillator) (n : ℕ) :
     𝓢(Space 1, ℂ) :=
   Complex.ofReal ((Real.sqrt ((2 ^ n * Nat.factorial n : ℕ) : ℝ))⁻¹ *
@@ -140,9 +150,11 @@ lemma eigenfunctionSpaceSchwartz_apply (q : OldOscillator) (n : ℕ) (x : Space 
   rw [hexp]
   ring
 
+/-- The `n`-th eigenfunction, as a vector of the new Hilbert space. -/
 noncomputable def eigenfunctionSpace (q : OldOscillator) (n : ℕ) : NewHilbertSpace :=
   SpaceDHilbertSpace.schwartzIncl volume (eigenfunctionSpaceSchwartz q n)
 
+/-- The Hermite eigenbasis, transported into the new Hilbert-space model. -/
 noncomputable def transportedEigenbasis (q : OldOscillator) :
     HilbertBasis ℕ ℂ NewHilbertSpace :=
   HilbertBasis.ofRepr (oneEquivLp.symm.trans
@@ -406,6 +418,8 @@ general dense-real-eigenvector criterion therefore applies to the differential o
 no separate deficiency-space certificate is needed here.
 -/
 
+/-- The essential-self-adjointness core for the differential Hamiltonian, built from the dense
+Hermite eigenbasis. -/
 noncomputable def differentialHamiltonianCore (q : OldOscillator) :
     OperatorAlgebra.EssentialSelfAdjointCore (H := NewHilbertSpace) :=
   OperatorAlgebra.EssentialSelfAdjointCore.ofDenseRealEigenvectors

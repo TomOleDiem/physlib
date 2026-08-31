@@ -486,6 +486,7 @@ result is still self-adjoint spectral data, so expose that case directly as an
 `AffiliatedObservable`.  This is useful for truncations and real Borel functions and avoids an
 unnecessary round trip through `AffiliatedOperator`. -/
 
+/-- Pull back a real-valued Borel functional calculus along a measurable `f : ℝ → ℝ`. -/
 def measurableRealFC (T : AffiliatedObservable A) (f : ℝ → ℝ) (hf : Measurable f) :
     AffiliatedObservable A where
   spectralMeasure := T.spectralMeasure.map f hf
@@ -515,6 +516,7 @@ theorem measurableRealFC_id (T : AffiliatedObservable A) :
   rw [T.measurableRealFC_spectralMeasure_apply measurable_id hS]
   rfl
 
+/-- The indicator of `[-R, R]`, used to define `realTruncate`. -/
 def realTruncateFunction (R : ℝ) : ℝ → ℝ :=
   Set.Icc (-R) R |>.indicator id
 
@@ -529,6 +531,7 @@ lemma realTruncateFunction_mem_Icc {R x : ℝ} (hR : 0 ≤ R) :
   · have hzero : (0 : ℝ) ∈ Set.Icc (-R) R := by constructor <;> linarith
     simpa [realTruncateFunction, Set.indicator_of_notMem hx] using hzero
 
+/-- `T`, truncated to the spectral window `[-R, R]`. -/
 def realTruncate (T : AffiliatedObservable A) (R : ℝ) : AffiliatedObservable A :=
   T.measurableRealFC (realTruncateFunction R) (realTruncateFunction_measurable R)
 
@@ -1189,6 +1192,7 @@ lemma expFunction_modulus (t : ℝ) : ∀ x, star (expFunction t x) * expFunctio
   congr 1
   simp
 
+/-- The unitary `exp(itT)`, from the affiliated observable's bounded functional calculus. -/
 def expUnitary (T : AffiliatedObservable A) (t : ℝ) : unitary A := by
   exact ⟨T.boundedFC (expFunction t) (expFunction_measurable t)
       (expFunction_bounded t),
@@ -1280,6 +1284,7 @@ lemma resolventFunction_bounded (z : ℂ) (hz : z.im ≠ 0) :
   rw [resolventFunction, norm_inv]
   exact (inv_le_inv₀ (norm_pos_iff.mpr hne) (abs_pos.mpr hz)).2 hden
 
+/-- The resolvent `(T - z)⁻¹` of `T`, at a non-real `z`. -/
 def resolvent (T : AffiliatedObservable A) (z : ℂ) (hz : z.im ≠ 0) : A := by
   exact T.boundedFC (resolventFunction z) (resolventFunction_measurable z)
     (resolventFunction_bounded z hz)
@@ -1386,6 +1391,7 @@ lemma truncateFunction_bounded (R : ℝ) : ∃ C, ∀ x, ‖truncateFunction R x
       _ ≤ max R 0 := le_max_left _ _
   · simp [truncateFunction, hx]
 
+/-- `T`, truncated to a bounded functional-calculus element on `[-R, R]`. -/
 def truncate (T : AffiliatedObservable A) (R : ℝ) : A := by
   exact T.boundedFC (truncateFunction R) (truncateFunction_measurable R)
     (truncateFunction_bounded R)

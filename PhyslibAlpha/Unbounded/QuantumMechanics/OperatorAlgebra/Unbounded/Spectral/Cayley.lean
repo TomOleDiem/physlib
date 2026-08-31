@@ -245,6 +245,7 @@ noncomputable def cayleyContinuousLinearMap (T : H →ₗ.[ℂ] H) (hT : IsSelfA
   exact 1 - (2 * Complex.I) •
     topDomainToContinuousLinearMap (T - (-Complex.I) • 1).inverse hinvdom hres.2.2
 
+/-- A bounded operator, viewed as an everywhere-defined `LinearPMap`. -/
 def continuousLinearMapToPMap (L : H →L[ℂ] H) : H →ₗ.[ℂ] H :=
   ⟨⊤, L.toLinearMap.comp Submodule.topEquiv.toLinearMap⟩
 
@@ -551,7 +552,10 @@ only needed when a unitary is going to be pulled back to the real line.  Keep th
 separate so arbitrary bounded normal operators can consume the same PVM construction.
 -/
 
+/-- A bounded normal spectral certificate for `U`: a genuine weak-operator spectral measure
+reconstructing `U`. -/
 structure BoundedNormalSpectralData (U : H →L[ℂ] H) where
+  /-- The spectral measure. -/
   spectralMeasure : WOTSpectralMeasure ℂ H
   reconstruction : ∀ x y : H,
     spectralMeasure.complexWeakIntegral id x y = ⟪y, U x⟫_ℂ
@@ -593,6 +597,7 @@ is weak-operator reconstruction for the bounded unitary itself.  This is deliber
 structure rather than an axiom-producing definition: constructing it for an arbitrary unitary is
 the bounded spectral theorem proper. -/
 structure BoundedUnitarySpectralData (u : H ≃ₗᵢ[ℂ] H) where
+  /-- The spectral measure. -/
   spectralMeasure : WOTSpectralMeasure ℂ H
   support_away_one : ∀ S : Set ℂ, MeasurableSet S →
     spectralMeasure S = spectralMeasure (S ∩ {z | ‖z‖ = 1 ∧ z ≠ 1})
@@ -682,6 +687,7 @@ maximal-domain identity-integral argument.  Keeping both fields explicit makes t
 boundary precise while allowing the final unbounded theorem and all downstream affiliated APIs
 to be consumed uniformly once those two analytic constructions are supplied. -/
 structure CayleySpectralCertificate (T : H →ₗ.[ℂ] H) (hT : IsSelfAdjoint T) where
+  /-- The bounded unitary spectral certificate for `T`'s Cayley unitary. -/
   bounded : QuantumMechanics.WOTSpectralMeasure.BoundedUnitarySpectralData
     (cayleyUnitary T hT)
   reconstruction : IsWeakSpectralResolution T bounded.realSpectralMeasure
