@@ -158,6 +158,8 @@ public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Spec.Cayle
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Spec.CayleyCertificate
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Spec.CayleyInverse
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Spec.CayleySpectralData
+public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Spec.CayleySpectralData.P1
+public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Spec.CayleySpectralData.P2
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Spec.EigenvectorSpectralAtom
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Spec.SpectralDecomposition
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.VectorState
