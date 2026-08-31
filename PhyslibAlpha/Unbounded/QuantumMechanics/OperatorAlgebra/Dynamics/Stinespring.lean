@@ -77,12 +77,12 @@ noncomputable def tensorInner (J : A →CP B(H)) :
   TensorProduct.lift (sesquiBilinear J)
 
 @[simp]
-lemma tensorInner_tmul (J : A →CP B(H)) (a b : A) (h k : H) :
+private lemma tensorInner_tmul (J : A →CP B(H)) (a b : A) (h k : H) :
     tensorInner J (a ⊗ₜ[ℂ] h) (b ⊗ₜ[ℂ] k) =
       inner ℂ h (J (star a * b) k) := by
   rfl
 
-lemma tensorInner_conj_symm_tmul (J : A →CP B(H)) (a b : A) (h k : H) :
+private lemma tensorInner_conj_symm_tmul (J : A →CP B(H)) (a b : A) (h k : H) :
     starRingEnd ℂ (tensorInner J (a ⊗ₜ[ℂ] h) (b ⊗ₜ[ℂ] k)) =
       tensorInner J (b ⊗ₜ[ℂ] k) (a ⊗ₜ[ℂ] h) := by
   rw [tensorInner_tmul, tensorInner_tmul]
@@ -117,7 +117,7 @@ lemma tensorInner_conj_symm (J : A →CP B(H)) (x y : T A H) :
     rw [map_add, ihx, ihy]
     rw [map_add]
 
-lemma tensorInner_nonneg (J : A →CP B(H)) (x : T A H) :
+private lemma tensorInner_nonneg (J : A →CP B(H)) (x : T A H) :
     0 ≤ tensorInner J x x := by
   obtain ⟨n, a, h, rfl⟩ := TensorProduct.exists_sum_tmul_eq x
   let v : PiLp 2 (fun _ : Fin n => H) := WithLp.toLp 2 h
@@ -149,11 +149,11 @@ noncomputable def leftMul (a : A) : T A H →ₗ[ℂ] T A H :=
   TensorProduct.map (LinearMap.mulLeft ℂ a) (LinearMap.id)
 
 @[simp]
-lemma leftMul_tmul (a b : A) (h : H) :
+private lemma leftMul_tmul (a b : A) (h : H) :
     leftMul a (b ⊗ₜ[ℂ] h) = (a * b) ⊗ₜ[ℂ] h := by
   simp [leftMul]
 
-lemma tensorInner_leftMul (J : A →CP B(H)) (a : A) (x y : T A H) :
+private lemma tensorInner_leftMul (J : A →CP B(H)) (a : A) (x y : T A H) :
     tensorInner J (leftMul a x) y = tensorInner J x (leftMul (star a) y) := by
   refine TensorProduct.induction_on x ?_ ?_ ?_
   · simp
@@ -228,7 +228,7 @@ lemma tensorInner_leftMul_selfadjoint (J : A →CP B(H)) {q : A} (hq : star q = 
     tensorInner J (leftMul q x) x = tensorInner J x (leftMul q x) := by
   rw [tensorInner_leftMul J q x x, hq]
 
-lemma tensorInner_leftMul_nonneg (J : A →CP B(H)) {q : A} (hq : 0 ≤ q)
+private lemma tensorInner_leftMul_nonneg (J : A →CP B(H)) {q : A} (hq : 0 ≤ q)
     (x : T A H) : 0 ≤ tensorInner J (leftMul q x) x := by
   let s : A := CFC.sqrt q
   have hs : star s = s := by
@@ -611,7 +611,7 @@ noncomputable def preEmbedding (J : A →CP B(H)) : H →ₗ[ℂ] Pre J :=
 lemma preEmbedding_apply (J : A →CP B(H)) (h : H) :
     preEmbedding J h = (1 : A) ⊗ₜ[ℂ] h := rfl
 
-lemma preEmbedding_norm_sq (J : A →CP B(H)) (h : H) :
+private lemma preEmbedding_norm_sq (J : A →CP B(H)) (h : H) :
     ‖preEmbedding J h‖ ^ 2 = RCLike.re (inner ℂ h (J (1 : A) h)) := by
   rw [@norm_sq_eq_re_inner ℂ (Pre J) _ _]
   change RCLike.re (tensorInner J ((1 : A) ⊗ₜ[ℂ] h) ((1 : A) ⊗ₜ[ℂ] h)) = _
@@ -749,7 +749,7 @@ lemma defect_apply (W : StinespringWitness (B(H)) H K J) (a : B(H)) (x : H) :
   rfl
 
 /-- The CP kernel of a Stinespring map is the Gram kernel of its defects. -/
-lemma cpKernel_eq_defect_gram
+private lemma cpKernel_eq_defect_gram
     (W : StinespringWitness (B(H)) H K J) (a b : B(H)) :
     J (star a * b) - J (star a) * b - star a * J b + star a * J 1 * b =
       ContinuousLinearMap.adjoint (W.defect a) ∘L W.defect b := by
@@ -807,7 +807,7 @@ lemma evansLewisKernel_generator_eq_cpKernel
     add_mul, sub_mul, mul_add, mul_sub, smul_mul_assoc, mul_smul_comm]
   noncomm_ring
 
-lemma evansLewisKernel_generator_eq_defect_gram
+private lemma evansLewisKernel_generator_eq_defect_gram
     (W : StinespringWitness (B(H)) H K J) (h : Observable B(H)) (a b : B(H)) :
     evansLewisKernel (W.toChristensenEvansData h).generator a b =
       ContinuousLinearMap.adjoint (W.defect a) ∘L W.defect b := by
@@ -867,7 +867,7 @@ lemma kernelInner_add_left (K : PositiveOperatorKernelData (A := A) (H := H))
   · intro a b₁ b₂
     simp
 
-lemma kernelInner_smul_left (K : PositiveOperatorKernelData (A := A) (H := H))
+private lemma kernelInner_smul_left (K : PositiveOperatorKernelData (A := A) (H := H))
     (r : ℂ) (x y : A →₀ H) :
     K.kernelInner (r • x) y = starRingEnd ℂ r * K.kernelInner x y := by
   classical
@@ -896,7 +896,7 @@ lemma kernelInner_conj_symm (K : PositiveOperatorKernelData (A := A) (H := H))
   rw [hop]
   rw [ContinuousLinearMap.adjoint_inner_left]
 
-lemma kernelInner_add_right (K : PositiveOperatorKernelData (A := A) (H := H))
+private lemma kernelInner_add_right (K : PositiveOperatorKernelData (A := A) (H := H))
     (x y z : A →₀ H) : K.kernelInner x (y + z) = K.kernelInner x y + K.kernelInner x z := by
   calc
     K.kernelInner x (y + z) =
@@ -909,7 +909,7 @@ lemma kernelInner_add_right (K : PositiveOperatorKernelData (A := A) (H := H))
     _ = K.kernelInner x y + K.kernelInner x z := by
       rw [K.kernelInner_conj_symm, K.kernelInner_conj_symm]
 
-lemma kernelInner_smul_right (K : PositiveOperatorKernelData (A := A) (H := H))
+private lemma kernelInner_smul_right (K : PositiveOperatorKernelData (A := A) (H := H))
     (r : ℂ) (x y : A →₀ H) : K.kernelInner x (r • y) = r * K.kernelInner x y := by
   calc
     K.kernelInner x (r • y) =
@@ -920,14 +920,14 @@ lemma kernelInner_smul_right (K : PositiveOperatorKernelData (A := A) (H := H))
     _ = r * starRingEnd ℂ (K.kernelInner y x) := by simp
     _ = r * K.kernelInner x y := by rw [K.kernelInner_conj_symm]
 
-lemma kernelInner_single_single (K : PositiveOperatorKernelData (A := A) (H := H))
+private lemma kernelInner_single_single (K : PositiveOperatorKernelData (A := A) (H := H))
     (a b : A) (x y : H) :
     K.kernelInner (Finsupp.single a x) (Finsupp.single b y) =
       inner ℂ x (K.kernel a b y) := by
   classical
   simp [kernelInner, Finsupp.sum_single_index]
 
-lemma kernelInner_nonneg (K : PositiveOperatorKernelData (A := A) (H := H))
+private lemma kernelInner_nonneg (K : PositiveOperatorKernelData (A := A) (H := H))
     (x : A →₀ H) : 0 ≤ Complex.re (K.kernelInner x x) := by
   classical
   let s := x.support
@@ -1036,7 +1036,7 @@ noncomputable def preEmbedding (K : PositiveOperatorKernelData (A := A) (H := H)
 lemma preEmbedding_apply (K : PositiveOperatorKernelData (A := A) (H := H))
     (a : A) (x : H) : preEmbedding K a x = Finsupp.single a x := rfl
 
-lemma preEmbedding_norm_sq (K : PositiveOperatorKernelData (A := A) (H := H))
+private lemma preEmbedding_norm_sq (K : PositiveOperatorKernelData (A := A) (H := H))
     (a : A) (x : H) :
     ‖preEmbedding K a x‖ ^ 2 =
       Complex.re (inner ℂ x (K.kernel a a x)) := by
@@ -1086,7 +1086,7 @@ noncomputable def embedding (K : PositiveOperatorKernelData (A := A) (H := H))
 lemma embedding_apply (K : PositiveOperatorKernelData (A := A) (H := H))
     (a : A) (x : H) : embedding K a x = (preEmbedding K a x : Completion K) := rfl
 
-lemma embedding_inner (K : PositiveOperatorKernelData (A := A) (H := H))
+private lemma embedding_inner (K : PositiveOperatorKernelData (A := A) (H := H))
     (a b : A) (x y : H) :
     inner ℂ (embedding K a x) (embedding K b y) =
       inner ℂ x (K.kernel a b y) := by
@@ -1150,7 +1150,7 @@ noncomputable def actionPre
       -((preEmbedding K a).comp (ContinuousLinearMap.toLinearMap c)))
 
 @[simp]
-lemma actionPre_single
+private lemma actionPre_single
     (K : PositiveOperatorKernelData (A := B(H)) (H := H))
     (a c : B(H)) (x : H) :
     actionPre K a (Finsupp.single c x) =
@@ -1170,7 +1170,7 @@ lemma actionPre_mul
       simp only [LinearMap.comp_apply, map_sub, actionPre_single]
       simp [sub_eq_add_neg, mul_assoc, mul_apply_eq_comp]
 
-lemma actionPre_inner_single
+private lemma actionPre_inner_single
     (K : PositiveOperatorKernelData (A := B(H)) (H := H))
     (hK : HasKernelCocycle K) (a c d : B(H)) (x y : H) :
     letI : SeminormedAddCommGroup (Pre K) := K.seminormed
@@ -1197,7 +1197,7 @@ lemma actionPre_inner_single
   have h := congrArg (fun T : B(H) => inner ℂ x (T y)) (hK a c d)
   simpa [sub_apply, inner_sub_right, sub_eq_add_neg] using h
 
-lemma actionPre_inner
+private lemma actionPre_inner
     (K : PositiveOperatorKernelData (A := B(H)) (H := H))
     (hK : HasKernelCocycle K) (a : B(H)) (z w : Pre K) :
     letI : SeminormedAddCommGroup (Pre K) := K.seminormed
@@ -1216,7 +1216,7 @@ lemma actionPre_inner
           rw [map_add, K.kernelInner_add_right, K.kernelInner_add_right, hw, hw']
       | single d y => exact actionPre_inner_single K hK a c d x y
 
-lemma actionPre_add_parameter_inner_single
+private lemma actionPre_add_parameter_inner_single
     (K : PositiveOperatorKernelData (A := B(H)) (H := H))
     (a b c d : B(H)) (x y : H) :
     K.kernelInner (Finsupp.single c x)
@@ -1240,7 +1240,7 @@ lemma actionPre_add_parameter_inner_single
   simp only [ContinuousLinearMap.add_apply, inner_add_right]
   ring
 
-lemma actionPre_add_parameter_inner
+private lemma actionPre_add_parameter_inner
     (K : PositiveOperatorKernelData (A := B(H)) (H := H))
     (a b : B(H)) (z w : Pre K) :
     K.kernelInner z (actionPre K (a + b) w) =
@@ -1256,7 +1256,7 @@ lemma actionPre_add_parameter_inner
           simp only [LinearMap.add_apply, map_add, K.kernelInner_add_right, hw, hw']
       | single d y => exact actionPre_add_parameter_inner_single K a b c d x y
 
-lemma actionPre_smul_parameter_inner_single
+private lemma actionPre_smul_parameter_inner_single
     (K : PositiveOperatorKernelData (A := B(H)) (H := H))
     (r : ℂ) (a c d : B(H)) (x y : H) :
     K.kernelInner (Finsupp.single c x)
@@ -1278,7 +1278,7 @@ lemma actionPre_smul_parameter_inner_single
   simp only [ContinuousLinearMap.smul_apply, inner_smul_right, smul_eq_mul]
   ring
 
-lemma actionPre_smul_parameter_inner
+private lemma actionPre_smul_parameter_inner
     (K : PositiveOperatorKernelData (A := B(H)) (H := H))
     (r : ℂ) (a : B(H)) (z w : Pre K) :
     K.kernelInner z (actionPre K (r • a) w) =
@@ -1295,7 +1295,7 @@ lemma actionPre_smul_parameter_inner
           rw [map_add, smul_add, K.kernelInner_add_right]
       | single d y => exact actionPre_smul_parameter_inner_single K r a c d x y
 
-lemma actionPre_one_inner_single
+private lemma actionPre_one_inner_single
     (K : PositiveOperatorKernelData (A := B(H)) (H := H))
     (hK : HasKernelZeroOne K) (c d : B(H)) (x y : H) :
     K.kernelInner (Finsupp.single c x)
@@ -1312,7 +1312,7 @@ lemma actionPre_one_inner_single
     K.kernelInner_single_single, neg_one_mul]
   simp only [hK.2 c, map_zero, zero_apply, inner_zero_right, neg_zero, add_zero]
 
-lemma actionPre_one_inner
+private lemma actionPre_one_inner
     (K : PositiveOperatorKernelData (A := B(H)) (H := H))
     (hK : HasKernelZeroOne K) (z w : Pre K) :
     K.kernelInner z (actionPre K 1 w) = K.kernelInner z w := by
@@ -1328,7 +1328,7 @@ lemma actionPre_one_inner
             K.kernelInner_add_right]
       | single d y => exact actionPre_one_inner_single K hK c d x y
 
-lemma norm_sq_sub_star_mul_nonneg (a : B(H)) :
+private lemma norm_sq_sub_star_mul_nonneg (a : B(H)) :
     0 ≤ (‖a‖ ^ 2 : ℝ) • (1 : B(H)) - star a * a := by
   have hle : star a * a ≤ algebraMap ℝ (B(H)) ‖star a * a‖ := by
     exact (CStarAlgebra.norm_le_iff_le_algebraMap (star a * a)
@@ -1336,7 +1336,7 @@ lemma norm_sq_sub_star_mul_nonneg (a : B(H)) :
   rw [CStarRing.norm_star_mul_self] at hle
   simpa [sq, Algebra.algebraMap_eq_smul_one] using (sub_nonneg.mpr hle)
 
-lemma actionPre_add_parameter_inner_left
+private lemma actionPre_add_parameter_inner_left
     (K : PositiveOperatorKernelData (A := B(H)) (H := H))
     (a b : B(H)) (z w : Pre K) :
     K.kernelInner (actionPre K (a + b) z) w =
@@ -1351,7 +1351,7 @@ lemma actionPre_add_parameter_inner_left
     _ = K.kernelInner ((actionPre K a + actionPre K b) z) w :=
       K.kernelInner_conj_symm _ _
 
-lemma actionPre_smul_parameter_inner_left
+private lemma actionPre_smul_parameter_inner_left
     (K : PositiveOperatorKernelData (A := B(H)) (H := H))
     (r : ℂ) (a : B(H)) (z w : Pre K) :
     K.kernelInner (actionPre K (r • a) z) w =
@@ -1365,7 +1365,7 @@ lemma actionPre_smul_parameter_inner_left
     _ = K.kernelInner (r • actionPre K a z) w :=
       K.kernelInner_conj_symm _ _
 
-lemma actionPre_one_inner_left
+private lemma actionPre_one_inner_left
     (K : PositiveOperatorKernelData (A := B(H)) (H := H))
     (hK : HasKernelZeroOne K) (z w : Pre K) :
     K.kernelInner (actionPre K 1 z) w = K.kernelInner z w := by
@@ -1377,11 +1377,11 @@ lemma actionPre_one_inner_left
       rw [actionPre_one_inner K hK]
     _ = K.kernelInner z w := K.kernelInner_conj_symm _ _
 
-lemma kernelInner_eq_inner
+private lemma kernelInner_eq_inner
     (K : PositiveOperatorKernelData (A := B(H)) (H := H))
     (z w : Pre K) : inner ℂ z w = K.kernelInner z w := rfl
 
-lemma actionPre_quadratic_nonneg
+private lemma actionPre_quadratic_nonneg
     (K : PositiveOperatorKernelData (A := B(H)) (H := H))
     (hK : HasKernelCocycle K) {q : B(H)} (hq : 0 ≤ q) (z : Pre K) :
     0 ≤ Complex.re (K.kernelInner (actionPre K q z) z) := by
@@ -1500,7 +1500,7 @@ lemma actionCompletion_apply_coe
   change (actionPreCLM K hK h1 a).completion z = actionPre K a z
   rw [ContinuousLinearMap.completion_apply_coe, actionPreCLM_apply]
 
-lemma actionCompletion_ext
+private lemma actionCompletion_ext
     (K : PositiveOperatorKernelData (A := B(H)) (H := H))
     {f g : Completion K →L[ℂ] Completion K}
     (h : ∀ z : Pre K, f z = g z) : f = g := by
@@ -1549,7 +1549,7 @@ lemma actionCompletion_star
         UniformSpace.Completion.inner_coe]
       simpa [kernelInner_eq_inner, star_star] using h
 
-lemma actionPre_one_coe_eq
+private lemma actionPre_one_coe_eq
     (K : PositiveOperatorKernelData (A := B(H)) (H := H))
     (h1 : HasKernelZeroOne K) (z : Pre K) :
     (actionPre K 1 z : Completion K) = (z : Completion K) := by
@@ -1572,7 +1572,7 @@ lemma actionPre_one_coe_eq
     rfl
   exact (sq_eq_zero_iff.mp hnorm)
 
-lemma actionPre_add_coe_eq
+private lemma actionPre_add_coe_eq
     (K : PositiveOperatorKernelData (A := B(H)) (H := H))
     (a b : B(H)) (z : Pre K) :
     (actionPre K (a + b) z : Completion K) =
@@ -1617,7 +1617,7 @@ lemma actionCompletion_add
   rw [← UniformSpace.Completion.coe_add]
   exact actionPre_add_coe_eq K a b z
 
-lemma actionPre_smul_coe_eq
+private lemma actionPre_smul_coe_eq
     (K : PositiveOperatorKernelData (A := B(H)) (H := H))
     (r : ℂ) (a : B(H)) (z : Pre K) :
     (actionPre K (r • a) z : Completion K) =
@@ -1719,7 +1719,7 @@ def CompletionAction.representation
       exact A.map_star a }
 
 set_option backward.isDefEq.respectTransparency false in
-lemma actionCompletion_embedding_cocycle
+private lemma actionCompletion_embedding_cocycle
     (K : PositiveOperatorKernelData (A := B(H)) (H := H))
     (hK : HasKernelCocycle K) (h1 : HasKernelZeroOne K)
     (a b : B(H)) :
@@ -1773,7 +1773,7 @@ noncomputable def evansLewisKernelData
     simp [evansLewisKernel, map_smul, smul_mul_assoc, mul_smul_comm]
     module
 
-lemma evansLewisKernelData_hasKernelZeroOne
+private lemma evansLewisKernelData_hasKernelZeroOne
     (L : B(H) →L[ℂ] B(H))
     (hstar : ∀ a : B(H), star (L a) = L (star a))
     (hpositive : IsPositiveOperatorKernel (fun a b => evansLewisKernel L a b)) :
@@ -1792,7 +1792,7 @@ lemma evansLewisKernelData_kernel
     (a b : B(H)) :
     (evansLewisKernelData L hstar hpositive).kernel a b = evansLewisKernel L a b := rfl
 
-lemma evansLewisKernelData_hasKernelCocycle
+private lemma evansLewisKernelData_hasKernelCocycle
     (L : B(H) →L[ℂ] B(H))
     (hstar : ∀ a : B(H), star (L a) = L (star a))
     (hpositive : IsPositiveOperatorKernel (fun a b => evansLewisKernel L a b)) :
@@ -1819,7 +1819,7 @@ noncomputable def evansLewisKernelEmbedding
   PositiveOperatorKernelData.Canonical.embedding
     (evansLewisKernelData L hstar hpositive) a
 
-lemma evansLewisKernelEmbedding_inner
+private lemma evansLewisKernelEmbedding_inner
     (L : B(H) →L[ℂ] B(H))
     (hstar : ∀ a : B(H), star (L a) = L (star a))
     (hpositive : IsPositiveOperatorKernel (fun a b => evansLewisKernel L a b))
@@ -1830,7 +1830,7 @@ lemma evansLewisKernelEmbedding_inner
   exact PositiveOperatorKernelData.Canonical.embedding_inner
     (evansLewisKernelData L hstar hpositive) a b x y
 
-lemma evansLewisKernel_norm_le
+private lemma evansLewisKernel_norm_le
     (L : B(H) →L[ℂ] B(H)) (hL1 : L 1 = 0)
     (a b : B(H)) :
     ‖evansLewisKernel L a b‖ ≤ 3 * ‖L‖ * ‖a‖ * ‖b‖ := by
@@ -1874,7 +1874,7 @@ lemma evansLewisKernel_norm_le
     _ = 3 * ‖L‖ * ‖a‖ * ‖b‖ := by ring
 
 set_option maxHeartbeats 800000 in
-theorem exists_evansLewis_kernel_implementer
+private theorem exists_evansLewis_kernel_implementer
     [Nontrivial H]
     (L : B(H) →L[ℂ] B(H)) (hL1 : L 1 = 0)
     (hstar : ∀ a : B(H), star (L a) = L (star a))
@@ -2014,7 +2014,7 @@ lemma column_gram_compression_apply_zero (L : A →L[ℂ] A)
   rw [Finset.sum_comm]
 
 /-- Matrix CCP tested on a row and a column gives the finite-column compression inequality. -/
-lemma ccp_column_compression
+private lemma ccp_column_compression
     (L : A →L[ℂ] A)
     (hccp : IsConditionallyCompletelyPositiveBounded L)
     {n : ℕ} (a c : Fin (n + 1) → A)
@@ -2083,7 +2083,7 @@ set_option maxHeartbeats 800000
 /-! The CCP-to-kernel step uses the existing bounded-operator representation and
 rank-one operators.  It does not introduce any new domain or spectral machinery. -/
 
-theorem ccp_implies_evansLewis_kernel_positive
+private theorem ccp_implies_evansLewis_kernel_positive
     [Nontrivial H] (L : B(H) →L[ℂ] B(H))
     (hL1 : L 1 = 0)
     (hccp : IsConditionallyCompletelyPositiveBounded L) :
@@ -2144,7 +2144,7 @@ theorem ccp_implies_evansLewis_kernel_positive
   exact hp
 
 /-- A defect Gram kernel is positive. -/
-lemma defect_gram_isPositiveOperatorKernel
+private lemma defect_gram_isPositiveOperatorKernel
     (W : StinespringWitness (B(H)) H K J) :
     IsPositiveOperatorKernel (fun a b =>
       ContinuousLinearMap.adjoint (W.defect a) ∘L W.defect b) := by
@@ -2164,7 +2164,7 @@ lemma defect_gram_isPositiveOperatorKernel
   exact inner_self_nonneg (𝕜 := ℂ) (E := K) (x := z)
 
 /-- The Evans--Lewis kernel of a Christensen--Evans generator is positive. -/
-lemma evansLewisKernel_generator_isPositiveOperatorKernel
+private lemma evansLewisKernel_generator_isPositiveOperatorKernel
     (W : StinespringWitness (B(H)) H K J) (h : Observable B(H)) :
     IsPositiveOperatorKernel (fun a b =>
       evansLewisKernel (W.toChristensenEvansData h).generator a b) := by
@@ -2178,7 +2178,7 @@ set_option maxHeartbeats 800000
 
 The proof uses one rank-one operator `|x⟩⟨e|` for a fixed unit vector `e`.  It is deliberately
 kept independent of any spectral or unbounded-operator infrastructure. -/
-theorem exists_inner_implementer
+private theorem exists_inner_implementer
     [Nontrivial H] (L : B(H) →L[ℂ] B(H))
     (hL : ∀ a b : B(H), L (a * b) = L a * b + a * L b) :
     ∃ T : B(H), ∀ (a : B(H)) (x : H), L a x = T (a x) - a (T x) := by
@@ -2248,7 +2248,7 @@ theorem exists_inner_implementer
 set_option maxHeartbeats 800000
 
 /-- A star-preserving bounded derivation on `B(H)` is a Hamiltonian commutator. -/
-theorem exists_selfAdjoint_inner_implementer
+private theorem exists_selfAdjoint_inner_implementer
     [Nontrivial H] (L : B(H) →L[ℂ] B(H))
     (hL : ∀ a b : B(H), L (a * b) = L a * b + a * L b)
     (hstar : ∀ a : B(H), star (L a) = L (star a)) :
@@ -2323,7 +2323,7 @@ set_option maxHeartbeats 800000
 The hypothesis is intentionally stated at the Evans--Lewis-kernel level: it is the exact
 representation-free interface supplied by the preceding CCP-to-kernel theorem once its
 factorisation datum is available. -/
-theorem isChristensenEvansGenerator_of_evansLewisKernel_factorization
+private theorem isChristensenEvansGenerator_of_evansLewisKernel_factorization
     [Nontrivial H] (L : B(H) →L[ℂ] B(H)) (hL1 : L 1 = 0)
     (hstar : ∀ a : B(H), star (L a) = L (star a))
     (J : B(H) →CP B(H))
@@ -2435,7 +2435,7 @@ Christensen--Evans converse when its CP compression is presented by a Stinesprin
 
 The auxiliary Hilbert space is fixed to the canonical kernel completion.  Thus this is the exact
 bridge from the reusable positive-kernel construction to the existing Christensen--Evans API. -/
-theorem isChristensenEvansGenerator_of_kernel_implementer
+private theorem isChristensenEvansGenerator_of_kernel_implementer
     [Nontrivial H]
     (L : B(H) →L[ℂ] B(H)) (hL1 : L 1 = 0)
     (hstar : ∀ a : B(H), star (L a) = L (star a))
@@ -2533,7 +2533,7 @@ lemma blockMatrixInverse_apply
     blockMatrixInverse T i j x = (T (PiLp.single 2 j x)) i := by
   simp [blockMatrixInverse, piLpSingleCLM_apply]
 
-lemma blockMatrixMap_inverse
+private lemma blockMatrixMap_inverse
     {n : ℕ} (T : B(PiLp 2 (fun _ : Fin n => H))) :
     blockMatrixMap (blockMatrixInverse T) = T := by
   apply ContinuousLinearMap.ext
@@ -2556,7 +2556,7 @@ lemma blockMatrixMap_inverse
     (WithLp.ofLp_sum 2 (∀ _ : Fin n, H) Finset.univ
       (fun j : Fin n => T (PiLp.single 2 j (x.ofLp j)))).symm
 
-lemma blockMatrixMap_injective
+private lemma blockMatrixMap_injective
     {n : ℕ} : Function.Injective
       (blockMatrixMap (H := H) (n := n)) := by
   intro M N h
@@ -2783,7 +2783,7 @@ set_option maxHeartbeats 800000 in
 The representation is the multiplicative action on the kernel completion and the implementing
 operator is the defect factorisation constructed above.  This is the general bounded
 Christensen--Evans converse on `B(H)`; no finite-dimensionality or Kraus basis is used. -/
-theorem isChristensenEvansGenerator_of_positive_evansLewis_kernel
+private theorem isChristensenEvansGenerator_of_positive_evansLewis_kernel
     [Nontrivial H]
     (L : B(H) →L[ℂ] B(H)) (hL1 : L 1 = 0)
     (hstar : ∀ a : B(H), star (L a) = L (star a))
@@ -2823,7 +2823,7 @@ uses the existing exponential uniqueness theorem: once a Christensen--Evans datu
 bounded generator, its canonical UCP semigroup is exactly the given semigroup.
 -/
 
-theorem exists_canonical_stinespring_realization
+private theorem exists_canonical_stinespring_realization
     [Nontrivial (B(H))]
     (Φ : BoundedQuantumDynamicalSemigroup (B(H)))
     (hΦ : IsChristensenEvansGenerator Φ.generator) :
@@ -2846,7 +2846,7 @@ set_option maxHeartbeats 800000
 This is the direct API for applications that already carry a bounded generator: a
 Hamiltonian-adjusted completely-positive shift produces both the Christensen--Evans datum and
 the matching channel-valued semigroup. -/
-theorem exists_canonical_stinespring_of_hasHamiltonianCompletelyPositiveShift
+private theorem exists_canonical_stinespring_of_hasHamiltonianCompletelyPositiveShift
     [Nontrivial (B(H))]
     (Φ : BoundedQuantumDynamicalSemigroup (B(H)))
     (hshift : HasHamiltonianCompletelyPositiveShift Φ.generator) :
@@ -2910,7 +2910,7 @@ provides the bounded exponential realization; the preceding theorem then supplie
 Christensen--Evans/Stinespring semigroup whenever the genuine converse hypothesis is available.
 -/
 
-theorem exists_canonical_stinespring_realization
+private theorem exists_canonical_stinespring_realization
     [Nontrivial (B(H))]
     (Φ : QuantumDynamicalSemigroup (B(H)))
     (hΦ : QuantumDynamicalSemigroup.IsNormContinuous Φ)
@@ -3043,7 +3043,7 @@ set_option maxHeartbeats 800000
 of a norm-continuous UCP semigroup.  This is the algebraic converse route that does not require a
 separate choice of a Stinespring witness: the witness is supplied canonically after the shift
 lemma produces Christensen--Evans data. -/
-theorem exists_canonical_stinespring_of_hasHamiltonianCompletelyPositiveShift
+private theorem exists_canonical_stinespring_of_hasHamiltonianCompletelyPositiveShift
     [Nontrivial H]
     (Φ : QuantumDynamicalSemigroup (B(H)))
     (hΦ : QuantumDynamicalSemigroup.IsNormContinuous Φ)

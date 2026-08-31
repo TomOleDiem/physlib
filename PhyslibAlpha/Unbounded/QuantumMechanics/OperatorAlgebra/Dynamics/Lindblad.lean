@@ -630,7 +630,7 @@ noncomputable def toChristensenEvansData (D : LindbladData H ι) :
   hamiltonian := D.hamiltonian
   jump := D.jumpCPMap
 
-lemma toChristensenEvansData_generator (D : LindbladData H ι) :
+private lemma toChristensenEvansData_generator (D : LindbladData H ι) :
     D.toChristensenEvansData.generator = D.generator := by
   ext A
   rw [ChristensenEvansData.generator_apply, LindbladData.generator_apply]
@@ -687,7 +687,7 @@ noncomputable def lindbladRealEvolution (D : LindbladData H ι) (t : ℝ) :
     B(H) →L[ℂ] B(H) :=
   NormedSpace.exp (t • D.generator)
 
-lemma lindbladRealEvolution_hasDerivAt (D : LindbladData H ι) (t : ℝ) :
+private lemma lindbladRealEvolution_hasDerivAt (D : LindbladData H ι) (t : ℝ) :
     HasDerivAt (fun s : ℝ => lindbladRealEvolution D s)
       (lindbladRealEvolution D t * D.generator) t := by
   simpa only [lindbladRealEvolution] using
@@ -856,7 +856,7 @@ lemma lindbladRealEvolution_isHermitianPreserving (D : LindbladData H ι) (t : �
   rw [isSelfAdjoint_iff]
   rw [lindbladRealEvolution_star, hA.star_eq]
 
-lemma lindbladNonnegativeEvolution_eq_real (D : LindbladData H ι) (t : ℝ≥0) :
+private lemma lindbladNonnegativeEvolution_eq_real (D : LindbladData H ι) (t : ℝ≥0) :
     lindbladNonnegativeEvolution D t = lindbladRealEvolution D (t : ℝ) := by
   change NormedSpace.exp ((t : ℂ) • D.generator) =
     NormedSpace.exp ((t : ℝ) • D.generator)

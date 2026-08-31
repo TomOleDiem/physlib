@@ -160,7 +160,7 @@ lemma finiteKrausDiagonalMap_apply (a : B(H))
     (finiteKrausDiagonalMap (ι := ι) a x).ofLp i = a (x.ofLp i) := by
   simp [finiteKrausDiagonalMap]
 
-lemma finiteKrausDiagonalMap_adjoint (a : B(H)) :
+private lemma finiteKrausDiagonalMap_adjoint (a : B(H)) :
     (finiteKrausDiagonalMap (ι := ι) a).adjoint =
       finiteKrausDiagonalMap (ι := ι) (star a : B(H)) := by
   apply ContinuousLinearMap.ext
@@ -361,7 +361,7 @@ lemma blockMatrixMap_isPositive
   change 0 ≤ (blockMatrixRepresentation (H := H) (n := n)) M
   exact map_nonneg (blockMatrixRepresentation (H := H) (n := n)) hM
 
-lemma blockMatrixMap_inner_nonneg
+private lemma blockMatrixMap_inner_nonneg
     {n : ℕ} {M : CStarMatrix (Fin n) (Fin n) B(H)} (hM : 0 ≤ M)
     (x : PiLp 2 (fun _ : Fin n => H)) :
     0 ≤ ∑ i, ∑ j, inner ℂ (M i j (x.ofLp j)) (x.ofLp i) := by
@@ -384,19 +384,19 @@ lemma gramMatrix_apply
     gramMatrix a i j = star (a i) * a j := by
   simp [gramMatrix, rowMatrix, CStarMatrix.mul_apply, CStarMatrix.star_eq_conjTranspose]
 
-lemma gramMatrix_nonneg
+private lemma gramMatrix_nonneg
     {A : Type*} [OperatorAlgebra A] {n : ℕ} [NeZero n] (a : Fin n → A) :
     0 ≤ gramMatrix a := by
   exact star_mul_self_nonneg (rowMatrix a)
 
-lemma cpGramMatrix_nonneg
+private lemma cpGramMatrix_nonneg
     {A : Type*} [OperatorAlgebra A] {H : Type*}
     [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
     {n : ℕ} [NeZero n] (J : A →CP B(H)) (a : Fin n → A) :
     0 ≤ (gramMatrix a).map J := by
   exact J.map_cstarMatrix_nonneg _ (gramMatrix_nonneg a)
 
-lemma cpKernel_inner_nonneg
+private lemma cpKernel_inner_nonneg
     {A : Type*} [OperatorAlgebra A] {H : Type*}
     [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
     {n : ℕ} [NeZero n] (J : A →CP B(H)) (a : Fin n → A)
@@ -473,7 +473,7 @@ noncomputable def cpKernelInner
   ∑ a : x.support, (∑ b : y.support,
     inner ℂ (x a) (J (star (a : A) * (b : A)) (y b)))
 
-lemma cpKernelInner_nonneg
+private lemma cpKernelInner_nonneg
     {A : Type*} [OperatorAlgebra A] {H : Type*}
     [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
     (J : A →CP B(H)) (x : A →₀ H) : 0 ≤ cpKernelInner J x x := by
@@ -505,7 +505,7 @@ noncomputable def cpKernelInnerSum
   x.sum fun a u => y.sum fun b v =>
     inner ℂ u (J (star (a : A) * (b : A)) v)
 
-lemma cpKernelInnerSum_eq
+private lemma cpKernelInnerSum_eq
     {A : Type*} [OperatorAlgebra A] {H : Type*}
     [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
     (J : A →CP B(H)) (x y : A →₀ H) :
@@ -528,7 +528,7 @@ lemma cpKernelInnerSum_add_left
   · intro a b₁ b₂
     simp
 
-lemma cpKernelInnerSum_smul_left
+private lemma cpKernelInnerSum_smul_left
     {A : Type*} [OperatorAlgebra A] {H : Type*}
     [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
     (J : A →CP B(H)) (r : ℂ) (x y : A →₀ H) :
@@ -568,7 +568,7 @@ lemma cpKernelInnerSum_conj_symm
   rw [hop]
   rw [ContinuousLinearMap.adjoint_inner_left]
 
-lemma cpKernelInnerSum_nonneg
+private lemma cpKernelInnerSum_nonneg
     {A : Type*} [OperatorAlgebra A] {H : Type*}
     [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
     (J : A →CP B(H)) (x : A →₀ H) : 0 ≤ cpKernelInnerSum J x x := by
@@ -607,7 +607,7 @@ noncomputable def stinespringLeftMap
   Finsupp.lsum ℂ (fun b => Finsupp.lsingle (a * b))
 
 @[simp]
-lemma stinespringLeftMap_single
+private lemma stinespringLeftMap_single
     {A : Type*} [OperatorAlgebra A] {H : Type*}
     [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
     (a b : A) (h : H) :
@@ -622,7 +622,7 @@ lemma stinespringLeftMap_apply
   rw [stinespringLeftMap, Finsupp.lsum_apply]
   rfl
 
-lemma cpKernelInnerSum_add_right
+private lemma cpKernelInnerSum_add_right
     {A : Type*} [OperatorAlgebra A] {H : Type*}
     [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
     (J : A →CP B(H)) (x y z : A →₀ H) :
@@ -653,14 +653,14 @@ lemma cpKernelInnerSum_smul_right
     _ = r * starRingEnd ℂ (cpKernelInnerSum J y x) := by simp
     _ = r * cpKernelInnerSum J x y := by rw [cpKernelInnerSum_conj_symm]
 
-lemma cpKernelInnerSum_zero_left
+private lemma cpKernelInnerSum_zero_left
     {A : Type*} [OperatorAlgebra A] {H : Type*}
     [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
     (J : A →CP B(H)) (x : A →₀ H) :
     cpKernelInnerSum J 0 x = 0 := by
   simp [cpKernelInnerSum]
 
-lemma cpKernelInnerSum_zero_right
+private lemma cpKernelInnerSum_zero_right
     {A : Type*} [OperatorAlgebra A] {H : Type*}
     [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
     (J : A →CP B(H)) (x : A →₀ H) :
@@ -1222,7 +1222,7 @@ lemma realEvolution_apply_one (D : ChristensenEvansData A) (t : ℝ) :
   exact BoundedQuantumDynamicalSemigroup.exp_apply_of_apply_eq_zero
     D.generator 1 D.generator_apply_one t
 
-lemma realEvolution_continuous (D : ChristensenEvansData A) :
+private lemma realEvolution_continuous (D : ChristensenEvansData A) :
     Continuous D.realEvolution := by
   change Continuous (fun t : ℝ => NormedSpace.exp (t • D.generator))
   apply NormedSpace.exp_continuous.comp
@@ -1371,7 +1371,7 @@ def HasHamiltonianCompletelyPositiveShift (L : A →L[ℂ] A) : Prop :=
     completelyPositiveMap_toContinuousLinearMap J =
       L - hamiltonianPartOf H + (r : ℂ) • (1 : A →L[ℂ] A)
 
-theorem isChristensenEvansGenerator_of_completelyPositiveShift
+private theorem isChristensenEvansGenerator_of_completelyPositiveShift
     (L : A →L[ℂ] A) (hL1 : L 1 = 0)
     (hshift : HasCompletelyPositiveShift L) :
     IsChristensenEvansGenerator L := by
@@ -1651,7 +1651,7 @@ variable {A : Type*} [OperatorAlgebra A]
 canonical CP/UCP realization.  This is the precise abstract converse interface: the hard
 infinite-dimensional theorem is isolated in the hypothesis
 `IsChristensenEvansGenerator Φ.generator`. -/
-theorem map_eq_christensenEvans_of_isChristensenEvansGenerator
+private theorem map_eq_christensenEvans_of_isChristensenEvansGenerator
     [Nontrivial A] (Φ : BoundedQuantumDynamicalSemigroup A)
     (hΦ : IsChristensenEvansGenerator Φ.generator) :
     ∃ D : ChristensenEvansData A, ∀ (t : ℝ≥0) (a : A),
@@ -1699,7 +1699,7 @@ theorem isChristensenEvansGenerator_iff_exists_matching_semigroup
 /-- A bounded semigroup with a completely-positive generator shift has a
 Christensen--Evans generator.  The only input not already forced by the UCP semigroup axioms is
 the positive-shift certificate itself. -/
-theorem isChristensenEvansGenerator_of_hasCompletelyPositiveShift
+private theorem isChristensenEvansGenerator_of_hasCompletelyPositiveShift
     (Φ : BoundedQuantumDynamicalSemigroup A)
     (hshift : HasCompletelyPositiveShift Φ.generator) :
     IsChristensenEvansGenerator Φ.generator := by
@@ -1938,7 +1938,7 @@ variable {A : Type*} [OperatorAlgebra A]
 
 /-- A norm-continuous raw UCP semigroup inherits the positive-shift converse through its canonical
 bounded-generator package. -/
-theorem isChristensenEvansGenerator_of_hasCompletelyPositiveShift
+private theorem isChristensenEvansGenerator_of_hasCompletelyPositiveShift
     (Φ : QuantumDynamicalSemigroup A)
     (hΦ : QuantumDynamicalSemigroup.IsNormContinuous Φ)
     (hshift : HasCompletelyPositiveShift

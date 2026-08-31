@@ -228,7 +228,7 @@ lemma transferCurve_apply_of_nonneg
     Φ.transferCurve t = MatrixMap.toMatrix ((Φ.map ⟨t, ht⟩).toCPMap.toLinearMap) := by
   simp [transferCurve, nonnegativeTime_of_nonneg ht]
 
-lemma transferCurve_continuous_on_inputs
+private lemma transferCurve_continuous_on_inputs
     (Φ : FiniteDimensionalHeisenbergQuantumDynamicalSemigroup d) (X : Matrix d d ℂ) :
     Continuous (fun t : ℝ =>
       (Φ.map (nonnegativeTime t)).toCPMap.toLinearMap X) := by
@@ -254,7 +254,7 @@ lemma transferCurve_continuous_on_inputs
     rw [LinearMap.map_add, LinearMap.map_smul]
     rfl
 
-lemma transferCurve_continuous
+private lemma transferCurve_continuous
     (Φ : FiniteDimensionalHeisenbergQuantumDynamicalSemigroup d) :
     Continuous Φ.transferCurve := by
   apply continuous_pi
@@ -458,7 +458,7 @@ lemma is_unital_infinitesimal : IsUnitalInfinitesimal G.map := by
     _ = 0 := by
       rw [ContinuousLinearMap.toSpanSingleton_apply_one]
 
-lemma has_deriv_matrix (X : Matrix d d ℂ) :
+private lemma has_deriv_matrix (X : Matrix d d ℂ) :
     HasDerivWithinAt
       (fun t : ℝ => (Φ.map (nonnegativeTime t)).toCPMap.toLinearMap X)
       (G.map X) (Set.Ici 0) 0 := by
@@ -487,7 +487,7 @@ lemma has_deriv_matrix (X : Matrix d d ℂ) :
   conv_lhs => rw [← realPart_add_I_smul_imaginaryPart X]
   simp only [map_add, map_smul]
 
-lemma has_choi_generator :
+private lemma has_choi_generator :
     FiniteDimensionalHeisenbergQuantumDynamicalSemigroup.HasChoiGenerator Φ G.map := by
   change HasDerivWithinAt
     (fun t : ℝ =>
@@ -704,7 +704,7 @@ def IsChoiQuadraticNull (M : MatrixMap d d ℂ) : Prop :=
     (star x) ⬝ᵥ maxEntangledVector = 0 →
       (star x) ⬝ᵥ (M.choi_matrix.mulVec x) = 0
 
-lemma IsConditionallyCompletelyPositive.add_null
+private lemma IsConditionallyCompletelyPositive.add_null
     {M N : MatrixMap d d ℂ} (hM : IsConditionallyCompletelyPositive M)
     (hN : IsChoiQuadraticNull N) :
     IsConditionallyCompletelyPositive (M + N) := by
@@ -715,7 +715,7 @@ lemma IsConditionallyCompletelyPositive.add_null
   rw [hchoi, Matrix.add_mulVec, dotProduct_add]
   exact add_nonneg (hM x hx) (le_of_eq (hN x hx).symm)
 
-lemma IsChoiQuadraticNull.add
+private lemma IsChoiQuadraticNull.add
     {M N : MatrixMap d d ℂ} (hM : IsChoiQuadraticNull M)
     (hN : IsChoiQuadraticNull N) :
     IsChoiQuadraticNull (M + N) := by
@@ -726,7 +726,7 @@ lemma IsChoiQuadraticNull.add
   rw [hchoi, Matrix.add_mulVec, dotProduct_add]
   rw [hM x hx, hN x hx, add_zero]
 
-lemma IsChoiQuadraticNull.smul
+private lemma IsChoiQuadraticNull.smul
     {M : MatrixMap d d ℂ} (hM : IsChoiQuadraticNull M) (c : ℂ) :
     IsChoiQuadraticNull (c • M) := by
   intro x hx
@@ -735,7 +735,7 @@ lemma IsChoiQuadraticNull.smul
     simp [MatrixMap.choi_matrix]
   rw [hchoi, Matrix.smul_mulVec, dotProduct_smul, hM x hx, smul_zero]
 
-lemma IsChoiQuadraticNull.zero :
+private lemma IsChoiQuadraticNull.zero :
     IsChoiQuadraticNull (0 : MatrixMap d d ℂ) := by
   intro x hx
   have hchoi : (0 : MatrixMap d d ℂ).choi_matrix = 0 := by
@@ -743,7 +743,7 @@ lemma IsChoiQuadraticNull.zero :
     simp [MatrixMap.choi_matrix]
   rw [hchoi, Matrix.zero_mulVec, dotProduct_zero]
 
-lemma IsChoiQuadraticNull.neg {M : MatrixMap d d ℂ}
+private lemma IsChoiQuadraticNull.neg {M : MatrixMap d d ℂ}
     (hM : IsChoiQuadraticNull M) : IsChoiQuadraticNull (-M) := by
   intro x hx
   have hchoi : (-M).choi_matrix = -M.choi_matrix := by
@@ -751,12 +751,12 @@ lemma IsChoiQuadraticNull.neg {M : MatrixMap d d ℂ}
     simp [MatrixMap.choi_matrix]
   rw [hchoi, Matrix.neg_mulVec, dotProduct_neg, hM x hx, neg_zero]
 
-lemma IsChoiQuadraticNull.sub {M N : MatrixMap d d ℂ}
+private lemma IsChoiQuadraticNull.sub {M N : MatrixMap d d ℂ}
     (hM : IsChoiQuadraticNull M) (hN : IsChoiQuadraticNull N) :
     IsChoiQuadraticNull (M - N) := by
   simpa only [sub_eq_add_neg] using hM.add hN.neg
 
-lemma IsChoiQuadraticNull.finset_sum {κ : Type*} [Fintype κ]
+private lemma IsChoiQuadraticNull.finset_sum {κ : Type*} [Fintype κ]
     (M : κ → MatrixMap d d ℂ) (hM : ∀ i, IsChoiQuadraticNull (M i)) :
     IsChoiQuadraticNull (∑ i, M i) := by
   exact Finset.sum_induction M _ (fun _ _ hN hP => hN.add hP) .zero
@@ -782,7 +782,7 @@ def HasChoiQuadraticGenerator
         (fun t : ℝ => (star x) ⬝ᵥ (Φ.choiCurve t).mulVec x)
         ((star x) ⬝ᵥ (L.choi_matrix.mulVec x)) (Set.Ici 0) 0
 
-lemma hasChoiGenerator_hasChoiQuadraticGenerator
+private lemma hasChoiGenerator_hasChoiQuadraticGenerator
     (Φ : FiniteDimensionalQuantumDynamicalSemigroup d) (L : MatrixMap d d ℂ)
     (hL : FiniteDimensionalQuantumDynamicalSemigroup.HasChoiGenerator Φ L) :
     HasChoiQuadraticGenerator Φ L := by
@@ -805,7 +805,7 @@ lemma hasChoiGenerator_hasChoiQuadraticGenerator
       (star x) ⬝ᵥ (((1 : ℝ) • L.choi_matrix).mulVec x)
     simp
 
-lemma hasChoiQuadraticGenerator_isConditionallyCompletelyPositive
+private lemma hasChoiQuadraticGenerator_isConditionallyCompletelyPositive
     (Φ : FiniteDimensionalQuantumDynamicalSemigroup d) (L : MatrixMap d d ℂ)
     (hL : HasChoiQuadraticGenerator Φ L) :
     IsConditionallyCompletelyPositive L := by
@@ -895,7 +895,7 @@ def HasChoiQuadraticGenerator
         (fun t : ℝ => (star x) ⬝ᵥ (Φ.choiCurve t).mulVec x)
         ((star x) ⬝ᵥ (L.choi_matrix.mulVec x)) (Set.Ici 0) 0
 
-lemma hasChoiGenerator_hasChoiQuadraticGenerator
+private lemma hasChoiGenerator_hasChoiQuadraticGenerator
     (Φ : FiniteDimensionalHeisenbergQuantumDynamicalSemigroup d) (L : MatrixMap d d ℂ)
     (hL : HasChoiGenerator Φ L) :
     HasChoiQuadraticGenerator Φ L := by
@@ -918,7 +918,7 @@ lemma hasChoiGenerator_hasChoiQuadraticGenerator
       (star x) ⬝ᵥ (((1 : ℝ) • L.choi_matrix).mulVec x)
     simp
 
-lemma hasChoiQuadraticGenerator_isConditionallyCompletelyPositive
+private lemma hasChoiQuadraticGenerator_isConditionallyCompletelyPositive
     (Φ : FiniteDimensionalHeisenbergQuantumDynamicalSemigroup d) (L : MatrixMap d d ℂ)
     (hL : HasChoiQuadraticGenerator Φ L) :
     IsConditionallyCompletelyPositive L := by
@@ -986,7 +986,7 @@ lemma hasChoiQuadraticGenerator_isConditionallyCompletelyPositive
       simp [ContinuousLinearMap.toSpanSingleton_apply]
   exact Complex.le_def.mpr ⟨hderiv, (le_antisymm him_nonpos him_nonneg).symm⟩
 
-lemma hasChoiGenerator_isConditionallyCompletelyPositive
+private lemma hasChoiGenerator_isConditionallyCompletelyPositive
     (Φ : FiniteDimensionalHeisenbergQuantumDynamicalSemigroup d) (L : MatrixMap d d ℂ)
     (hL : HasChoiGenerator Φ L) :
     IsConditionallyCompletelyPositive L :=
@@ -995,7 +995,7 @@ lemma hasChoiGenerator_isConditionallyCompletelyPositive
 
 end FiniteDimensionalHeisenbergQuantumDynamicalSemigroup
 
-lemma isCompletelyPositive_isConditionallyCompletelyPositive
+private lemma isCompletelyPositive_isConditionallyCompletelyPositive
     (M : MatrixMap d d ℂ) (hM : M.IsCompletelyPositive) :
     IsConditionallyCompletelyPositive M := by
   intro x hx
@@ -1023,17 +1023,17 @@ lemma matrixJumpMap_isUnital_iff (V : ι → Matrix d d ℂ) :
   rw [matrixJumpMap_apply_one]
 
 /-- The jump part of a finite-dimensional Lindblad generator is completely positive. -/
-lemma matrixJumpMap_isCompletelyPositive (V : ι → Matrix d d ℂ) :
+private lemma matrixJumpMap_isCompletelyPositive (V : ι → Matrix d d ℂ) :
     (matrixJumpMap V).IsCompletelyPositive := by
   classical
   exact MatrixMap.of_kraus_isCompletelyPositive (fun i => (V i).conjTranspose)
 
-lemma matrixJumpMap_isConditionallyCompletelyPositive (V : ι → Matrix d d ℂ) :
+private lemma matrixJumpMap_isConditionallyCompletelyPositive (V : ι → Matrix d d ℂ) :
     IsConditionallyCompletelyPositive (matrixJumpMap V) := by
   exact isCompletelyPositive_isConditionallyCompletelyPositive _
     (matrixJumpMap_isCompletelyPositive V)
 
-lemma isCompletelyPositive_exists_matrixJumpMap
+private lemma isCompletelyPositive_exists_matrixJumpMap
     (M : MatrixMap d d ℂ) (hM : M.IsCompletelyPositive) :
     ∃ V : (d × d) → Matrix d d ℂ, M = matrixJumpMap V := by
   obtain ⟨K, hK⟩ := MatrixMap.IsCompletelyPositive.exists_kraus M hM
@@ -1072,7 +1072,7 @@ lemma matrixMulRight_choi_apply (Q : Matrix d d ℂ)
     simp [MatrixMap.choi_matrix, matrixMulRight, Matrix.mul_apply, Matrix.single]
   · simp [MatrixMap.choi_matrix, matrixMulRight, Matrix.mul_apply, Matrix.single, h, eq_comm]
 
-lemma matrixMulLeft_isChoiQuadraticNull (Q : Matrix d d ℂ) :
+private lemma matrixMulLeft_isChoiQuadraticNull (Q : Matrix d d ℂ) :
     IsChoiQuadraticNull (matrixMulLeft Q) := by
   intro x hx
   have hdiag : ∑ i : d, star (x (i, i)) = 0 := by
@@ -1090,7 +1090,7 @@ lemma matrixMulLeft_isChoiQuadraticNull (Q : Matrix d d ℂ) :
   simp [Matrix.mulVec, dotProduct, hentry, Fintype.sum_prod_type, Finset.sum_ite_eq',
     ← Finset.mul_sum, hdiag']
 
-lemma matrixMulRight_isChoiQuadraticNull (Q : Matrix d d ℂ) :
+private lemma matrixMulRight_isChoiQuadraticNull (Q : Matrix d d ℂ) :
     IsChoiQuadraticNull (matrixMulRight Q) := by
   intro x hx
   have hdiag : ∑ i : d, star (x (i, i)) = 0 := by
@@ -1121,12 +1121,12 @@ def matrixSchrodingerJumpTerm (V : Matrix d d ℂ) : MatrixMap d d ℂ where
   map_add' X Y := by simp [Matrix.mul_add, Matrix.add_mul]
   map_smul' c X := by simp
 
-lemma matrixJumpMap_eq_sum_jumpTerm (V : ι → Matrix d d ℂ) :
+private lemma matrixJumpMap_eq_sum_jumpTerm (V : ι → Matrix d d ℂ) :
     matrixJumpMap V = ∑ i, matrixJumpTerm (V i) := by
   ext X
   simp [matrixJumpMap_apply, matrixJumpTerm, Matrix.mul_assoc]
 
-lemma matrixJumpTerm_dual (V : Matrix d d ℂ) :
+private lemma matrixJumpTerm_dual (V : Matrix d d ℂ) :
     MatrixMap.dual (matrixJumpTerm V) = matrixSchrodingerJumpTerm V := by
   apply MatrixMap.dual_unique
   intro A B
@@ -1146,7 +1146,7 @@ lemma matrixJumpTerm_dual (V : Matrix d d ℂ) :
     _ = (A * (V * B * V.conjTranspose)).trace := by
       simp only [Matrix.mul_assoc]
 
-lemma matrixMulLeft_dual (Q : Matrix d d ℂ) :
+private lemma matrixMulLeft_dual (Q : Matrix d d ℂ) :
     MatrixMap.dual (matrixMulLeft Q) = matrixMulRight Q := by
   apply MatrixMap.dual_unique
   intro A B
@@ -1170,14 +1170,14 @@ lemma matrixMulRight_dual (Q : Matrix d d ℂ) :
   simp [matrixMulLeft, matrixMulRight]
   simp [Matrix.mul_assoc]
 
-lemma matrixJumpTerm_isHermitianPreserving (V : Matrix d d ℂ) :
+private lemma matrixJumpTerm_isHermitianPreserving (V : Matrix d d ℂ) :
     MatrixMap.IsHermitianPreserving (matrixJumpTerm V) := by
   intro X hX
   change (V.conjTranspose * X * V).conjTranspose = V.conjTranspose * X * V
   rw [Matrix.conjTranspose_mul, Matrix.conjTranspose_mul, hX]
   simp [Matrix.mul_assoc]
 
-lemma matrixMulLeft_add_right_isHermitianPreserving
+private lemma matrixMulLeft_add_right_isHermitianPreserving
     (Q : Matrix d d ℂ) (hQ : Q.conjTranspose = Q) :
     MatrixMap.IsHermitianPreserving (matrixMulLeft Q + matrixMulRight Q) := by
   intro X hX
@@ -1185,7 +1185,7 @@ lemma matrixMulLeft_add_right_isHermitianPreserving
   rw [Matrix.conjTranspose_add, Matrix.conjTranspose_mul, Matrix.conjTranspose_mul, hX, hQ]
   ac_rfl
 
-lemma matrixHamiltonianPart_isHermitianPreserving
+private lemma matrixHamiltonianPart_isHermitianPreserving
     (H : Matrix d d ℂ) (hH : H.conjTranspose = H) :
     MatrixMap.IsHermitianPreserving (Complex.I • (matrixMulLeft H - matrixMulRight H)) := by
   intro X hX
@@ -1245,7 +1245,7 @@ def IsLindbladRemainder (L J : MatrixMap d d ℂ) : Prop :=
     L = J + Complex.I • (matrixMulLeft H - matrixMulRight H) -
       (2 : ℂ)⁻¹ • (matrixMulLeft (J 1) + matrixMulRight (J 1))
 
-lemma matrixLindbladGenerator_eq_of_matrixJumpMap
+private lemma matrixLindbladGenerator_eq_of_matrixJumpMap
     (H : Matrix d d ℂ) (hH : H.conjTranspose = H)
     (V : ι → Matrix d d ℂ) :
     matrixLindbladGenerator H hH V =
@@ -1388,7 +1388,7 @@ lemma matrixSchrodingerGenerator_isTraceAnnihilating
   simp only [smul_eq_mul]
   ring
 
-lemma matrixLindbladGenerator_dual
+private lemma matrixLindbladGenerator_dual
     (H : Matrix d d ℂ) (hH : H.conjTranspose = H)
     (V : ι → Matrix d d ℂ) :
     MatrixMap.dual (matrixLindbladGenerator H hH V) =
@@ -1444,17 +1444,17 @@ lemma matrixLindbladGenerator_isGKSLGenerator
     IsGKSLGenerator (matrixLindbladGenerator H hH V) ι :=
   ⟨H, hH, V, rfl⟩
 
-lemma isGKSLGenerator_isUnital
+private lemma isGKSLGenerator_isUnital
     (L : MatrixMap d d ℂ) (hL : IsGKSLGenerator L ι) : IsUnitalInfinitesimal L := by
   obtain ⟨H, hH, V, rfl⟩ := hL
   exact matrixLindbladGenerator_apply_one H hH V
 
-lemma isGKSLGenerator_isHermitianPreserving
+private lemma isGKSLGenerator_isHermitianPreserving
     (L : MatrixMap d d ℂ) (hL : IsGKSLGenerator L ι) : MatrixMap.IsHermitianPreserving L := by
   obtain ⟨H, hH, V, rfl⟩ := hL
   exact matrixLindbladGenerator_isHermitianPreserving H hH V
 
-lemma isGKSLGenerator_isConditionallyCompletelyPositive
+private lemma isGKSLGenerator_isConditionallyCompletelyPositive
     (L : MatrixMap d d ℂ) (hL : IsGKSLGenerator L ι) : IsConditionallyCompletelyPositive L := by
   obtain ⟨H, hH, V, rfl⟩ := hL
   exact matrixLindbladGenerator_isConditionallyCompletelyPositive H hH V
@@ -1473,7 +1473,7 @@ variable {d : Type*} [Fintype d] [DecidableEq d] [Nonempty d]
 /-- The squared norm of the unnormalised maximally-entangled vector. -/
 def maxEntangledNormSq : ℂ := (Fintype.card d : ℂ)
 
-lemma maxEntangledVector_normSq :
+private lemma maxEntangledVector_normSq :
     (star (maxEntangledVector (d := d))) ⬝ᵥ maxEntangledVector = maxEntangledNormSq (d := d) := by
   simp [maxEntangledVector, maxEntangledNormSq, dotProduct, Fintype.sum_prod_type,
     Finset.sum_ite_eq']
@@ -1493,7 +1493,7 @@ noncomputable def maxEntangledLineProjection :
   (maxEntangledNormSq (d := d))⁻¹ •
     Matrix.vecMulVec (maxEntangledVector (d := d)) (star (maxEntangledVector (d := d)))
 
-lemma maxEntangledComplementProjection_eq_one_sub_line :
+private lemma maxEntangledComplementProjection_eq_one_sub_line :
     maxEntangledComplementProjection (d := d) =
       1 - maxEntangledLineProjection (d := d) := rfl
 
@@ -1518,7 +1518,7 @@ lemma maxEntangledComplementProjection_apply (x : (d × d) → ℂ) :
   simp [maxEntangledComplementProjection, Matrix.sub_mulVec, Matrix.smul_mulVec,
     Matrix.one_mulVec, Matrix.vecMulVec_mulVec, smul_smul]
 
-lemma maxEntangledComplementProjection_orthogonal (x : (d × d) → ℂ) :
+private lemma maxEntangledComplementProjection_orthogonal (x : (d × d) → ℂ) :
     (star (maxEntangledVector (d := d))) ⬝ᵥ
         ((maxEntangledComplementProjection (d := d)).mulVec x) = 0 := by
   rw [maxEntangledComplementProjection_apply, dotProduct_sub, dotProduct_smul,
@@ -1528,14 +1528,14 @@ lemma maxEntangledComplementProjection_orthogonal (x : (d × d) → ℂ) :
   field_simp [maxEntangledNormSq_ne_zero]
   simp
 
-lemma maxEntangledComplementProjection_isHermitian :
+private lemma maxEntangledComplementProjection_isHermitian :
     (maxEntangledComplementProjection (d := d)).IsHermitian := by
   rw [Matrix.IsHermitian, maxEntangledComplementProjection,
     Matrix.conjTranspose_sub, Matrix.conjTranspose_smul,
     Matrix.conjTranspose_vecMulVec]
   simp [maxEntangledNormSq]
 
-lemma matrix_sub_compressedChoi_expansion
+private lemma matrix_sub_compressedChoi_expansion
     (C : Matrix (d × d) (d × d) ℂ) :
     C - (maxEntangledComplementProjection (d := d)).conjTranspose * C *
         maxEntangledComplementProjection (d := d) =
@@ -1591,7 +1591,7 @@ lemma matrix_mul_lineProjection_apply (C : Matrix (d × d) (d × d) ℂ)
   · simp [maxEntangledLineProjection, lineLeftCoefficient, Matrix.mul_apply,
       Matrix.vecMulVec, maxEntangledVector, maxEntangledNormSq, h]
 
-lemma line_supported_choi_of_coefficients
+private lemma line_supported_choi_of_coefficients
     (C : Matrix (d × d) (d × d) ℂ) :
     maxEntangledLineProjection (d := d) * C + C *
         maxEntangledLineProjection (d := d) -
@@ -1634,7 +1634,7 @@ lemma lineLeftCoefficient_lineProjection_mul (C : Matrix (d × d) (d × d) ℂ) 
     rw [Finset.sum_comm]
   · simp [lineLeftCoefficient, lineProjection_mul_apply, h]
 
-lemma lineRightCoefficient_eq_conjTranspose_lineLeftCoefficient
+private lemma lineRightCoefficient_eq_conjTranspose_lineLeftCoefficient
     (C : Matrix (d × d) (d × d) ℂ) (hC : C.IsHermitian) :
     lineRightCoefficient (d := d) C =
       (lineLeftCoefficient (d := d) C).conjTranspose := by
@@ -1649,7 +1649,7 @@ lemma lineRightCoefficient_eq_conjTranspose_lineLeftCoefficient
   simp [maxEntangledNormSq]
   ring
 
-lemma lineScalarCoefficient_isSelfAdjoint
+private lemma lineScalarCoefficient_isSelfAdjoint
     (C : Matrix (d × d) (d × d) ℂ) (hC : C.IsHermitian) :
     star (lineScalarCoefficient (d := d) C) =
       lineScalarCoefficient (d := d) C := by
@@ -1689,7 +1689,7 @@ noncomputable def lineSupportedRemainderMap
     matrixMulLeft (lineLeftCoefficient (d := d) (
       maxEntangledLineProjection (d := d) * C))
 
-lemma lineSupportedRemainderMap_eq_lineRemainder
+private lemma lineSupportedRemainderMap_eq_lineRemainder
     (C : Matrix (d × d) (d × d) ℂ) (hC : C.IsHermitian) :
     lineSupportedRemainderMap (d := d) C =
       matrixMulLeft (lineRemainderCoefficient (d := d) C) +
@@ -1708,7 +1708,7 @@ lemma lineSupportedRemainderMap_eq_lineRemainder
     Matrix.one_mul, Matrix.mul_one]
   module
 
-lemma lineSupportedRemainderMap_eq_hamiltonianForm
+private lemma lineSupportedRemainderMap_eq_hamiltonianForm
     (C : Matrix (d × d) (d × d) ℂ) (hC : C.IsHermitian) :
     ∃ Q : Matrix d d ℂ,
       lineSupportedRemainderMap (d := d) C =
@@ -1716,7 +1716,7 @@ lemma lineSupportedRemainderMap_eq_hamiltonianForm
   refine ⟨lineRemainderCoefficient (d := d) C, ?_⟩
   exact lineSupportedRemainderMap_eq_lineRemainder C hC
 
-lemma matrixMap_map_star_of_isHermitianPreserving
+private lemma matrixMap_map_star_of_isHermitianPreserving
     (L : MatrixMap d d ℂ) (hL : MatrixMap.IsHermitianPreserving L) :
     ∀ X : Matrix d d ℂ, L (star X) = star (L X) := by
   intro X
@@ -1765,7 +1765,7 @@ lemma matrixMap_map_star_of_isHermitianPreserving
       exact congrArg Matrix.conjTranspose (congrArg L hXA).symm
     _ = star (L X) := (Matrix.star_eq_conjTranspose (L X)).symm
 
-lemma choi_matrix_isHermitian_of_isHermitianPreserving
+private lemma choi_matrix_isHermitian_of_isHermitianPreserving
     (L : MatrixMap d d ℂ) (hL : MatrixMap.IsHermitianPreserving L) :
     L.choi_matrix.IsHermitian := by
   apply Matrix.IsHermitian.ext
@@ -1786,7 +1786,7 @@ noncomputable def compressedChoi (L : MatrixMap d d ℂ) :
   (maxEntangledComplementProjection (d := d)).conjTranspose *
     L.choi_matrix * maxEntangledComplementProjection (d := d)
 
-lemma compressedChoi_apply_quadratic (L : MatrixMap d d ℂ)
+private lemma compressedChoi_apply_quadratic (L : MatrixMap d d ℂ)
     (x : (d × d) → ℂ) :
     (star x) ⬝ᵥ ((compressedChoi (d := d) L).mulVec x) =
       (star ((maxEntangledComplementProjection (d := d)).mulVec x)) ⬝ᵥ
@@ -1795,13 +1795,13 @@ lemma compressedChoi_apply_quadratic (L : MatrixMap d d ℂ)
   rw [← Matrix.mulVec_mulVec, ← Matrix.mulVec_mulVec,
     Matrix.dotProduct_mulVec, Matrix.vecMul_conjTranspose, star_star]
 
-lemma compressedChoi_isHermitian_of_isHermitianPreserving
+private lemma compressedChoi_isHermitian_of_isHermitianPreserving
     (L : MatrixMap d d ℂ) (hL : MatrixMap.IsHermitianPreserving L) :
     (compressedChoi (d := d) L).IsHermitian := by
   apply Matrix.isHermitian_conjTranspose_mul_mul
   exact choi_matrix_isHermitian_of_isHermitianPreserving L hL
 
-lemma compressedChoi_posSemidef_of_isConditionallyCompletelyPositive
+private lemma compressedChoi_posSemidef_of_isConditionallyCompletelyPositive
     (L : MatrixMap d d ℂ) (hL : MatrixMap.IsHermitianPreserving L)
     (hccp : IsConditionallyCompletelyPositive L) :
     (compressedChoi (d := d) L).PosSemidef := by
@@ -1816,7 +1816,7 @@ lemma compressedChoi_posSemidef_of_isConditionallyCompletelyPositive
 noncomputable def compressedJumpMap (L : MatrixMap d d ℂ) : MatrixMap d d ℂ :=
   MatrixMap.of_choi_matrix (compressedChoi (d := d) L)
 
-lemma compressedJumpMap_isCompletelyPositive
+private lemma compressedJumpMap_isCompletelyPositive
     (L : MatrixMap d d ℂ) (hL : MatrixMap.IsHermitianPreserving L)
     (hccp : IsConditionallyCompletelyPositive L) :
     (compressedJumpMap (d := d) L).IsCompletelyPositive := by
@@ -1825,11 +1825,11 @@ lemma compressedJumpMap_isCompletelyPositive
     compressedChoi_posSemidef_of_isConditionallyCompletelyPositive L hL hccp
 
 @[simp]
-lemma compressedJumpMap_choi_matrix (L : MatrixMap d d ℂ) :
+private lemma compressedJumpMap_choi_matrix (L : MatrixMap d d ℂ) :
     (compressedJumpMap (d := d) L).choi_matrix = compressedChoi (d := d) L := by
   simp [compressedJumpMap]
 
-lemma maxEntangledComplementProjection_fix_of_orthogonal
+private lemma maxEntangledComplementProjection_fix_of_orthogonal
     (x : (d × d) → ℂ)
     (hx : (star x) ⬝ᵥ maxEntangledVector = 0) :
     (maxEntangledComplementProjection (d := d)).mulVec x = x := by
@@ -1862,7 +1862,7 @@ lemma compressedJumpMap_remainder_isChoiQuadraticNull
     rfl
   rw [hchoi, Matrix.sub_mulVec, dotProduct_sub, hquadJ, sub_self]
 
-lemma compressedJumpMap_remainder_choi_line_expansion
+private lemma compressedJumpMap_remainder_choi_line_expansion
     (L : MatrixMap d d ℂ) :
     (L - compressedJumpMap (d := d) L).choi_matrix =
       maxEntangledLineProjection (d := d) * L.choi_matrix +
@@ -1880,7 +1880,7 @@ lemma compressedJumpMap_remainder_choi_line_expansion
   rw [hchoi, compressedJumpMap_choi_matrix]
   exact matrix_sub_compressedChoi_expansion L.choi_matrix
 
-lemma compressedJumpMap_remainder_eq_lineSupportedRemainderMap
+private lemma compressedJumpMap_remainder_eq_lineSupportedRemainderMap
     (L : MatrixMap d d ℂ) :
     L - compressedJumpMap (d := d) L =
       lineSupportedRemainderMap (d := d) L.choi_matrix := by
@@ -1897,7 +1897,7 @@ lemma exists_matrixJumpMap_compressedJumpMap
   exact isCompletelyPositive_exists_matrixJumpMap _
     (compressedJumpMap_isCompletelyPositive L hL hccp)
 
-lemma exists_matrixLindbladGenerator_of_isUnital_isHermitianPreserving_isConditionallyCompletelyPositive
+private lemma exists_matrixLindbladGenerator_of_isUnital_isHermitianPreserving_isConditionallyCompletelyPositive
     (L : MatrixMap d d ℂ) (hUnital : IsUnitalInfinitesimal L)
     (hHP : MatrixMap.IsHermitianPreserving L)
     (hCCP : IsConditionallyCompletelyPositive L) :
@@ -1969,7 +1969,7 @@ theorem isGKSLGenerator_iff
     exact exists_matrixLindbladGenerator_of_isUnital_isHermitianPreserving_isConditionallyCompletelyPositive
       L hUnital hHP hCCP
 
-lemma HasFiniteDimensionalHeisenbergGenerator.isGKSLGenerator
+private lemma HasFiniteDimensionalHeisenbergGenerator.isGKSLGenerator
     {Φ : FiniteDimensionalHeisenbergQuantumDynamicalSemigroup d}
     (G : HasFiniteDimensionalHeisenbergGenerator Φ) :
     IsGKSLGenerator G.map (d × d) := by
@@ -1985,7 +1985,7 @@ law, and the right derivative).  The Choi compression argument then produces one
 Hamiltonian and a finite noise family whose Lindblad expression is exactly the infinitesimal
 generator.  This theorem is the reusable statement; concrete matrix bases are only used inside
 the proof. -/
-theorem HasFiniteDimensionalHeisenbergGenerator.exists_lindblad_generator
+private theorem HasFiniteDimensionalHeisenbergGenerator.exists_lindblad_generator
     {Φ : FiniteDimensionalHeisenbergQuantumDynamicalSemigroup d}
     (G : HasFiniteDimensionalHeisenbergGenerator Φ) :
     ∃ (H : Matrix d d ℂ) (hH : H.conjTranspose = H)
@@ -2006,7 +2006,7 @@ theorem exists_lindblad_generator_of_continuous
       (finite_dimensional_generator Φ).map = matrixLindbladGenerator H hH V := by
   exact (finite_dimensional_generator Φ).exists_lindblad_generator
 
-lemma HasFiniteDimensionalHeisenbergGenerator.exists_schrodinger_lindblad
+private lemma HasFiniteDimensionalHeisenbergGenerator.exists_schrodinger_lindblad
     {Φ : FiniteDimensionalHeisenbergQuantumDynamicalSemigroup d}
     (G : HasFiniteDimensionalHeisenbergGenerator Φ) :
     ∃ (H : Matrix d d ℂ) (hH : H.conjTranspose = H)
