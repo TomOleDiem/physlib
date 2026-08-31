@@ -334,7 +334,8 @@ lemma blockMatrixMap_zero
   intro i
   simp [blockMatrixMap_apply]
 
-/-- `blockMatrixMap`, packaged as a star algebra homomorphism from `CStarMatrix (Fin n) (Fin n) B(H)`. -/
+/-- `blockMatrixMap`, packaged as a star algebra homomorphism from
+`CStarMatrix (Fin n) (Fin n) B(H)`. -/
 noncomputable def blockMatrixRepresentation
     {n : ℕ} :
     CStarMatrix (Fin n) (Fin n) B(H) →⋆ₐ[ℂ]

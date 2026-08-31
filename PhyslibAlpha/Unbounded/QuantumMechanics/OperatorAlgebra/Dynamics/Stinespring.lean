@@ -2686,7 +2686,8 @@ The usual Stinespring compression does not require the implementing operator to 
 the source algebra.  This is the form needed for the converse: the canonical representation acts
 on the Evans--Lewis Hilbert space, while its defect maps the physical Hilbert space into it. -/
 
-/-- The entrywise (diagonal) action of `V : H →L[ℂ] K` on `PiLp 2 (Fin n → H) → PiLp 2 (Fin n → K)`. -/
+/-- The entrywise (diagonal) action of `V : H →L[ℂ] K` on
+`PiLp 2 (Fin n → H) → PiLp 2 (Fin n → K)`. -/
 @[nolint unusedArguments]
 noncomputable def piLpMap
     {H K : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
