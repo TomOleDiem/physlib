@@ -49,6 +49,7 @@ public import PhyslibAlpha.Particles.BeyondTheStandardModel.TwoHDM.OrbitRepresen
 public import PhyslibAlpha.Particles.BeyondTheStandardModel.TwoHDM.SwapDoublet
 public import PhyslibAlpha.Unbounded.QuantumMechanics.HarmonicOscillator.DifferentialCore
 public import PhyslibAlpha.Unbounded.QuantumMechanics.HarmonicOscillator.DifferentialSpectrum
+public import PhyslibAlpha.Unbounded.QuantumMechanics.HarmonicOscillator.Summary
 public import PhyslibAlpha.Unbounded.QuantumMechanics.HarmonicOscillator.EssentialSelfAdjointness
 public import PhyslibAlpha.Unbounded.QuantumMechanics.HarmonicOscillator.IntendedMaximalHamiltonian
 public import PhyslibAlpha.Unbounded.QuantumMechanics.HarmonicOscillator.OneDimension.PlancherelBridge

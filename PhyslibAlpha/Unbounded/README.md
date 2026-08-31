@@ -15,13 +15,46 @@ OperatorAlgebra,Operators,HarmonicOscillator}` layout one level down). It builds
 
 ## The headline result
 
-`HarmonicOscillator/DifferentialSpectrum.lean`'s `harmonicOscillator_isEigenvalue_iff`: for the
+**Read `HarmonicOscillator/Summary.lean` first.** It is the whole story — six `theorem`s, each a
+one-line citation of a result proved elsewhere, no new proofs and no operator-algebra jargon in
+the statements: the energy-level formula, the textbook Hermite-times-Gaussian eigenfunction
+formula, essential self-adjointness, each eigenfunction genuinely being an eigenvector, pure
+point spectrum, and the full iff-statement tying it together.
+
+That last one is `DifferentialSpectrum.lean`'s `harmonicOscillator_isEigenvalue_iff`: for the
 *actual* physical Hamiltonian of the one-dimensional quantum harmonic oscillator (a genuine
 unbounded differential operator on `L²(ℝ)`, essentially self-adjoint, built from first principles
 in `DifferentialCore.lean`), a real number `E` is an energy level if and only if `E = ℏω(n + ½)`
 for some natural number `n` — stated purely in eigenvector/eigenvalue language, with no bespoke
 spectral-measure vocabulary in the statement itself. Completeness of that list (no continuous or
 scattering spectrum) is `H_pp_eq_top`, used internally in the proof.
+
+### Why there seem to be several "harmonic oscillators"
+
+This tree is not the only place the quantum harmonic oscillator gets formalized, and that's worth
+being upfront about rather than leaving as a surprise:
+
+- `Physlib.QuantumMechanics.OneDimension.HarmonicOscillator` (`Basic.lean`/`TISE.lean`/
+  `OneDimension/Examples.lean`) is a **1d, pointwise-formula model**: `eigenValue`, `eigenfunction`
+  as plain `ℝ → ℂ` functions, `schrodingerOperator` as a bare differential expression — no Hilbert
+  space, no self-adjointness, nothing about *why* those formulas are the right ones. This is
+  `OldOscillator` in the files below.
+- `Physlib.QuantumMechanics.HarmonicOscillator` (`Basic.lean`/`Eigenstates.lean`/
+  `LadderOperators.lean`/`Vacuum.lean`) is the **`d`-dimensional Hilbert-space model**: genuine
+  `𝓢(Space d, ℂ)` Schwartz-space eigenfunctions, ladder operators, a real vacuum state — but
+  (before this tree) it left essential self-adjointness and the honest energy-level statement as
+  `informal_lemma`/`informal_definition` placeholders.
+- **This tree's `HarmonicOscillator/{DifferentialCore,EssentialSelfAdjointness,
+  IntendedMaximalHamiltonian,SpectralProjections,DifferentialSpectrum}.lean`** is what actually
+  connects the two: it builds the real unbounded differential operator at `d = 1` (via
+  `Physlib.QuantumMechanics.HarmonicOscillator`'s own machinery), proves it's essentially
+  self-adjoint, and shows its eigenvectors are exactly `OldOscillator`'s transported Hermite
+  functions — discharging those placeholders and finally justifying the 1d model's formulas as
+  genuinely correct, not just asserted.
+
+`HarmonicOscillator/Summary.lean` is the file to read if you don't want to track any of that by
+hand — it states the end result in isolation and cites straight through to whichever of the three
+layers actually proved each piece.
 
 ## What's excluded from the aggregate, and why
 
