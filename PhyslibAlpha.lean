@@ -121,6 +121,9 @@ public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Calculus.F
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Calculus.NormalBorelBounded
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Calculus.WeakStarCalculus
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Core.AnalyticVector
+public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Core.AnalyticVector.Basic
+public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Core.AnalyticVector.Local
+public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Core.AnalyticVector.Nelson
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Core.ClosureAPI
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Core.Core
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Core.EssentialSelfAdjoint
