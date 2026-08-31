@@ -149,7 +149,6 @@ public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Unbounded.
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Unbounded.Spectral.CayleySpectralData
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Unbounded.Spectral.EigenvectorSpectralAtom
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Unbounded.Spectral.SpectralDecomposition
-public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Unbounded.Tests.GeneralTheorySmoke
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.VectorState
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.WStarAlgebra
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.WStarAlgebra.FiniteDimensional
