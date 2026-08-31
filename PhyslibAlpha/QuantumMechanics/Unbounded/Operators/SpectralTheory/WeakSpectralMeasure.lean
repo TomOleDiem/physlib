@@ -1444,7 +1444,7 @@ lemma boundedIntegral_indicator [Nonempty α] {S : Set α} (hS : MeasurableSet S
     simp only [SimpleFunc.coe_const, Function.const_zero, Set.piecewise_eq_indicator]
     change ‖S.indicator (fun _ : α => (1 : ℂ)) x -
       S.indicator (fun _ : α => (1 : ℂ)) x‖ < ε
-    simp
+    simp only [sub_self, norm_zero]
     exact hε
   rw [boundedIntegral_eq_of_uniform_approx μS (measurable_const.indicator hS)
     (⟨1, fun x => by by_cases hx : x ∈ S <;> simp [hx]⟩) hs]

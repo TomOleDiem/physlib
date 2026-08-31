@@ -1968,7 +1968,7 @@ lemma exists_matrixLindbladGenerator_of_isGKSLGenerator
     dsimp [H]
     rw [Matrix.conjTranspose_smul, Matrix.conjTranspose_sub,
       Matrix.conjTranspose_conjTranspose]
-    simp
+    simp only [star_div₀, star_neg, RCLike.star_def, Complex.conj_I, neg_neg, star_ofNat]
     module
   obtain ⟨V, hV⟩ := isCompletelyPositive_exists_matrixJumpMap J hJ
   refine ⟨H, hH, V, ?_⟩
