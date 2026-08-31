@@ -154,6 +154,8 @@ public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Repr.Norma
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Repr.Representation
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Spec.BoundedSelfAdjointData
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Spec.UnitaryInfrastructure
+public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Spec.UnitaryInfrastructure.P1
+public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Spec.UnitaryInfrastructure.P2
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Spec.Cayley
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Spec.CayleyCertificate
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Spec.CayleyInverse
