@@ -532,8 +532,7 @@ lemma analyticExp_normSq_hasDerivAt_eq_zero
   have hnorm : HasDerivAt (fun r : ℝ => ‖analyticExp T v r‖ ^ 2)
       (2 * ⟪analyticExp T v s,
         Complex.I • T.closure ⟨analyticExp T v s,
-          analyticExp_mem_closure_domain hv (hsym.isClosable hTdense) hs hsum⟩⟫_ℝ) s :=
-    by
+          analyticExp_mem_closure_domain hv (hsym.isClosable hTdense) hs hsum⟩⟫_ℝ) s := by
       simpa [ContinuousLinearMap.toSpanSingleton_apply] using
         hlocal.hasFDerivAt.norm_sq.hasDerivAt
   have hzero :

@@ -123,8 +123,7 @@ def map {β : Type*} [MeasurableSpace β] (f : α → β) (hf : Measurable f) :
 @[simp]
 lemma map_apply {β : Type*} [MeasurableSpace β] (f : α → β) (hf : Measurable f)
     {S : Set β} (hS : MeasurableSet S) :
-    μS.map f hf S = μS (f ⁻¹' S) :=
-  by
+    μS.map f hf S = μS (f ⁻¹' S) := by
     change (μS.toVectorMeasure.map f) S = μS (f ⁻¹' S)
     exact MeasureTheory.VectorMeasure.map_apply _ hf hS
 

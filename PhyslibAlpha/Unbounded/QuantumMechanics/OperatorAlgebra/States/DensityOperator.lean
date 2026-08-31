@@ -15,8 +15,6 @@ public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Measuremen
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.WStarAlgebra.InfiniteDimensional
 public import Physlib.Meta.TODO.Basic
 
-set_option maxHeartbeats 1000000
-
 /-!
 
 # Density operators: the concrete `B(H)` realization of `NormalState`
@@ -49,6 +47,8 @@ product-trace constructor; the square-root quadratic-form constructor is the no-
   independent of the ideal/positivity gaps above.
 
 -/
+
+set_option maxHeartbeats 1000000
 
 @[expose] public section
 

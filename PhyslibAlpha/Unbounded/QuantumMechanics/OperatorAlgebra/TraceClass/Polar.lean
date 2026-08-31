@@ -153,8 +153,7 @@ lemma norm_absIntoRange_apply (T : B(H)) (x : H) :
 /-- The closed-range subspace is complete, so it admits the orthogonal projection used to define
 the bounded polar factor. -/
 noncomputable instance instCompleteSpaceRangeClosure (T : B(H)) :
-    CompleteSpace (rangeClosure T) :=
-  by
+    CompleteSpace (rangeClosure T) := by
     letI : IsClosed (rangeClosure T : Set H) :=
       Submodule.isClosed_topologicalClosure _
     exact IsClosed.completeSpace_coe

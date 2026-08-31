@@ -69,8 +69,7 @@ lemma summable_norm_mul_of_square_sums {w : Set H}
 theorem tsum_norm_inner_mul_inner_le {w : Set H}
     (b : HilbertBasis w ℂ H) (x y : H) :
     ∑' i : w, ‖⟪x, b i⟫_ℂ‖ * ‖⟪b i, y⟫_ℂ‖ ≤ ‖x‖ * ‖y‖ := by
-  have hx : HasSum (fun i : w => ‖⟪x, b i⟫_ℂ‖ ^ 2) (‖x‖ ^ 2) :=
-    by
+  have hx : HasSum (fun i : w => ‖⟪x, b i⟫_ℂ‖ ^ 2) (‖x‖ ^ 2) := by
       convert hasSum_norm_sq_inner b x using 1
       funext i
       rw [← inner_conj_symm x (b i), RCLike.norm_conj]

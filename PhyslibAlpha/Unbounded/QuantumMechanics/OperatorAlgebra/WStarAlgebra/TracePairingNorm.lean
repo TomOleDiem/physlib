@@ -1,12 +1,11 @@
 /-
 Copyright (c) 2026 Tom Ole Diem. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Tom Ole Diem
 -/
 module
 
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.TraceClass.Pairing
-
-set_option maxHeartbeats 1000000
 
 /-!
 # Rank-one tests for the trace pairing
@@ -21,6 +20,8 @@ algebra instance: rank-one operators test the norm of a bounded operator, and th
 computed directly from Parseval.  Consequently the trace pairing is an isometry before the
 surjectivity part of the predual theorem is constructed.
 -/
+
+set_option maxHeartbeats 1000000
 
 @[expose] public section
 

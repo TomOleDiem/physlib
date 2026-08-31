@@ -1214,8 +1214,7 @@ lemma matrixLindbladGenerator_apply (H : Matrix d d ℂ) (hH : H.conjTranspose =
       Complex.I • (H * X - X * H) +
         ∑ i, ((V i).conjTranspose * X * V i -
           (2 : ℂ)⁻¹ • ((V i).conjTranspose * V i * X +
-            X * (V i).conjTranspose * V i)) :=
-  by
+            X * (V i).conjTranspose * V i)) := by
     simp [matrixLindbladGenerator, matrixMulLeft, matrixMulRight, matrixJumpTerm,
       Matrix.mul_assoc]
 

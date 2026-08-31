@@ -34,8 +34,7 @@ variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteS
 lemma expFunction_hasDerivAt (r : ℝ) :
     HasDerivAt (fun t : ℝ => expFunction t r) (Complex.I * (r : ℂ)) 0 := by
   have harg : HasDerivAt (fun t : ℝ => t • ((r : ℂ) * Complex.I))
-      ((r : ℂ) * Complex.I) 0 :=
-    by
+      ((r : ℂ) * Complex.I) 0 := by
       have h := HasDerivAt.smul_const (𝕜 := ℝ) (F := ℂ)
         (hasDerivAt_id' (𝕜 := ℝ) (0 : ℝ)) ((r : ℂ) * Complex.I)
       simpa only [one_smul] using h
@@ -647,8 +646,7 @@ lemma expIntegral_strong_slope_tendsto
           (𝓝 (Complex.I * (r : ℂ))))
     have hnorm : Filter.Tendsto
         (fun t : ℝ => ‖expSlope t r - Complex.I * (r : ℂ)‖ ^ 2)
-        (𝓝[≠] (0 : ℝ)) (𝓝 (0 ^ 2)) :=
-      by
+        (𝓝[≠] (0 : ℝ)) (𝓝 (0 ^ 2)) := by
         simpa [Function.comp_def] using
           ((continuous_norm.pow 2).continuousAt.tendsto.comp hdiff)
     simpa [G, G₀, Function.comp_def] using

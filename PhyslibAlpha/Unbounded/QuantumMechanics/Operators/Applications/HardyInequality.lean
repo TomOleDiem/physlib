@@ -459,8 +459,8 @@ private lemma divergence_cutoffRadial_smul_hardyField {ε : ℝ} (hε : 0 < ε) 
   rw [ContinuousLinearMap.toLinearMap_add, map_add, hV, hcut.fderiv]
   congr 1
   exact LinearMap.trace_smulRight
-    (((deriv chiCutoff (‖x‖ / ε)) • (ε⁻¹ • fderiv ℝ (fun y : ℝ³ => ‖y‖) x) : ℝ³ →L[ℝ] ℝ)
-      : ℝ³ →ₗ[ℝ] ℝ) (hardyField ψ x)
+    (((deriv chiCutoff (‖x‖ / ε)) • (ε⁻¹ • fderiv ℝ (fun y : ℝ³ => ‖y‖) x) : ℝ³ →L[ℝ] ℝ) :
+      ℝ³ →ₗ[ℝ] ℝ) (hardyField ψ x)
 
 /-- `invSqSmulId` is `C¹` at every nonzero point. -/
 private lemma contDiffAt_invSqSmulId_of_ne {x : ℝ³} (hx : x ≠ 0) : ContDiffAt ℝ 1 invSqSmulId x :=

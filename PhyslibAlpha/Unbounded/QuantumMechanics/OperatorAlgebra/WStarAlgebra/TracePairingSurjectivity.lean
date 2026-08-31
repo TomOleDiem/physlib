@@ -1,13 +1,12 @@
 /-
 Copyright (c) 2026 Tom Ole Diem. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Tom Ole Diem
 -/
 module
 
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.WStarAlgebra.TracePairingNorm
 public import PhyslibAlpha.Unbounded.QuantumMechanics.Operators.SpectralTheory.BoundedSesquilinear
-
-set_option maxHeartbeats 1000000
 
 /-!
 # The Riesz half of trace-pairing surjectivity
@@ -21,6 +20,8 @@ trace class — is kept as an explicit hypothesis of the exported surjectivity t
 remaining trace-ideal approximation theorem, and making it a parameter prevents an unproved
 compactness assertion from entering the API.
 -/
+
+set_option maxHeartbeats 1000000
 
 @[expose] public section
 
