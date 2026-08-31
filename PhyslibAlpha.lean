@@ -62,6 +62,9 @@ public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.F
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.Lindblad
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.Semigroup
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.Stinespring
+public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.Stinespring.Core
+public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.Stinespring.Canonical
+public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.Stinespring.Converse
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.Trotter
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.FiniteDim.DensityOperator
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.FiniteDim.DensityOperatorGeometry
