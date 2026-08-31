@@ -186,3 +186,5 @@ public import PhyslibAlpha.QuantumMechanics.Unbounded.Operators.SpectralTheory.S
 public import PhyslibAlpha.QuantumMechanics.Unbounded.Operators.SpectralTheory.SpectralIntegral.P1
 public import PhyslibAlpha.QuantumMechanics.Unbounded.Operators.SpectralTheory.SpectralIntegral.P2
 public import PhyslibAlpha.QuantumMechanics.Unbounded.Operators.SpectralTheory.WeakSpectralMeasure
+public import PhyslibAlpha.QuantumMechanics.Unbounded.Operators.SpectralTheory.WeakSpectralMeasure.A
+public import PhyslibAlpha.QuantumMechanics.Unbounded.Operators.SpectralTheory.WeakSpectralMeasure.B
