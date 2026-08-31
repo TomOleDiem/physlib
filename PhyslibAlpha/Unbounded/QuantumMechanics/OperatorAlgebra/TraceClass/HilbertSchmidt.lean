@@ -37,6 +37,7 @@ def IsHilbertSchmidt (S : B(H)) : Prop :=
   ∃ (w : Set H) (b : HilbertBasis w ℂ H),
     Summable (fun i : w => ‖S (b i)‖ ^ 2)
 
+@[nolint unusedArguments]
 private lemma hasSum_norm_sq_inner_basis {w : Set H} (b : HilbertBasis w ℂ H) (y : H) :
     HasSum (fun i : w => ‖⟪b i, y⟫_ℂ‖ ^ 2) (‖y‖ ^ 2) := by
   have h := b.hasSum_inner_mul_inner y y
@@ -150,6 +151,7 @@ theorem summable_norm_sq_apply_of_hilbertBasis {S : B(H)}
   rcases hS with ⟨w₀, b₀, hb₀⟩
   exact (hasSum_norm_sq_apply_of_basis b₀ b hb₀).summable
 
+@[nolint unusedArguments]
 theorem tsum_norm_sq_apply_of_hilbertBasis {S : B(H)}
     (w : Set H) (b : HilbertBasis w ℂ H) (hS : IsHilbertSchmidt S)
     {w₀ : Set H} (b₀ : HilbertBasis w₀ ℂ H)

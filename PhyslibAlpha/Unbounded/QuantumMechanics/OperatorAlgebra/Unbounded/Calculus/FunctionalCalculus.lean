@@ -235,6 +235,7 @@ private lemma spectralCLM_finMeasAdditive (μ : Measure ℝ) :
   simp only [spectralCLM_apply]
   rw [T.spectralMeasure.of_union hdisj hS hU, smul_add]
 
+@[nolint unusedArguments]
 lemma simpleIntegral_eq_setToSimpleFunc (f : SimpleFunc ℝ ℂ) (μ : Measure ℝ) :
     T.simpleIntegral f = f.setToSimpleFunc (spectralCLM T) := by
   simp only [SimpleFunc.setToSimpleFunc, spectralCLM_apply, simpleIntegral]

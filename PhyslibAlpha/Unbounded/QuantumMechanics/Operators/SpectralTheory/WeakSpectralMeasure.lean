@@ -41,6 +41,7 @@ open ContinuousLinearMap ContinuousLinearMapWOT MeasureTheory Set
 
 namespace QuantumMechanics
 
+@[nolint unusedArguments]
 instance (H : Type*) [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H] :
     IsAddTorsionFree (H →WOT[ℂ] H) where
   nsmul_right_injective n hn := by
@@ -152,6 +153,7 @@ theorem map_id : μS.map id measurable_id = μS := by
 /-! ## Unitary transport -/
 
 /-- Conjugation of a bounded operator by a Hilbert-space unitary, viewed in the WOT type. -/
+@[nolint unusedArguments]
 def unitaryConj {H' : Type*} [NormedAddCommGroup H'] [InnerProductSpace ℂ H']
     [CompleteSpace H'] (u : H ≃ₗᵢ[ℂ] H') (A : H →WOT[ℂ] H) : H' →WOT[ℂ] H' :=
   ContinuousLinearMapWOT.ofCLM
@@ -188,6 +190,7 @@ lemma continuous_unitaryConjAddHom {H' : Type*} [NormedAddCommGroup H']
   rw [heq]
   fun_prop
 
+@[nolint unusedArguments]
 lemma unitaryConj_mul {H' : Type*} [NormedAddCommGroup H'] [InnerProductSpace ℂ H']
     [CompleteSpace H'] (u : H ≃ₗᵢ[ℂ] H') (A B : H →WOT[ℂ] H) :
     unitaryConj u (A * B) = unitaryConj u A * unitaryConj u B := by
@@ -216,6 +219,7 @@ lemma unitaryConj_star {H' : Type*} [NormedAddCommGroup H'] [InnerProductSpace �
     _ = ⟪u ((ContinuousLinearMapWOT.toCLM A) (u.symm y)), x⟫_ℂ :=
       (u.inner_map_eq_flip _ _).symm
 
+@[nolint unusedArguments]
 lemma unitaryConj_one {H' : Type*} [NormedAddCommGroup H'] [InnerProductSpace ℂ H']
     [CompleteSpace H'] (u : H ≃ₗᵢ[ℂ] H') :
     unitaryConj u (1 : H →WOT[ℂ] H) = 1 := by
@@ -716,6 +720,7 @@ private lemma simpleFunc_integrable_dirac (f : SimpleFunc α ℂ) [Nonempty α] 
   filter_upwards [] with x
   exact hC x
 
+@[nolint unusedArguments]
 lemma simpleIntegral_eq_setToSimpleFunc (f : SimpleFunc α ℂ) (μ : Measure α) :
     ContinuousLinearMapWOT.toCLM (simpleIntegral μS f) = f.setToSimpleFunc (spectralCLM μS) := by
   apply ContinuousLinearMap.ext
@@ -819,6 +824,7 @@ lemma simpleIntegral_mul [Nonempty α] (f g : SimpleFunc α ℂ) :
   · intro hq'
     exact (hq' hq).elim
 
+@[nolint unusedArguments]
 lemma simpleIntegral_star [Nonempty α] (f : SimpleFunc α ℂ) :
     simpleIntegral μS (star f) = star (simpleIntegral μS f) := by
   classical
@@ -895,6 +901,7 @@ lemma simpleIntegral_toCLM_cauchySeq [Nonempty α] {f : α → ℂ} {s : ℕ →
 /-- The bounded operator integral obtained from an explicit uniformly convergent simple
 approximation. The limit is taken in the normed space of bounded operators and then viewed in the
 WOT copy. -/
+@[nolint unusedArguments]
 noncomputable def boundedIntegralOfUniformApprox [Nonempty α]
     (f : α → ℂ) (s : ℕ → SimpleFunc α ℂ)
     (hs : ∀ ε > 0, ∃ N, ∀ n ≥ N, ∀ x, ‖s n x - f x‖ < ε) :
@@ -1849,6 +1856,7 @@ lemma expIntegral_mem_unitary (μS : WOTSpectralMeasure ℝ H) (t : ℝ) :
   rw [expIntegral_star]
   exact expIntegral_neg_mul μS t
 
+@[nolint unusedArguments]
 lemma expIntegral_sub_eq_boundedIntegral_diff [Nonempty H] (μS : WOTSpectralMeasure ℝ H)
     (t s : ℝ) (x : H) :
     expIntegral μS t x - expIntegral μS s x =
@@ -2155,6 +2163,7 @@ def toWOTMap : (H →L[ℂ] H) →+ (H →WOT[ℂ] H) :=
     map_zero' := by simp
     map_add' := by intro S T; simp }
 
+@[nolint unusedArguments]
 lemma continuous_toWOTMap : Continuous (toWOTMap (H := H)) := by
   change Continuous (ContinuousLinearMapWOT.ofCLM :
     (H →L[ℂ] H) → (H →WOT[ℂ] H))

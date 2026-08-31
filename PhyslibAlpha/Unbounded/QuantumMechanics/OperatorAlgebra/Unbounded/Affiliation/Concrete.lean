@@ -340,6 +340,7 @@ lemma closure_isClosed : T.closure.IsClosed :=
   D.closure_isSelfAdjoint.isClosed
 
 /-- The core operator is contained in its canonical self-adjoint closure. -/
+@[nolint unusedArguments]
 lemma le_closure : T ≤ T.closure :=
   T.le_closure
 
@@ -496,6 +497,7 @@ lemma mem_domain_iff (D : DomainAwareSelfAdjointSpectralTheorem T μS) (x : H) :
 
 /-- The strongly continuous unitary group attached to a domain-aware spectral theorem.  Its strong
 Stone generator and exact generator domain are proved in `Unbounded.Stone`. -/
+@[nolint unusedArguments]
 noncomputable def expUnitaryGroup
     (D : DomainAwareSelfAdjointSpectralTheorem T μS) :
     QuantumMechanics.WOTSpectralMeasure.StrongUnitaryOneParameterGroup H :=

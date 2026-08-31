@@ -1177,6 +1177,7 @@ lemma matrixJumpTerm_isHermitianPreserving (V : Matrix d d ℂ) :
   rw [Matrix.conjTranspose_mul, Matrix.conjTranspose_mul, hX]
   simp [Matrix.mul_assoc]
 
+@[nolint unusedArguments]
 lemma matrixMulLeft_add_right_isHermitianPreserving
     (Q : Matrix d d ℂ) (hQ : Q.conjTranspose = Q) :
     MatrixMap.IsHermitianPreserving (matrixMulLeft Q + matrixMulRight Q) := by
@@ -1185,6 +1186,7 @@ lemma matrixMulLeft_add_right_isHermitianPreserving
   rw [Matrix.conjTranspose_add, Matrix.conjTranspose_mul, Matrix.conjTranspose_mul, hX, hQ]
   ac_rfl
 
+@[nolint unusedArguments]
 lemma matrixHamiltonianPart_isHermitianPreserving
     (H : Matrix d d ℂ) (hH : H.conjTranspose = H) :
     MatrixMap.IsHermitianPreserving (Complex.I • (matrixMulLeft H - matrixMulRight H)) := by
@@ -1472,11 +1474,13 @@ variable {d : Type*} [Fintype d] [DecidableEq d] [Nonempty d]
 /-- The squared norm of the unnormalised maximally-entangled vector. -/
 def maxEntangledNormSq : ℂ := (Fintype.card d : ℂ)
 
+@[nolint unusedArguments]
 lemma maxEntangledVector_normSq :
     (star (maxEntangledVector (d := d))) ⬝ᵥ maxEntangledVector = maxEntangledNormSq (d := d) := by
   simp [maxEntangledVector, maxEntangledNormSq, dotProduct, Fintype.sum_prod_type,
     Finset.sum_ite_eq']
 
+@[nolint unusedArguments]
 lemma maxEntangledNormSq_ne_zero : maxEntangledNormSq (d := d) ≠ 0 := by
   simp [maxEntangledNormSq, Fintype.card_ne_zero]
 
@@ -1492,6 +1496,7 @@ noncomputable def maxEntangledLineProjection :
   (maxEntangledNormSq (d := d))⁻¹ •
     Matrix.vecMulVec (maxEntangledVector (d := d)) (star (maxEntangledVector (d := d)))
 
+@[nolint unusedArguments]
 lemma maxEntangledComplementProjection_eq_one_sub_line :
     maxEntangledComplementProjection (d := d) =
       1 - maxEntangledLineProjection (d := d) := rfl
@@ -1504,12 +1509,14 @@ lemma maxEntangledLineProjection_mul_self :
     Matrix.vecMulVec, maxEntangledVector, dotProduct, Fintype.sum_prod_type,
     Finset.mul_sum, Finset.sum_mul, Finset.sum_ite_eq']
 
+@[nolint unusedArguments]
 lemma maxEntangledLineProjection_isHermitian :
     (maxEntangledLineProjection (d := d)).IsHermitian := by
   rw [Matrix.IsHermitian, maxEntangledLineProjection,
     Matrix.conjTranspose_smul, Matrix.conjTranspose_vecMulVec]
   simp [maxEntangledNormSq]
 
+@[nolint unusedArguments]
 lemma maxEntangledComplementProjection_apply (x : (d × d) → ℂ) :
     (maxEntangledComplementProjection (d := d)).mulVec x =
       x - (maxEntangledNormSq (d := d))⁻¹ •
@@ -1527,6 +1534,7 @@ lemma maxEntangledComplementProjection_orthogonal (x : (d × d) → ℂ) :
   field_simp [maxEntangledNormSq_ne_zero]
   simp
 
+@[nolint unusedArguments]
 lemma maxEntangledComplementProjection_isHermitian :
     (maxEntangledComplementProjection (d := d)).IsHermitian := by
   rw [Matrix.IsHermitian, maxEntangledComplementProjection,
@@ -1558,6 +1566,7 @@ noncomputable def lineScalarCoefficient (C : Matrix (d × d) (d × d) ℂ) : ℂ
   (maxEntangledNormSq (d := d))⁻¹ *
     ∑ k : d, ∑ l : d, C (k, k) (l, l)
 
+@[nolint unusedArguments]
 lemma lineProjection_mul_apply (C : Matrix (d × d) (d × d) ℂ)
     (j₁ i₁ j₂ i₂ : d) :
     (maxEntangledLineProjection (d := d) * C) (j₁, i₁) (j₂, i₂) =
@@ -1571,6 +1580,7 @@ lemma lineProjection_mul_apply (C : Matrix (d × d) (d × d) ℂ)
   · simp [maxEntangledLineProjection, lineRightCoefficient, Matrix.mul_apply,
       Matrix.vecMulVec, maxEntangledVector, maxEntangledNormSq, h]
 
+@[nolint unusedArguments]
 lemma matrix_mul_lineProjection_apply (C : Matrix (d × d) (d × d) ℂ)
     (j₁ i₁ j₂ i₂ : d) :
     (C * maxEntangledLineProjection (d := d)) (j₁, i₁) (j₂, i₂) =
@@ -1633,6 +1643,7 @@ lemma lineLeftCoefficient_lineProjection_mul (C : Matrix (d × d) (d × d) ℂ) 
     rw [Finset.sum_comm]
   · simp [lineLeftCoefficient, lineProjection_mul_apply, h]
 
+@[nolint unusedArguments]
 lemma lineRightCoefficient_eq_conjTranspose_lineLeftCoefficient
     (C : Matrix (d × d) (d × d) ℂ) (hC : C.IsHermitian) :
     lineRightCoefficient (d := d) C =
@@ -1648,6 +1659,7 @@ lemma lineRightCoefficient_eq_conjTranspose_lineLeftCoefficient
   simp [maxEntangledNormSq]
   ring
 
+@[nolint unusedArguments]
 lemma lineScalarCoefficient_isSelfAdjoint
     (C : Matrix (d × d) (d × d) ℂ) (hC : C.IsHermitian) :
     star (lineScalarCoefficient (d := d) C) =
@@ -1715,6 +1727,7 @@ lemma lineSupportedRemainderMap_eq_hamiltonianForm
   refine ⟨lineRemainderCoefficient (d := d) C, ?_⟩
   exact lineSupportedRemainderMap_eq_lineRemainder C hC
 
+@[nolint unusedArguments]
 lemma matrixMap_map_star_of_isHermitianPreserving
     (L : MatrixMap d d ℂ) (hL : MatrixMap.IsHermitianPreserving L) :
     ∀ X : Matrix d d ℂ, L (star X) = star (L X) := by
@@ -1785,6 +1798,7 @@ noncomputable def compressedChoi (L : MatrixMap d d ℂ) :
   (maxEntangledComplementProjection (d := d)).conjTranspose *
     L.choi_matrix * maxEntangledComplementProjection (d := d)
 
+@[nolint unusedArguments]
 lemma compressedChoi_apply_quadratic (L : MatrixMap d d ℂ)
     (x : (d × d) → ℂ) :
     (star x) ⬝ᵥ ((compressedChoi (d := d) L).mulVec x) =
@@ -1823,7 +1837,7 @@ lemma compressedJumpMap_isCompletelyPositive
   simpa [compressedJumpMap] using
     compressedChoi_posSemidef_of_isConditionallyCompletelyPositive L hL hccp
 
-@[simp]
+@[simp, nolint unusedArguments]
 lemma compressedJumpMap_choi_matrix (L : MatrixMap d d ℂ) :
     (compressedJumpMap (d := d) L).choi_matrix = compressedChoi (d := d) L := by
   simp [compressedJumpMap]
@@ -1840,6 +1854,7 @@ lemma maxEntangledComplementProjection_fix_of_orthogonal
       _ = 0 := by simp [hx]
   simp [hx']
 
+@[nolint unusedArguments]
 lemma compressedJumpMap_remainder_isChoiQuadraticNull
     (L : MatrixMap d d ℂ) (hL : MatrixMap.IsHermitianPreserving L)
     (hccp : IsConditionallyCompletelyPositive L) :

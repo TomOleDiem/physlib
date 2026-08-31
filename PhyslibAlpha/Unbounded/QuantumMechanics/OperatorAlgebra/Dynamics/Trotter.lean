@@ -32,6 +32,7 @@ open Filter Topology
 The proof is just the triangle inequality on the exponential series, together with the
 submultiplicative estimate for powers.  The explicit `NormOneClass` assumption is needed only for
 the zero-th power; it is available for the unital operator algebras used by the dynamics API. -/
+@[nolint unusedArguments]
 theorem norm_exp_le_exp_norm {A : Type*} [NormedRing A] [NormedAlgebra ℂ A]
     [CompleteSpace A] [NormOneClass A] (x : A) :
     ‖NormedSpace.exp x‖ ≤ Real.exp ‖x‖ := by
@@ -252,6 +253,7 @@ section ProductFormula
 
 variable {A : Type*} [NormedRing A] [NormedAlgebra ℂ A] [CompleteSpace A] [NormOneClass A]
 
+@[nolint unusedArguments]
 theorem pow_sub_pow_tendsto_of_bound
     (q r : ℕ → A) (C : ℝ)
     (hterm : ∀ (n k : ℕ), k < n + 1 →
@@ -434,6 +436,7 @@ theorem lie_q_norm_le (x y : A) (t : ℝ) (n : ℕ) (ht : 0 ≤ t) :
       congr 1
       ring
 
+@[nolint unusedArguments]
 theorem lie_r_norm_le (x y : A) (t : ℝ) (n : ℕ) (ht : 0 ≤ t) :
     ‖(1 : A) + (t / (n + 1 : ℝ)) • (x + y)‖ ≤
       Real.exp ((t / (n + 1 : ℝ)) * (‖x‖ + ‖y‖)) := by
@@ -520,6 +523,7 @@ theorem lie_term_bound (x y : A) (t : ℝ) (n k : ℕ) (ht : 0 ≤ t)
     _ ≤ Real.exp (t * c) * d := hmain
     _ = _ := by simp [d, h, c, K]
 
+@[nolint unusedArguments]
 theorem lie_difference_tendsto (x y : A) (t : ℝ) (ht : 0 < t) :
     Tendsto (fun n : ℕ => (n + 1 : ℝ) *
       ‖NormedSpace.exp ((t / (n + 1 : ℝ)) • x) *

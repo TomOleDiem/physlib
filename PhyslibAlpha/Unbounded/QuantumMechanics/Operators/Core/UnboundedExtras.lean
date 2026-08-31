@@ -41,6 +41,7 @@ variable (u : H ≃ₗᵢ[ℂ] H') (A : H →ₗ.[ℂ] H)
 
 /-- Closure commutes with unitary conjugation.  This is the graph-level transport theorem used
 to move a core theorem through a unitary representation. -/
+@[nolint unusedArguments]
 lemma IsClosable.unitaryConj_closure [CompleteSpace H] [CompleteSpace H']
     (u : H ≃ₗᵢ[ℂ] H') (A : H →ₗ.[ℂ] H) (hA : A.IsClosable) :
     (unitaryConj u A).closure = unitaryConj u A.closure := by

@@ -34,7 +34,7 @@ variable {A : Type*} [WStarAlgebra A]
 noncomputable instance : CoeFun (NormalState A) (fun _ => A → ℂ) where
   coe ω := ω.toState
 
-@[simp]
+@[simp, nolint synTaut]
 lemma toState_apply (ω : NormalState A) (a : A) : ω.toState a = ω a := rfl
 
 /-- Weak-* continuity implies ordinary norm continuity because the weak-* topology is coarser. -/

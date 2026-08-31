@@ -36,6 +36,7 @@ theorem isHilbertSchmidt_zero : IsHilbertSchmidt (0 : B(H)) := by
   simpa using (summable_zero : Summable (fun _ : w => (0 : ℝ)))
 
 /-- Hilbert--Schmidt operators are closed under scalar multiplication. -/
+@[nolint unusedArguments]
 theorem isHilbertSchmidt_smul {S : B(H)} (c : ℂ) (hS : IsHilbertSchmidt S) :
     IsHilbertSchmidt (c • S) := by
   rcases hS with ⟨w, b, hb⟩
@@ -91,6 +92,7 @@ but it is an important contract for every later trace-ideal construction. -/
 
 /-- Left multiplication by a contraction preserves the Hilbert--Schmidt
 square-sum predicate. -/
+@[nolint unusedArguments]
 theorem isHilbertSchmidt_mul_left_of_opNorm_le_one {U S : B(H)}
     (hU : ‖U‖ ≤ 1) (hS : IsHilbertSchmidt S) :
     IsHilbertSchmidt (U * S) := by

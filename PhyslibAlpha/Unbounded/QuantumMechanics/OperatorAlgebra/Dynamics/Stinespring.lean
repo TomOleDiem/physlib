@@ -38,6 +38,7 @@ namespace OperatorAlgebra.TensorStinespring
 variable {A H : Type*} [OperatorAlgebra A]
   [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
 
+@[nolint unusedArguments]
 abbrev T (A H : Type*) [OperatorAlgebra A]
     [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H] := A ⊗[ℂ] H
 
@@ -471,6 +472,7 @@ namespace Canonical
 
 open ContinuousLinearMap
 
+@[nolint unusedArguments]
 def Pre (J : A →CP B(H)) := T A H
 
 instance (J : A →CP B(H)) : AddCommGroup (Pre J) :=
@@ -817,6 +819,7 @@ lemma evansLewisKernel_generator_eq_defect_gram
 end StinespringWitness
 
 /-- Positivity of an operator-valued kernel, tested on all finite families. -/
+@[nolint unusedArguments]
 def IsPositiveOperatorKernel
     {A H : Type*} [OperatorAlgebra A]
     [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
@@ -974,6 +977,7 @@ noncomputable def innerProductSpace (K : PositiveOperatorKernelData (A := A) (H 
 
 namespace Canonical
 
+@[nolint unusedArguments]
 abbrev Pre (K : PositiveOperatorKernelData (A := A) (H := H)) := A →₀ H
 
 noncomputable instance (K : PositiveOperatorKernelData (A := A) (H := H)) :
@@ -2037,6 +2041,7 @@ variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteS
 This is the concrete positive functional used to turn matrix-compression CCP into Hilbert-space
 quadratic inequalities.  Positivity of the selected diagonal entry is proved directly from the
 `StarOrderedRing` description of the positive cone. -/
+@[nolint unusedArguments]
 noncomputable def diagonal
     {n : Type*} [Fintype n] [DecidableEq n]
     (ψ : H) (hψ : ‖ψ‖ = 1) (i : n) :
@@ -2515,7 +2520,7 @@ noncomputable def piLpSingleCLM (n : ℕ) (j : Fin n) :
     rw [PiLp.norm_single]
     simp)
 
-@[simp]
+@[nolint unusedArguments, simp]
 lemma piLpSingleCLM_apply (n : ℕ) (j : Fin n) (x : H) :
     piLpSingleCLM n j x = PiLp.single 2 j x := by
   change (piLpSingleCLM n j) x = PiLp.single 2 j x
@@ -2627,6 +2632,7 @@ The usual Stinespring compression does not require the implementing operator to 
 the source algebra.  This is the form needed for the converse: the canonical representation acts
 on the Evans--Lewis Hilbert space, while its defect maps the physical Hilbert space into it. -/
 
+@[nolint unusedArguments]
 noncomputable def piLpMap
     {H K : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
     [NormedAddCommGroup K] [InnerProductSpace ℂ K] [CompleteSpace K]

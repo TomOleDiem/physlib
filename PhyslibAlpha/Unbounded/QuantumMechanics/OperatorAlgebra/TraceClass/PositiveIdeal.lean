@@ -110,6 +110,7 @@ theorem isTraceClass_add_of_nonneg {P Q : B(H)} (hP : 0 ≤ P) (hQ : 0 ≤ Q)
   rw [heq]
   exact hsum.map Complex.reCLM.toAddMonoidHom Complex.reCLM.continuous
 
+@[nolint unusedArguments]
 private lemma hasSum_norm_sq_inner_basis {w : Set H} (b : HilbertBasis w ℂ H) (y : H) :
     HasSum (fun i : w => ‖⟪b i, y⟫_ℂ‖ ^ 2) (‖y‖ ^ 2) := by
   have h := b.hasSum_inner_mul_inner y y

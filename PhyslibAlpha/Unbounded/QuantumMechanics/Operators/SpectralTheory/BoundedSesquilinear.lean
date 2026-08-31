@@ -50,6 +50,7 @@ variable (B : BoundedSesquilinearForm (H := H))
 
 noncomputable def boundConstant : ℝ := Classical.choose B.bound
 
+@[nolint unusedArguments]
 lemma boundConstant_spec : ∀ x y, ‖B.form x y‖ ≤ B.boundConstant * ‖x‖ * ‖y‖ :=
   Classical.choose_spec B.bound
 

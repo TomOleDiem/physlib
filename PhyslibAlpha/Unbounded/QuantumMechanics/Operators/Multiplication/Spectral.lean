@@ -425,6 +425,7 @@ lemma multiplicationSpectralMeasure_scalarMeasure_integrable
 
 /-! ### The square-moment domain in the multiplication model -/
 
+@[nolint unusedArguments]
 lemma realMultiplicationOperator_domain_subset_spectralSquareMomentDomain
     [IsFiniteMeasureOnCompacts μ] {f : Space d → ℝ} (hf : Measurable f)
     (x : (realMultiplicationOperator (μ := μ) f).domain) :
@@ -461,6 +462,7 @@ lemma realMultiplicationOperator_domain_subset_spectralSquareMomentDomain
   rw [sq_abs]
   ring
 
+@[nolint unusedArguments]
 lemma spectralSquareMomentDomain_subset_realMultiplicationOperator_domain
     [IsFiniteMeasureOnCompacts μ] {f : Space d → ℝ} (hf : Measurable f)
     {x : SpaceDHilbertSpace d μ}
@@ -675,6 +677,7 @@ lemma integral_smul_withDensityᵥ
     rw [← hleft]
     rw [hfP, integral_congr_ae hfgq]
 
+@[nolint unusedArguments]
 lemma realMultiplicationOperator_weakSpectralReconstruction
     [IsFiniteMeasureOnCompacts μ] {f : Space d → ℝ} (hf : Measurable f)
     (x : (realMultiplicationOperator (μ := μ) f).domain)

@@ -51,6 +51,7 @@ private lemma sandwiched_nonneg {A : B(H)} (hA : 0 ≤ A) :
   rw [hS] at h
   exact h
 
+@[nolint unusedArguments]
 private lemma sandwiched_diagonal {w : Set H} (b : HilbertBasis w ℂ H)
     {A : B(H)} (i : w) (hA : 0 ≤ A) :
     ⟪b i, ρ.sandwichedOperator A (b i)⟫_ℂ =

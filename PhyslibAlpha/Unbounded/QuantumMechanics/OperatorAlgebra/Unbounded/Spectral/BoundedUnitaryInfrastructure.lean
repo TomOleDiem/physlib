@@ -83,6 +83,7 @@ def pullbackPairing (L : F →L[ℝ] G) (B : E →L[ℝ] G →L[ℝ] K) :
     E →L[ℝ] F →L[ℝ] K :=
   (B.flip.comp L).flip
 
+@[nolint unusedArguments]
 lemma transpose_mapRange_pullback (μ : VectorMeasure X F) (L : F →L[ℝ] G)
     (B : E →L[ℝ] G →L[ℝ] K) :
     (μ.mapRange L.toAddMonoidHom L.continuous).transpose B =
@@ -530,7 +531,7 @@ noncomputable def realToComplexContinuousMap
   ContinuousMap.compStarAlgHom (spectrum ℂ U) (RCLike.ofRealStarAlgHom ℂ)
     RCLike.continuous_ofReal f.toContinuousMap
 
-@[simp]
+@[nolint unusedArguments, simp]
 lemma realToComplexContinuousMap_apply
     (f : CompactlySupportedContinuousMap (spectrum ℂ U) ℝ) (z : spectrum ℂ U) :
     realToComplexContinuousMap U f z = f z := by
@@ -1220,6 +1221,7 @@ theorem polarizedCfcScalarMeasure_real_smul_left (x y : H) (r : ℝ) {S : Set (s
 /-- The standard complex polarization identity, exposed at the continuous-operator level for the
 assembly proof.  The scalar measures obtained above will be polarized with precisely these four
 diagonal terms. -/
+@[nolint unusedArguments]
 lemma inner_map_polarization_continuous (A : H →L[ℂ] H) (x y : H) :
     ⟪A y, x⟫_ℂ =
       (⟪A (x + y), x + y⟫_ℂ - ⟪A (x - y), x - y⟫_ℂ +
@@ -1638,6 +1640,7 @@ variable {X : Type*} [TopologicalSpace X] [T2Space X] [MeasurableSpace X]
 
 /-- A continuous compactly supported function which is one on a compact set dominates that
 compact set's measure in the scalar integral.  This is the lower half of the Urysohn sandwich. -/
+@[nolint unusedArguments]
 lemma measureReal_compact_le_integral_of_eqOn_one
     (μ : Measure X) [IsFiniteMeasure μ] {K : Set X} (hK : IsCompact K)
     (f : CompactlySupportedContinuousMap X ℝ) (hfK : Set.EqOn f 1 K)
@@ -1657,6 +1660,7 @@ lemma measureReal_compact_le_integral_of_eqOn_one
 /-- A nonnegative `[0,1]`-valued continuous compactly supported function supported in an open set
 is dominated in integral by the indicator of that open set.  This is the upper half of the Urysohn
 sandwich. -/
+@[nolint unusedArguments]
 lemma integral_le_measureReal_of_support_subset
     (μ : Measure X) [IsFiniteMeasure μ] {V : Set X} (hV : IsOpen V)
     (f : CompactlySupportedContinuousMap X ℝ) (hfV : tsupport f ⊆ V)
@@ -1673,6 +1677,7 @@ lemma integral_le_measureReal_of_support_subset
     _ = μ.real V := by
       rw [MeasureTheory.integral_indicator_one hV.measurableSet]
 
+@[nolint unusedArguments]
 lemma integral_le_measureReal_of_le_indicator
     (μ : Measure X) [IsFiniteMeasure μ] {D : Set X} (hD : MeasurableSet D)
     (f : CompactlySupportedContinuousMap X ℝ) (hf : ∀ x, 0 ≤ f x)
@@ -1687,6 +1692,7 @@ lemma integral_le_measureReal_of_le_indicator
 
 end OrderRegularityHelpers
 
+@[nolint unusedArguments]
 lemma measureReal_lt_of_measure_lt_of_pos
     (μ : Measure X) [IsFiniteMeasure μ] {S : Set X} {ε : ℝ} (hε : 0 < ε)
     (hμε : μ S < ENNReal.ofReal ε) : μ.real S < ε := by
@@ -1714,6 +1720,7 @@ lemma cfcRealOperator_reApplyInnerSelf
   rw [ContinuousLinearMap.reApplyInnerSelf_apply, inner_re_symm]
   exact (cfcScalarMeasure_integral U hU x f).symm
 
+@[nolint unusedArguments]
 lemma cfcSpectralOperator_le_cfcRealOperator_of_compact_subset_open
     {K V : Set (spectrum ℂ U)} (hK : IsCompact K) (hV : IsOpen V) (hKV : K ⊆ V)
     (f : CompactlySupportedContinuousMap (spectrum ℂ U) ℝ)

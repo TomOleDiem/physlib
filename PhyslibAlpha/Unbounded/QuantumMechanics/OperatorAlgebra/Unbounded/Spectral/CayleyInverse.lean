@@ -41,11 +41,11 @@ variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteS
 def unitaryToPMap (u : H ≃ₗᵢ[ℂ] H) : H →ₗ.[ℂ] H :=
   continuousLinearMapToPMap (u.toLinearIsometry.toContinuousLinearMap)
 
-@[simp]
+@[nolint unusedArguments, simp]
 lemma unitaryToPMap_domain (u : H ≃ₗᵢ[ℂ] H) : (unitaryToPMap u).domain = ⊤ := by
   rfl
 
-@[simp]
+@[nolint unusedArguments, simp]
 lemma one_sub_unitaryToPMap_domain (u : H ≃ₗᵢ[ℂ] H) :
     (1 - unitaryToPMap u).domain = ⊤ := by
   simp [unitaryToPMap, continuousLinearMapToPMap, LinearPMap.sub_domain]
@@ -54,6 +54,7 @@ lemma one_sub_unitaryToPMap_domain (u : H ≃ₗᵢ[ℂ] H) :
 def inverseCayleyPMap (u : H ≃ₗᵢ[ℂ] H) : H →ₗ.[ℂ] H :=
   Complex.I • (1 + unitaryToPMap u) * (1 - unitaryToPMap u).inverse
 
+@[nolint unusedArguments]
 lemma inverseCayleyPMap_domain (u : H ≃ₗᵢ[ℂ] H) :
     (inverseCayleyPMap u).domain = (1 - unitaryToPMap u).toFun.range := by
   rw [inverseCayleyPMap, LinearPMap.mul_def, LinearPMap.compRestricted_domain]
@@ -183,6 +184,7 @@ lemma cayleyUnitary_one_sub_ker_eq_bot {T : H →ₗ.[ℂ] H}
   rw [hinvker] at hxker
   exact (Submodule.mem_bot ℂ).mp hxker
 
+@[nolint unusedArguments]
 lemma linearPMap_range_smul {Q : H →ₗ.[ℂ] H} (a : ℂ) (ha : a ≠ 0) :
     (a • Q).toFun.range = Q.toFun.range := by
   ext x
@@ -209,6 +211,7 @@ lemma linearPMap_range_smul {Q : H →ₗ.[ℂ] H} (a : ℂ) (ha : a ≠ 0) :
     rw [map_smul, smul_smul, mul_inv_cancel₀ ha, one_smul]
     exact hy
 
+@[nolint unusedArguments]
 lemma linearPMap_comp_inverse_apply {Q : H →ₗ.[ℂ] H}
     (hker : Q.toFun.ker = ⊥) (y : Q.inverse.domain) :
     Q (⟨Q.inverse y, by
@@ -397,6 +400,7 @@ lemma inverseCayleyPMap_cayleyUnitary {T : H →ₗ.[ℂ] H}
   rw [hsum]
   simp [smul_smul, mul_comm]
 
+@[nolint unusedArguments]
 lemma cayley_inner_identity (u : H ≃ₗᵢ[ℂ] H) (a b : H) :
     ⟪Complex.I • (a + u a), b - u b⟫_ℂ =
       ⟪a - u a, Complex.I • (b + u b)⟫_ℂ := by

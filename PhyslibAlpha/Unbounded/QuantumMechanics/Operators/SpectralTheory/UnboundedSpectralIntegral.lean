@@ -126,6 +126,7 @@ lemma truncationIntegral_inner_tendsto_complexWeakIntegral
   convert hdom using 1
   simpa [WOTSpectralMeasure.complexWeakIntegral, ν] using hdom
 
+@[nolint synTaut]
 lemma integral_indicator_real_eq_complex
     {α : Type*} [MeasurableSpace α] (μ : MeasureTheory.VectorMeasure α ℂ)
     (c : ℝ) (s : Set α) :
@@ -622,6 +623,7 @@ lemma maximalSpectralIntegral_isSymmetric (μS : WOTSpectralMeasure ℝ H) :
   have hyx' := hyx
   rw [← hseq] at hyx'
   exact tendsto_nhds_unique hxy hyx'
+@[nolint unusedArguments]
 
 lemma spectralCutoff_mem_spectralSquareMomentDomain
     (μS : WOTSpectralMeasure ℝ H) (x : H) {C : ℝ} (hC : 0 ≤ C) :
@@ -810,6 +812,7 @@ lemma maximalSpectralIntegral_norm_sq (μS : WOTSpectralMeasure ℝ H)
 lemma maximalSpectralIntegral_apply (μS : WOTSpectralMeasure ℝ H)
     (x : H) (hx : x ∈ (maximalSpectralIntegral μS).domain) :
     (maximalSpectralIntegral μS) ⟨x, hx⟩ = truncationLimit μS ⟨x, hx⟩ := rfl
+@[nolint unusedArguments]
 
 lemma scalarMeasure_inner_projection (μS : WOTSpectralMeasure ℝ H)
     (x y : H) (S : Set ℝ) (hS : MeasurableSet S) :
@@ -1249,6 +1252,7 @@ lemma expIntegral_mem_spectralSquareMomentDomain
     norm_num [MeasureTheory.setLIntegral_one]
   rw [hmeasure]
   exact hx
+@[nolint unusedArguments]
 
 lemma boundedMultiplier_mem_spectralSquareMomentDomain
     {α : Type*} [MeasurableSpace α] [Nonempty α]
@@ -1281,6 +1285,7 @@ lemma boundedMultiplier_mem_spectralSquareMomentDomain
 mathematically essential.  Keeping the finite-bound version separate makes the later general
 resolvent API usable at arbitrary non-real parameters without weakening any of the existing
 callers. -/
+@[nolint unusedArguments]
 
 lemma boundedMultiplier_mem_spectralSquareMomentDomain_of_bound
     {α : Type*} [MeasurableSpace α] [Nonempty α]

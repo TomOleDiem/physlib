@@ -33,6 +33,7 @@ namespace TraceClass
 open HilbertSchmidt
 
 /-- The tsum Cauchy--Schwarz inequality for two nonnegative square-summable real sequences. -/
+@[nolint unusedArguments]
 theorem tsum_mul_le_sqrt_mul_sqrt {w : Set H} (f g : w → ℝ)
     (hf : Summable (fun i => f i ^ 2)) (hg : Summable (fun i => g i ^ 2))
     (hf_nonneg : ∀ i, 0 ≤ f i) (hg_nonneg : ∀ i, 0 ≤ g i) :
@@ -313,6 +314,7 @@ theorem traceNorm_add_le {T T' : B(H)} (hT : IsTraceClass T) (hT' : IsTraceClass
 
 /-- The set `{y}` is orthonormal for any unit vector `y`: `Set.uniqueSingleton` makes its index
 type a subsingleton, so the pairwise-orthogonality clause is vacuous. -/
+@[nolint unusedArguments]
 private lemma orthonormal_singleton_of_norm_one {y : H} (hy : ‖y‖ = 1) :
     Orthonormal ℂ ((↑) : ({y} : Set H) → H) := by
   refine ⟨?_, ?_⟩

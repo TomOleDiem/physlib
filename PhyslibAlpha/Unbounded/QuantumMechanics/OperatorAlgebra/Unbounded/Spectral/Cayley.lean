@@ -171,6 +171,7 @@ def topDomainToContinuousLinearMap (A : H →ₗ.[ℂ] H) (hdom : A.domain = ⊤
     fun_prop
   exact ⟨L, hL⟩
 
+@[nolint unusedArguments]
 lemma topDomainToContinuousLinearMap_apply (A : H →ₗ.[ℂ] H) (hdom : A.domain = ⊤)
     (hc : Continuous A.toFun) (x : H) :
     topDomainToContinuousLinearMap A hdom hc x = A ⟨x, hdom ▸ Submodule.mem_top⟩ := by
@@ -722,6 +723,7 @@ variable {μS : QuantumMechanics.WOTSpectralMeasure ℝ H}
 /-- The bounded Cayley-side spectral measure attached to an unbounded self-adjoint spectral
 theorem.  This is the reusable forward half of the Cayley construction; a concrete bounded-unitary
 spectral theorem can identify this measure with a Cayley transform constructed independently. -/
+@[nolint unusedArguments]
 def cayleySpectralMeasure (D : SelfAdjointSpectralTheorem T μS) :
     QuantumMechanics.WOTSpectralMeasure ℂ H :=
   QuantumMechanics.WOTSpectralMeasure.cayleyMap μS

@@ -295,7 +295,8 @@ def hilbertSchmidtPartial {w : Set H} (S : B(H)) (b : HilbertBasis w ℂ H)
     (F : Finset w) : B(H) :=
   ∑ i ∈ F, InnerProductSpace.rankOne ℂ (S (b i)) (b i)
 
-@[simp] theorem hilbertSchmidtPartial_apply {w : Set H} (S : B(H))
+@[simp, nolint unusedArguments]
+theorem hilbertSchmidtPartial_apply {w : Set H} (S : B(H))
     (b : HilbertBasis w ℂ H) (F : Finset w) (x : H) :
     hilbertSchmidtPartial S b F x =
       ∑ i ∈ F, ⟪b i, x⟫_ℂ • S (b i) := by
@@ -393,6 +394,7 @@ def traceClassPartial {w : Set H} (R S : B(H)) (b : HilbertBasis w ℂ H)
   ∑ i ∈ F, ofOperator (InnerProductSpace.rankOne ℂ (R (S (b i))) (b i))
     (isTraceClass_rankOne (R (S (b i))) (b i))
 
+@[nolint unusedArguments]
 private theorem mul_rankOne_apply_left {R : B(H)} (x y : H) :
     R * InnerProductSpace.rankOne ℂ x y =
       InnerProductSpace.rankOne ℂ (R x) y := by

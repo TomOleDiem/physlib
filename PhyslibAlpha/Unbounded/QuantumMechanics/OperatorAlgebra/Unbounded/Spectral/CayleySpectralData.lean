@@ -978,6 +978,7 @@ lemma WOTSpectralMeasure.scalarMeasure_proj_right_restrict
     _ = ⟪y, μ (A ∩ S) x⟫_ℂ := by rw [inter_comm]
     _ = _ := rfl
 
+@[nolint unusedArguments]
 lemma WOTSpectralMeasure.complexWeakIntegral_proj_left
     {α : Type*} [MeasurableSpace α]
     (μ : QuantumMechanics.WOTSpectralMeasure α H) {S : Set α} (hS : MeasurableSet S)
@@ -991,6 +992,7 @@ lemma WOTSpectralMeasure.complexWeakIntegral_proj_left
   exact (MeasureTheory.VectorMeasure.integral_indicator
     (μ := μ.scalarMeasure x y) (f := g) hS).symm
 
+@[nolint unusedArguments]
 lemma WOTSpectralMeasure.complexWeakIntegral_proj_right
     {α : Type*} [MeasurableSpace α]
     (μ : QuantumMechanics.WOTSpectralMeasure α H) {S : Set α} (hS : MeasurableSet S)

@@ -40,6 +40,7 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
 /-- In finite dimension, continuous linear functionals and algebraic linear functionals have the
 same dimension. -/
+@[nolint unusedArguments]
 lemma finrank_strongDual_eq :
     Module.finrank ℂ (StrongDual ℂ E) = Module.finrank ℂ E := by
   rw [← (LinearMap.toContinuousLinearMap (E := E) (F' := ℂ)).finrank_eq]

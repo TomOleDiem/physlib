@@ -32,6 +32,7 @@ variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteS
 
 namespace TraceClass
 
+@[nolint unusedArguments]
 private lemma rankOne_self_diagonal {x : H} {w : Set H}
     (b : HilbertBasis w ℂ H) (i : w) :
     (⟪b i, (InnerProductSpace.rankOne ℂ x x) (b i)⟫_ℂ).re =

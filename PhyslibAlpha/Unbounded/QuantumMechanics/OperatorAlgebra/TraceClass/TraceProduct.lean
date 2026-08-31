@@ -36,6 +36,7 @@ private lemma holder_two_two : (2 : ℝ).HolderConjugate 2 := by
 
 /-- The real `ℓ²` Cauchy--Schwarz estimate in the form needed for operator
 diagonal bounds. -/
+@[nolint unusedArguments]
 theorem tsum_mul_le_sqrt_mul_sqrt {w : Set H} {f g : w → ℝ}
     (hf : Summable (fun i => f i ^ 2)) (hg : Summable (fun i => g i ^ 2))
     (hf_nonneg : ∀ i, 0 ≤ f i) (hg_nonneg : ∀ i, 0 ≤ g i) :
@@ -57,6 +58,7 @@ theorem tsum_mul_le_sqrt_mul_sqrt {w : Set H} {f g : w → ℝ}
   rw [← Real.sqrt_eq_rpow, ← Real.sqrt_eq_rpow] at h
   simpa only [Real.rpow_natCast] using h
 
+@[nolint unusedArguments]
 lemma summable_norm_mul_of_square_sums {w : Set H}
     (f g : w → ℝ) (hf : Summable (fun i => f i ^ 2))
     (hg : Summable (fun i => g i ^ 2))

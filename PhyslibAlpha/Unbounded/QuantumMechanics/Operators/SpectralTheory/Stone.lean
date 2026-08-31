@@ -74,6 +74,7 @@ lemma expFunction_sub_one_norm_le (t r : ℝ) (ht : |t * r| ≤ 1) :
   simpa [Complex.norm_real, Real.norm_eq_abs] using
     (Complex.norm_exp_sub_one_le harg)
 
+@[nolint unusedArguments]
 lemma expFunction_slope_norm_le {t r : ℝ} (ht : t ≠ 0) (htsmall : |t| ≤ 1) :
     ‖t⁻¹ • (expFunction t r - 1)‖ ≤ 2 * |r| := by
   have ht' : 0 < |t| := abs_pos.mpr ht

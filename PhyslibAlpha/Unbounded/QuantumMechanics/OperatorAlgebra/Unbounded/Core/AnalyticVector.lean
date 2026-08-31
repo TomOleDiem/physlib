@@ -114,6 +114,7 @@ all. -/
 def IteratesSeq (T : H →ₗ.[ℂ] H) (x : H) (v : ℕ → T.domain) : Prop :=
   (v 0 : H) = x ∧ ∀ n, (v (n + 1) : H) = T (v n)
 
+@[nolint unusedArguments]
 lemma IteratesSeq.ext {T : H →ₗ.[ℂ] H} {x : H} {v w : ℕ → T.domain}
     (hv : IteratesSeq T x v) (hw : IteratesSeq T x w) :
     ∀ n, (v n : H) = (w n : H) := by
@@ -146,6 +147,7 @@ structure AnalyticVectorWitness (T : H →ₗ.[ℂ] H) where
   radius_pos : 0 < radius
   summable : Summable (fun n => ‖(iterates n : H)‖ * radius ^ n / n.factorial)
 
+@[nolint unusedArguments]
 lemma AnalyticVectorWitness.isAnalytic {T : H →ₗ.[ℂ] H} (W : AnalyticVectorWitness T) :
     T.IsAnalyticVector W.state :=
   ⟨W.iterates, W.iterates_spec, W.radius, W.radius_pos, W.summable⟩
@@ -486,6 +488,7 @@ lemma analyticExp_hasDerivAt_eq_smul_closure
   rw [closure_analyticExp_apply hv hT hs hsum]
   simp [smul_smul]
 
+@[nolint unusedArguments]
 lemma IsSymmetric.re_inner_smul_I_apply_self
     {T : H →ₗ.[ℂ] H} (hT : T.IsSymmetric) (x : T.domain) :
     (⟪(x : H), Complex.I • T x⟫_ℂ).re = 0 := by
@@ -595,6 +598,7 @@ lemma analyticExp_eq_zero_iff
   rw [analyticExp_norm_eq_norm hsym hdense hv hs hsum]
   exact norm_eq_zero
 
+@[nolint unusedArguments]
 lemma IsEntireVector.isAnalyticVector
     {T : H →ₗ.[ℂ] H} {x : H} (h : T.IsEntireVector x) : T.IsAnalyticVector x := by
   obtain ⟨v, hv, hall⟩ := h
@@ -1221,6 +1225,7 @@ lemma isAnalyticVector_of_eigenvector {T : H →ₗ.[ℂ] H} {x : H} (hx : x ∈
     rw [heq]
     exact (Real.summable_pow_div_factorial (‖μ‖ * t)).mul_left _
 
+@[nolint unusedArguments]
 lemma isEntireVector_of_eigenvector {T : H →ₗ.[ℂ] H} {x : H} (hx : x ∈ T.domain) (μ : ℂ)
     (heig : T ⟨x, hx⟩ = μ • x) : T.IsEntireVector x := by
   have hmem : ∀ n : ℕ, μ ^ n • x ∈ T.domain := fun n => T.domain.smul_mem _ hx
@@ -1390,6 +1395,7 @@ theorem IsSymmetric.isEssentiallySelfAdjoint_of_denseEntireVectors
 
 /-! ## Common domain infrastructure for the finite-radius argument -/
 
+@[nolint unusedArguments]
 lemma hasDenseDomain_of_denseAnalyticVectors
     {T : H →ₗ.[ℂ] H}
     (hdense : (Submodule.span ℂ {x : H | T.IsAnalyticVector x}).topologicalClosure = ⊤) :
@@ -1461,6 +1467,7 @@ def translateTo {T : H →ₗ.[ℂ] H} {x : H} (U : LocalAnalyticOrbit T x) (a :
         ‖U (a + s)‖ = ‖x‖ := U.norm_eq (a + s) (lt_of_le_of_lt hsum hlt)
         _ = ‖U a‖ := (U.norm_eq a ha).symm }
 
+@[nolint unusedArguments]
 lemma translate {T : H →ₗ.[ℂ] H} {x : H} (U : LocalAnalyticOrbit T x) (a : ℝ)
     (ha : |a| < U.radius) : Nonempty (LocalAnalyticOrbit T (U a)) :=
   ⟨U.translateTo a ha⟩
@@ -1479,6 +1486,7 @@ def restrictTo {T : H →ₗ.[ℂ] H} {x : H} (U : LocalAnalyticOrbit T x)
 /-- Restrict a local orbit to a smaller symmetric radius.  Keeping this operation explicit is
 useful for gluing: adjacent recentered charts need only agree on a deliberately chosen core of
 their domains, while the original charts may have larger asymmetric overlaps. -/
+@[nolint unusedArguments]
 lemma restrict {T : H →ₗ.[ℂ] H} {x : H} (U : LocalAnalyticOrbit T x)
     {r : ℝ} (hr : 0 < r) (hrU : r ≤ U.radius) :
     Nonempty (LocalAnalyticOrbit T x) := by
@@ -1590,6 +1598,7 @@ lemma translate_eq_of_same_initial_on_core'
 /-- Transport a local orbit certificate for the closure back to a closable operator.  This is the
 local counterpart of `GlobalAnalyticOrbit.of_closure`; it is needed when a fresh chart is produced
 recursively for the closed operator but the public continuation interface is phrased for `T`. -/
+@[nolint unusedArguments]
 lemma of_closure {T : H →ₗ.[ℂ] H} {x : H} (hT : T.IsClosable)
     (U : LocalAnalyticOrbit T.closure x) : Nonempty (LocalAnalyticOrbit T x) := by
   have hclosed : T.closure.closure = T.closure := hT.closure_isClosed.closure_eq
@@ -1714,6 +1723,7 @@ lemma summable_shifted_factorial_majorant {a : ℕ → ℝ} {t q : ℝ}
 def shiftedIterates {T : H →ₗ.[ℂ] H} (v : ℕ → T.domain) (k : ℕ) : ℕ → T.domain :=
   fun n => v (n + k)
 
+@[nolint unusedArguments]
 lemma IteratesSeq.shift {T : H →ₗ.[ℂ] H} {x : H} {v : ℕ → T.domain}
     (hv : IteratesSeq T x v) (k : ℕ) :
     IteratesSeq T (v k) (shiftedIterates v k) := by
@@ -1722,6 +1732,7 @@ lemma IteratesSeq.shift {T : H →ₗ.[ℂ] H} {x : H} {v : ℕ → T.domain}
   · change (v (n + 1 + k) : H) = T (v (n + k))
     rw [show n + 1 + k = (n + k) + 1 by omega, hv.2]
 
+@[nolint unusedArguments]
 lemma summable_shifted_iterates {T : H →ₗ.[ℂ] H} {v : ℕ → T.domain}
     {t q : ℝ} (ht : 0 < t) (hq : 0 ≤ q) (hqt : q < t) (k : ℕ)
     (hsum : Summable (fun n : ℕ => ‖(v n : H)‖ * t ^ n / n.factorial)) :
@@ -1730,6 +1741,7 @@ lemma summable_shifted_iterates {T : H →ₗ.[ℂ] H} {v : ℕ → T.domain}
     (a := fun n : ℕ => ‖(v n : H)‖) (t := t) (q := q)
     (fun n => norm_nonneg _) ht hq hqt k (by simpa using hsum)
 
+@[nolint unusedArguments]
 lemma neg_I_smul_tsum_analyticExpDerivTerm_shift_eq
     {T : H →ₗ.[ℂ] H} {x : H} {v : ℕ → T.domain} (hv : IteratesSeq T x v)
     {t s : ℝ} (ht : 0 < t) (hs : s ∈ Set.Ioo (-t / 2) (t / 2))
@@ -2124,6 +2136,7 @@ lemma exists_int_center_of_pos_step {δ R s : ℝ} (hδ : 0 < δ) (hδR : δ < R
 translation by `δ`, agreement propagates along the whole integer chain.  The endpoint hypotheses
 are enough: the distance to the affine integer grid is convex, so every intermediate coordinate
 remains in the same core. -/
+@[nolint unusedArguments]
 lemma eq_of_adjacent_of_le
     {F : ℤ → ℝ → H} {δ R s : ℝ} (hδ : 0 < δ) (hR : 0 < R)
     (hadj : ∀ k : ℤ, ∀ z : ℝ, |z| < R →
@@ -2321,10 +2334,12 @@ noncomputable def LocalOrbitCoreCover.toGlobal {T : H →ₗ.[ℂ] H} {x : H}
     (C : LocalOrbitCoreCover T x) : GlobalAnalyticOrbit T x :=
   C.toLocalOrbitCover.toGlobal
 
+@[nolint unusedArguments]
 lemma LocalOrbitCoreCover.toGlobal_nonempty {T : H →ₗ.[ℂ] H} {x : H}
     (C : LocalOrbitCoreCover T x) : Nonempty (GlobalAnalyticOrbit T x) :=
   ⟨C.toGlobal⟩
 
+@[nolint unusedArguments]
 lemma LocalOrbitCover.toGlobal_nonempty {T : H →ₗ.[ℂ] H} {x : H}
     (C : LocalOrbitCover T x) : Nonempty (GlobalAnalyticOrbit T x) :=
   ⟨C.toGlobal⟩
@@ -2332,6 +2347,7 @@ lemma LocalOrbitCover.toGlobal_nonempty {T : H →ₗ.[ℂ] H} {x : H}
 /-- A global orbit for the closure of a closable operator is also a global orbit for the original
 operator.  The only issue is the dependent domain proof in the differential equation; the closed
 graph identity `T.closure.closure = T.closure` resolves it explicitly. -/
+@[nolint unusedArguments]
 lemma of_closure {T : H →ₗ.[ℂ] H} {x : H} (hT : T.IsClosable)
     (U : GlobalAnalyticOrbit T.closure x) : Nonempty (GlobalAnalyticOrbit T x) := by
   have hclosed : T.closure.closure = T.closure := hT.closure_isClosed.closure_eq
@@ -2360,6 +2376,7 @@ lemma of_closure {T : H →ₗ.[ℂ] H} {x : H} (hT : T.IsClosable)
         exact (happly _ hz hz').symm
       norm_eq := U.norm_eq }⟩
 
+@[nolint unusedArguments]
 lemma inner_deficiency_eq_zero
     {T : H →ₗ.[ℂ] H} {x : H} (U : GlobalAnalyticOrbit T x) {y : H}
     (hy : y ∈ (T.closure - Complex.I • 1).toFun.rangeᗮ) :
@@ -2442,6 +2459,7 @@ lemma inner_deficiency_eq_zero
     exact (tendsto_nhds_unique hc tendsto_const_nhds).symm
   simpa [g, f, U.initial] using hconst_zero
 
+@[nolint unusedArguments]
 lemma inner_deficiency_eq_zero_neg
     {T : H →ₗ.[ℂ] H} {x : H} (U : GlobalAnalyticOrbit T x) {y : H}
     (hy : y ∈ (T.closure - (-Complex.I) • 1).toFun.rangeᗮ) :

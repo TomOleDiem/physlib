@@ -90,6 +90,7 @@ continuous functional calculus square root, and Mathlib's `HilbertBasis` Parseva
 
 /-- **Parseval's identity**, in the form needed below: for a Hilbert basis `{eᵢ}` and any vector
 `y`, `∑ᵢ |⟪eᵢ, y⟫|² = ‖y‖²`, unconditionally (`HasSum`, not merely `tsum`). -/
+@[nolint unusedArguments]
 private lemma hasSum_norm_sq_inner_basis {w : Set H} (b : HilbertBasis w ℂ H) (y : H) :
     HasSum (fun i : w => ‖⟪b i, y⟫_ℂ‖ ^ 2) (‖y‖ ^ 2) := by
   have h := b.hasSum_inner_mul_inner y y
@@ -224,6 +225,7 @@ theorem isTraceClass_of_finiteDimensional [FiniteDimensional ℂ H] (T : B(H)) :
   exact Set.finite_univ.subset (by intro i hi; trivial)
 
 /-- The ordinary finite-dimensional trace is the diagonal sum in any Hilbert basis. -/
+@[nolint unusedArguments]
 theorem trace_eq_sum_inner_hilbertBasis_of_finiteDimensional
     [FiniteDimensional ℂ H] (T : B(H)) {w : Set H} (b : HilbertBasis w ℂ H) :
     LinearMap.trace ℂ H T.toLinearMap = ∑' i : w, ⟪b i, T (b i)⟫_ℂ := by

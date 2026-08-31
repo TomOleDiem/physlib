@@ -286,7 +286,7 @@ variable {X : Type*} [MeasurableSpace X] {A : Type*} [WStarAlgebra A]
 instance : CoeFun (PredualPVM X A) (fun _ => Set X → A) :=
   ⟨fun E => E.toNormalPVM.toFun⟩
 
-@[simp]
+@[simp, nolint synTaut]
 lemma toNormalPVM_apply (E : PredualPVM X A) (S : Set X) :
     E.toNormalPVM S = E S := rfl
 

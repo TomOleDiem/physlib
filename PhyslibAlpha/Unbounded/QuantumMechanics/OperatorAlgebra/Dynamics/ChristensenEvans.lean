@@ -109,6 +109,7 @@ variable {H K : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [Complet
 
 /-- Turn a Stinespring witness for a bounded-operator CP map and a bounded self-adjoint
 Hamiltonian into Christensen–Evans data. -/
+@[nolint unusedArguments]
 noncomputable def toChristensenEvansData
     (W : StinespringWitness (B(H)) H K J) (h : Observable B(H)) :
     ChristensenEvansData B(H) where
@@ -154,7 +155,7 @@ noncomputable def finiteKrausDiagonalMap (a : B(H)) :
     ContinuousLinearMap.piMap (fun _ : ι => a)
   exact e.symm.toContinuousLinearMap.comp (p.comp e.toContinuousLinearMap)
 
-@[simp]
+@[nolint unusedArguments, simp]
 lemma finiteKrausDiagonalMap_apply (a : B(H))
     (x : PiLp 2 (fun _ : ι => H)) (i : ι) :
     (finiteKrausDiagonalMap (ι := ι) a x).ofLp i = a (x.ofLp i) := by
@@ -259,7 +260,7 @@ noncomputable def blockMatrixMap
       ∑ j, (M i j).comp (ContinuousLinearMap.proj j))
   exact e.symm.toContinuousLinearMap.comp (p.comp e.toContinuousLinearMap)
 
-@[simp]
+@[nolint unusedArguments, simp]
 lemma blockMatrixMap_apply
     {n : ℕ} (M : CStarMatrix (Fin n) (Fin n) B(H))
     (x : PiLp 2 (fun _ : Fin n => H)) (i : Fin n) :
@@ -600,6 +601,7 @@ representation of `A`.  The next lemmas establish its algebraic adjoint relation
 is proved below from positivity of the weighted CP kernel; together they are the input needed to
 pass this action through the separation quotient and its completion. -/
 
+@[nolint unusedArguments]
 noncomputable def stinespringLeftMap
     {A : Type*} [OperatorAlgebra A] {H : Type*}
     [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
@@ -1242,6 +1244,7 @@ lemma eulerApproximation_tendsto_nonnegative
   exact D.eulerApproximation_tendsto t
 
 /-- A norm-convergent CP Euler product yields a channel because the exponential fixes `1`. -/
+@[nolint unusedArguments]
 noncomputable def channelOfEulerLimit
     (D : ChristensenEvansData A) [Nontrivial A] (t : ℝ≥0)
     (hlim : Tendsto

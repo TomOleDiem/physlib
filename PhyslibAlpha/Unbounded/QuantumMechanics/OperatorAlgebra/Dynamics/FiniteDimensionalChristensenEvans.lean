@@ -43,7 +43,7 @@ noncomputable def matrixJumpCPMap (V : ι → Matrix d d ℂ) :
   completelyPositiveMapFinsetSum Finset.univ
     (fun i => completelyPositiveMapConjugation (V i))
 
-@[simp]
+@[nolint unusedArguments, simp]
 lemma matrixJumpCPMap_apply (V : ι → Matrix d d ℂ) (X : Matrix d d ℂ) :
     matrixJumpCPMap V X = ∑ i, (V i).conjTranspose * X * V i := by
   simp [matrixJumpCPMap, completelyPositiveMap_finsetSum_apply,

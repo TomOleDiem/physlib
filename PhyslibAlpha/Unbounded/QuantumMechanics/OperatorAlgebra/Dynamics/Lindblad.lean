@@ -55,6 +55,7 @@ noncomputable local instance : NormedAlgebra ℚ (B(H)) :=
 /-! ### Completely positive conjugations -/
 
 /-- The diagonal amplification of a bounded operator. -/
+@[nolint unusedArguments]
 noncomputable def operatorDiagonal {n : Type*} [Fintype n] [DecidableEq n] (W : B(H)) :
     CStarMatrix n n (B(H)) :=
   Matrix.diagonal (fun _ => W)

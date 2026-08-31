@@ -33,6 +33,7 @@ namespace LinearPMap
 variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
 
 /-- Vanishing deficiency numbers from a total family of real eigenvectors. -/
+@[nolint unusedArguments]
 lemma defectNumber_eq_zero_of_dense_eigenvectors
     {T : H →ₗ.[ℂ] H} (hT : T.IsSymmetric) (hdense : T.HasDenseDomain)
     {ι : Type*} (v : ι → H) (eigenvalue : ι → ℝ)

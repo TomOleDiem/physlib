@@ -117,6 +117,7 @@ theorem countable_setOf_meas_singleton_pos : {a : ℝ | 0 < μ {a}}.Countable :=
 mass. -/
 def atomSet : Set ℝ := {a | μ {a} ≠ 0}
 
+@[nolint unusedArguments]
 lemma mem_atomSet_iff {a : ℝ} : a ∈ μ.atomSet ↔ μ {a} ≠ 0 := Iff.rfl
 
 /-- `atomSet` is countable. -/
@@ -234,6 +235,7 @@ variable [SeparableSpace H]
 def pointSpectrumSet : Set ℝ := {l | E {l} ≠ 0}
 
 /-- Every point of the point spectrum carries a witness vector not killed by `E {l}`. -/
+@[nolint unusedArguments]
 theorem exists_apply_ne_zero_of_mem_pointSpectrumSet {l : ℝ} (hl : l ∈ E.pointSpectrumSet) :
     ∃ x : H, E {l} x ≠ 0 := by
   by_contra h
@@ -317,6 +319,7 @@ theorem measurableSet_pointSpectrumSet : MeasurableSet E.pointSpectrumSet :=
 /-- The pure-point subspace: the range of the projection onto the point spectrum. -/
 def Hpp : Submodule ℂ H := (ContinuousLinearMapWOT.toCLM (E E.pointSpectrumSet)).range
 
+@[nolint unusedArguments]
 theorem isClosed_H_pp : IsClosed (E.Hpp : Set H) :=
   ContinuousLinearMap.IsIdempotentElem.isClosed_range
     (congrArg ContinuousLinearMapWOT.toCLM (E.isStarProjection E.pointSpectrumSet).isIdempotentElem)
@@ -367,6 +370,7 @@ theorem H_cont_eq_range_compl :
 
 /-- Every atom of a diagonal measure lies in the point spectrum: if `a ∉ pointSpectrumSet E` then
 `E.diagonalMeasure x` has no mass at `{a}`, for *every* `x`. -/
+@[nolint unusedArguments]
 theorem diagonalMeasure_singleton_eq_zero_of_notMem_pointSpectrumSet
     {a : ℝ} (ha : a ∉ E.pointSpectrumSet) (x : H) : E.diagonalMeasure x {a} = 0 := by
   rw [pointSpectrumSet, Set.mem_setOf_eq, not_not] at ha
@@ -424,14 +428,17 @@ not merely singular). -/
 def IsPureSC (x : E.ContVec) : Prop :=
   MeasureTheory.volume.withDensity ((E.diagonalMeasure (x : H)).rnDeriv MeasureTheory.volume) = 0
 
+@[nolint unusedArguments]
 theorem isPureAC_iff_absolutelyContinuous (x : E.ContVec) :
     E.IsPureAC x ↔ E.diagonalMeasure (x : H) ≪ MeasureTheory.volume :=
   MeasureTheory.Measure.singularPart_eq_zero (E.diagonalMeasure (x : H)) MeasureTheory.volume
 
+@[nolint unusedArguments]
 theorem isPureSC_iff_mutuallySingular (x : E.ContVec) :
     E.IsPureSC x ↔ E.diagonalMeasure (x : H) ⟂ₘ MeasureTheory.volume :=
   MeasureTheory.Measure.withDensity_rnDeriv_eq_zero (E.diagonalMeasure (x : H)) MeasureTheory.volume
 
+@[nolint unusedArguments]
 private theorem diagonalMeasure_eq_zero : E.diagonalMeasure (0 : H) = 0 := by
   apply MeasureTheory.Measure.ext
   intro S hS
