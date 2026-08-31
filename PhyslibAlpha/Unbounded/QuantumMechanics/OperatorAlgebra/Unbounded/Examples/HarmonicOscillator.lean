@@ -184,7 +184,6 @@ theorem hamiltonianDomain_eq_squareMoment :
       OperatorAlgebra.spectralSquareMomentDomain (hamiltonianCore Q).spectralMeasure :=
   (hamiltonianCore Q).domain_eq_squareMoment
 
-@[simp]
 theorem hamiltonianUnitaryGroup_zero :
     hamiltonianUnitaryGroup Q 0 = 1 := by
   exact QuantumMechanics.WOTSpectralMeasure.StrongUnitaryOneParameterGroup.zero _

@@ -50,7 +50,6 @@ noncomputable def negativeExpUnitaryGroup :
     intro x
     exact (D.expUnitaryGroup_continuous_apply x).comp continuous_neg
 
-@[simp]
 lemma negativeExpUnitaryGroup_zero : D.negativeExpUnitaryGroup 0 = 1 := by
   exact QuantumMechanics.WOTSpectralMeasure.StrongUnitaryOneParameterGroup.zero _
 

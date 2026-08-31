@@ -292,7 +292,6 @@ lemma generator_isUnital (Φ : BoundedQuantumDynamicalSemigroup A) :
   have heq' := congrArg (fun f => f (1 : ℝ)) heq
   simpa [ContinuousLinearMap.toSpanSingleton_apply_one] using heq'
 
-@[simp]
 lemma map_zero_apply (Φ : BoundedQuantumDynamicalSemigroup A) (a : A) :
     Φ.toQuantumDynamicalSemigroup.map 0 a = a :=
   Φ.toQuantumDynamicalSemigroup.map_zero a

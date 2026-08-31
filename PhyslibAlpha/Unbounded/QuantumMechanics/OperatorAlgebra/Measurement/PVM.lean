@@ -156,7 +156,6 @@ lemma isStarProjection (S : Set X) : IsStarProjection (E S) := E.isStarProjectio
 @[simp]
 lemma univ : E univ = 1 := E.univ'
 
-@[simp]
 lemma apply_eq_zero_of_not_measurableSet {S : Set X} (hS : ¬MeasurableSet S) : E S = 0 :=
   E.not_measurable' hS
 

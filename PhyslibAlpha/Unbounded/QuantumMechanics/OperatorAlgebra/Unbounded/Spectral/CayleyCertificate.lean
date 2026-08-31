@@ -42,7 +42,6 @@ lemma CayleySpectralCertificate.ofSelfAdjoint_bounded
     (CayleySpectralCertificate.ofSelfAdjoint T hT).bounded =
       cayleyBoundedUnitarySpectralData T hT := rfl
 
-@[simp]
 lemma CayleySpectralCertificate.ofSelfAdjoint_realSpectralMeasure
     (T : H →ₗ.[ℂ] H) (hT : IsSelfAdjoint T) :
     (CayleySpectralCertificate.ofSelfAdjoint T hT).bounded.realSpectralMeasure =

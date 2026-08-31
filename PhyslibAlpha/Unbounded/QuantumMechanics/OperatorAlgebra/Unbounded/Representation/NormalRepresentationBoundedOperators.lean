@@ -91,7 +91,6 @@ noncomputable def predualMatrixCoefficientCertificate :
     change TraceClass.tracePairing a (TraceClass.rankOneTraceClass x y) = _
     exact TraceClass.tracePairing_rankOne a x y
 
-@[simp]
 lemma predualMatrixCoefficientCertificate_apply (x y : H) (a : B(H)) :
     WStarAlgebra.predualPairing
         ((predualMatrixCoefficientCertificate (H := H)).coefficient x y) a =

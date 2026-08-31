@@ -1013,7 +1013,6 @@ lemma matrixJumpMap_apply (V : ι → Matrix d d ℂ) (X : Matrix d d ℂ) :
     matrixJumpMap V X = ∑ i, (V i).conjTranspose * X * V i := by
   simp [matrixJumpMap, MatrixMap.of_kraus]
 
-@[simp]
 lemma matrixJumpMap_apply_one (V : ι → Matrix d d ℂ) :
     matrixJumpMap V 1 = ∑ i, (V i).conjTranspose * V i := by
   simp [matrixJumpMap_apply]
@@ -1220,7 +1219,6 @@ lemma matrixLindbladGenerator_apply (H : Matrix d d ℂ) (hH : H.conjTranspose =
     simp [matrixLindbladGenerator, matrixMulLeft, matrixMulRight, matrixJumpTerm,
       Matrix.mul_assoc]
 
-@[simp]
 lemma matrixLindbladGenerator_apply_one (H : Matrix d d ℂ) (hH : H.conjTranspose = H)
     (V : ι → Matrix d d ℂ) :
     matrixLindbladGenerator H hH V 1 = 0 := by

@@ -84,7 +84,6 @@ variable (T : RepresentedAffiliatedObservable A H)
 def toConcreteAffiliatedObservable : ConcreteAffiliatedObservable ℝ H :=
   ⟨T.spectralMeasure⟩
 
-@[simp]
 lemma spectralProjection_representation_apply (S : Set ℝ) :
     T.representation (T.observable.spectralProjection S : A) =
       (T.toConcreteAffiliatedObservable.spectralMeasure S).toCLM :=
@@ -139,7 +138,6 @@ lemma toRepresentedAffiliatedObservable_spectralMeasure
     (T : ConcreteAffiliatedObservable ℝ H) :
     (bridge.toRepresentedAffiliatedObservable T).spectralMeasure = T.spectralMeasure := rfl
 
-@[simp]
 lemma toAffiliatedObservable_spectralProjection_apply
     (T : ConcreteAffiliatedObservable ℝ H) (S : Set ℝ) :
     bridge.representation ((bridge.toAffiliatedObservable T).spectralProjection S : A) =
@@ -503,7 +501,6 @@ noncomputable def expUnitaryGroup
     QuantumMechanics.WOTSpectralMeasure.StrongUnitaryOneParameterGroup H :=
   QuantumMechanics.WOTSpectralMeasure.expUnitaryGroup μS
 
-@[simp]
 lemma expUnitaryGroup_zero (D : DomainAwareSelfAdjointSpectralTheorem T μS) :
     D.expUnitaryGroup 0 = 1 := by
   exact QuantumMechanics.WOTSpectralMeasure.StrongUnitaryOneParameterGroup.zero _
@@ -645,7 +642,6 @@ def toRepresentedAffiliatedObservable {A : Type*} [OperatorAlgebra A]
     (bridge : AffiliationBridge A H) : RepresentedAffiliatedObservable A H :=
   bridge.toRepresentedAffiliatedObservable D.toConcreteAffiliatedObservable
 
-@[simp]
 lemma toAffiliatedObservable_spectralProjection_apply {A : Type*} [OperatorAlgebra A]
     (bridge : AffiliationBridge A H)
     (S : Set ℝ) :

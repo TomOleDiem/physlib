@@ -75,7 +75,6 @@ lemma isStarProjection (A : Set α) : IsStarProjection (μS A) := μS.isStarProj
 @[simp]
 lemma univ : μS univ = 1 := μS.univ'
 
-@[simp]
 lemma apply_eq_zero_of_not_measurableSet {A : Set α} (hA : ¬MeasurableSet A) : μS A = 0 :=
   μS.not_measurable' hA
 

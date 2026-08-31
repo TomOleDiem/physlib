@@ -516,7 +516,6 @@ theorem normalPVM_toWOTSpectralMeasure_of_traceClass_apply
     predualPVM_toWOTSpectralMeasure_apply]
   rfl
 
-@[simp]
 theorem normalPVM_toWOTSpectralMeasure_of_traceClass_toNormalPVM
     {X : Type*} [MeasurableSpace X]
     (μS : QuantumMechanics.WOTSpectralMeasure X H)

@@ -218,7 +218,7 @@ def tracePairingLinearIsometry :
 @[simp] theorem tracePairingLinearIsometry_apply (A : B(H)) :
     tracePairingLinearIsometry A = tracePairing A := rfl
 
-@[simp] theorem tracePairingLinearIsometry_norm (A : B(H)) :
+ theorem tracePairingLinearIsometry_norm (A : B(H)) :
     ‖tracePairingLinearIsometry A‖ = ‖A‖ :=
   (tracePairingLinearIsometry : B(H) →ₗᵢ[ℂ] (TraceClass H →L[ℂ] ℂ)).norm_map' A
 

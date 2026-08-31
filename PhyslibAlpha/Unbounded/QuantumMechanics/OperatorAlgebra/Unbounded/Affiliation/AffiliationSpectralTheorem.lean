@@ -70,7 +70,6 @@ theorem representedSelfAdjointOperator_eq_closure
   rw [hmeasure]
   exact C.spectralTheorem.maximal_eq
 
-@[simp]
 theorem representedSelfAdjointOperator_domain_eq_closure_domain
     (T : NormalAffiliatedObservable A)
     (C : EssentialSelfAdjointCore (H := H))
@@ -209,7 +208,6 @@ theorem representedSelfAdjointOperator_eq_closure
   exact π.toNormalAffiliationBridge.representedSelfAdjointOperator_eq_closure T C hmeasure
 
 /-- The domain of the represented affiliated realization is the closure domain of the core. -/
-@[simp]
 theorem representedSelfAdjointOperator_domain_eq_closure_domain
     (T : NormalAffiliatedObservable A)
     (C : EssentialSelfAdjointCore (H := H))

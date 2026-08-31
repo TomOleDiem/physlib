@@ -93,7 +93,6 @@ variable {A H K : Type*} [OperatorAlgebra A]
   [NormedAddCommGroup K] [InnerProductSpace ℂ K] [CompleteSpace K]
   {J : A →CP B(H)} (W : StinespringWitness A H K J)
 
-@[simp]
 lemma map_eq_apply (a : A) :
     J a = ContinuousLinearMap.adjoint W.implementing ∘L
       (W.representation a) ∘L W.implementing :=
@@ -884,7 +883,6 @@ lemma generator_eq_noJumpMap_add_jumpMap (D : ChristensenEvansData A) :
     sub_mul, mul_sub, add_mul, mul_add, neg_mul, mul_neg, hJ1]
   noncomm_ring
 
-@[simp]
 lemma generator_apply_one (D : ChristensenEvansData A) :
     D.generator 1 = 0 := by
   rw [generator_apply]
@@ -1362,7 +1360,6 @@ lemma hamiltonianPartOf_apply (H : Observable A) (a : A) :
       Complex.I • ((H : A) * a - a * (H : A)) := by
   simp [hamiltonianPartOf, ContinuousLinearMap.mulLeftRight_apply, sub_eq_add_neg]
 
-@[simp]
 lemma hamiltonianPartOf_apply_one (H : Observable A) :
     hamiltonianPartOf H 1 = 0 := by
   simp [hamiltonianPartOf]

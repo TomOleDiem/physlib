@@ -1182,7 +1182,6 @@ noncomputable def expUnitaryGroup
   QuantumMechanics.WOTSpectralMeasure.expUnitaryGroup
     (bridge.representedSpectralMeasure T)
 
-@[simp]
 lemma expUnitaryGroup_zero (T : NormalAffiliatedObservable A) :
     bridge.expUnitaryGroup T 0 = 1 := by
   exact QuantumMechanics.WOTSpectralMeasure.StrongUnitaryOneParameterGroup.zero _
@@ -1254,7 +1253,6 @@ noncomputable def negativeExpUnitaryGroup
       simpa [Function.comp_def] using
         (bridge.expUnitaryGroup_continuous_apply T x).comp continuous_neg }
 
-@[simp]
 lemma negativeExpUnitaryGroup_zero (T : NormalAffiliatedObservable A) :
     bridge.negativeExpUnitaryGroup T 0 = 1 := by
   exact QuantumMechanics.WOTSpectralMeasure.StrongUnitaryOneParameterGroup.zero _

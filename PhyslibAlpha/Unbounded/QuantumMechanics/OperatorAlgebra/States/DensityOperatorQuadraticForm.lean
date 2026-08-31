@@ -224,7 +224,6 @@ lemma bornRuleQuadraticForm_nonneg (E : PVM X (B(H))) (S : Set X) :
   exact ρ.toStateQuadraticForm.toPositiveLinearMap.map_nonneg
     (Projection.nonneg_of_isStarProjection (E.isStarProjection S))
 
-@[simp]
 lemma bornRuleQuadraticForm_univ (E : PVM X (B(H))) :
     ρ.bornRuleQuadraticForm E Set.univ = 1 := by
   rw [bornRuleQuadraticForm, E.univ]

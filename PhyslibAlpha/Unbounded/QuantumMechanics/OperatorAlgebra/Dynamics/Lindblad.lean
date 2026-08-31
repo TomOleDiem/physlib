@@ -92,7 +92,6 @@ lemma conjugationCPMap_apply (W A : B(H)) :
     conjugationCPMap W A = star W * A * W := by
   rfl
 
-@[simp]
 lemma conjugationCPMap_one (W : B(H)) :
     conjugationCPMap W 1 = star W * W := by
   simp [conjugationCPMap_apply]
@@ -601,7 +600,6 @@ noncomputable def completelyPositiveMapOfEulerLimit
   exact completelyPositiveMapOfTendstoBundled
     (fun n => D.eulerApproximation t n) Φ hlim
 
-@[simp]
 lemma generator_apply_one (D : LindbladData H ι) :
     D.generator 1 = 0 := by
   rw [generator_apply]
