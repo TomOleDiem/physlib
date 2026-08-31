@@ -5,8 +5,8 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import PhyslibAlpha.Unbounded.QuantumMechanics.Operators.OneDimension.Position
-public import PhyslibAlpha.Unbounded.QuantumMechanics.Operators.OneDimension.Momentum
+public import Physlib.QuantumMechanics.Operators.OneDimension.Position
+public import Physlib.QuantumMechanics.Operators.OneDimension.Momentum
 
 /-!
 

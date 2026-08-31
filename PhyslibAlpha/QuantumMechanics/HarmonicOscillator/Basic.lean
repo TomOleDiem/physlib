@@ -258,20 +258,16 @@ def hamiltonian : Q.HS →ₗ.[ℂ] Q.HS := Q.kineticOperator + Q.potentialOpera
 
 lemma hamiltonain_eq : Q.hamiltonian = Q.kineticOperator + Q.potentialOperator := rfl
 
-/-- The Hamiltonian for the harmonic oscillator is essentially self-adjoint. -/
-informal_lemma hamiltonian_essentially_self_adjoint where
-  deps := [``HarmonicOscillator.hamiltonian]
-  tag := "QM-HO-hamESA"
-
 /-!
 ## G. As a quantum system
--/
 
-/-- The `d`-dimensional harmonic oscillator as a quantum system
-  (self-adjoint Hamiltonian acting on a Hilbert space). -/
-informal_definition toQuantumSystem where
-  deps := [``HarmonicOscillator.hamiltonian_essentially_self_adjoint]
-  tag := "QM-HO-sys"
+The essential-self-adjointness theorem and the construction of a `QuantumSystem` from the
+Hamiltonian's self-adjoint closure are in `HarmonicOscillator.EssentialSelfAdjointness` (formerly
+the `informal_lemma hamiltonian_essentially_self_adjoint`/`informal_definition toQuantumSystem`
+placeholders that stood here — discharged there via the reusable defect-index and spectral
+infrastructure, together with a model-specific analytic certificate). They are kept out of this
+basic-definition file because the proof needs that reusable machinery.
+-/
 
 end HarmonicOscillator
 end QuantumMechanics

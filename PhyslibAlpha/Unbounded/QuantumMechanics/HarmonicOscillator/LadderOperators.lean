@@ -5,7 +5,7 @@ Authors: Gregory J. Loges
 -/
 module
 
-public import PhyslibAlpha.Unbounded.QuantumMechanics.HarmonicOscillator.Basic
+public import PhyslibAlpha.QuantumMechanics.HarmonicOscillator.Basic
 public import Physlib.QuantumMechanics.Operators.Commutation
 public import Physlib.Meta.TODO.Basic
 /-!

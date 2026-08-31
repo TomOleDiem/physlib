@@ -7,7 +7,7 @@ module
 
 public import Mathlib.Analysis.Fourier.LpSpace
 public import Mathlib.Analysis.Distribution.AEEqOfIntegralContDiff
-public import PhyslibAlpha.Unbounded.QuantumMechanics.HarmonicOscillator.OneDimension.Completeness
+public import Physlib.QuantumMechanics.HarmonicOscillator.OneDimension.Completeness
 
 /-!
 # Plancherel's theorem for the classical Fourier transform

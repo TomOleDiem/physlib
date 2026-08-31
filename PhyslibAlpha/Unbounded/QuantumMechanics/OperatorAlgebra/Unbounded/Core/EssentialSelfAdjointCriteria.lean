@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import PhyslibAlpha.Unbounded.QuantumMechanics.Operators.SpectralTheory.Symmetric
+public import Physlib.QuantumMechanics.Operators.SpectralTheory.Symmetric
 
 /-!
 # General essential-self-adjointness criteria

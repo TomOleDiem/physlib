@@ -657,7 +657,7 @@ noncomputable def toEvansLewisKernelFactorization (D : LindbladData H ι) :
     rw [StinespringWitness.evansLewisKernel_generator_eq_cpKernel
       D.jumpStinespringWitness D.hamiltonian]
     rw [StinespringWitness.evansLewisKernel_generator_eq_cpKernel
-      D.jumpStinespringWitness ⟨0, by simp⟩]
+      D.jumpStinespringWitness (Subtype.mk 0 (by simp))]
 
 lemma toEvansLewisKernelFactorization_isChristensenEvansGenerator
     [Nontrivial H]

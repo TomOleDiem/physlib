@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import PhyslibAlpha.Unbounded.QuantumMechanics.Operators.SpectralTheory.SpectralMeasure
+public import Physlib.QuantumMechanics.Operators.SpectralTheory.SpectralMeasure
 public import Mathlib.Analysis.InnerProductSpace.WeakOperatorTopology
 public import Mathlib.MeasureTheory.VectorMeasure.Integral
 public import Mathlib.MeasureTheory.VectorMeasure.SetIntegral

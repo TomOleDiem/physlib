@@ -10,8 +10,8 @@ public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Unbounded.
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Measurement.PVM
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Unbounded.Core.RealAnalytic
 public import PhyslibAlpha.Unbounded.QuantumMechanics.Operators.SpectralTheory.WeakSpectralMeasure
-public import PhyslibAlpha.Unbounded.QuantumMechanics.Operators.SpectralTheory.Symmetric
-public import PhyslibAlpha.Unbounded.QuantumMechanics.Operators.SpectralTheory.SelfAdjoint
+public import Physlib.QuantumMechanics.Operators.SpectralTheory.Symmetric
+public import Physlib.QuantumMechanics.Operators.SpectralTheory.SelfAdjoint
 public import Physlib.QuantumMechanics.Operators.Unbounded
 public import PhyslibAlpha.Unbounded.QuantumMechanics.Operators.Core.UnboundedExtras
 public import Mathlib.MeasureTheory.Measure.Real

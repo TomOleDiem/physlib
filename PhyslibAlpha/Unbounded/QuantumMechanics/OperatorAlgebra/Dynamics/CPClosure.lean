@@ -73,6 +73,31 @@ lemma completelyPositiveMap_id_apply (A : Type*) [OperatorAlgebra A] (a : A) :
     completelyPositiveMap_id A a = a := by
   rfl
 
+/-- **The composition of two completely positive maps is again completely positive.** Applying
+`φ` after `ψ` to every entry of a matrix is applying `ψ` entrywise (positive, since `ψ` is CP) then
+`φ` entrywise (positive, since `φ` is CP); `CStarMatrix.map_map` identifies this two-step entrywise
+map with the entrywise map of the composite `φ ∘ ψ`. -/
+noncomputable def completelyPositiveMap_comp
+    {A B C : Type*} [OperatorAlgebra A] [OperatorAlgebra B] [OperatorAlgebra C]
+    (φ : B →CP C) (ψ : A →CP B) : A →CP C where
+  toLinearMap := φ.toLinearMap.comp ψ.toLinearMap
+  map_cstarMatrix_nonneg' k M hM := by
+    have h1 : 0 ≤ M.map ψ.toLinearMap := ψ.map_cstarMatrix_nonneg' k M hM
+    have h2 : 0 ≤ (M.map ψ.toLinearMap).map φ.toLinearMap :=
+      φ.map_cstarMatrix_nonneg' k _ h1
+    have hcomp : (M.map ψ.toLinearMap).map φ.toLinearMap =
+        M.map (φ.toLinearMap ∘ ψ.toLinearMap) := by
+      ext i j
+      simp [CStarMatrix.map_apply]
+    rw [hcomp] at h2
+    simpa [LinearMap.coe_comp] using h2
+
+@[simp]
+lemma completelyPositiveMap_comp_apply
+    {A B C : Type*} [OperatorAlgebra A] [OperatorAlgebra B] [OperatorAlgebra C]
+    (φ : B →CP C) (ψ : A →CP B) (a : A) :
+    completelyPositiveMap_comp φ ψ a = φ (ψ a) := rfl
+
 /-! ### Completely positive conjugations -/
 
 /-- Conjugation by an element of a C⋆-algebra is completely positive.

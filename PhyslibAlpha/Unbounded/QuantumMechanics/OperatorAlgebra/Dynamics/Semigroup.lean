@@ -6,6 +6,7 @@ Authors: Tom Ole Diem
 module
 
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Basic
+public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Dynamics.CPClosure
 public import Mathlib.Analysis.Normed.Algebra.Exponential
 public import Mathlib.Analysis.Calculus.Deriv.Mul
 public import Mathlib.Analysis.Calculus.FDeriv.RestrictScalars
@@ -52,12 +53,13 @@ namespace QuantumDynamicalSemigroup
 /-- Regard each channel in a dynamical semigroup as its canonical bounded linear map. -/
 noncomputable def continuousLinearMap (Φ : QuantumDynamicalSemigroup A) (t : ℝ≥0) :
     A →L[ℂ] A :=
-  (Φ.map t).toContinuousLinearMap
+  completelyPositiveMap_toContinuousLinearMap (Φ.map t).1
 
 @[simp]
 lemma continuousLinearMap_apply (Φ : QuantumDynamicalSemigroup A) (t : ℝ≥0) (a : A) :
     Φ.continuousLinearMap t a = Φ.map t a := by
-  rfl
+  show completelyPositiveMap_toContinuousLinearMap (Φ.map t).1 a = _
+  rw [completelyPositiveMap_toContinuousLinearMap_apply]
 
 @[simp]
 lemma continuousLinearMap_zero (Φ : QuantumDynamicalSemigroup A) :

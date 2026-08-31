@@ -5,7 +5,7 @@ Authors: Gregory J. Loges
 -/
 module
 
-public import PhyslibAlpha.Unbounded.QuantumMechanics.Operators.SpectralTheory.SelfAdjoint
+public import Physlib.QuantumMechanics.Operators.SpectralTheory.SelfAdjoint
 public import Mathlib.Analysis.Normed.Ring.Units
 public import Mathlib.Analysis.Complex.Convex
 

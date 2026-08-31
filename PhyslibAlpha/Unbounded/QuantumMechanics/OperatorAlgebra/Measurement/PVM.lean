@@ -16,7 +16,7 @@ public import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
 
 This file sets up a *projection-valued measure* (`PVM`) valued in an abstract `OperatorAlgebra M`,
 generalizing the concrete `SpectralMeasure` on `H →L[ℂ] H`
-(`PhyslibAlpha.Unbounded.QuantumMechanics.Operators.SpectralTheory.SpectralMeasure`) away from any fixed
+(`Physlib.QuantumMechanics.Operators.SpectralTheory.SpectralMeasure`) away from any fixed
 Hilbert-space representation. `PVM` itself needs only `OperatorAlgebra M` (a PVM is a purely
 algebraic/measure-theoretic gadget, no predual required); measurement *statistics* against a state
 (`PVM.distribution`, below) additionally need `M` to be a genuine `WStarAlgebra`, since only

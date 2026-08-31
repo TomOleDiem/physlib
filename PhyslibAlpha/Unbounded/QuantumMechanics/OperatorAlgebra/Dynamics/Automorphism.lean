@@ -6,7 +6,7 @@ Authors: Tom Ole Diem
 module
 
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.HilbertSpace
-public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Observables.Lie
+public import Physlib.QuantumMechanics.OperatorAlgebra.Observables.Lie
 public import Physlib.Mathematics.OneParameterSubgroups.Unitary
 public import Physlib.Mathematics.OperatorAlgebra.Dynamics
 public import Mathlib.Analysis.Normed.Operator.ContinuousAlgEquiv

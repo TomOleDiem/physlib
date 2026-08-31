@@ -7,7 +7,7 @@ module
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Dynamics.ChristensenEvans
 public import Mathlib.LinearAlgebra.TensorProduct.Finiteness
 public import Mathlib.Analysis.InnerProductSpace.Completion
-public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.States.Vector
+public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.VectorState
 
 /-!
 # The tensor-product core of Stinespring's construction
@@ -2225,7 +2225,7 @@ theorem exists_inner_implementer
         rw [InnerProductSpace.norm_rankOne, he]
         ring
   let T : B(H) := LinearMap.mkContinuousOfExistsBound Tlin
-    ⟨‖L‖, by intro x; exact hTbound x⟩
+    (Exists.intro ‖L‖ (by intro x; exact hTbound x))
   have hT_apply (x : H) : T x = L (InnerProductSpace.rankOne ℂ x e) e := by
     rfl
   have hRank (a : B(H)) (x : H) :
@@ -2414,7 +2414,7 @@ noncomputable def toEvansLewisKernelFactorization
     rw [StinespringWitness.evansLewisKernel_generator_eq_cpKernel
       (TensorStinespring.Canonical.canonicalWitness D.jump) D.hamiltonian]
     rw [StinespringWitness.evansLewisKernel_generator_eq_cpKernel
-      (TensorStinespring.Canonical.canonicalWitness D.jump) ⟨0, by simp⟩]
+      (TensorStinespring.Canonical.canonicalWitness D.jump) (Subtype.mk 0 (by simp))]
 
 end ChristensenEvansData
 

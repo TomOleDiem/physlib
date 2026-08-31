@@ -5,8 +5,8 @@ module
 
 public import Physlib.QuantumMechanics.Operators.Unbounded
 public import PhyslibAlpha.Unbounded.QuantumMechanics.Operators.Core.UnboundedExtras
-public import PhyslibAlpha.Unbounded.QuantumMechanics.Operators.SpectralTheory.Symmetric
-public import PhyslibAlpha.Unbounded.QuantumMechanics.Operators.SpectralTheory.SelfAdjoint
+public import Physlib.QuantumMechanics.Operators.SpectralTheory.Symmetric
+public import Physlib.QuantumMechanics.Operators.SpectralTheory.SelfAdjoint
 public import Mathlib.Analysis.InnerProductSpace.l2Space
 
 /-! # Reusable real-analytic certificates for unbounded observables

@@ -67,6 +67,14 @@ the most general notion of dynamics this framework expresses. -/
 abbrev Channel (A₁ A₂ : Type*) [OperatorAlgebra A₁] [OperatorAlgebra A₂] :=
   {φ : A₁ →CP A₂ // φ 1 = 1}
 
+/-- A `Channel` acts on `A₁` the same way its underlying completely positive map does. Subtype
+coercion alone only gets as far as the bundled `A₁ →CP A₂`; this composes it with that map's own
+`FunLike` coercion so `φ a` (for `φ : Channel A₁ A₂`) elaborates directly, without every call site
+needing an explicit `(φ : A₁ →CP A₂) a` or `φ.1 a`. -/
+noncomputable instance instCoeFunChannel {A₁ A₂ : Type*} [OperatorAlgebra A₁]
+    [OperatorAlgebra A₂] : CoeFun (Channel A₁ A₂) (fun _ => A₁ → A₂) where
+  coe φ := φ.1
+
 end ObservableAlgebra
 
 end OperatorAlgebra

@@ -9,7 +9,7 @@ public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Unbounded.
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Unbounded.Spectral.CayleySpectralData
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Unbounded.Core.ClosureAPI
 public import PhyslibAlpha.Unbounded.QuantumMechanics.HarmonicOscillator.OneDimension.PlancherelBridge
-public import PhyslibAlpha.Unbounded.QuantumMechanics.HarmonicOscillator.OneDimension.TISE
+public import Physlib.QuantumMechanics.HarmonicOscillator.OneDimension.TISE
 public import Mathlib.LinearAlgebra.Basis.Basic
 
 /-!

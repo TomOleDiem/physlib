@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import PhyslibAlpha.Unbounded.QuantumMechanics.HarmonicOscillator.Basic
+public import PhyslibAlpha.QuantumMechanics.HarmonicOscillator.Basic
 public import PhyslibAlpha.Unbounded.QuantumMechanics.Operators.Multiplication.Spectral
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Unbounded.Core.RealAnalytic
 public import Physlib.Meta.TODO.Basic
