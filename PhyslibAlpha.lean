@@ -57,6 +57,8 @@ public import PhyslibAlpha.QuantumMechanics.HarmonicOscillator.Unbounded.Spectra
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Basic
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.CPClosure
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.ChristensenEvans
+public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.ChristensenEvans.P1
+public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.ChristensenEvans.P2
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.FiniteDimensional
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.FiniteDimCE
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.Lindblad
