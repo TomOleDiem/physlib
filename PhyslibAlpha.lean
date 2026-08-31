@@ -147,6 +147,8 @@ public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Examples.S
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Examples.Spectrum
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Repr.NormalPVMTraceClass
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Repr.NormalRepresentation
+public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Repr.NormalRepresentation.P1
+public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Repr.NormalRepresentation.P2
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Repr.NormalBoundedOperators
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Repr.NormalFiniteDimensional
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Repr.Representation
