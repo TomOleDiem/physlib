@@ -52,7 +52,7 @@ namespace DifferentialCore
 `NewHilbertSpace` and hence establish separability of the ambient space (mirrors
 `Unbounded/Examples/HarmonicOscillatorSpectrum.lean`'s `separabilityWitness`; `NewHilbertSpace`
 itself does not depend on the oscillator's physical parameters, so this applies uniformly). -/
-private def separabilityWitness : OldOscillator := ⟨1, 1, one_pos, one_pos⟩
+def separabilityWitness : OldOscillator := ⟨1, 1, one_pos, one_pos⟩
 
 /-- **`NewHilbertSpace` is separable.** Any transported oscillator eigenbasis is countable and its
 algebraic span is dense (`HilbertBasis.dense_span`); a countable set's algebraic span over the
@@ -81,7 +81,7 @@ variable (q : OldOscillator)
 `hermiteBasisSpectralMeasure_apply`: `pointSpectrumSet` contains `eigenValue n` (the projection
 doesn't kill `eₙ`), and the projection at that singleton fixes `eₙ`, exhibiting `eₙ` as being in
 the range of `E(pointSpectrumSet)`. -/
-theorem transportedEigenbasis_mem_H_pp (n : ℕ) :
+lemma transportedEigenbasis_mem_H_pp (n : ℕ) :
     transportedEigenbasis q n ∈ H_pp (differentialHamiltonianSpectralMeasure q) := by
   set E := differentialHamiltonianSpectralMeasure q with hE
   set S := pointSpectrumSet E with hS
@@ -115,7 +115,7 @@ theorem transportedEigenbasis_mem_H_pp (n : ℕ) :
 entirely out of energy eigenstates — no continuous spectrum, no scattering states. `H_pp` is a
 closed subspace (`isClosed_H_pp`) containing every Hermite eigenfunction, hence containing the
 (dense) closure of their span, i.e. the whole space. -/
-theorem H_pp_eq_top :
+lemma H_pp_eq_top :
     H_pp (differentialHamiltonianSpectralMeasure q) = ⊤ := by
   set E := differentialHamiltonianSpectralMeasure q with hE
   have hspan_le : Submodule.span ℂ (Set.range (⇑(transportedEigenbasis q))) ≤ H_pp E := by
@@ -129,12 +129,12 @@ theorem H_pp_eq_top :
   exact top_le_iff.mp hle
 
 /-- **The continuous subspace is trivial.** -/
-theorem H_cont_eq_bot :
+lemma H_cont_eq_bot :
     H_cont (differentialHamiltonianSpectralMeasure q) = ⊥ := by
   rw [H_cont, H_pp_eq_top q, Submodule.top_orthogonal_eq_bot]
 
 /-- **The absolutely-continuous subspace is trivial.** -/
-theorem H_ac_eq_bot :
+lemma H_ac_eq_bot :
     H_ac (differentialHamiltonianSpectralMeasure q) = ⊥ := by
   set E := differentialHamiltonianSpectralMeasure q with hE
   have hle : H_ac E ≤ H_cont E := E.H_cont.map_subtype_le E.isPureAC_submodule
@@ -142,7 +142,7 @@ theorem H_ac_eq_bot :
   exact le_bot_iff.mp hle
 
 /-- **The singular-continuous subspace is trivial.** -/
-theorem H_sc_eq_bot :
+lemma H_sc_eq_bot :
     H_sc (differentialHamiltonianSpectralMeasure q) = ⊥ := by
   set E := differentialHamiltonianSpectralMeasure q with hE
   have hle : H_sc E ≤ H_cont E := E.H_cont.map_subtype_le E.isPureSC_submodule
@@ -153,7 +153,7 @@ theorem H_sc_eq_bot :
 
 /-- **Every physical energy level is an atom of the spectral measure** (the `⊇` direction of
 `pointSpectrumSet_eq_range_eigenValue`). -/
-theorem range_eigenValue_subset_pointSpectrumSet :
+lemma range_eigenValue_subset_pointSpectrumSet :
     Set.range q.eigenValue ⊆
       pointSpectrumSet (differentialHamiltonianSpectralMeasure q) := by
   rintro _ ⟨n, rfl⟩
@@ -171,7 +171,7 @@ Same non-degeneracy argument as `Unbounded/Examples/HarmonicOscillatorSpectrum.l
 atom outside `Set.range q.eigenValue`, disjointness of `{c}` from every `{eigenValue n}` would
 force every Fourier coefficient of the corresponding nonzero vector against the (complete) Hermite
 basis to vanish — contradiction. -/
-theorem pointSpectrumSet_eq_range_eigenValue :
+lemma pointSpectrumSet_eq_range_eigenValue :
     pointSpectrumSet (differentialHamiltonianSpectralMeasure q) = Set.range q.eigenValue := by
   refine Set.eq_of_subset_of_subset ?_ (range_eigenValue_subset_pointSpectrumSet q)
   intro c hc
@@ -209,7 +209,7 @@ and "fixed up to a scalar" are all literal, standard operator-theoretic notions 
 spectral-measure vocabulary appears in the statement); the completeness of the list — that there
 is no other kind of energy level, e.g. from a continuous or scattering spectrum — is exactly
 `H_pp_eq_top`, used internally in the proof. -/
-theorem harmonicOscillator_isEigenvalue_iff (E : ℝ) :
+lemma harmonicOscillator_isEigenvalue_iff (E : ℝ) :
     (∃ (x : NewHilbertSpace) (_ : x ≠ 0) (hx : x ∈ (differentialHamiltonianClosure q).domain),
       differentialHamiltonianClosure q ⟨x, hx⟩ = (E : ℂ) • x) ↔
     ∃ n : ℕ, E = q.eigenValue n := by

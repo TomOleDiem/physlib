@@ -72,7 +72,7 @@ lemma matrixChristensenEvansData_generator_apply
   simp only [← Finset.smul_sum]
   module
 
-theorem finiteDimensional_generator_isChristensenEvans
+lemma finiteDimensional_generator_isChristensenEvans
     (Φ : FiniteDimensionalHeisenbergQuantumDynamicalSemigroup d) :
     IsChristensenEvansGenerator
       (matrixMapToContinuousLinearMap (finite_dimensional_generator Φ).map) := by

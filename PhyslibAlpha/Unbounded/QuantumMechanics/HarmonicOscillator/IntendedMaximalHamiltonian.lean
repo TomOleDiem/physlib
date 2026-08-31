@@ -65,7 +65,7 @@ formal expression defining `T` — coincides with the closure `T.closure`.  This
 general operator theory: no eigenbasis, spectral measure, or model-specific fact is used, only
 `IsUnbounded.adjoint_closure_eq_adjoint` (an unbounded operator and its closure share an adjoint)
 and the definitional unfolding of `IsSelfAdjoint`. -/
-theorem adjoint_eq_closure_of_isEssentiallySelfAdjoint
+lemma adjoint_eq_closure_of_isEssentiallySelfAdjoint
     (hsym : T.IsSymmetric) (hdense : T.HasDenseDomain) (hesa : IsSelfAdjoint T.closure) :
     T.adjoint = T.closure := by
   have hU : T.IsUnbounded := (hsym.isUnbounded_iff_hasDenseDomain).mpr hdense
@@ -97,7 +97,7 @@ This is the two-definitions-of-the-same-operator theorem asked for by item 5 of
 self-adjointness from Hermite-basis density is *exactly* the maximal operator associated to the
 formal differential expression, defined independently as the adjoint of the Schwartz-domain
 operator. -/
-theorem differentialHamiltonianMaximal_eq_closure (q : OldOscillator) :
+lemma differentialHamiltonianMaximal_eq_closure (q : OldOscillator) :
     differentialHamiltonianMaximal q = differentialHamiltonianClosure q :=
   adjoint_eq_closure_of_isEssentiallySelfAdjoint
     (oneDimension q).hamiltonian_isSymmetric
@@ -107,14 +107,14 @@ theorem differentialHamiltonianMaximal_eq_closure (q : OldOscillator) :
 /-- Consequently, the maximal differential Hamiltonian's domain is exactly the finite
 second-moment domain of the spectral measure — the same explicit domain description proved for
 the closure. -/
-theorem differentialHamiltonianMaximal_domain_eq_squareMoment (q : OldOscillator) :
+lemma differentialHamiltonianMaximal_domain_eq_squareMoment (q : OldOscillator) :
     (differentialHamiltonianMaximal q).domain =
       OperatorAlgebra.spectralSquareMomentDomain (differentialHamiltonianSpectralMeasure q) := by
   rw [differentialHamiltonianMaximal_eq_closure]
   exact differentialHamiltonian_domain_eq_squareMoment q
 
 /-- Consequently, the maximal differential Hamiltonian is self-adjoint. -/
-theorem differentialHamiltonianMaximal_isSelfAdjoint (q : OldOscillator) :
+lemma differentialHamiltonianMaximal_isSelfAdjoint (q : OldOscillator) :
     IsSelfAdjoint (differentialHamiltonianMaximal q) := by
   rw [differentialHamiltonianMaximal_eq_closure]
   exact differentialHamiltonianClosure_isSelfAdjoint q

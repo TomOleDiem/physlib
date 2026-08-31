@@ -140,7 +140,7 @@ This is the uniqueness half of the bounded-generator classification.  It is deli
 pointwise on observables, so it applies without requiring an extensionality theorem for the
 channel-valued structures themselves.
 -/
-theorem map_eq_of_generator_eq
+lemma map_eq_of_generator_eq
     (Φ Ψ : BoundedQuantumDynamicalSemigroup A)
     (h : Φ.generator = Ψ.generator) :
     ∀ (t : ℝ≥0) (a : A),
@@ -167,7 +167,7 @@ lemma nonnegativeTime_of_nonneg {t : ℝ} (ht : 0 ≤ t) :
   ext
   simp [nonnegativeTime, max_eq_left ht]
 
-private lemma hasDerivAt_exp_apply_of_generator
+lemma hasDerivAt_exp_apply_of_generator
     (G : A →L[ℂ] A) (a : A) :
     HasDerivAt
       (fun t : ℝ => (NormedSpace.exp ((t : ℂ) • G)) a)
@@ -333,7 +333,7 @@ variable {Φ : QuantumDynamicalSemigroup A}
 variable (G : HasBoundedGenerator Φ)
 
 /-- The derivative certificate at zero propagates to every nonnegative time by the semigroup law. -/
-private lemma hasDerivWithinAt_at
+lemma hasDerivWithinAt_at
     (a : A) {t : ℝ} (ht : 0 ≤ t) :
     HasDerivWithinAt
       (fun s : ℝ => Φ.map (BoundedQuantumDynamicalSemigroup.nonnegativeTime s) a)
@@ -389,7 +389,7 @@ private lemma hasDerivWithinAt_at
   simpa [Function.comp_def, one_smul, Y] using hcongr
 
 /-- The exponential orbit has the expected differential equation at every real time. -/
-private lemma exp_apply_hasDerivAt (G : HasBoundedGenerator Φ) (a : A) (t : ℝ) :
+lemma exp_apply_hasDerivAt (G : HasBoundedGenerator Φ) (a : A) (t : ℝ) :
     HasDerivAt
       (fun s : ℝ => (NormedSpace.exp ((s : ℂ) • G.generator)) a)
       ((NormedSpace.exp ((t : ℂ) • G.generator)) (G.generator a)) t := by
@@ -621,7 +621,7 @@ lemma integratedContinuousLinearMap_continuous
     Continuous (integratedContinuousLinearMap T) := by
   exact (differentiable_integral_of_continuous hT).continuous
 
-private lemma integratedContinuousLinearMap_hasDerivAt
+lemma integratedContinuousLinearMap_hasDerivAt
     (T : ℝ → (A →L[ℂ] A)) (hT : Continuous T) (t : ℝ) :
     HasDerivAt (integratedContinuousLinearMap T) (T t) t := by
   exact intervalIntegral.integral_hasDerivAt_right
@@ -639,7 +639,7 @@ lemma integratedContinuousLinearMap_add_sub
   rw [← hsplit]
   abel
 
-private lemma integratedContinuousLinearMap_shift
+lemma integratedContinuousLinearMap_shift
     (T : ℝ → (A →L[ℂ] A)) (hT : Continuous T)
     (hsemigroup : ∀ {s t : ℝ}, 0 ≤ s → 0 ≤ t → T (s + t) = T s * T t)
     {a h : ℝ} (ha : 0 ≤ a) (hh : 0 ≤ h) :
@@ -670,7 +670,7 @@ private lemma integratedContinuousLinearMap_shift
       rw [ContinuousLinearMap.intervalIntegral_comp_comm _ hi]
       rfl
 
-private theorem hasDerivWithinAt_of_integratedContinuousLinearMap_isUnit
+lemma hasDerivWithinAt_of_integratedContinuousLinearMap_isUnit
     (T : ℝ → (A →L[ℂ] A)) (hT : Continuous T)
     (hzero : T 0 = 1)
     (hsemigroup : ∀ {s t : ℝ}, 0 ≤ s → 0 ≤ t → T (s + t) = T s * T t)
@@ -714,7 +714,7 @@ private theorem hasDerivWithinAt_of_integratedContinuousLinearMap_isUnit
   rw [hzero]
   simp [f, integratedContinuousLinearMap, hcancel]
 
-private theorem exists_integratedContinuousLinearMap_isUnit
+lemma exists_integratedContinuousLinearMap_isUnit
     (T : ℝ → (A →L[ℂ] A)) (hT : Continuous T) (hzero : T 0 = 1) :
     ∃ a : ℝ, 0 < a ∧ IsUnit (integratedContinuousLinearMap T a) := by
   letI : NeBot (𝓝[>] (0 : ℝ)) := nhdsWithin_Ioi_neBot le_rfl
@@ -746,7 +746,7 @@ private theorem exists_integratedContinuousLinearMap_isUnit
 
 This is the analytic bridge from the abstract continuous semigroup API to the derivative-based
 GKSL classification.  The proof uses no finite-dimensionality assumption. -/
-theorem QuantumDynamicalSemigroup.exists_hasBoundedGenerator
+lemma QuantumDynamicalSemigroup.exists_hasBoundedGenerator
     (Φ : QuantumDynamicalSemigroup A)
     (hΦ : QuantumDynamicalSemigroup.IsNormContinuous Φ) :
     Nonempty (QuantumDynamicalSemigroup.HasBoundedGenerator Φ) := by
@@ -807,13 +807,13 @@ lemma integrated_continuous (T : ℝ → E) (hT : Continuous T) :
     Continuous (integrated T) := by
   exact (differentiable_integral_of_continuous hT).continuous
 
-private lemma integrated_hasDerivAt (T : ℝ → E) (hT : Continuous T) (t : ℝ) :
+lemma integrated_hasDerivAt (T : ℝ → E) (hT : Continuous T) (t : ℝ) :
     HasDerivAt (integrated T) (T t) t := by
   exact intervalIntegral.integral_hasDerivAt_right
     (hT.intervalIntegrable _ _) (hT.stronglyMeasurableAtFilter volume (𝓝 t))
       hT.continuousAt
 
-private lemma integrated_shift (T : ℝ → E) (hT : Continuous T)
+lemma integrated_shift (T : ℝ → E) (hT : Continuous T)
     (hsemigroup : ∀ {s t : ℝ}, 0 ≤ s → 0 ≤ t → T (s + t) = T s * T t)
     {a h : ℝ} (ha : 0 ≤ a) (hh : 0 ≤ h) :
     integrated T (h + a) - integrated T h = T h * integrated T a := by
@@ -847,7 +847,7 @@ private lemma integrated_shift (T : ℝ → E) (hT : Continuous T)
         (hT.intervalIntegrable (μ := volume) (0 : ℝ) a)]
       rfl
 
-theorem hasDerivWithinAt_of_integrated_isUnit
+lemma hasDerivWithinAt_of_integrated_isUnit
     (T : ℝ → E) (hT : Continuous T) (hzero : T 0 = 1)
     (hsemigroup : ∀ {s t : ℝ}, 0 ≤ s → 0 ≤ t → T (s + t) = T s * T t)
     {a : ℝ} (ha : 0 < a) (haunit : IsUnit (integrated T a)) :
@@ -885,7 +885,7 @@ theorem hasDerivWithinAt_of_integrated_isUnit
   rw [hzero]
   simp [f, integrated, hcancel]
 
-theorem exists_integrated_isUnit (T : ℝ → E) (hT : Continuous T) (hzero : T 0 = 1) :
+lemma exists_integrated_isUnit (T : ℝ → E) (hT : Continuous T) (hzero : T 0 = 1) :
     ∃ a : ℝ, 0 < a ∧ IsUnit (integrated T a) := by
   letI : NeBot (𝓝[>] (0 : ℝ)) := nhdsWithin_Ioi_neBot le_rfl
   have hI := integrated_hasDerivAt T hT 0

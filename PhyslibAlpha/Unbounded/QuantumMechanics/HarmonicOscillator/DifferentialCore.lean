@@ -66,7 +66,7 @@ noncomputable def oneEquivLp : OldHilbertSpace ≃ₗᵢ[ℂ] NewHilbertSpace :=
       simp)
 
 @[simp]
-private lemma oneEquivLp_apply (f : OldHilbertSpace) :
+lemma oneEquivLp_apply (f : OldHilbertSpace) :
     oneEquivLp f = Lp.compMeasurePreserving Space.oneEquiv
       Space.oneEquiv_measurePreserving f := by
   rfl
@@ -77,14 +77,14 @@ open Physlib
 noncomputable def gaussianSpace (q : OldOscillator) : 𝓢(Space 1, ℂ) :=
   (gaussianVacuum q.m q.ω q.hm q.hω).compCLMOfContinuousLinearEquiv ℂ Space.oneEquivCLE
 
-private lemma gaussianSpace_apply (q : OldOscillator) (x : Space 1) :
+lemma gaussianSpace_apply (q : OldOscillator) (x : Space 1) :
     gaussianSpace q x = gaussianVacuum q.m q.ω q.hm q.hω (x 0) := by
   rfl
 
 noncomputable def hermitePolynomialSpace (q : OldOscillator) (n : ℕ) : Space 1 → ℂ :=
   fun x => (physHermite n (x 0 / q.ξ) : ℂ)
 
-private lemma hermitePolynomialSpace_hasTemperateGrowth (q : OldOscillator) (n : ℕ) :
+lemma hermitePolynomialSpace_hasTemperateGrowth (q : OldOscillator) (n : ℕ) :
     Function.HasTemperateGrowth (hermitePolynomialSpace q n) := by
   have harg : (fun x : Space 1 => x 0 / q.ξ) =
       (fun x : Space 1 => q.ξ⁻¹ * x 0) := by
@@ -121,7 +121,7 @@ noncomputable def eigenfunctionSpaceSchwartz (q : OldOscillator) (n : ℕ) :
 
 /-- The Hilbert-space eigenfunction, evaluated pointwise, is exactly the textbook
 Hermite-times-Gaussian formula `q.eigenfunction n`. Cited directly by `Summary.lean`. -/
-theorem eigenfunctionSpaceSchwartz_apply (q : OldOscillator) (n : ℕ) (x : Space 1) :
+lemma eigenfunctionSpaceSchwartz_apply (q : OldOscillator) (n : ℕ) (x : Space 1) :
     eigenfunctionSpaceSchwartz q n x =
       q.eigenfunction n (x 0) := by
   rw [eigenfunctionSpaceSchwartz, smul_apply,
@@ -147,7 +147,7 @@ noncomputable def transportedEigenbasis (q : OldOscillator) :
   HilbertBasis.ofRepr (oneEquivLp.symm.trans
     (_root_.QuantumMechanics.OneDimension.HarmonicOscillator.eigenbasis q).repr)
 
-private lemma transportedEigenbasis_apply (q : OldOscillator) (n : ℕ) :
+lemma transportedEigenbasis_apply (q : OldOscillator) (n : ℕ) :
     transportedEigenbasis q n = oneEquivLp
       (_root_.QuantumMechanics.OneDimension.HarmonicOscillator.eigenbasis q n) := by
   apply (transportedEigenbasis q).repr.injective
@@ -180,7 +180,7 @@ lemma eigenfunctionSpace_eq_transportedEigenbasis (q : OldOscillator) (n : ℕ) 
   rw [hx, eigenfunctionSpaceSchwartz_apply, oneEquivLp_apply, hcomp]
   exact hold.symm
 
-private lemma schwartzEquiv_symm_apply_schwartzIncl (s : 𝓢(Space 1, ℂ))
+lemma schwartzEquiv_symm_apply_schwartzIncl (s : 𝓢(Space 1, ℂ))
     (hs : SpaceDHilbertSpace.schwartzIncl volume s ∈ SchwartzSubmodule 1) :
     (SpaceDHilbertSpace.schwartzEquiv volume).symm
         (⟨SpaceDHilbertSpace.schwartzIncl volume s, hs⟩ : SchwartzSubmodule 1) = s := by
@@ -195,7 +195,7 @@ private lemma schwartzEquiv_symm_apply_schwartzIncl (s : 𝓢(Space 1, ℂ))
       apply Subtype.ext
       exact (SpaceDHilbertSpace.SchwartzSubmodule.schwartzEquiv_apply_coe s).symm
 
-private lemma momentumOperator_apply_schwartz (s : 𝓢(Space 1, ℂ))
+lemma momentumOperator_apply_schwartz (s : 𝓢(Space 1, ℂ))
     (hs : SpaceDHilbertSpace.schwartzIncl volume s ∈ SchwartzSubmodule 1) :
     momentumOperator (0 : Fin 1) ⟨SpaceDHilbertSpace.schwartzIncl volume s, hs⟩ =
       SpaceDHilbertSpace.schwartzIncl volume (𝐩 (0 : Fin 1) s) := by
@@ -205,7 +205,7 @@ private lemma momentumOperator_apply_schwartz (s : 𝓢(Space 1, ℂ))
   have hsymm := schwartzEquiv_symm_apply_schwartzIncl s hs
   rw [hsymm, ← SpaceDHilbertSpace.SchwartzSubmodule.schwartzEquiv_apply_coe]
 
-private lemma momentumSqOperator_apply_schwartz (s : 𝓢(Space 1, ℂ))
+lemma momentumSqOperator_apply_schwartz (s : 𝓢(Space 1, ℂ))
     (hdom : SpaceDHilbertSpace.schwartzIncl volume s ∈
       (momentumSqOperator (d := 1)).domain) :
     momentumSqOperator (d := 1) ⟨SpaceDHilbertSpace.schwartzIncl volume s, hdom⟩ =
@@ -238,12 +238,12 @@ private lemma momentumSqOperator_apply_schwartz (s : 𝓢(Space 1, ℂ))
   rw [hsub]
   exact momentumOperator_apply_schwartz (𝐩 (0 : Fin 1) s) ⟨𝐩 (0 : Fin 1) s, rfl⟩
 
-private lemma eigenfunction_differentiable (q : OldOscillator) (n : ℕ) :
+lemma eigenfunction_differentiable (q : OldOscillator) (n : ℕ) :
     Differentiable ℝ (q.eigenfunction n) := by
   intro x
   exact q.eigenfunction_differentiableAt x n
 
-private lemma eigenfunction_deriv_differentiable (q : OldOscillator) (n : ℕ) :
+lemma eigenfunction_deriv_differentiable (q : OldOscillator) (n : ℕ) :
     Differentiable ℝ (deriv (q.eigenfunction n)) := by
   have hcont : ContDiff ℝ (↑(⊤ : ℕ∞)) (q.eigenfunction n) := by
     rw [q.eigenfunction_eq]
@@ -264,7 +264,7 @@ private lemma eigenfunction_deriv_differentiable (q : OldOscillator) (n : ℕ) :
     (contDiff_infty_iff_deriv (𝕜 := ℝ)).mp hcont |>.2
   exact hderiv.differentiable (by simp)
 
-private lemma deriv_space_one_comp (f : ℝ → ℂ) (hf : Differentiable ℝ f) (x : Space 1) :
+lemma deriv_space_one_comp (f : ℝ → ℂ) (hf : Differentiable ℝ f) (x : Space 1) :
     ∂[(0 : Fin 1)] (f ∘ fun y : Space 1 => y 0) x = deriv f (x 0) := by
   rw [Space.deriv_eq, fderiv_comp x hf.differentiableAt (by fun_prop)]
   simp only [ContinuousLinearMap.coe_comp', Function.comp_apply]
@@ -272,7 +272,7 @@ private lemma deriv_space_one_comp (f : ℝ → ℂ) (hf : Differentiable ℝ f)
     simp [Space.coord_apply, Space.basis_apply]
   rw [hcoord, fderiv_apply_one_eq_deriv]
 
-private lemma eigenfunctionSpaceSchwartz_momentumSq_apply (q : OldOscillator) (n : ℕ) (x : Space 1) :
+lemma eigenfunctionSpaceSchwartz_momentumSq_apply (q : OldOscillator) (n : ℕ) (x : Space 1) :
     (𝐩 (0 : Fin 1) (𝐩 (0 : Fin 1) (eigenfunctionSpaceSchwartz q n))) x =
       (-Constants.ℏ ^ 2) * deriv (deriv (q.eigenfunction n)) (x 0) := by
   have hfun : (eigenfunctionSpaceSchwartz q n : Space 1 → ℂ) =
@@ -316,7 +316,7 @@ private lemma eigenfunctionSpaceSchwartz_momentumSq_apply (q : OldOscillator) (n
     simp [Complex.I_sq]
   · exact hcompDiff
 
-theorem hamiltonian_apply_eigenfunction (q : OldOscillator) (n : ℕ)
+lemma hamiltonian_apply_eigenfunction (q : OldOscillator) (n : ℕ)
     (hdom : SpaceDHilbertSpace.schwartzIncl volume (eigenfunctionSpaceSchwartz q n) ∈
       (oneDimension q).hamiltonian.domain) :
     (oneDimension q).hamiltonian ⟨SpaceDHilbertSpace.schwartzIncl volume
@@ -426,7 +426,7 @@ noncomputable def differentialHamiltonianCore (q : OldOscillator) :
       exact (transportedEigenbasis q).dense_span)
 
 /-- The actual Schwartz differential oscillator Hamiltonian is essentially self-adjoint. -/
-theorem differentialHamiltonian_isEssentiallySelfAdjoint (q : OldOscillator) :
+lemma differentialHamiltonian_isEssentiallySelfAdjoint (q : OldOscillator) :
     (oneDimension q).hamiltonian.IsEssentiallySelfAdjoint :=
   (differentialHamiltonianCore q).essentiallySelfAdjoint
 
@@ -443,7 +443,7 @@ lemma differentialHamiltonian_mem_closure_domain (q : OldOscillator) (n : ℕ) :
   exact ⟨eigenfunctionSpaceSchwartz q n, rfl⟩
 
 /-- Every transported Hermite vector remains an eigenvector of the self-adjoint closure. -/
-theorem differentialHamiltonianClosure_apply_eigenfunction (q : OldOscillator) (n : ℕ) :
+lemma differentialHamiltonianClosure_apply_eigenfunction (q : OldOscillator) (n : ℕ) :
     differentialHamiltonianClosure q
         ⟨eigenfunctionSpace q n, differentialHamiltonian_mem_closure_domain q n⟩ =
       (q.eigenValue n : ℂ) • eigenfunctionSpace q n := by
@@ -471,19 +471,19 @@ noncomputable abbrev differentialHamiltonianSpectralTheorem (q : OldOscillator) 
   (differentialHamiltonianCore q).spectralTheorem
 
 /-- The closure domain is the finite second-moment domain of the Cayley spectral measure. -/
-theorem differentialHamiltonian_domain_eq_squareMoment (q : OldOscillator) :
+lemma differentialHamiltonian_domain_eq_squareMoment (q : OldOscillator) :
     (differentialHamiltonianClosure q).domain =
       OperatorAlgebra.spectralSquareMomentDomain
         (differentialHamiltonianSpectralMeasure q) :=
   (differentialHamiltonianCore q).domain_eq_squareMoment
 
 /-- The differential oscillator closure is self-adjoint. -/
-theorem differentialHamiltonianClosure_isSelfAdjoint (q : OldOscillator) :
+lemma differentialHamiltonianClosure_isSelfAdjoint (q : OldOscillator) :
     IsSelfAdjoint (differentialHamiltonianClosure q) :=
   (differentialHamiltonianCore q).closure_isSelfAdjoint
 
 /-- The closure is exactly the maximal square-moment spectral integral. -/
-theorem differentialHamiltonian_maximalSpectralIntegral_eq (q : OldOscillator) :
+lemma differentialHamiltonian_maximalSpectralIntegral_eq (q : OldOscillator) :
     QuantumMechanics.WOTSpectralMeasure.maximalSpectralIntegral
         (differentialHamiltonianSpectralMeasure q) = differentialHamiltonianClosure q :=
   (differentialHamiltonianCore q).maximalSpectralIntegral_eq

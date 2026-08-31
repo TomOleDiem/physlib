@@ -56,7 +56,7 @@ variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteS
 /-- **General extension of `atom_apply_eq_zero_of_isEigenvector_of_ne` from singletons to
 arbitrary measurable sets.** An eigenvector is annihilated by the spectral projection of any
 measurable set that misses its eigenvalue. -/
-theorem spectralMeasure_apply_eq_zero_of_disjoint_of_isEigenvector
+lemma spectralMeasure_apply_eq_zero_of_disjoint_of_isEigenvector
     {T : H →ₗ.[ℂ] H} {μS : QuantumMechanics.WOTSpectralMeasure ℝ H}
     (D : DomainAwareSelfAdjointSpectralTheorem T μS)
     {v : H} (hv : v ∈ T.domain) {a : ℝ} (hav : T ⟨v, hv⟩ = (a : ℂ) • v)
@@ -74,7 +74,7 @@ theorem spectralMeasure_apply_eq_zero_of_disjoint_of_isEigenvector
 
 /-- **General complementary fact.** An eigenvector is fixed by the spectral projection of any
 measurable set containing its eigenvalue. -/
-theorem spectralMeasure_apply_eq_self_of_mem_of_isEigenvector
+lemma spectralMeasure_apply_eq_self_of_mem_of_isEigenvector
     {T : H →ₗ.[ℂ] H} {μS : QuantumMechanics.WOTSpectralMeasure ℝ H}
     (D : DomainAwareSelfAdjointSpectralTheorem T μS)
     {v : H} (hv : v ∈ T.domain) {a : ℝ} (hav : T ⟨v, hv⟩ = (a : ℂ) • v)
@@ -115,7 +115,7 @@ variable (q : OldOscillator)
 
 /-- **The oscillator's eigenvalue labelling `n ↦ (n + ½)ℏω` is injective.** Distinct occupation
 numbers give distinct energies, so each eigenvalue picks out a unique Hermite eigenfunction. -/
-theorem eigenValue_injective : Function.Injective q.eigenValue := by
+lemma eigenValue_injective : Function.Injective q.eigenValue := by
   have hℏω : (Constants.ℏ : ℝ) * q.ω ≠ 0 :=
     mul_ne_zero Constants.ℏ_ne_zero q.ω_ne_zero
   intro n₁ n₂ h
@@ -131,7 +131,7 @@ theorem eigenValue_injective : Function.Injective q.eigenValue := by
 `eₙ` if `eigenvalue n ∈ S`, `0` otherwise. This is `spectralMeasure_apply_eq_self_of_mem_of_
 isEigenvector`/`spectralMeasure_apply_eq_zero_of_disjoint_of_isEigenvector` specialized to the
 Hermite eigenbasis, via `differentialHamiltonianClosure_apply_eigenfunction`. -/
-theorem hermiteBasisSpectralMeasure_apply (n : ℕ) {S : Set ℝ} (hS : MeasurableSet S) :
+lemma hermiteBasisSpectralMeasure_apply (n : ℕ) {S : Set ℝ} (hS : MeasurableSet S) :
     differentialHamiltonianSpectralMeasure q S (transportedEigenbasis q n) =
       if q.eigenValue n ∈ S then transportedEigenbasis q n else 0 := by
   have heq : eigenfunctionSpace q n = transportedEigenbasis q n :=
@@ -161,7 +161,7 @@ For any Borel set `S` and any vector `x`, the vector series
 Proof: expand `x` in the (transported) Hermite `HilbertBasis` (`HilbertBasis.hasSum_repr`), then
 push the sum through the bounded linear map underlying `E(S)` (`ContinuousLinearMap.hasSum`),
 using `hermiteBasisSpectralMeasure_apply` to evaluate `E(S)` on each basis vector. -/
-theorem hermiteSpectralProjection_hasSum {S : Set ℝ} (hS : MeasurableSet S) (x : NewHilbertSpace) :
+lemma hermiteSpectralProjection_hasSum {S : Set ℝ} (hS : MeasurableSet S) (x : NewHilbertSpace) :
     HasSum
       (fun n : ℕ => if q.eigenValue n ∈ S then
         (⟪transportedEigenbasis q n, x⟫_ℂ) • transportedEigenbasis q n else 0)

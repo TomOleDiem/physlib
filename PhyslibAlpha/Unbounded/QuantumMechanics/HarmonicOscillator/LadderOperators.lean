@@ -144,7 +144,7 @@ lemma ladder_comm_raw :
 
 /-- **`[aᵢ, aᵢ†] = 1`**, the single-mode case. Identical algebra to `Unbounded.Example.Schwartz.
 ladder_comm`. -/
-theorem ladder_comm_self :
+lemma ladder_comm_self :
     ladderA Q i * ladderAdag Q i - ladderAdag Q i * ladderA Q i
       = (1 : 𝓢(Space d, ℂ) →L[ℂ] 𝓢(Space d, ℂ)) := by
   unfold ladderA ladderAdag
@@ -193,7 +193,7 @@ lemma ladder_comm_cross (hij : i ≠ j) :
 into the same-mode case (`ladder_comm_self`, reusing the one-dimensional `Unbounded.Example.
 Schwartz` computation pattern) and the cross-mode case (`ladder_comm_cross`, pure algebraic
 cancellation from the already-proven `d`-dimensional CCR). -/
-theorem ladder_commutation_ladderAdag :
+lemma ladder_commutation_ladderAdag :
     ladderA Q i * ladderAdag Q j - ladderAdag Q j * ladderA Q i =
       δ[i, j] • (1 : 𝓢(Space d, ℂ) →L[ℂ] 𝓢(Space d, ℂ)) := by
   rcases eq_or_ne i j with rfl | hij
@@ -208,7 +208,7 @@ theorem ladder_commutation_ladderAdag :
 /-- `[aᵢ, aⱼ] = 0`: the lowering operators for distinct modes commute, and even for the same mode
 (`lie_self`-style triviality). Proved the same way as `ladder_comm_cross`/`position_commutation_
 position`, since `aᵢ` is built only from `𝐱 i`/`𝐩 i`. -/
-theorem ladder_commutation_ladder :
+lemma ladder_commutation_ladder :
     ladderA Q i * ladderA Q j - ladderA Q j * ladderA Q i =
       (0 : 𝓢(Space d, ℂ) →L[ℂ] 𝓢(Space d, ℂ)) := by
   unfold ladderA
@@ -236,7 +236,7 @@ theorem ladder_commutation_ladder :
     simp
 
 /-- `[aᵢ†, aⱼ†] = 0`: the raising operators commute, by the same computation. -/
-theorem ladder_commutation_ladderAdag_ladderAdag :
+lemma ladder_commutation_ladderAdag_ladderAdag :
     ladderAdag Q i * ladderAdag Q j - ladderAdag Q j * ladderAdag Q i =
       (0 : 𝓢(Space d, ℂ) →L[ℂ] 𝓢(Space d, ℂ)) := by
   unfold ladderAdag
@@ -279,7 +279,7 @@ informal_lemma numberOperator_isSelfAdjoint where
 same mode. Proved by `leibniz_lie`/`lie_leibniz`-style expansion into ladder commutators, all of
 which are already known (`ladder_commutation_ladderAdag`, `ladder_commutation_ladder`,
 `ladder_commutation_ladderAdag_ladderAdag`). -/
-theorem numberOperator_commutation_numberOperator :
+lemma numberOperator_commutation_numberOperator :
     numberOperator Q i * numberOperator Q j - numberOperator Q j * numberOperator Q i =
       (0 : 𝓢(Space d, ℂ) →L[ℂ] 𝓢(Space d, ℂ)) := by
   unfold numberOperator
@@ -350,7 +350,7 @@ theorem numberOperator_commutation_numberOperator :
     noncomm_ring
 
 /-- `[Nᵢ, aⱼ] = -δᵢⱼ aⱼ`: the annihilation operator lowers the occupation number by one. -/
-theorem numberOperator_commutation_ladder :
+lemma numberOperator_commutation_ladder :
     numberOperator Q i * ladderA Q j - ladderA Q j * numberOperator Q i =
       -(δ[i, j] • ladderA Q j) := by
   unfold numberOperator
@@ -379,7 +379,7 @@ theorem numberOperator_commutation_ladder :
     noncomm_ring
 
 /-- `[Nᵢ, aⱼ†] = δᵢⱼ aⱼ†`: the creation operator raises the occupation number by one. -/
-theorem numberOperator_commutation_ladderAdag :
+lemma numberOperator_commutation_ladderAdag :
     numberOperator Q i * ladderAdag Q j - ladderAdag Q j * numberOperator Q i =
       δ[i, j] • ladderAdag Q j := by
   unfold numberOperator
@@ -433,7 +433,7 @@ def kineticPlusPotentialCLM (Q : HarmonicOscillator d) : 𝓢(Space d, ℂ) →L
 `numberHamiltonian` equals the "kinetic + potential" Hamiltonian `kineticPlusPotentialCLM`, mode
 by mode: exactly the same algebraic factorization as `Unbounded.Example.Schwartz.hamiltonian_eq`
 (`ladder_prod_raw`), applied to each coordinate `i` and summed. -/
-theorem numberHamiltonian_eq_kineticPlusPotentialCLM :
+lemma numberHamiltonian_eq_kineticPlusPotentialCLM :
     numberHamiltonian Q = kineticPlusPotentialCLM Q := by
   have hmode : ∀ i : Fin d, (ℏ : ℂ) • ((Q.ω i : ℝ) •
       (numberOperator Q i + (2⁻¹ : ℝ) • (1 : 𝓢(Space d, ℂ) →L[ℂ] 𝓢(Space d, ℂ)))) =

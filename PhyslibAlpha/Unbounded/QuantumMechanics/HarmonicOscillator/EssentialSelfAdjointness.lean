@@ -93,13 +93,13 @@ lemma potentialFunction_one_eq (x : Space 1) :
   ring
 
 /-- The one-dimensional harmonic oscillator potential, complexified, is a.e. strongly measurable. -/
-private lemma ofReal_potentialFunction_aestronglyMeasurable :
+lemma ofReal_potentialFunction_aestronglyMeasurable :
     AEStronglyMeasurable (ofReal ∘ Q.potentialFunction) volume :=
   (Complex.continuous_ofReal.comp Q.potentialFunction_continuous).aestronglyMeasurable
 
 /-- `Complex.ofReal ∘ coord 0` has temperate growth, being `Complex.ofReal` composed with a
   continuous linear functional on `Space 1`. -/
-private lemma ofReal_coord_hasTemperateGrowth :
+lemma ofReal_coord_hasTemperateGrowth :
     Function.HasTemperateGrowth (fun x : Space 1 ↦ (ofReal (x 0))) := by
   have h : (fun x : Space 1 ↦ (ofReal (x 0) : ℂ)) = ofReal ∘ (Space.coordCLM (0 : Fin 1)) := by
     funext x
@@ -110,7 +110,7 @@ private lemma ofReal_coord_hasTemperateGrowth :
 
 /-- The complexified potential function has temperate growth: it is a scalar multiple of the
   square of a continuous linear functional composed with `Complex.ofReal`. -/
-private lemma potentialFunction_hasTemperateGrowth :
+lemma potentialFunction_hasTemperateGrowth :
     Function.HasTemperateGrowth (ofReal ∘ Q.potentialFunction) := by
   have h : (ofReal ∘ Q.potentialFunction)
       = fun x ↦ ((2⁻¹ * Q.m) * (Q.ω 0) ^ 2 : ℂ) * (ofReal (x 0)) ^ 2 := by
@@ -142,7 +142,7 @@ lemma hamiltonian_domain_eq : Q.hamiltonian.domain = SchwartzSubmodule 1 := by
 
 /-- The squared momentum operator is symmetric: it agrees with `(momentumOperator i) ^ 2`
   (via `compRestricted_eq_comp`), and squares of symmetric operators are symmetric. -/
-private lemma momentumSqOperator_isSymmetric : (momentumSqOperator (d := 1)).IsSymmetric := by
+lemma momentumSqOperator_isSymmetric : (momentumSqOperator (d := 1)).IsSymmetric := by
   refine IsSymmetric.sum fun i ↦ ?_
   rw [← compRestricted_eq_comp (momentumOperator_range i), ← mul_def]
   have h := (momentumOperator_isSymmetric i).pow 2
@@ -150,7 +150,7 @@ private lemma momentumSqOperator_isSymmetric : (momentumSqOperator (d := 1)).IsS
 
 /-- The potential operator is symmetric, as a maximal real multiplication operator (hence
   self-adjoint, in particular symmetric). -/
-private lemma potentialOperator_isSymmetric : Q.potentialOperator.IsSymmetric := by
+lemma potentialOperator_isSymmetric : Q.potentialOperator.IsSymmetric := by
   have hself : IsSelfAdjoint (𝓜 volume (ofReal ∘ Q.potentialFunction)) :=
     mulOperator_isSelfAdjoint_ofReal Q.ofReal_potentialFunction_aestronglyMeasurable
       (by funext x; simp [Function.comp])
@@ -178,17 +178,17 @@ structure HarmonicOscillatorDefectCertificate where
   plus : Q.hamiltonian.defectNumber I = 0
   minus : Q.hamiltonian.defectNumber (-I) = 0
 
-private lemma hamiltonian_defectNumber_I_eq_zero
+lemma hamiltonian_defectNumber_I_eq_zero
     (C : HarmonicOscillatorDefectCertificate Q) : Q.hamiltonian.defectNumber I = 0 :=
   C.plus
 
-private lemma hamiltonian_defectNumber_negI_eq_zero
+lemma hamiltonian_defectNumber_negI_eq_zero
     (C : HarmonicOscillatorDefectCertificate Q) : Q.hamiltonian.defectNumber (-I) = 0 :=
   C.minus
 
 /-- The von Neumann defect-index certificate for `Q.hamiltonian`, from the explicit analytic input.
 The certificate is intentionally an argument rather than an opaque theorem. -/
-theorem hamiltonian_defectIndexCertificate
+lemma hamiltonian_defectIndexCertificate
     (C : HarmonicOscillatorDefectCertificate Q) :
     OperatorAlgebra.DefectIndexCertificate Q.hamiltonian where
   symmetric := Q.hamiltonian_isSymmetric
@@ -198,7 +198,7 @@ theorem hamiltonian_defectIndexCertificate
 
 /-- The harmonic oscillator Hamiltonian (`d = 1`) is essentially self-adjoint, conditional on the
   two explicit analytic facts recorded in `hamiltonian_defectIndexCertificate`. -/
-theorem hamiltonian_isEssentiallySelfAdjoint
+lemma hamiltonian_isEssentiallySelfAdjoint
     (C : HarmonicOscillatorDefectCertificate Q) : Q.hamiltonian.IsEssentiallySelfAdjoint :=
   (Q.hamiltonian_defectIndexCertificate C).essentiallySelfAdjoint
 
@@ -213,7 +213,7 @@ unbounded-operator API.
 
 /-- The one-dimensional harmonic oscillator Hamiltonian is essentially self-adjoint when its
 deficiency spaces are discharged by `C`. -/
-theorem hamiltonian_essentially_self_adjoint
+lemma hamiltonian_essentially_self_adjoint
     (C : HarmonicOscillatorDefectCertificate Q) : Q.hamiltonian.IsEssentiallySelfAdjoint :=
   Q.hamiltonian_isEssentiallySelfAdjoint C
 
