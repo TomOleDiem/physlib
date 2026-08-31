@@ -21,7 +21,7 @@ a dense family of eigenvectors) and builds its spectral measure.
 `HarmonicOscillator/SpectralProjections.lean` already proves each Hermite eigenfunction is fixed by
 its own spectral projection. What was still missing — proved here — is the *converse*: nothing
 else carries any spectral weight, so the eigenvalues found are the complete list. This file adapts
-`Unbounded/Examples/HarmonicOscillatorSpectrum.lean`'s `H_pp`/`pointSpectrumSet` argument (proved
+`Unbounded/Examples/HarmonicOscillatorSpectrum.lean`'s `Hpp`/`pointSpectrumSet` argument (proved
 there for a hand-built stand-in operator matching the eigenbasis by construction) to the genuine
 differential closure — the same argument, now applied to the operator it was always meant for.
 
@@ -82,7 +82,7 @@ variable (q : OldOscillator)
 doesn't kill `eₙ`), and the projection at that singleton fixes `eₙ`, exhibiting `eₙ` as being in
 the range of `E(pointSpectrumSet)`. -/
 lemma transportedEigenbasis_mem_H_pp (n : ℕ) :
-    transportedEigenbasis q n ∈ H_pp (differentialHamiltonianSpectralMeasure q) := by
+    transportedEigenbasis q n ∈ Hpp (differentialHamiltonianSpectralMeasure q) := by
   set E := differentialHamiltonianSpectralMeasure q with hE
   set S := pointSpectrumSet E with hS
   have hSmeas : MeasurableSet S := measurableSet_pointSpectrumSet E
@@ -111,41 +111,41 @@ lemma transportedEigenbasis_mem_H_pp (n : ℕ) :
 
 /-! ## No continuous spectrum -/
 
-/-- **The oscillator's Hamiltonian has purely point spectrum: `H_pp = ⊤`.** Every state is built
-entirely out of energy eigenstates — no continuous spectrum, no scattering states. `H_pp` is a
+/-- **The oscillator's Hamiltonian has purely point spectrum: `Hpp = ⊤`.** Every state is built
+entirely out of energy eigenstates — no continuous spectrum, no scattering states. `Hpp` is a
 closed subspace (`isClosed_H_pp`) containing every Hermite eigenfunction, hence containing the
 (dense) closure of their span, i.e. the whole space. -/
 lemma H_pp_eq_top :
-    H_pp (differentialHamiltonianSpectralMeasure q) = ⊤ := by
+    Hpp (differentialHamiltonianSpectralMeasure q) = ⊤ := by
   set E := differentialHamiltonianSpectralMeasure q with hE
-  have hspan_le : Submodule.span ℂ (Set.range (⇑(transportedEigenbasis q))) ≤ H_pp E := by
+  have hspan_le : Submodule.span ℂ (Set.range (⇑(transportedEigenbasis q))) ≤ Hpp E := by
     apply Submodule.span_le.mpr
     rintro _ ⟨n, rfl⟩
     exact transportedEigenbasis_mem_H_pp q n
   have hle : (Submodule.span ℂ (Set.range (⇑(transportedEigenbasis q)))).topologicalClosure ≤
-      H_pp E :=
+      Hpp E :=
     Submodule.topologicalClosure_minimal _ hspan_le (isClosed_H_pp E)
   rw [(transportedEigenbasis q).dense_span] at hle
   exact top_le_iff.mp hle
 
 /-- **The continuous subspace is trivial.** -/
 lemma H_cont_eq_bot :
-    H_cont (differentialHamiltonianSpectralMeasure q) = ⊥ := by
-  rw [H_cont, H_pp_eq_top q, Submodule.top_orthogonal_eq_bot]
+    Hcont (differentialHamiltonianSpectralMeasure q) = ⊥ := by
+  rw [Hcont, H_pp_eq_top q, Submodule.top_orthogonal_eq_bot]
 
 /-- **The absolutely-continuous subspace is trivial.** -/
 lemma H_ac_eq_bot :
-    H_ac (differentialHamiltonianSpectralMeasure q) = ⊥ := by
+    Hac (differentialHamiltonianSpectralMeasure q) = ⊥ := by
   set E := differentialHamiltonianSpectralMeasure q with hE
-  have hle : H_ac E ≤ H_cont E := E.H_cont.map_subtype_le E.isPureAC_submodule
+  have hle : Hac E ≤ Hcont E := E.Hcont.map_subtype_le E.isPureACSubmodule
   rw [H_cont_eq_bot q] at hle
   exact le_bot_iff.mp hle
 
 /-- **The singular-continuous subspace is trivial.** -/
 lemma H_sc_eq_bot :
-    H_sc (differentialHamiltonianSpectralMeasure q) = ⊥ := by
+    Hsc (differentialHamiltonianSpectralMeasure q) = ⊥ := by
   set E := differentialHamiltonianSpectralMeasure q with hE
-  have hle : H_sc E ≤ H_cont E := E.H_cont.map_subtype_le E.isPureSC_submodule
+  have hle : Hsc E ≤ Hcont E := E.Hcont.map_subtype_le E.isPureSCSubmodule
   rw [H_cont_eq_bot q] at hle
   exact le_bot_iff.mp hle
 

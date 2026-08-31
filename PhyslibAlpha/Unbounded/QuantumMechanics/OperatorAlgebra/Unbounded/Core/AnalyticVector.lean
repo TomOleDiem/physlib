@@ -150,7 +150,7 @@ lemma AnalyticVectorWitness.isAnalytic {T : H →ₗ.[ℂ] H} (W : AnalyticVecto
     T.IsAnalyticVector W.state :=
   ⟨W.iterates, W.iterates_spec, W.radius, W.radius_pos, W.summable⟩
 
-noncomputable def AnalyticVectorWitness.of_isAnalytic
+noncomputable def AnalyticVectorWitness.ofIsAnalytic
     {T : H →ₗ.[ℂ] H} {x : H} (h : T.IsAnalyticVector x) : AnalyticVectorWitness T := by
   let v : ℕ → T.domain := Classical.choose h
   have hv : IteratesSeq T x v := (Classical.choose_spec h).1
@@ -2182,7 +2182,7 @@ lemma eq_of_adjacent
 /-- Reindex a bi-infinite integer-indexed core cover by `ℕ`.  The reindexing is purely set-theoretic
 and uses `Equiv.intEquivNat`; it lets the existing choice-based gluing implementation remain
 backwards-compatible while continuation is naturally developed on integer time centers. -/
-noncomputable def LocalOrbitCoreCover.of_int_index
+noncomputable def LocalOrbitCoreCover.ofIntIndex
     {T : H →ₗ.[ℂ] H} {x : H}
     (state : ℤ → H) (center coreRadius : ℤ → ℝ)
     (chart : ∀ n : ℤ, LocalAnalyticOrbit T (state n))
@@ -2219,7 +2219,7 @@ noncomputable def LocalOrbitCoreCover.of_int_index
 /-! Package the grid argument with the abstract core-cover certificate.  The analytic work needed
 to construct the charts is intentionally not hidden here: callers only have to provide the local
 adjacent equality, while this lemma supplies coverage and all non-adjacent compatibility. -/
-noncomputable def LocalOrbitCoreCover.of_adjacent_int_index
+noncomputable def LocalOrbitCoreCover.ofAdjacentIntIndex
     {T : H →ₗ.[ℂ] H} {x : H} {δ R : ℝ}
     (hδ : 0 < δ) (hδR : δ < R)
     (state : ℤ → H) (chart : ∀ n : ℤ, LocalAnalyticOrbit T (state n))
@@ -2237,7 +2237,7 @@ noncomputable def LocalOrbitCoreCover.of_adjacent_int_index
     intro s
     obtain ⟨n, hn⟩ := exists_int_center_of_pos_step hδ hδR
     exact ⟨n, by simpa [center] using hn⟩
-  exact LocalOrbitCoreCover.of_int_index state center (fun _ => R) chart
+  exact LocalOrbitCoreCover.ofIntIndex state center (fun _ => R) chart
     (fun _ => core_pos) core_le hcenter_zero state_zero state_norm hcover
     (fun m n s hm hn => eq_of_adjacent hδ core_pos hadj (by simpa [center] using hm)
       (by simpa [center] using hn))
@@ -2925,7 +2925,7 @@ lemma GlobalAnalyticOrbit.of_uniform_witness_line
       hmarginU V
       (by dsimp [V]; exact hcore (n + 1)) hz
     exact heq
-  let C := LocalOrbitCoreCover.of_adjacent_int_index hδ hδR
+  let C := LocalOrbitCoreCover.ofAdjacentIntIndex hδ hδR
     (fun n => (W n).state) chart (by positivity)
     (fun n => hcore n) hstate_zero hstate_norm hadj
   exact ⟨C.toGlobal⟩
@@ -3016,7 +3016,7 @@ theorem IsSymmetric.isEssentiallySelfAdjoint_of_denseAnalyticVectors
       Nonempty (GlobalAnalyticOrbit T z) := by
     intro z hz
     let W0 : AnalyticVectorWitness T.closure :=
-      AnalyticVectorWitness.of_isAnalytic (IsAnalyticVector.for_closure hz)
+      AnalyticVectorWitness.ofIsAnalytic (IsAnalyticVector.for_closure hz)
     let r : ℝ := W0.radius / 2
     let δ : ℝ := r / 8
     have hr : 0 < r := by

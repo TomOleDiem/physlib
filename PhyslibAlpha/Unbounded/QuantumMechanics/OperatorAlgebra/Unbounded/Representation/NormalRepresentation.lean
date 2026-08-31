@@ -387,7 +387,7 @@ This is intentionally an adapter rather than an automatic constructor from `Norm
 extra predual additivity field is the substantive normality theorem for a weakly additive PVM.
 Once it is present, the WOT spectral measure is obtained by the same general construction as
 above. -/
-noncomputable def toWOTSpectralMeasure_of_predual {X : Type*} [MeasurableSpace X]
+noncomputable def toWOTSpectralMeasureOfPredual {X : Type*} [MeasurableSpace X]
     (E : PredualPVM X A) (π : Representation A H)
     (C : PredualMatrixCoefficientCertificate π) :
     QuantumMechanics.WOTSpectralMeasure X H :=
@@ -397,7 +397,7 @@ noncomputable def toWOTSpectralMeasure_of_predual {X : Type*} [MeasurableSpace X
 lemma toWOTSpectralMeasure_of_predual_apply {X : Type*} [MeasurableSpace X]
     (E : PredualPVM X A) (π : Representation A H)
     (C : PredualMatrixCoefficientCertificate π) (S : Set X) :
-    toWOTSpectralMeasure_of_predual E π C S =
+    toWOTSpectralMeasureOfPredual E π C S =
       ContinuousLinearMapWOT.ofCLM (π (E S)) := by
   rfl
 
@@ -418,9 +418,9 @@ lemma toWOTSpectralMeasure_map {X Y : Type*} [MeasurableSpace X] [MeasurableSpac
 lemma toWOTSpectralMeasure_of_predual_map {X Y : Type*} [MeasurableSpace X]
     [MeasurableSpace Y] (E : PredualPVM X A) (π : Representation A H)
     (C : PredualMatrixCoefficientCertificate π) {f : X → Y} (hf : Measurable f) :
-    toWOTSpectralMeasure_of_predual (E.map f hf) π C =
-      (toWOTSpectralMeasure_of_predual E π C).map f hf := by
-  unfold toWOTSpectralMeasure_of_predual
+    toWOTSpectralMeasureOfPredual (E.map f hf) π C =
+      (toWOTSpectralMeasureOfPredual E π C).map f hf := by
+  unfold toWOTSpectralMeasureOfPredual
   exact toWOTSpectralMeasure_map E.toNormalPVM π _ hf
 
 end NormalPVM
@@ -574,7 +574,7 @@ noncomputable def normalVectorState
     (a : A) : normalVectorState π x hx a = ⟪x, π.representation a x⟫_ℂ := rfl
 
 /-- Package the coefficientwise predual representation supplied by normality into the certificate
-consumed by `NormalPVM.toWOTSpectralMeasure_of_predual`. -/
+consumed by `NormalPVM.toWOTSpectralMeasureOfPredual`. -/
 noncomputable def NormalRepresentation.toPredualMatrixCoefficientCertificate
     (π : NormalRepresentation (A := A) (H := H)) :
     NormalPVM.PredualMatrixCoefficientCertificate π.representation where
@@ -1013,22 +1013,22 @@ noncomputable def ofPredualRepresentation (π : Representation A H)
     NormalAffiliationBridge (A := A) (H := H) where
   representation := π
   toWOTSpectralMeasure := fun E =>
-    NormalPVM.toWOTSpectralMeasure_of_predual (predual E) π C
+    NormalPVM.toWOTSpectralMeasureOfPredual (predual E) π C
   toWOTSpectralMeasure_apply := by
     intro E S
     change π (E S) =
-      (NormalPVM.toWOTSpectralMeasure_of_predual (predual E) π C S).toCLM
+      (NormalPVM.toWOTSpectralMeasureOfPredual (predual E) π C S).toCLM
     calc
       π (E S) = π ((predual E).toNormalPVM S) := by rw [hpredual E]
       _ = π ((predual E) S) := rfl
-      _ = (NormalPVM.toWOTSpectralMeasure_of_predual
+      _ = (NormalPVM.toWOTSpectralMeasureOfPredual
           (predual E) π C S).toCLM := by
         rw [NormalPVM.toWOTSpectralMeasure_of_predual_apply]
   toWOTSpectralMeasure_map := by
     intro E f hf
-    change NormalPVM.toWOTSpectralMeasure_of_predual
+    change NormalPVM.toWOTSpectralMeasureOfPredual
         (predual (E.map f hf)) π C =
-      (NormalPVM.toWOTSpectralMeasure_of_predual (predual E) π C).map f hf
+      (NormalPVM.toWOTSpectralMeasureOfPredual (predual E) π C).map f hf
     rw [hmap E hf]
     exact NormalPVM.toWOTSpectralMeasure_of_predual_map (predual E) π C hf
 
@@ -1082,24 +1082,24 @@ noncomputable def NormalOperatorAffiliationBridge.ofPredualRepresentation
     NormalOperatorAffiliationBridge (A := A) (H := H) where
   toNormalAffiliationBridge := realBridge
   toWOTSpectralMeasureComplex := fun E =>
-    NormalPVM.toWOTSpectralMeasure_of_predual (predual E) realBridge.representation C
+    NormalPVM.toWOTSpectralMeasureOfPredual (predual E) realBridge.representation C
   toWOTSpectralMeasureComplex_apply := by
     intro E S
     change realBridge.representation (E S) =
-      (NormalPVM.toWOTSpectralMeasure_of_predual
+      (NormalPVM.toWOTSpectralMeasureOfPredual
         (predual E) realBridge.representation C S).toCLM
     calc
       realBridge.representation (E S) =
           realBridge.representation ((predual E).toNormalPVM S) := by rw [hpredual E]
       _ = realBridge.representation ((predual E) S) := rfl
-      _ = (NormalPVM.toWOTSpectralMeasure_of_predual
+      _ = (NormalPVM.toWOTSpectralMeasureOfPredual
           (predual E) realBridge.representation C S).toCLM := by
         rw [NormalPVM.toWOTSpectralMeasure_of_predual_apply]
   toWOTSpectralMeasureComplex_map := by
     intro E f hf
-    change NormalPVM.toWOTSpectralMeasure_of_predual
+    change NormalPVM.toWOTSpectralMeasureOfPredual
         (predual (E.map f hf)) realBridge.representation C =
-      (NormalPVM.toWOTSpectralMeasure_of_predual
+      (NormalPVM.toWOTSpectralMeasureOfPredual
         (predual E) realBridge.representation C).map f hf
     rw [hmap E hf]
     exact NormalPVM.toWOTSpectralMeasure_of_predual_map (predual E)

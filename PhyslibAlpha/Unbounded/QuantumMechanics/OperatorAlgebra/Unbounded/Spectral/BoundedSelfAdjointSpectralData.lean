@@ -192,7 +192,7 @@ noncomputable def boundedSelfAdjointDomainAwareSpectralTheorem
       (boundedSelfAdjointSpectralMeasure A hA) := by
   let D := boundedSelfAdjointSpectralData A hA
   rcases exists_boundedSelfAdjointSpectralSupport A hA with ⟨C, hC⟩
-  exact DomainAwareSelfAdjointSpectralTheorem.of_boundedSupport
+  exact DomainAwareSelfAdjointSpectralTheorem.ofBoundedSupport
     D.spectralTheorem rfl hC
 
 end OperatorAlgebra

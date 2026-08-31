@@ -97,7 +97,7 @@ lemma conjugationCPMap_one (W : B(H)) :
   simp [conjugationCPMap_apply]
 
 lemma conjugationCPMap_toContinuousLinearMap (W : B(H)) :
-    completelyPositiveMap_toContinuousLinearMap (conjugationCPMap W) =
+    completelyPositiveMapToContinuousLinearMap (conjugationCPMap W) =
       ContinuousLinearMap.mulLeftRight ℂ (B(H)) (star W) W := by
   ext A
   simp [conjugationCPMap_apply, ContinuousLinearMap.mulLeftRight_apply]
@@ -121,11 +121,11 @@ noncomputable def noJumpOperator (D : LindbladData H ι) : B(H) :=
 
 /-- The CP jump part of a bounded Lindblad generator. -/
 noncomputable def jumpMap (D : LindbladData H ι) : B(H) →L[ℂ] B(H) :=
-  ∑ i, completelyPositiveMap_toContinuousLinearMap (conjugationCPMap (D.noise i))
+  ∑ i, completelyPositiveMapToContinuousLinearMap (conjugationCPMap (D.noise i))
 
 /- The same jump part, retained as a bundled completely positive map. -/
 noncomputable def jumpCPMap (D : LindbladData H ι) : B(H) →CP B(H) :=
-  completelyPositiveMap_finsetSum Finset.univ
+  completelyPositiveMapFinsetSum Finset.univ
     (fun i => conjugationCPMap (D.noise i))
 
 lemma jumpCPMap_eq_finiteKrausCPMap (D : LindbladData H ι) :
@@ -155,13 +155,13 @@ lemma jumpMap_apply (D : LindbladData H ι) (A : B(H)) :
 @[simp]
 lemma jumpCPMap_apply (D : LindbladData H ι) (A : B(H)) :
     D.jumpCPMap A = ∑ i, star (D.noise i) * A * D.noise i := by
-  change completelyPositiveMap_finsetSum Finset.univ
+  change completelyPositiveMapFinsetSum Finset.univ
     (fun i => conjugationCPMap (D.noise i)) A = _
   rw [completelyPositiveMap_finsetSum_apply]
   simp [conjugationCPMap_apply]
 
 lemma jumpCPMap_toContinuousLinearMap (D : LindbladData H ι) :
-    completelyPositiveMap_toContinuousLinearMap D.jumpCPMap = D.jumpMap := by
+    completelyPositiveMapToContinuousLinearMap D.jumpCPMap = D.jumpMap := by
   ext A
   rw [completelyPositiveMap_toContinuousLinearMap_apply, jumpCPMap_apply, jumpMap_apply]
 
@@ -261,14 +261,14 @@ lemma noJumpEvolution_apply (D : LindbladData H ι) (t : ℝ) (A : B(H)) :
 
 @[simp]
 lemma noJumpEvolution_zero (D : LindbladData H ι) :
-    D.noJumpEvolution 0 = completelyPositiveMap_id (B(H)) := by
+    D.noJumpEvolution 0 = completelyPositiveMapId (B(H)) := by
   apply DFunLike.coe_injective
   funext A
   simp [noJumpEvolution]
 
 lemma noJumpEvolution_add (D : LindbladData H ι) (s t : ℝ) :
     D.noJumpEvolution (s + t) =
-      completelyPositiveMap_comp (D.noJumpEvolution s) (D.noJumpEvolution t) := by
+      completelyPositiveMapComp (D.noJumpEvolution s) (D.noJumpEvolution t) := by
   apply DFunLike.coe_injective
   funext A
   rw [completelyPositiveMap_comp_apply, noJumpEvolution_apply,
@@ -305,22 +305,22 @@ noncomputable def noJumpEvolutionNNReal (D : LindbladData H ι) (t : ℝ≥0) :
 
 @[simp]
 lemma noJumpEvolutionNNReal_zero (D : LindbladData H ι) :
-    D.noJumpEvolutionNNReal 0 = completelyPositiveMap_id (B(H)) := by
+    D.noJumpEvolutionNNReal 0 = completelyPositiveMapId (B(H)) := by
   exact D.noJumpEvolution_zero
 
 lemma noJumpEvolutionNNReal_add (D : LindbladData H ι) (s t : ℝ≥0) :
     D.noJumpEvolutionNNReal (s + t) =
-      completelyPositiveMap_comp (D.noJumpEvolutionNNReal s)
+      completelyPositiveMapComp (D.noJumpEvolutionNNReal s)
         (D.noJumpEvolutionNNReal t) := by
   simpa only [noJumpEvolutionNNReal, NNReal.coe_add] using
     D.noJumpEvolution_add (s : ℝ) (t : ℝ)
 
 lemma noJumpEvolutionNNReal_continuous (D : LindbladData H ι) :
     Continuous (fun t : ℝ≥0 =>
-      completelyPositiveMap_toContinuousLinearMap (D.noJumpEvolutionNNReal t)) := by
+      completelyPositiveMapToContinuousLinearMap (D.noJumpEvolutionNNReal t)) := by
   have hfun :
       (fun t : ℝ≥0 =>
-        completelyPositiveMap_toContinuousLinearMap (D.noJumpEvolutionNNReal t)) =
+        completelyPositiveMapToContinuousLinearMap (D.noJumpEvolutionNNReal t)) =
         (fun t : ℝ≥0 =>
           ContinuousLinearMap.mulLeftRight ℂ (B(H))
             (star (NormedSpace.exp ((t : ℝ) • D.noJumpOperator)))
@@ -347,12 +347,12 @@ noncomputable def noJumpSemigroup (D : LindbladData H ι) :
 part alone need not preserve the identity. -/
 noncomputable def jumpEulerStep (D : LindbladData H ι) (t : ℝ≥0) :
     B(H) →CP B(H) :=
-  completelyPositiveMap_add (completelyPositiveMap_id (B(H)))
-    (completelyPositiveMap_real_smul (t : ℝ) (by positivity) D.jumpCPMap)
+  completelyPositiveMapAdd (completelyPositiveMapId (B(H)))
+    (completelyPositiveMapRealSmul (t : ℝ) (by positivity) D.jumpCPMap)
 
 @[simp]
 lemma jumpEulerStep_zero (D : LindbladData H ι) :
-    D.jumpEulerStep 0 = completelyPositiveMap_id (B(H)) := by
+    D.jumpEulerStep 0 = completelyPositiveMapId (B(H)) := by
   apply DFunLike.coe_injective
   funext A
   simp [jumpEulerStep]
@@ -363,7 +363,7 @@ lemma jumpEulerStep_apply (D : LindbladData H ι) (t : ℝ≥0) (A : B(H)) :
   simp [jumpEulerStep]
 
 lemma jumpEulerStep_toContinuousLinearMap (D : LindbladData H ι) (t : ℝ≥0) :
-    completelyPositiveMap_toContinuousLinearMap (D.jumpEulerStep t) =
+    completelyPositiveMapToContinuousLinearMap (D.jumpEulerStep t) =
       (1 : B(H) →L[ℂ] B(H)) + (t : ℂ) • D.jumpMap := by
   ext A
   simp [jumpEulerStep, D.jumpCPMap_toContinuousLinearMap]
@@ -375,13 +375,13 @@ evolution.  Both factors are CP, so this statement is available before the produ
 has been proved. -/
 noncomputable def eulerStep (D : LindbladData H ι) (t : ℝ≥0) (n : ℕ) :
     B(H) →CP B(H) :=
-  completelyPositiveMap_comp
+  completelyPositiveMapComp
     (D.noJumpEvolutionNNReal (t / (n + 1)))
     (D.jumpEulerStep (t / (n + 1)))
 
 @[simp]
 lemma eulerStep_zero (D : LindbladData H ι) (n : ℕ) :
-    D.eulerStep 0 n = completelyPositiveMap_id (B(H)) := by
+    D.eulerStep 0 n = completelyPositiveMapId (B(H)) := by
   apply DFunLike.coe_injective
   funext A
   simp [eulerStep]
@@ -393,8 +393,8 @@ lemma eulerStep_apply (D : LindbladData H ι) (t : ℝ≥0) (n : ℕ) (A : B(H))
   rfl
 
 lemma eulerStep_toContinuousLinearMap (D : LindbladData H ι) (t : ℝ≥0) (n : ℕ) :
-    completelyPositiveMap_toContinuousLinearMap (D.eulerStep t n) =
-    completelyPositiveMap_toContinuousLinearMap
+    completelyPositiveMapToContinuousLinearMap (D.eulerStep t n) =
+    completelyPositiveMapToContinuousLinearMap
         (D.noJumpEvolutionNNReal (t / (n + 1))) *
         ((1 : B(H) →L[ℂ] B(H)) +
           ((t / (n + 1) : ℝ≥0) : ℂ) • D.jumpMap) := by
@@ -413,18 +413,18 @@ noncomputable def eulerApproximation (D : LindbladData H ι) (t : ℝ≥0) (n : 
 
 @[simp]
 lemma eulerApproximation_zero (D : LindbladData H ι) (n : ℕ) :
-    D.eulerApproximation 0 n = completelyPositiveMap_id (B(H)) := by
+    D.eulerApproximation 0 n = completelyPositiveMapId (B(H)) := by
   rw [eulerApproximation, eulerStep_zero, cpPow_id]
 
 lemma eulerApproximation_toContinuousLinearMap (D : LindbladData H ι) (t : ℝ≥0) (n : ℕ) :
-    completelyPositiveMap_toContinuousLinearMap (D.eulerApproximation t n) =
-      (completelyPositiveMap_toContinuousLinearMap (D.eulerStep t n)) ^ (n + 1) := by
+    completelyPositiveMapToContinuousLinearMap (D.eulerApproximation t n) =
+      (completelyPositiveMapToContinuousLinearMap (D.eulerStep t n)) ^ (n + 1) := by
   apply ContinuousLinearMap.ext
   intro A
   rw [completelyPositiveMap_toContinuousLinearMap_apply]
   change (cpPow (D.eulerStep t n) (n + 1)).toLinearMap A = _
   rw [cpPow_toLinearMap]
-  let P := completelyPositiveMap_toContinuousLinearMap (D.eulerStep t n)
+  let P := completelyPositiveMapToContinuousLinearMap (D.eulerStep t n)
   have hP : P.toLinearMap = (D.eulerStep t n).toLinearMap := by
     apply LinearMap.ext
     intro B
@@ -443,7 +443,7 @@ lemma eulerApproximation_toContinuousLinearMap (D : LindbladData H ι) (t : ℝ�
  for the no-jump and jump parts. -/
 lemma eulerApproximation_tendsto (D : LindbladData H ι) [Nontrivial H] (t : ℝ≥0) :
     Tendsto
-      (fun n => completelyPositiveMap_toContinuousLinearMap (D.eulerApproximation t n))
+      (fun n => completelyPositiveMapToContinuousLinearMap (D.eulerApproximation t n))
       atTop (nhds (NormedSpace.exp ((t : ℝ) • D.generator))) := by
   let N : B(H) := D.noJumpOperator
   let J : B(H) →L[ℂ] B(H) := D.jumpMap
@@ -577,7 +577,7 @@ lemma eulerApproximation_tendsto (D : LindbladData H ι) [Nontrivial H] (t : ℝ
       ‖(1 : B(H) →L[ℂ] B(H)) + h • (A + J)‖ ≤ 1 + h * c := hlin
       _ ≤ Real.exp (h * c) := by simpa [add_comm] using Real.add_one_le_exp (h * c)
   have hprod := lie_product_formula_of_step a A J c (t : ℝ) (by positivity) hc ha0 ha hqa hr
-  change Tendsto (fun n => completelyPositiveMap_toContinuousLinearMap (D.eulerApproximation t n))
+  change Tendsto (fun n => completelyPositiveMapToContinuousLinearMap (D.eulerApproximation t n))
       atTop (nhds (NormedSpace.exp ((t : ℝ) • D.generator)))
   rw [D.generator_eq_noJumpMap_add_jumpMap]
   convert hprod using 1
@@ -592,12 +592,12 @@ lemma eulerApproximation_tendsto (D : LindbladData H ι) [Nontrivial H] (t : ℝ
 
 /-- If the Euler products converge in operator norm to a bounded map, that limit is completely
 positive.  This is the exact closure step needed in the bounded GKSL sufficiency proof. -/
-noncomputable def completelyPositiveMap_of_eulerLimit
+noncomputable def completelyPositiveMapOfEulerLimit
     (D : LindbladData H ι) (t : ℝ≥0) (Φ : B(H) →L[ℂ] B(H))
     (hlim : Tendsto
-      (fun n => completelyPositiveMap_toContinuousLinearMap (D.eulerApproximation t n))
+      (fun n => completelyPositiveMapToContinuousLinearMap (D.eulerApproximation t n))
       atTop (nhds Φ)) : CompletelyPositiveMap (B(H)) (B(H)) := by
-  exact completelyPositiveMap_of_tendsto_bundled
+  exact completelyPositiveMapOfTendstoBundled
     (fun n => D.eulerApproximation t n) Φ hlim
 
 @[simp]
@@ -755,13 +755,13 @@ lemma lindbladNonnegativeEvolution_apply_one (D : LindbladData H ι) (t : ℝ≥
 
 The CP part comes from closedness of the CP cone; unitality is supplied by the exact exponential
 identity above. -/
-noncomputable def LindbladData.channel_of_eulerLimit
+noncomputable def LindbladData.channelOfEulerLimit
     (D : LindbladData H ι) (t : ℝ≥0)
     (hlim : Tendsto
-      (fun n => completelyPositiveMap_toContinuousLinearMap (D.eulerApproximation t n))
+      (fun n => completelyPositiveMapToContinuousLinearMap (D.eulerApproximation t n))
       atTop (nhds (lindbladNonnegativeEvolution D t))) :
     Channel (B(H)) (B(H)) := by
-  let Φ : B(H) →CP B(H) := D.completelyPositiveMap_of_eulerLimit t
+  let Φ : B(H) →CP B(H) := D.completelyPositiveMapOfEulerLimit t
     (lindbladNonnegativeEvolution D t) hlim
   refine ⟨Φ, ?_⟩
   change lindbladNonnegativeEvolution D t 1 = 1
@@ -793,14 +793,14 @@ lemma lindbladNonnegativeEvolution_continuous (D : LindbladData H ι) :
 
 /-- The full Lindblad exponential is a completely positive semigroup as soon as the Euler
 product-formula limits have been established in operator norm. -/
-noncomputable def LindbladData.completelyPositiveSemigroup_of_eulerLimit
+noncomputable def LindbladData.completelyPositiveSemigroupOfEulerLimit
     (D : LindbladData H ι)
     (hlim : ∀ t : ℝ≥0,
       Tendsto
-        (fun n => completelyPositiveMap_toContinuousLinearMap (D.eulerApproximation t n))
+        (fun n => completelyPositiveMapToContinuousLinearMap (D.eulerApproximation t n))
         atTop (nhds (lindbladNonnegativeEvolution D t))) :
     CompletelyPositiveSemigroup (B(H)) :=
-  CompletelyPositiveSemigroup.of_tendsto
+  CompletelyPositiveSemigroup.ofTendsto
     (approx := fun t n => D.eulerApproximation t n)
     (limit := lindbladNonnegativeEvolution D)
     hlim
@@ -868,7 +868,7 @@ lemma lindbladNonnegativeEvolution_eq_real (D : LindbladData H ι) (t : ℝ≥0)
 lemma LindbladData.eulerApproximation_tendsto_nonnegative
     (D : LindbladData H ι) [Nontrivial H] (t : ℝ≥0) :
     Tendsto
-      (fun n => completelyPositiveMap_toContinuousLinearMap (D.eulerApproximation t n))
+      (fun n => completelyPositiveMapToContinuousLinearMap (D.eulerApproximation t n))
       atTop (nhds (lindbladNonnegativeEvolution D t)) := by
   rw [lindbladNonnegativeEvolution_eq_real]
   exact D.eulerApproximation_tendsto t
@@ -877,7 +877,7 @@ lemma LindbladData.eulerApproximation_tendsto_nonnegative
 noncomputable def LindbladData.completelyPositiveSemigroup
     (D : LindbladData H ι) [Nontrivial H] :
     CompletelyPositiveSemigroup (B(H)) :=
-  D.completelyPositiveSemigroup_of_eulerLimit
+  D.completelyPositiveSemigroupOfEulerLimit
     (fun t => D.eulerApproximation_tendsto_nonnegative t)
 
 lemma lindbladNonnegativeEvolution_star (D : LindbladData H ι) (t : ℝ≥0) (A : B(H)) :
@@ -917,15 +917,15 @@ namespace BoundedLindbladDynamics
 This is the sufficiency interface: once the analytic Trotter limit has been established, all
 channel, semigroup, continuity, and generator consequences are obtained by the existing bundled
 APIs. -/
-noncomputable def of_eulerLimit
+noncomputable def ofEulerLimit
     (D : LindbladData H ι)
     (hlim : ∀ t : ℝ≥0,
       Tendsto
-        (fun n => completelyPositiveMap_toContinuousLinearMap (D.eulerApproximation t n))
+        (fun n => completelyPositiveMapToContinuousLinearMap (D.eulerApproximation t n))
         atTop (nhds (lindbladNonnegativeEvolution D t))) :
     BoundedLindbladDynamics H ι where
   data := D
-  map := fun t => D.channel_of_eulerLimit t (hlim t)
+  map := fun t => D.channelOfEulerLimit t (hlim t)
   map_eq_exp := by
     intro t A
     change lindbladNonnegativeEvolution D t A = _
@@ -933,10 +933,10 @@ noncomputable def of_eulerLimit
 
 /-- The channel-valued bounded Lindblad dynamics, with convergence supplied by the bounded product
 formula. -/
-noncomputable def of_lindbladData
+noncomputable def ofLindbladData
     (D : LindbladData H ι) [Nontrivial H] :
     BoundedLindbladDynamics H ι :=
-  of_eulerLimit D (fun t => D.eulerApproximation_tendsto_nonnegative t)
+  ofEulerLimit D (fun t => D.eulerApproximation_tendsto_nonnegative t)
 
 /-- Every channel realization of the bounded Lindblad exponential is a quantum dynamical
 semigroup. -/

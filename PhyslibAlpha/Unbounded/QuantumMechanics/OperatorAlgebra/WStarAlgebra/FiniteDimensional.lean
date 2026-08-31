@@ -86,9 +86,9 @@ hypothesis rather than claiming to solve the trace-class predual problem. -/
 noncomputable instance instWStarAlgebraBoundedOperatorsFiniteDimensional :
     WStarAlgebra B(H) where
   Predual := StrongDual ℂ B(H)
-  predual_normedAddCommGroup := inferInstance
-  predual_normedSpace := inferInstance
-  predual_completeSpace := inferInstance
+  predualNormedAddCommGroup := inferInstance
+  predualNormedSpace := inferInstance
+  predualCompleteSpace := inferInstance
   toDual := FiniteDimensionalWStar.bidualEquiv (E := B(H))
 
 /-! ## Finite-dimensional normal states -/

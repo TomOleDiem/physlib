@@ -39,7 +39,7 @@ noncomputable local instance cpClosureNormedAlgebraReal : NormedAlgebra ℝ (A �
 /-- Every completely positive linear map is bounded, hence has a canonical continuous extension.
 
 This is the bridge between the algebraic CP API and the Banach-space exponential. -/
-noncomputable def completelyPositiveMap_toContinuousLinearMap
+noncomputable def completelyPositiveMapToContinuousLinearMap
     (φ : CompletelyPositiveMap A B) : A →L[ℂ] B := by
   let h := PositiveLinearMap.exists_norm_apply_le (PositiveLinearMap.ofClass φ)
   let C : NNReal := Classical.choose h
@@ -52,12 +52,12 @@ noncomputable def completelyPositiveMap_toContinuousLinearMap
 @[simp]
 lemma completelyPositiveMap_toContinuousLinearMap_apply
     (φ : CompletelyPositiveMap A B) (a : A) :
-    completelyPositiveMap_toContinuousLinearMap φ a = φ a := by
+    completelyPositiveMapToContinuousLinearMap φ a = φ a := by
   change φ.toLinearMap a = φ a
   rfl
 
 /-- The identity bounded map, packaged as a completely positive map. -/
-noncomputable def completelyPositiveMap_id (A : Type*) [OperatorAlgebra A] :
+noncomputable def completelyPositiveMapId (A : Type*) [OperatorAlgebra A] :
     CompletelyPositiveMap A A := by
   refine { toLinearMap := ContinuousLinearMap.id ℂ A, map_cstarMatrix_nonneg' := ?_ }
   intro k M hM
@@ -65,19 +65,19 @@ noncomputable def completelyPositiveMap_id (A : Type*) [OperatorAlgebra A] :
 
 @[simp]
 lemma completelyPositiveMap_id_toLinearMap (A : Type*) [OperatorAlgebra A] :
-    (completelyPositiveMap_id A).toLinearMap = ContinuousLinearMap.id ℂ A :=
+    (completelyPositiveMapId A).toLinearMap = ContinuousLinearMap.id ℂ A :=
   rfl
 
 @[simp]
 lemma completelyPositiveMap_id_apply (A : Type*) [OperatorAlgebra A] (a : A) :
-    completelyPositiveMap_id A a = a := by
+    completelyPositiveMapId A a = a := by
   rfl
 
 /-- **The composition of two completely positive maps is again completely positive.** Applying
 `φ` after `ψ` to every entry of a matrix is applying `ψ` entrywise (positive, since `ψ` is CP) then
 `φ` entrywise (positive, since `φ` is CP); `CStarMatrix.map_map` identifies this two-step entrywise
 map with the entrywise map of the composite `φ ∘ ψ`. -/
-noncomputable def completelyPositiveMap_comp
+noncomputable def completelyPositiveMapComp
     {A B C : Type*} [OperatorAlgebra A] [OperatorAlgebra B] [OperatorAlgebra C]
     (φ : B →CP C) (ψ : A →CP B) : A →CP C where
   toLinearMap := φ.toLinearMap.comp ψ.toLinearMap
@@ -96,7 +96,7 @@ noncomputable def completelyPositiveMap_comp
 lemma completelyPositiveMap_comp_apply
     {A B C : Type*} [OperatorAlgebra A] [OperatorAlgebra B] [OperatorAlgebra C]
     (φ : B →CP C) (ψ : A →CP B) (a : A) :
-    completelyPositiveMap_comp φ ψ a = φ (ψ a) := rfl
+    completelyPositiveMapComp φ ψ a = φ (ψ a) := rfl
 
 /-! ### Completely positive conjugations -/
 
@@ -104,7 +104,7 @@ lemma completelyPositiveMap_comp_apply
 
 This is the algebraic version of the familiar map `a ↦ W⋆ a W`.  It is used by the
 Christensen–Evans construction and does not require a Hilbert-space representation. -/
-noncomputable def completelyPositiveMap_conjugation (W : A) : A →CP A := by
+noncomputable def completelyPositiveMapConjugation (W : A) : A →CP A := by
   refine CompletelyPositiveMap.mk
     (ContinuousLinearMap.mulLeftRight ℂ A (star W) W).toLinearMap ?_
   intro k M hM
@@ -128,11 +128,11 @@ noncomputable def completelyPositiveMap_conjugation (W : A) : A →CP A := by
 
 @[simp]
 lemma completelyPositiveMap_conjugation_apply (W a : A) :
-    completelyPositiveMap_conjugation W a = star W * a * W :=
+    completelyPositiveMapConjugation W a = star W * a * W :=
   rfl
 
 lemma completelyPositiveMap_conjugation_toContinuousLinearMap (W : A) :
-    completelyPositiveMap_toContinuousLinearMap (completelyPositiveMap_conjugation W) =
+    completelyPositiveMapToContinuousLinearMap (completelyPositiveMapConjugation W) =
       ContinuousLinearMap.mulLeftRight ℂ A (star W) W := by
   ext a
   simp [completelyPositiveMap_conjugation_apply,
@@ -141,18 +141,18 @@ lemma completelyPositiveMap_conjugation_toContinuousLinearMap (W : A) :
 lemma completelyPositiveMap_comp_toContinuousLinearMap
     {A B C : Type*} [OperatorAlgebra A] [OperatorAlgebra B] [OperatorAlgebra C]
     (φ : B →CP C) (ψ : A →CP B) :
-    completelyPositiveMap_toContinuousLinearMap (completelyPositiveMap_comp φ ψ) =
-      (completelyPositiveMap_toContinuousLinearMap φ).comp
-        (completelyPositiveMap_toContinuousLinearMap ψ) := by
+    completelyPositiveMapToContinuousLinearMap (completelyPositiveMapComp φ ψ) =
+      (completelyPositiveMapToContinuousLinearMap φ).comp
+        (completelyPositiveMapToContinuousLinearMap ψ) := by
   ext a
   rfl
 
 lemma completelyPositiveMap_comp_toContinuousLinearMap_self
     {A : Type*} [OperatorAlgebra A]
     (φ ψ : A →CP A) :
-    completelyPositiveMap_toContinuousLinearMap (completelyPositiveMap_comp φ ψ) =
-      completelyPositiveMap_toContinuousLinearMap φ *
-        completelyPositiveMap_toContinuousLinearMap ψ := by
+    completelyPositiveMapToContinuousLinearMap (completelyPositiveMapComp φ ψ) =
+      completelyPositiveMapToContinuousLinearMap φ *
+        completelyPositiveMapToContinuousLinearMap ψ := by
   ext a
   simp [mul_apply_eq_comp]
 
@@ -169,7 +169,7 @@ lemma completelyPositiveMap_map_star (φ : A →CP A) (a : A) :
   rw [hφxi.star_eq, hxi.star_eq]
 
 /-- Sums of completely positive maps with the same source and target are completely positive. -/
-noncomputable def completelyPositiveMap_add
+noncomputable def completelyPositiveMapAdd
     (φ ψ : CompletelyPositiveMap A B) : CompletelyPositiveMap A B := by
   refine { toLinearMap := φ.toLinearMap + ψ.toLinearMap, map_cstarMatrix_nonneg' := ?_ }
   intro k M hM
@@ -182,12 +182,12 @@ noncomputable def completelyPositiveMap_add
 
 @[simp]
 lemma completelyPositiveMap_add_apply (φ ψ : CompletelyPositiveMap A B) (a : A) :
-    completelyPositiveMap_add φ ψ a = φ a + ψ a :=
+    completelyPositiveMapAdd φ ψ a = φ a + ψ a :=
   rfl
 
 @[simp]
 lemma completelyPositiveMap_add_toLinearMap (φ ψ : CompletelyPositiveMap A B) :
-    (completelyPositiveMap_add φ ψ).toLinearMap = φ.toLinearMap + ψ.toLinearMap :=
+    (completelyPositiveMapAdd φ ψ).toLinearMap = φ.toLinearMap + ψ.toLinearMap :=
   rfl
 
 /-! ### Completely positive semigroups -/
@@ -200,13 +200,13 @@ structure CompletelyPositiveSemigroup (A : Type*) [OperatorAlgebra A] where
   /-- The completely positive map at each nonnegative time. -/
   map : ℝ≥0 → A →CP A
   /-- The map at time zero is the identity. -/
-  map_zero : map 0 = completelyPositiveMap_id A
+  map_zero : map 0 = completelyPositiveMapId A
   /-- The semigroup composition law. -/
   map_add : ∀ s t,
-    map (s + t) = completelyPositiveMap_comp (map s) (map t)
+    map (s + t) = completelyPositiveMapComp (map s) (map t)
   /-- Continuity in the operator norm. -/
   continuous : Continuous (fun t =>
-    completelyPositiveMap_toContinuousLinearMap (map t))
+    completelyPositiveMapToContinuousLinearMap (map t))
 
 namespace CompletelyPositiveSemigroup
 
@@ -225,7 +225,7 @@ lemma map_add_apply (Φ : CompletelyPositiveSemigroup A) (s t : ℝ≥0) (a : A)
 end CompletelyPositiveSemigroup
 
 /-- The zero map is completely positive. -/
-noncomputable def completelyPositiveMap_zero : CompletelyPositiveMap A B := by
+noncomputable def completelyPositiveMapZero : CompletelyPositiveMap A B := by
   refine { toLinearMap := 0, map_cstarMatrix_nonneg' := ?_ }
   intro k M hM
   change 0 ≤ (0 : CStarMatrix (Fin k) (Fin k) B)
@@ -233,71 +233,71 @@ noncomputable def completelyPositiveMap_zero : CompletelyPositiveMap A B := by
 
 @[simp]
 lemma completelyPositiveMap_zero_apply (a : A) :
-    completelyPositiveMap_zero (A := A) (B := B) a = 0 :=
+    completelyPositiveMapZero (A := A) (B := B) a = 0 :=
   rfl
 
 @[simp]
 lemma completelyPositiveMap_zero_toLinearMap :
-    (completelyPositiveMap_zero (A := A) (B := B)).toLinearMap = 0 :=
+    (completelyPositiveMapZero (A := A) (B := B)).toLinearMap = 0 :=
   rfl
 
 instance completelyPositiveMap_add_commutative :
-    Std.Commutative (completelyPositiveMap_add (A := A) (B := B)) where
+    Std.Commutative (completelyPositiveMapAdd (A := A) (B := B)) where
   comm φ ψ := by
     apply DFunLike.coe_injective
     funext a
     simp [add_comm]
 
 instance completelyPositiveMap_add_associative :
-    Std.Associative (completelyPositiveMap_add (A := A) (B := B)) where
+    Std.Associative (completelyPositiveMapAdd (A := A) (B := B)) where
   assoc φ ψ χ := by
     apply DFunLike.coe_injective
     funext a
     simp [add_assoc]
 
 /- A finite sum of completely positive maps is completely positive. -/
-noncomputable def completelyPositiveMap_finsetSum {ι : Type*} (s : Finset ι)
+noncomputable def completelyPositiveMapFinsetSum {ι : Type*} (s : Finset ι)
     (φ : ι → CompletelyPositiveMap A B) : CompletelyPositiveMap A B :=
-  Finset.fold (completelyPositiveMap_add (A := A) (B := B))
-    completelyPositiveMap_zero φ s
+  Finset.fold (completelyPositiveMapAdd (A := A) (B := B))
+    completelyPositiveMapZero φ s
 
 lemma completelyPositiveMap_finsetSum_toLinearMap {ι : Type*} (s : Finset ι)
     (φ : ι → CompletelyPositiveMap A B) :
-    (completelyPositiveMap_finsetSum s φ).toLinearMap =
+    (completelyPositiveMapFinsetSum s φ).toLinearMap =
       ∑ i ∈ s, (φ i).toLinearMap := by
   classical
   induction s using Finset.induction_on with
   | empty =>
-      simp [completelyPositiveMap_finsetSum]
+      simp [completelyPositiveMapFinsetSum]
   | @insert i s hi ih =>
-      rw [completelyPositiveMap_finsetSum, Finset.fold_insert hi,
+      rw [completelyPositiveMapFinsetSum, Finset.fold_insert hi,
         completelyPositiveMap_add_toLinearMap]
       have ih' :
-          (Finset.fold (completelyPositiveMap_add (A := A) (B := B))
-            completelyPositiveMap_zero φ s).toLinearMap =
+          (Finset.fold (completelyPositiveMapAdd (A := A) (B := B))
+            completelyPositiveMapZero φ s).toLinearMap =
             ∑ i ∈ s, (φ i).toLinearMap := by
         exact ih
       rw [ih', Finset.sum_insert hi]
 
 lemma completelyPositiveMap_finsetSum_apply {ι : Type*} (s : Finset ι)
     (φ : ι → CompletelyPositiveMap A B) (a : A) :
-    completelyPositiveMap_finsetSum s φ a = ∑ i ∈ s, φ i a := by
+    completelyPositiveMapFinsetSum s φ a = ∑ i ∈ s, φ i a := by
   classical
   induction s using Finset.induction_on with
   | empty =>
-      simp [completelyPositiveMap_finsetSum]
+      simp [completelyPositiveMapFinsetSum]
   | @insert i s hi ih =>
-      rw [completelyPositiveMap_finsetSum, Finset.fold_insert hi]
+      rw [completelyPositiveMapFinsetSum, Finset.fold_insert hi]
       simp only [completelyPositiveMap_add_apply, Finset.sum_insert hi]
       have ih' :
-          (Finset.fold (completelyPositiveMap_add (A := A) (B := B))
-            completelyPositiveMap_zero φ s) a =
+          (Finset.fold (completelyPositiveMapAdd (A := A) (B := B))
+            completelyPositiveMapZero φ s) a =
             ∑ i ∈ s, φ i a := by
         exact ih
       rw [ih']
 
 /-- Multiplication of a completely positive map by a nonnegative real scalar. -/
-noncomputable def completelyPositiveMap_real_smul
+noncomputable def completelyPositiveMapRealSmul
     (r : ℝ) (hr : 0 ≤ r) (φ : CompletelyPositiveMap A B) :
     CompletelyPositiveMap A B := by
   refine { toLinearMap := (r : ℂ) • φ.toLinearMap, map_cstarMatrix_nonneg' := ?_ }
@@ -311,27 +311,27 @@ noncomputable def completelyPositiveMap_real_smul
 @[simp]
 lemma completelyPositiveMap_real_smul_apply
     (r : ℝ) (hr : 0 ≤ r) (φ : CompletelyPositiveMap A B) (a : A) :
-    completelyPositiveMap_real_smul r hr φ a = (r : ℂ) • φ a :=
+    completelyPositiveMapRealSmul r hr φ a = (r : ℂ) • φ a :=
   rfl
 
 @[simp]
 lemma completelyPositiveMap_real_smul_toLinearMap
     (r : ℝ) (hr : 0 ≤ r) (φ : CompletelyPositiveMap A B) :
-    (completelyPositiveMap_real_smul r hr φ).toLinearMap = (r : ℂ) • φ.toLinearMap :=
+    (completelyPositiveMapRealSmul r hr φ).toLinearMap = (r : ℂ) • φ.toLinearMap :=
   rfl
 
 /-! ### Positive exponential approximants -/
 
 noncomputable def cpPow (φ : CompletelyPositiveMap A A) : ℕ → CompletelyPositiveMap A A
-  | 0 => completelyPositiveMap_id A
-  | n + 1 => completelyPositiveMap_comp φ (cpPow φ n)
+  | 0 => completelyPositiveMapId A
+  | n + 1 => completelyPositiveMapComp φ (cpPow φ n)
 
 lemma cpPow_toLinearMap (φ : CompletelyPositiveMap A A) (n : ℕ) :
     (cpPow φ n).toLinearMap = φ.toLinearMap ^ n := by
   induction n with
   | zero =>
     ext a
-    simp [cpPow, completelyPositiveMap_id]
+    simp [cpPow, completelyPositiveMapId]
   | succ n ih =>
     change φ.toLinearMap.comp (cpPow φ n).toLinearMap = _
     rw [ih, pow_succ']
@@ -343,7 +343,7 @@ lemma cpPow_apply (φ : CompletelyPositiveMap A A) (n : ℕ) (a : A) :
   rw [cpPow_toLinearMap]
 
 lemma cpPow_id (n : ℕ) :
-    cpPow (completelyPositiveMap_id A) n = completelyPositiveMap_id A := by
+    cpPow (completelyPositiveMapId A) n = completelyPositiveMapId A := by
   induction n with
   | zero => rfl
   | succ n ih =>
@@ -359,22 +359,22 @@ scalar multiple of a CP map need not be CP. -/
 noncomputable def cpExpPartial (φ : CompletelyPositiveMap A A) (t : ℝ) (n : ℕ)
     (ht : 0 ≤ t) : CompletelyPositiveMap A A :=
   match n with
-  | 0 => completelyPositiveMap_id A
+  | 0 => completelyPositiveMapId A
   | n + 1 =>
-    completelyPositiveMap_add (cpExpPartial φ t n ht)
-      (completelyPositiveMap_real_smul ((Nat.factorial (n + 1) : ℝ)⁻¹) (by positivity)
-        (cpPow (completelyPositiveMap_real_smul t ht φ) (n + 1)))
+    completelyPositiveMapAdd (cpExpPartial φ t n ht)
+      (completelyPositiveMapRealSmul ((Nat.factorial (n + 1) : ℝ)⁻¹) (by positivity)
+        (cpPow (completelyPositiveMapRealSmul t ht φ) (n + 1)))
 
 lemma cpExpPartial_toLinearMap (φ : CompletelyPositiveMap A A) (t : ℝ)
     (ht : 0 ≤ t) (n : ℕ) :
     (cpExpPartial φ t n ht).toLinearMap =
       ∑ k ∈ Finset.range (n + 1),
         (Nat.factorial k : ℝ)⁻¹ •
-          (t • completelyPositiveMap_toContinuousLinearMap φ) ^ k := by
+          (t • completelyPositiveMapToContinuousLinearMap φ) ^ k := by
   induction n with
   | zero =>
     ext a
-    simp [cpExpPartial, completelyPositiveMap_id]
+    simp [cpExpPartial, completelyPositiveMapId]
   | succ n ih =>
     rw [cpExpPartial]
     rw [completelyPositiveMap_add_toLinearMap,
@@ -385,27 +385,27 @@ lemma cpExpPartial_toLinearMap (φ : CompletelyPositiveMap A A) (t : ℝ)
     · simp only [Finset.sum_range_succ]
     · rw [cpPow_toLinearMap]
       ext a
-      simp [show (t • completelyPositiveMap_toContinuousLinearMap φ).toLinearMap =
+      simp [show (t • completelyPositiveMapToContinuousLinearMap φ).toLinearMap =
         (t : ℂ) • φ.toLinearMap by rfl, pow_succ]
       congr 2
       norm_num
 
 noncomputable def cpExpPartialCLM (φ : CompletelyPositiveMap A A) (t : ℝ)
     (n : ℕ) (ht : 0 ≤ t) : A →L[ℂ] A :=
-  completelyPositiveMap_toContinuousLinearMap (cpExpPartial φ t n ht)
+  completelyPositiveMapToContinuousLinearMap (cpExpPartial φ t n ht)
 
 lemma cpExpPartialCLM_eq_sum (φ : CompletelyPositiveMap A A) (t : ℝ)
     (ht : 0 ≤ t) (n : ℕ) :
     cpExpPartialCLM φ t n ht =
       ∑ k ∈ Finset.range (n + 1),
         (Nat.factorial k : ℝ)⁻¹ •
-          (t • completelyPositiveMap_toContinuousLinearMap φ) ^ k := by
+          (t • completelyPositiveMapToContinuousLinearMap φ) ^ k := by
   ext a
   change (cpExpPartial φ t n ht).toLinearMap a = _
   rw [show (cpExpPartial φ t n ht).toLinearMap =
       ∑ k ∈ Finset.range (n + 1),
         (Nat.factorial k : ℝ)⁻¹ •
-          (t • completelyPositiveMap_toContinuousLinearMap φ) ^ k by
+          (t • completelyPositiveMapToContinuousLinearMap φ) ^ k by
     exact cpExpPartial_toLinearMap φ t ht n]
   rfl
 
@@ -413,7 +413,7 @@ lemma cpExpPartialCLM_eq_sum (φ : CompletelyPositiveMap A A) (t : ℝ)
 
 The hypothesis is written at the matrix-amplification level so it can be fed directly by finite
 product-formula approximants without first constructing bundled CP maps for every approximant. -/
-noncomputable def completelyPositiveMap_of_tendsto
+noncomputable def completelyPositiveMapOfTendsto
     (φn : ℕ → A →L[ℂ] B)
     (hCP : ∀ n k (M : CStarMatrix (Fin k) (Fin k) A),
       0 ≤ M → 0 ≤ M.map (φn n).toLinearMap)
@@ -434,18 +434,18 @@ noncomputable def completelyPositiveMap_of_tendsto
   · filter_upwards [] with n
     exact hCP n k M hM
 
-/-- The bundled form of `completelyPositiveMap_of_tendsto`.
+/-- The bundled form of `completelyPositiveMapOfTendsto`.
 
 This is the form used by product formulas: the approximants already carry complete positivity,
 while convergence is checked only for their bounded linear realizations. -/
-noncomputable def completelyPositiveMap_of_tendsto_bundled
+noncomputable def completelyPositiveMapOfTendstoBundled
     (φn : ℕ → (A →CP B)) (φ : A →L[ℂ] B)
     (hlim : Tendsto
-      (fun n => completelyPositiveMap_toContinuousLinearMap (φn n))
+      (fun n => completelyPositiveMapToContinuousLinearMap (φn n))
       atTop (nhds φ)) :
     CompletelyPositiveMap A B := by
-  apply completelyPositiveMap_of_tendsto
-    (fun n => completelyPositiveMap_toContinuousLinearMap (φn n))
+  apply completelyPositiveMapOfTendsto
+    (fun n => completelyPositiveMapToContinuousLinearMap (φn n))
     (hCP := by
       intro n k M hM
       change 0 ≤ M.map (φn n).toLinearMap
@@ -458,10 +458,10 @@ noncomputable def completelyPositiveMap_of_tendsto_bundled
 lemma completelyPositiveMap_of_tendsto_toContinuousLinearMap
     (φn : ℕ → (A →CP B)) (φ : A →L[ℂ] B)
     (hlim : Tendsto
-      (fun n => completelyPositiveMap_toContinuousLinearMap (φn n))
+      (fun n => completelyPositiveMapToContinuousLinearMap (φn n))
       atTop (nhds φ)) :
-    completelyPositiveMap_toContinuousLinearMap
-      (completelyPositiveMap_of_tendsto_bundled φn φ hlim) = φ := by
+    completelyPositiveMapToContinuousLinearMap
+      (completelyPositiveMapOfTendstoBundled φn φ hlim) = φ := by
   ext a
   rfl
 
@@ -470,17 +470,17 @@ lemma completelyPositiveMap_of_tendsto_toContinuousLinearMap
 The approximants need not themselves satisfy the semigroup law.  It is enough that their bounded
 limits do; this is the form used by product formulas, where finite-step maps are CP and the
 semigroup law appears only after taking the limit. -/
-noncomputable def CompletelyPositiveSemigroup.of_tendsto
+noncomputable def CompletelyPositiveSemigroup.ofTendsto
     (approx : ℝ≥0 → ℕ → (A →CP A))
     (limit : ℝ≥0 → A →L[ℂ] A)
     (hlim : ∀ t,
       Tendsto
-        (fun n => completelyPositiveMap_toContinuousLinearMap (approx t n))
+        (fun n => completelyPositiveMapToContinuousLinearMap (approx t n))
         atTop (nhds (limit t)))
     (hzero : limit 0 = (1 : A →L[ℂ] A))
     (hadd : ∀ s t, limit (s + t) = limit s * limit t)
     (hcont : Continuous limit) : CompletelyPositiveSemigroup A where
-  map := fun t => completelyPositiveMap_of_tendsto_bundled
+  map := fun t => completelyPositiveMapOfTendstoBundled
     (fun n => approx t n) (limit t) (hlim t)
   map_zero := by
     apply DFunLike.coe_injective
@@ -506,17 +506,17 @@ noncomputable def CompletelyPositiveSemigroup.of_tendsto
 This is a closure theorem for the positive exponential series.  It is deliberately separate from
 the GKSL theorem: a GKSL generator is generally not itself CP, so its exponential requires the
 Euler/product-formula argument supplied by the dynamics layer. -/
-noncomputable def completelyPositiveMap_exp_of_nonneg
+noncomputable def completelyPositiveMapExpOfNonneg
     (φ : CompletelyPositiveMap A A) (t : ℝ) (ht : 0 ≤ t) :
     CompletelyPositiveMap A A := by
-  let J : A →L[ℂ] A := completelyPositiveMap_toContinuousLinearMap φ
+  let J : A →L[ℂ] A := completelyPositiveMapToContinuousLinearMap φ
   let φn : ℕ → A →L[ℂ] A := fun n => cpExpPartialCLM φ t n ht
   have hlim : Tendsto φn atTop (nhds (NormedSpace.exp (t • J))) := by
     have hseries :=
       (NormedSpace.exp_series_hasSum_exp' (𝕂 := ℝ) (t • J)).tendsto_sum_nat
     have hshift := hseries.comp (tendsto_add_atTop_nat 1)
     simpa [φn, cpExpPartialCLM_eq_sum, J, Function.comp_def] using hshift
-  refine completelyPositiveMap_of_tendsto φn ?_ (NormedSpace.exp (t • J)) hlim
+  refine completelyPositiveMapOfTendsto φn ?_ (NormedSpace.exp (t • J)) hlim
   intro n k M hM
   exact (cpExpPartial φ t n ht).map_cstarMatrix_nonneg' k M hM
 

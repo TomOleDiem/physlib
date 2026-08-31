@@ -470,7 +470,7 @@ variable {μS : QuantumMechanics.WOTSpectralMeasure ℝ H}
 
 /-- A bounded self-adjoint realization automatically has the maximal square-moment domain when
 its spectral measure is boundedly supported. -/
-def of_boundedSupport (D : SelfAdjointSpectralTheorem T μS)
+def ofBoundedSupport (D : SelfAdjointSpectralTheorem T μS)
     (hdom : (T.domain : Set H) = Set.univ) {C : ℝ}
     (hC : HasBoundedSpectralSupport μS C) :
     DomainAwareSelfAdjointSpectralTheorem T μS where

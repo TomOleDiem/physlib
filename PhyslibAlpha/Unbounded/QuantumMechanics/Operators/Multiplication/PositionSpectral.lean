@@ -76,11 +76,11 @@ lemma schwartzPositionOperator_isEssentiallySelfAdjoint
   exact positionOperator_isSelfAdjoint volume i
 
 /-- Full spectral data for the maximal position operator itself. -/
-def positionOperator_spectralData
+def positionOperatorSpectralData
     [IsFiniteMeasureOnCompacts (volume : Measure (Space d))] (i : Fin d) :
     OperatorAlgebra.EssentialSelfAdjointSpectralData (positionOperator (μ := volume) i) := by
   rw [positionOperator_eq_realMultiplicationOperator i]
-  exact realMultiplicationOperator_spectralData (μ := volume) (by
+  exact realMultiplicationOperatorSpectralData (μ := volume) (by
     have heq : Space.coord i = ⇑(Space.coordCLM i) := by
       funext x
       exact (Space.coordCLM_apply i x).symm
@@ -88,7 +88,7 @@ def positionOperator_spectralData
     exact (Space.coordCLM i).continuous.measurable)
 
 /-- Full spectral data for the Schwartz position restriction. -/
-def schwartzPositionOperator_spectralData
+def schwartzPositionOperatorSpectralData
     [IsFiniteMeasureOnCompacts (volume : Measure (Space d))] (i : Fin d) :
     OperatorAlgebra.EssentialSelfAdjointSpectralData (schwartzPositionOperator i) where
   essentiallySelfAdjoint := schwartzPositionOperator_isEssentiallySelfAdjoint i
@@ -102,7 +102,7 @@ def schwartzPositionOperator_spectralData
   spectralTheorem := by
     rw [schwartzPositionOperator_closure_eq_positionOperator i,
       positionOperator_eq_realMultiplicationOperator i]
-    exact realMultiplicationOperator_domainAwareSelfAdjointSpectralTheorem
+    exact realMultiplicationOperatorDomainAwareSelfAdjointSpectralTheorem
       (μ := volume) (by
         have heq : Space.coord i = ⇑(Space.coordCLM i) := by
           funext x

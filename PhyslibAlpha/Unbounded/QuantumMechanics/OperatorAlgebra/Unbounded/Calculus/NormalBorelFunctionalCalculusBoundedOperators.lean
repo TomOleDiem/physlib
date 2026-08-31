@@ -34,7 +34,7 @@ variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteS
 /-- The normal-functional real spectral measure of a bounded self-adjoint operator on `H`. -/
 noncomputable def boundedObservableNormalPVM
     (a : Observable (B(H))) : NormalPVM ℝ (B(H)) :=
-  wotSpectralMeasure_toNormalPVM_of_traceClass
+  wotSpectralMeasureToNormalPVMOfTraceClass
     (boundedSelfAdjointSpectralMeasure (a : H →L[ℂ] H) a.property)
 
 @[simp]

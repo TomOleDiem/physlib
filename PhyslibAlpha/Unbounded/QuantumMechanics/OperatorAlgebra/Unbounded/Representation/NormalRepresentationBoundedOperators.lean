@@ -122,7 +122,7 @@ noncomputable def normalRepresentationAffiliationBridge :
 /-- Convert any normal-functional PVM in `B(H)` to its weak-operator spectral measure under the
 identity representation.  The countable-additivity proof is supplied by the trace-class
 representation of matrix coefficients above. -/
-noncomputable def normalPVM_toWOTSpectralMeasure
+noncomputable def normalPVMToWOTSpectralMeasure
     {X : Type*} [MeasurableSpace X] (E : NormalPVM X (B(H))) :
     QuantumMechanics.WOTSpectralMeasure X H :=
   NormalPVM.toWOTSpectralMeasure E (representation (H := H))
@@ -132,9 +132,9 @@ noncomputable def normalPVM_toWOTSpectralMeasure
 @[simp]
 lemma normalPVM_toWOTSpectralMeasure_apply
     {X : Type*} [MeasurableSpace X] (E : NormalPVM X (B(H))) (S : Set X) :
-    normalPVM_toWOTSpectralMeasure E S =
+    normalPVMToWOTSpectralMeasure E S =
       ContinuousLinearMapWOT.ofCLM (E S) := by
-  rw [normalPVM_toWOTSpectralMeasure, NormalPVM.toWOTSpectralMeasure_apply]
+  rw [normalPVMToWOTSpectralMeasure, NormalPVM.toWOTSpectralMeasure_apply]
   rfl
 
 /-! ### Trace-class additivity on finite-rank functionals
@@ -163,13 +163,13 @@ lemma normalPVM_predual_m_iUnion_rankOne
   have hg : Continuous g := by
     dsimp [g]
     fun_prop
-  have hsum := (normalPVM_toWOTSpectralMeasure E).toVectorMeasure.m_iUnion hs hdisj
+  have hsum := (normalPVMToWOTSpectralMeasure E).toVectorMeasure.m_iUnion hs hdisj
   have hsum' := hsum.map g hg
   change HasSum
-      (fun n => g (normalPVM_toWOTSpectralMeasure E (s n)))
-      (g (normalPVM_toWOTSpectralMeasure E (⋃ n, s n))) at hsum'
+      (fun n => g (normalPVMToWOTSpectralMeasure E (s n)))
+      (g (normalPVMToWOTSpectralMeasure E (⋃ n, s n))) at hsum'
   have hterm (S : Set X) :
-      g (normalPVM_toWOTSpectralMeasure E S) =
+      g (normalPVMToWOTSpectralMeasure E S) =
         WStarAlgebra.predualPairing (TraceClass.rankOneTraceClass x y) (E S) := by
     rw [normalPVM_toWOTSpectralMeasure_apply]
     change ⟪y, (E S) x⟫_ℂ = _
@@ -225,18 +225,18 @@ lemma normalPVM_predual_m_iUnion_of_rankOneSpan
 
 /-- The predual-functional route to the same concrete PVM conversion.  This form is useful when
 the source PVM already carries its σ-additivity witness against the chosen trace-class predual. -/
-noncomputable def predualPVM_toWOTSpectralMeasure
+noncomputable def predualPVMToWOTSpectralMeasure
     {X : Type*} [MeasurableSpace X] (E : PredualPVM X (B(H))) :
     QuantumMechanics.WOTSpectralMeasure X H :=
-  NormalPVM.toWOTSpectralMeasure_of_predual E (representation (H := H))
+  NormalPVM.toWOTSpectralMeasureOfPredual E (representation (H := H))
     (predualMatrixCoefficientCertificate (H := H))
 
 @[simp]
 lemma predualPVM_toWOTSpectralMeasure_apply
     {X : Type*} [MeasurableSpace X] (E : PredualPVM X (B(H))) (S : Set X) :
-    predualPVM_toWOTSpectralMeasure E S =
+    predualPVMToWOTSpectralMeasure E S =
       ContinuousLinearMapWOT.ofCLM (E S) := by
-  rw [predualPVM_toWOTSpectralMeasure,
+  rw [predualPVMToWOTSpectralMeasure,
     NormalPVM.toWOTSpectralMeasure_of_predual_apply]
   rfl
 

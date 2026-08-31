@@ -40,8 +40,8 @@ noncomputable def matrixMapToContinuousLinearMap (L : MatrixMap d d ℂ) :
 
 noncomputable def matrixJumpCPMap (V : ι → Matrix d d ℂ) :
     Matrix d d ℂ →CP Matrix d d ℂ :=
-  completelyPositiveMap_finsetSum Finset.univ
-    (fun i => completelyPositiveMap_conjugation (V i))
+  completelyPositiveMapFinsetSum Finset.univ
+    (fun i => completelyPositiveMapConjugation (V i))
 
 @[simp]
 lemma matrixJumpCPMap_apply (V : ι → Matrix d d ℂ) (X : Matrix d d ℂ) :
@@ -75,14 +75,14 @@ lemma matrixChristensenEvansData_generator_apply
 lemma finiteDimensional_generator_isChristensenEvans
     (Φ : FiniteDimensionalHeisenbergQuantumDynamicalSemigroup d) :
     IsChristensenEvansGenerator
-      (matrixMapToContinuousLinearMap (finite_dimensional_generator Φ).map) := by
+      (matrixMapToContinuousLinearMap (finiteDimensionalGenerator Φ).map) := by
   obtain ⟨H, hH, V, hL⟩ := exists_lindblad_generator_of_continuous Φ
   refine ⟨matrixChristensenEvansData H hH V, ?_⟩
   apply ContinuousLinearMap.ext
   intro X
   rw [matrixChristensenEvansData_generator_apply]
   change (matrixLindbladGenerator H hH V) X =
-    (finite_dimensional_generator Φ).map X
+    (finiteDimensionalGenerator Φ).map X
   rw [← hL]
 
 end OperatorAlgebra

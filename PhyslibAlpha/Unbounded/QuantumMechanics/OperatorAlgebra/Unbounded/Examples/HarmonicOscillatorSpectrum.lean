@@ -26,7 +26,7 @@ oscillator of `Example/HarmonicOscillator.lean`.
 * `OperatorAlgebra.Unbounded.Example.hamiltonianSpectralMeasure_apply_eigenbasis` : each
   eigenbasis vector is fixed by the spectral projection at its eigenvalue.
 * `OperatorAlgebra.Unbounded.Example.H_pp_eq_top` : the oscillator's pure-point subspace is the
-  whole Hilbert space, i.e. `H_ac = H_sc = ⊥` (`H_ac_eq_bot`, `H_sc_eq_bot`) — **the oscillator has
+  whole Hilbert space, i.e. `Hac = Hsc = ⊥` (`H_ac_eq_bot`, `H_sc_eq_bot`) — **the oscillator has
   purely point spectrum**.
 * `OperatorAlgebra.Unbounded.Example.range_eigenValue_subset_pointSpectrumSet` and
   `.pointSpectrumSet_eq_range_eigenValue` : every physical eigenvalue is an atom of the spectral
@@ -150,7 +150,7 @@ theorem eigenValue_mem_pointSpectrumSet (n : ℕ) :
 
 /-- **Every eigenbasis vector lies in the pure-point subspace.** -/
 theorem eigenbasis_mem_H_pp (n : ℕ) :
-    Q.eigenbasis n ∈ WOTSpectralMeasure.H_pp (hamiltonianSpectralData Q).spectralMeasure := by
+    Q.eigenbasis n ∈ WOTSpectralMeasure.Hpp (hamiltonianSpectralData Q).spectralMeasure := by
   set E := (hamiltonianSpectralData Q).spectralMeasure with hE
   set S := WOTSpectralMeasure.pointSpectrumSet E with hS
   have hSmeas : MeasurableSet S := WOTSpectralMeasure.measurableSet_pointSpectrumSet E
@@ -167,42 +167,42 @@ theorem eigenbasis_mem_H_pp (n : ℕ) :
     rwa [hamiltonianSpectralMeasure_apply_eigenbasis Q n] at h1
   exact ⟨Q.eigenbasis n, hfix⟩
 
-/-- **The harmonic oscillator has purely point spectrum: `H_pp = ⊤`.** `H_pp` is a closed
+/-- **The harmonic oscillator has purely point spectrum: `Hpp = ⊤`.** `Hpp` is a closed
 submodule (`isClosed_H_pp`) containing every eigenbasis vector, hence containing the (dense)
 closure of their span, i.e. the whole space. -/
 theorem H_pp_eq_top :
-    WOTSpectralMeasure.H_pp (hamiltonianSpectralData Q).spectralMeasure = ⊤ := by
+    WOTSpectralMeasure.Hpp (hamiltonianSpectralData Q).spectralMeasure = ⊤ := by
   set E := (hamiltonianSpectralData Q).spectralMeasure with hE
-  have hspan_le : Submodule.span ℂ (Set.range (⇑Q.eigenbasis)) ≤ WOTSpectralMeasure.H_pp E := by
+  have hspan_le : Submodule.span ℂ (Set.range (⇑Q.eigenbasis)) ≤ WOTSpectralMeasure.Hpp E := by
     apply Submodule.span_le.mpr
     rintro _ ⟨n, rfl⟩
     exact eigenbasis_mem_H_pp Q n
   have hle : (Submodule.span ℂ (Set.range (⇑Q.eigenbasis))).topologicalClosure ≤
-      WOTSpectralMeasure.H_pp E :=
+      WOTSpectralMeasure.Hpp E :=
     Submodule.topologicalClosure_minimal _ hspan_le (WOTSpectralMeasure.isClosed_H_pp E)
   rw [Q.eigenbasis.dense_span] at hle
   exact top_le_iff.mp hle
 
 /-- **The continuous subspace is trivial.** -/
 theorem H_cont_eq_bot :
-    WOTSpectralMeasure.H_cont (hamiltonianSpectralData Q).spectralMeasure = ⊥ := by
-  rw [WOTSpectralMeasure.H_cont, H_pp_eq_top Q, Submodule.top_orthogonal_eq_bot]
+    WOTSpectralMeasure.Hcont (hamiltonianSpectralData Q).spectralMeasure = ⊥ := by
+  rw [WOTSpectralMeasure.Hcont, H_pp_eq_top Q, Submodule.top_orthogonal_eq_bot]
 
 /-- **The absolutely-continuous subspace is trivial.** -/
 theorem H_ac_eq_bot :
-    WOTSpectralMeasure.H_ac (hamiltonianSpectralData Q).spectralMeasure = ⊥ := by
+    WOTSpectralMeasure.Hac (hamiltonianSpectralData Q).spectralMeasure = ⊥ := by
   set E := (hamiltonianSpectralData Q).spectralMeasure with hE
-  have hle : WOTSpectralMeasure.H_ac E ≤ WOTSpectralMeasure.H_cont E :=
-    E.H_cont.map_subtype_le E.isPureAC_submodule
+  have hle : WOTSpectralMeasure.Hac E ≤ WOTSpectralMeasure.Hcont E :=
+    E.Hcont.map_subtype_le E.isPureACSubmodule
   rw [H_cont_eq_bot Q] at hle
   exact le_bot_iff.mp hle
 
 /-- **The singular-continuous subspace is trivial.** -/
 theorem H_sc_eq_bot :
-    WOTSpectralMeasure.H_sc (hamiltonianSpectralData Q).spectralMeasure = ⊥ := by
+    WOTSpectralMeasure.Hsc (hamiltonianSpectralData Q).spectralMeasure = ⊥ := by
   set E := (hamiltonianSpectralData Q).spectralMeasure with hE
-  have hle : WOTSpectralMeasure.H_sc E ≤ WOTSpectralMeasure.H_cont E :=
-    E.H_cont.map_subtype_le E.isPureSC_submodule
+  have hle : WOTSpectralMeasure.Hsc E ≤ WOTSpectralMeasure.Hcont E :=
+    E.Hcont.map_subtype_le E.isPureSCSubmodule
   rw [H_cont_eq_bot Q] at hle
   exact le_bot_iff.mp hle
 

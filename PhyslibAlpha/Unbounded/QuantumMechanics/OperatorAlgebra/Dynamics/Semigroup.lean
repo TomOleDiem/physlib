@@ -53,12 +53,12 @@ namespace QuantumDynamicalSemigroup
 /-- Regard each channel in a dynamical semigroup as its canonical bounded linear map. -/
 noncomputable def continuousLinearMap (Φ : QuantumDynamicalSemigroup A) (t : ℝ≥0) :
     A →L[ℂ] A :=
-  completelyPositiveMap_toContinuousLinearMap (Φ.map t).1
+  completelyPositiveMapToContinuousLinearMap (Φ.map t).1
 
 @[simp]
 lemma continuousLinearMap_apply (Φ : QuantumDynamicalSemigroup A) (t : ℝ≥0) (a : A) :
     Φ.continuousLinearMap t a = Φ.map t a := by
-  show completelyPositiveMap_toContinuousLinearMap (Φ.map t).1 a = _
+  show completelyPositiveMapToContinuousLinearMap (Φ.map t).1 a = _
   rw [completelyPositiveMap_toContinuousLinearMap_apply]
 
 @[simp]

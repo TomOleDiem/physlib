@@ -379,7 +379,7 @@ noncomputable def transferEval (X : Matrix d d ℂ) :
   map_add' M N := by simp
   map_smul' c M := by simp
 
-noncomputable def finite_dimensional_generator
+noncomputable def finiteDimensionalGenerator
     (Φ : FiniteDimensionalHeisenbergQuantumDynamicalSemigroup d) :
     HasFiniteDimensionalHeisenbergGenerator Φ := by
   let K := Classical.choose (Φ.exists_transfer_generator)
@@ -1994,15 +1994,15 @@ lemma HasFiniteDimensionalHeisenbergGenerator.exists_lindblad_generator
 
 lemma finite_dimensional_generator_isGKSL
     (Φ : FiniteDimensionalHeisenbergQuantumDynamicalSemigroup d) :
-    IsGKSLGenerator (finite_dimensional_generator Φ).map (d × d) := by
-  exact (finite_dimensional_generator Φ).isGKSLGenerator
+    IsGKSLGenerator (finiteDimensionalGenerator Φ).map (d × d) := by
+  exact (finiteDimensionalGenerator Φ).isGKSLGenerator
 
 lemma exists_lindblad_generator_of_continuous
     (Φ : FiniteDimensionalHeisenbergQuantumDynamicalSemigroup d) :
     ∃ (H : Matrix d d ℂ) (hH : H.conjTranspose = H)
       (V : (d × d) → Matrix d d ℂ),
-      (finite_dimensional_generator Φ).map = matrixLindbladGenerator H hH V := by
-  exact (finite_dimensional_generator Φ).exists_lindblad_generator
+      (finiteDimensionalGenerator Φ).map = matrixLindbladGenerator H hH V := by
+  exact (finiteDimensionalGenerator Φ).exists_lindblad_generator
 
 lemma HasFiniteDimensionalHeisenbergGenerator.exists_schrodinger_lindblad
     {Φ : FiniteDimensionalHeisenbergQuantumDynamicalSemigroup d}

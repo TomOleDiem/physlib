@@ -315,7 +315,7 @@ lemma momentumOperator_isEssentiallySelfAdjoint
 
 /-- Spectral data for the actual Schwartz momentum operator, obtained by closing it and using
 the Fourier multiplication model. -/
-def momentumOperator_spectralData
+def momentumOperatorSpectralData
     [IsFiniteMeasureOnCompacts (volume : Measure (Space d))] (i : Fin d) :
     OperatorAlgebra.EssentialSelfAdjointSpectralData (momentumOperator i) where
   essentiallySelfAdjoint := momentumOperator_isEssentiallySelfAdjoint i

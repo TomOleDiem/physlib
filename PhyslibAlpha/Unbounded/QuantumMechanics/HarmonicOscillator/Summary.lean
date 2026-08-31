@@ -75,7 +75,7 @@ lemma summary_eigenfunction_is_eigenvector (n : ℕ) :
 Hilbert space, so the Hamiltonian is diagonal in that basis — there is no continuous or
 scattering part left over to find. -/
 lemma summary_pure_point_spectrum :
-    H_pp (differentialHamiltonianSpectralMeasure q) = ⊤ :=
+    Hpp (differentialHamiltonianSpectralMeasure q) = ⊤ :=
   H_pp_eq_top q
 
 /-- 6. **The full answer.** `E` is an energy level of the actual physical Hamiltonian if and only

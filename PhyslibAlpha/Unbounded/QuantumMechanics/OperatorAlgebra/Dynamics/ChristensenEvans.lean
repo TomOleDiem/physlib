@@ -126,7 +126,7 @@ variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteS
 This is the concrete bridge used by finite-noise Lindblad data; a general CP map needs the
 separate Stinespring existence theorem. -/
 noncomputable def conjugation (W : B(H)) :
-    StinespringWitness (B(H)) H H (completelyPositiveMap_conjugation W) where
+    StinespringWitness (B(H)) H H (completelyPositiveMapConjugation W) where
   representation := StarAlgHom.id ℂ B(H)
   implementing := W
   map_eq := by
@@ -178,8 +178,8 @@ lemma finiteKrausDiagonalMap_adjoint (a : B(H)) :
 
 /-- The finite Kraus CP map associated with a family of bounded operators. -/
 noncomputable def finiteKrausCPMap (V : ι → B(H)) : B(H) →CP B(H) :=
-  completelyPositiveMap_finsetSum Finset.univ
-    (fun i => completelyPositiveMap_conjugation (V i))
+  completelyPositiveMapFinsetSum Finset.univ
+    (fun i => completelyPositiveMapConjugation (V i))
 
 /-- The bounded operator that sends a vector to its finite family of Kraus images. -/
 noncomputable def finiteKrausImplementing (V : ι → B(H)) :
@@ -810,7 +810,7 @@ variable (D : ChristensenEvansData A)
 
 /-- The bounded jump map underlying the bundled completely positive map. -/
 noncomputable def jumpMap : A →L[ℂ] A :=
-  completelyPositiveMap_toContinuousLinearMap D.jump
+  completelyPositiveMapToContinuousLinearMap D.jump
 
 /-- The effective no-jump operator.
 
@@ -942,7 +942,7 @@ lemma generator_isHermitianPreserving (D : ChristensenEvansData A) :
 
 noncomputable def noJumpEvolution (D : ChristensenEvansData A) (t : ℝ) :
     A →CP A :=
-  completelyPositiveMap_conjugation (NormedSpace.exp (t • D.noJumpOperator))
+  completelyPositiveMapConjugation (NormedSpace.exp (t • D.noJumpOperator))
 
 @[simp]
 lemma noJumpEvolution_apply (D : ChristensenEvansData A) (t : ℝ) (a : A) :
@@ -953,14 +953,14 @@ lemma noJumpEvolution_apply (D : ChristensenEvansData A) (t : ℝ) (a : A) :
 
 @[simp]
 lemma noJumpEvolution_zero (D : ChristensenEvansData A) :
-    D.noJumpEvolution 0 = completelyPositiveMap_id A := by
+    D.noJumpEvolution 0 = completelyPositiveMapId A := by
   apply DFunLike.coe_injective
   funext a
   simp [noJumpEvolution]
 
 lemma noJumpEvolution_add (D : ChristensenEvansData A) (s t : ℝ) :
     D.noJumpEvolution (s + t) =
-      completelyPositiveMap_comp (D.noJumpEvolution s) (D.noJumpEvolution t) := by
+      completelyPositiveMapComp (D.noJumpEvolution s) (D.noJumpEvolution t) := by
   apply DFunLike.coe_injective
   funext a
   rw [completelyPositiveMap_comp_apply, noJumpEvolution_apply,
@@ -990,8 +990,8 @@ lemma noJumpEvolution_add (D : ChristensenEvansData A) (s t : ℝ) :
 
 noncomputable def jumpEulerStep (D : ChristensenEvansData A) (t : ℝ≥0) :
     A →CP A :=
-  completelyPositiveMap_add (completelyPositiveMap_id A)
-    (completelyPositiveMap_real_smul (t : ℝ) (by positivity) D.jump)
+  completelyPositiveMapAdd (completelyPositiveMapId A)
+    (completelyPositiveMapRealSmul (t : ℝ) (by positivity) D.jump)
 
 @[simp]
 lemma jumpEulerStep_apply (D : ChristensenEvansData A) (t : ℝ≥0) (a : A) :
@@ -999,14 +999,14 @@ lemma jumpEulerStep_apply (D : ChristensenEvansData A) (t : ℝ≥0) (a : A) :
   rfl
 
 lemma jumpEulerStep_toContinuousLinearMap (D : ChristensenEvansData A) (t : ℝ≥0) :
-    completelyPositiveMap_toContinuousLinearMap (D.jumpEulerStep t) =
+    completelyPositiveMapToContinuousLinearMap (D.jumpEulerStep t) =
       (1 : A →L[ℂ] A) + (t : ℂ) • D.jumpMap := by
   ext a
   simp [jumpEulerStep, jumpMap]
 
 noncomputable def eulerStep (D : ChristensenEvansData A) (t : ℝ≥0) (n : ℕ) :
     A →CP A :=
-  completelyPositiveMap_comp
+  completelyPositiveMapComp
     (D.noJumpEvolution (t / (n + 1)))
     (D.jumpEulerStep (t / (n + 1)))
 
@@ -1016,14 +1016,14 @@ noncomputable def eulerApproximation (D : ChristensenEvansData A) (t : ℝ≥0) 
 
 lemma eulerApproximation_toContinuousLinearMap (D : ChristensenEvansData A)
     (t : ℝ≥0) (n : ℕ) :
-    completelyPositiveMap_toContinuousLinearMap (D.eulerApproximation t n) =
-      (completelyPositiveMap_toContinuousLinearMap (D.eulerStep t n)) ^ (n + 1) := by
+    completelyPositiveMapToContinuousLinearMap (D.eulerApproximation t n) =
+      (completelyPositiveMapToContinuousLinearMap (D.eulerStep t n)) ^ (n + 1) := by
   apply ContinuousLinearMap.ext
   intro a
   rw [completelyPositiveMap_toContinuousLinearMap_apply]
   change (cpPow (D.eulerStep t n) (n + 1)).toLinearMap a = _
   rw [cpPow_toLinearMap]
-  let P := completelyPositiveMap_toContinuousLinearMap (D.eulerStep t n)
+  let P := completelyPositiveMapToContinuousLinearMap (D.eulerStep t n)
   have hP : P.toLinearMap = (D.eulerStep t n).toLinearMap := by
     apply LinearMap.ext
     intro b
@@ -1039,7 +1039,7 @@ lemma eulerApproximation_toContinuousLinearMap (D : ChristensenEvansData A)
 lemma eulerApproximation_tendsto (D : ChristensenEvansData A) [Nontrivial A]
     (t : ℝ≥0) :
     Tendsto
-      (fun n => completelyPositiveMap_toContinuousLinearMap (D.eulerApproximation t n))
+      (fun n => completelyPositiveMapToContinuousLinearMap (D.eulerApproximation t n))
       atTop (nhds (NormedSpace.exp ((t : ℝ) • D.generator))) := by
   let N : A := D.noJumpOperator
   let J : A →L[ℂ] A := D.jumpMap
@@ -1170,13 +1170,13 @@ lemma eulerApproximation_tendsto (D : ChristensenEvansData A) [Nontrivial A]
       ‖(1 : A →L[ℂ] A) + h • (M + J)‖ ≤ 1 + h * c := hlin
       _ ≤ Real.exp (h * c) := by simpa [add_comm] using Real.add_one_le_exp (h * c)
   have hprod := lie_product_formula_of_step a M J c (t : ℝ) (by positivity) hc ha0 ha hqa hr
-  change Tendsto (fun n => completelyPositiveMap_toContinuousLinearMap (D.eulerApproximation t n))
+  change Tendsto (fun n => completelyPositiveMapToContinuousLinearMap (D.eulerApproximation t n))
       atTop (nhds (NormedSpace.exp ((t : ℝ) • D.generator)))
   rw [D.generator_eq_noJumpMap_add_jumpMap]
   convert hprod using 1
   · funext n
     rw [D.eulerApproximation_toContinuousLinearMap]
-    change (completelyPositiveMap_toContinuousLinearMap (D.eulerStep t n)) ^ (n + 1) = _
+    change (completelyPositiveMapToContinuousLinearMap (D.eulerStep t n)) ^ (n + 1) = _
     rw [eulerStep, completelyPositiveMap_comp_toContinuousLinearMap_self,
       jumpEulerStep_toContinuousLinearMap]
     simp [a, M, N, ChristensenEvansData.noJumpOperator,
@@ -1237,31 +1237,31 @@ lemma realEvolution_eq_complex (D : ChristensenEvansData A) (t : ℝ) :
 lemma eulerApproximation_tendsto_nonnegative
     (D : ChristensenEvansData A) [Nontrivial A] (t : ℝ≥0) :
     Tendsto
-      (fun n => completelyPositiveMap_toContinuousLinearMap (D.eulerApproximation t n))
+      (fun n => completelyPositiveMapToContinuousLinearMap (D.eulerApproximation t n))
       atTop (nhds (D.realEvolution (t : ℝ))) := by
   exact D.eulerApproximation_tendsto t
 
 /-- A norm-convergent CP Euler product yields a channel because the exponential fixes `1`. -/
-noncomputable def channel_of_eulerLimit
+noncomputable def channelOfEulerLimit
     (D : ChristensenEvansData A) [Nontrivial A] (t : ℝ≥0)
     (hlim : Tendsto
-      (fun n => completelyPositiveMap_toContinuousLinearMap (D.eulerApproximation t n))
+      (fun n => completelyPositiveMapToContinuousLinearMap (D.eulerApproximation t n))
       atTop (nhds (D.realEvolution (t : ℝ)))) : Channel A A := by
-  let Φ : A →CP A := completelyPositiveMap_of_tendsto_bundled
+  let Φ : A →CP A := completelyPositiveMapOfTendstoBundled
     (fun n => D.eulerApproximation t n) (D.realEvolution (t : ℝ)) hlim
   refine ⟨Φ, ?_⟩
   change D.realEvolution (t : ℝ) 1 = 1
   exact D.realEvolution_apply_one (t : ℝ)
 
 /-- The UCP semigroup obtained from norm-convergent Christensen–Evans Euler products. -/
-noncomputable def quantumDynamicalSemigroup_of_eulerLimit
+noncomputable def quantumDynamicalSemigroupOfEulerLimit
     (D : ChristensenEvansData A) [Nontrivial A]
     (hlim : ∀ t : ℝ≥0,
       Tendsto
-        (fun n => completelyPositiveMap_toContinuousLinearMap (D.eulerApproximation t n))
+        (fun n => completelyPositiveMapToContinuousLinearMap (D.eulerApproximation t n))
         atTop (nhds (D.realEvolution (t : ℝ)))) :
     QuantumDynamicalSemigroup A where
-  map := fun t => D.channel_of_eulerLimit t (hlim t)
+  map := fun t => D.channelOfEulerLimit t (hlim t)
   map_zero := by
     intro a
     change D.realEvolution 0 a = a
@@ -1282,14 +1282,14 @@ noncomputable def quantumDynamicalSemigroup_of_eulerLimit
 
 /-- A Christensen–Evans realization with its norm-convergent product formula is a bounded
 quantum dynamical semigroup with the displayed generator. -/
-noncomputable def boundedQuantumDynamicalSemigroup_of_eulerLimit
+noncomputable def boundedQuantumDynamicalSemigroupOfEulerLimit
     (D : ChristensenEvansData A) [Nontrivial A]
     (hlim : ∀ t : ℝ≥0,
       Tendsto
-        (fun n => completelyPositiveMap_toContinuousLinearMap (D.eulerApproximation t n))
+        (fun n => completelyPositiveMapToContinuousLinearMap (D.eulerApproximation t n))
         atTop (nhds (D.realEvolution (t : ℝ)))) :
     BoundedQuantumDynamicalSemigroup A where
-  toQuantumDynamicalSemigroup := D.quantumDynamicalSemigroup_of_eulerLimit hlim
+  toQuantumDynamicalSemigroup := D.quantumDynamicalSemigroupOfEulerLimit hlim
   generator := D.generator
   map_eq_exp := by
     intro t a
@@ -1301,13 +1301,13 @@ end Evolution
 /-- The canonical UCP semigroup generated by Christensen–Evans data. -/
 noncomputable def quantumDynamicalSemigroup [Nontrivial A]
     (D : ChristensenEvansData A) : QuantumDynamicalSemigroup A :=
-  D.quantumDynamicalSemigroup_of_eulerLimit
+  D.quantumDynamicalSemigroupOfEulerLimit
     (fun t => D.eulerApproximation_tendsto_nonnegative t)
 
 /-- The canonical bounded semigroup realization of Christensen–Evans data. -/
 noncomputable def boundedQuantumDynamicalSemigroup [Nontrivial A]
     (D : ChristensenEvansData A) : BoundedQuantumDynamicalSemigroup A :=
-  D.boundedQuantumDynamicalSemigroup_of_eulerLimit
+  D.boundedQuantumDynamicalSemigroupOfEulerLimit
     (fun t => D.eulerApproximation_tendsto_nonnegative t)
 
 end ChristensenEvansData
@@ -1344,7 +1344,7 @@ compatible with the bounded-generator API.  It deliberately records the shift as
 real scalar data; no choice of Kraus or Stinespring representation is involved. -/
 def HasCompletelyPositiveShift (L : A →L[ℂ] A) : Prop :=
   ∃ r : ℝ≥0, ∃ J : A →CP A,
-    completelyPositiveMap_toContinuousLinearMap J =
+    completelyPositiveMapToContinuousLinearMap J =
       L + (r : ℂ) • (1 : A →L[ℂ] A)
 
 /-- The bounded Hamiltonian commutator associated with an observable. -/
@@ -1368,7 +1368,7 @@ lemma hamiltonianPartOf_apply_one (H : Observable A) :
 commutator.  This is the exact algebraic shape needed for the full Lindblad converse. -/
 def HasHamiltonianCompletelyPositiveShift (L : A →L[ℂ] A) : Prop :=
   ∃ H : Observable A, ∃ r : ℝ≥0, ∃ J : A →CP A,
-    completelyPositiveMap_toContinuousLinearMap J =
+    completelyPositiveMapToContinuousLinearMap J =
       L - hamiltonianPartOf H + (r : ℂ) • (1 : A →L[ℂ] A)
 
 lemma isChristensenEvansGenerator_of_completelyPositiveShift
@@ -1780,7 +1780,7 @@ lemma hasDerivWithinAt_matrix_map
     (G.generator (M i j)) (Set.Ici 0) 0
   exact G.has_deriv (M i j)
 
-noncomputable def positiveLinearMap_toContinuousLinearMap
+noncomputable def positiveLinearMapToContinuousLinearMap
     {B C : Type*} [CStarAlgebra B] [PartialOrder B] [StarOrderedRing B]
       [CStarAlgebra C] [PartialOrder C] [StarOrderedRing C]
     (f : B →ₚ[ℂ] C) : B →L[ℝ] C := by
@@ -1797,8 +1797,8 @@ lemma positiveLinearMap_toContinuousLinearMap_apply
     {B C : Type*} [CStarAlgebra B] [PartialOrder B] [StarOrderedRing B]
       [CStarAlgebra C] [PartialOrder C] [StarOrderedRing C]
     (f : B →ₚ[ℂ] C) (b : B) :
-    positiveLinearMap_toContinuousLinearMap f b = f b := by
-  simp [positiveLinearMap_toContinuousLinearMap,
+    positiveLinearMapToContinuousLinearMap f b = f b := by
+  simp [positiveLinearMapToContinuousLinearMap,
     LinearMap.mkContinuousOfExistsBound_apply]
 
 /-- Every bounded generator of a norm-continuous UCP semigroup is conditionally completely
@@ -1854,7 +1854,7 @@ lemma generator_isConditionallyCompletelyPositive
     have hright' := hleft'.mul_const C
     exact hright'
   let fCLM : CStarMatrix (Fin n) (Fin n) A →L[ℝ] ℂ :=
-    positiveLinearMap_toContinuousLinearMap
+    positiveLinearMapToContinuousLinearMap
       (B := CStarMatrix (Fin n) (Fin n) A) (C := ℂ) f
   have hfq : HasDerivWithinAt (fun t : ℝ => f (q t))
       ((fCLM ∘SL ContinuousLinearMap.toSpanSingleton ℝ q') 1)
@@ -1906,7 +1906,7 @@ lemma generator_isConditionallyCompletelyPositive
   have hderiv' : 0 ≤ Complex.re (fCLM q') := by
     simpa [ContinuousLinearMap.toSpanSingleton_apply_one] using hderiv_nonneg
   have hfclm : fCLM q' = f q' := by
-    change positiveLinearMap_toContinuousLinearMap f q' = f q'
+    change positiveLinearMapToContinuousLinearMap f q' = f q'
     exact positiveLinearMap_toContinuousLinearMap_apply f q'
   rw [hfclm] at hderiv'
   exact hderiv'

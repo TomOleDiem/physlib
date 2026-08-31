@@ -400,7 +400,7 @@ certificate after passing through the identity representation. -/
 theorem predualPVM_toWOTNormalityCertificate
     {X : Type*} [MeasurableSpace X]
     (E : PredualPVM X (B(H))) :
-    WOTNormalityCertificate (predualPVM_toWOTSpectralMeasure E) := by
+    WOTNormalityCertificate (predualPVMToWOTSpectralMeasure E) := by
   refine ⟨fun s hs hdisj ω => ?_⟩
   let ρ : DensityOperator H := NormalState.densityOperator ω
   let ξ : TraceClass H := TraceClass.ofOperator ρ.ρ ρ.traceClass
@@ -424,7 +424,7 @@ The extra hypothesis is intentional.  WOT countable additivity alone controls ma
 coefficients, whereas `NormalPVM` is the von Neumann-algebraic object and must be additive
 against every normal state.  This constructor is therefore the precise reusable interface at
 which a concrete trace-class normality proof enters the abstract affiliation API. -/
-def wotSpectralMeasure_toNormalPVM
+def wotSpectralMeasureToNormalPVM
     {X : Type*} [MeasurableSpace X]
     (μS : QuantumMechanics.WOTSpectralMeasure X H)
     (hnormal : WOTNormalityCertificate μS) :
@@ -454,44 +454,44 @@ def wotSpectralMeasure_toNormalPVM
 
 The trace-class density-operator argument proves the normality certificate internally, so users
 working with the concrete Hilbert-space algebra do not have to carry that implementation detail. -/
-noncomputable def wotSpectralMeasure_toNormalPVM_of_traceClass
+noncomputable def wotSpectralMeasureToNormalPVMOfTraceClass
     {X : Type*} [MeasurableSpace X]
     (μS : QuantumMechanics.WOTSpectralMeasure X H) :
     NormalPVM X (B(H)) :=
-  wotSpectralMeasure_toNormalPVM μS
+  wotSpectralMeasureToNormalPVM μS
     (wotSpectralMeasure_toWOTNormalityCertificate_of_traceClass μS)
 
 @[simp]
 theorem wotSpectralMeasure_toNormalPVM_of_traceClass_apply
     {X : Type*} [MeasurableSpace X]
     (μS : QuantumMechanics.WOTSpectralMeasure X H) (S : Set X) :
-    wotSpectralMeasure_toNormalPVM_of_traceClass μS S = (μS S).toCLM := rfl
+    wotSpectralMeasureToNormalPVMOfTraceClass μS S = (μS S).toCLM := rfl
 
 /-- The certificate-free real affiliated-observable wrapper for a concrete WOT spectral measure. -/
-noncomputable def wotSpectralMeasure_toNormalAffiliatedObservable_of_traceClass
+noncomputable def wotSpectralMeasureToNormalAffiliatedObservableOfTraceClass
     (μS : QuantumMechanics.WOTSpectralMeasure ℝ H) :
     NormalAffiliatedObservable (B(H)) :=
-  ⟨wotSpectralMeasure_toNormalPVM_of_traceClass μS⟩
+  ⟨wotSpectralMeasureToNormalPVMOfTraceClass μS⟩
 
 @[simp] theorem wotSpectralMeasure_toNormalAffiliatedObservable_of_traceClass_spectralMeasure
     (μS : QuantumMechanics.WOTSpectralMeasure ℝ H) :
-    (wotSpectralMeasure_toNormalAffiliatedObservable_of_traceClass μS).spectralMeasure =
-      wotSpectralMeasure_toNormalPVM_of_traceClass μS := rfl
+    (wotSpectralMeasureToNormalAffiliatedObservableOfTraceClass μS).spectralMeasure =
+      wotSpectralMeasureToNormalPVMOfTraceClass μS := rfl
 
 /-- The certificate-free complex affiliated-operator wrapper for a concrete WOT spectral measure. -/
-noncomputable def wotSpectralMeasure_toNormalAffiliatedOperator_of_traceClass
+noncomputable def wotSpectralMeasureToNormalAffiliatedOperatorOfTraceClass
     (μS : QuantumMechanics.WOTSpectralMeasure ℂ H) :
     NormalAffiliatedOperator (B(H)) :=
-  ⟨wotSpectralMeasure_toNormalPVM_of_traceClass μS⟩
+  ⟨wotSpectralMeasureToNormalPVMOfTraceClass μS⟩
 
 @[simp] theorem wotSpectralMeasure_toNormalAffiliatedOperator_of_traceClass_spectralMeasure
     (μS : QuantumMechanics.WOTSpectralMeasure ℂ H) :
-    (wotSpectralMeasure_toNormalAffiliatedOperator_of_traceClass μS).spectralMeasure =
-      wotSpectralMeasure_toNormalPVM_of_traceClass μS := rfl
+    (wotSpectralMeasureToNormalAffiliatedOperatorOfTraceClass μS).spectralMeasure =
+      wotSpectralMeasureToNormalPVMOfTraceClass μS := rfl
 
 /-- Every concrete `B(H)` `NormalPVM` has the trace-class predual σ-additivity required by the
 weak spectral-integral layer. -/
-def normalPVM_toPredualPVM {X : Type*} [MeasurableSpace X]
+def normalPVMToPredualPVM {X : Type*} [MeasurableSpace X]
     (E : NormalPVM X (B(H))) : PredualPVM X (B(H)) where
   toNormalPVM := E
   m_iUnion_predual' := fun s hs hdisj ξ =>
@@ -499,20 +499,20 @@ def normalPVM_toPredualPVM {X : Type*} [MeasurableSpace X]
 
 @[simp]
 theorem normalPVM_toPredualPVM_apply {X : Type*} [MeasurableSpace X]
-    (E : NormalPVM X (B(H))) (S : Set X) : normalPVM_toPredualPVM E S = E S := rfl
+    (E : NormalPVM X (B(H))) (S : Set X) : normalPVMToPredualPVM E S = E S := rfl
 
 /-- The concrete trace-class route to the weak-operator spectral measure. -/
-noncomputable def normalPVM_toWOTSpectralMeasure_of_traceClass
+noncomputable def normalPVMToWOTSpectralMeasureOfTraceClass
     {X : Type*} [MeasurableSpace X] (E : NormalPVM X (B(H))) :
     QuantumMechanics.WOTSpectralMeasure X H :=
-  predualPVM_toWOTSpectralMeasure (normalPVM_toPredualPVM E)
+  predualPVMToWOTSpectralMeasure (normalPVMToPredualPVM E)
 
 @[simp]
 theorem normalPVM_toWOTSpectralMeasure_of_traceClass_apply
     {X : Type*} [MeasurableSpace X] (E : NormalPVM X (B(H))) (S : Set X) :
-    normalPVM_toWOTSpectralMeasure_of_traceClass E S =
+    normalPVMToWOTSpectralMeasureOfTraceClass E S =
       ContinuousLinearMapWOT.ofCLM (E S) := by
-  rw [normalPVM_toWOTSpectralMeasure_of_traceClass,
+  rw [normalPVMToWOTSpectralMeasureOfTraceClass,
     predualPVM_toWOTSpectralMeasure_apply]
   rfl
 
@@ -521,8 +521,8 @@ theorem normalPVM_toWOTSpectralMeasure_of_traceClass_toNormalPVM
     {X : Type*} [MeasurableSpace X]
     (μS : QuantumMechanics.WOTSpectralMeasure X H)
     (hnormal : WOTNormalityCertificate μS) (S : Set X) :
-    normalPVM_toWOTSpectralMeasure_of_traceClass
-        (wotSpectralMeasure_toNormalPVM μS hnormal) S = μS S := by
+    normalPVMToWOTSpectralMeasureOfTraceClass
+        (wotSpectralMeasureToNormalPVM μS hnormal) S = μS S := by
   rw [normalPVM_toWOTSpectralMeasure_of_traceClass_apply]
   exact ContinuousLinearMapWOT.ofCLM_toCLM _
 
@@ -530,52 +530,52 @@ theorem normalPVM_toWOTSpectralMeasure_of_traceClass_toNormalPVM
 theorem wotSpectralMeasure_toNormalPVM_predualPVM
     {X : Type*} [MeasurableSpace X]
     (E : PredualPVM X (B(H))) :
-    wotSpectralMeasure_toNormalPVM
-        (predualPVM_toWOTSpectralMeasure E)
+    wotSpectralMeasureToNormalPVM
+        (predualPVMToWOTSpectralMeasure E)
         (predualPVM_toWOTNormalityCertificate E) = E.toNormalPVM := by
   apply NormalPVM.ext
   intro S hS
-  change (predualPVM_toWOTSpectralMeasure E S).toCLM = E.toNormalPVM S
+  change (predualPVMToWOTSpectralMeasure E S).toCLM = E.toNormalPVM S
   rw [predualPVM_toWOTSpectralMeasure_apply]
 
 /-- Package the concrete WOT-to-normal-PVM promotion directly as an affiliated observable. -/
-def wotSpectralMeasure_toNormalAffiliatedObservable
+def wotSpectralMeasureToNormalAffiliatedObservable
     (μS : QuantumMechanics.WOTSpectralMeasure ℝ H)
     (hnormal : WOTNormalityCertificate μS) :
     NormalAffiliatedObservable (B(H)) :=
-  ⟨wotSpectralMeasure_toNormalPVM μS hnormal⟩
+  ⟨wotSpectralMeasureToNormalPVM μS hnormal⟩
 
 @[simp] lemma wotSpectralMeasure_toNormalAffiliatedObservable_spectralMeasure
     (μS : QuantumMechanics.WOTSpectralMeasure ℝ H)
     (hnormal : WOTNormalityCertificate μS) :
-    (wotSpectralMeasure_toNormalAffiliatedObservable μS hnormal).spectralMeasure =
-      wotSpectralMeasure_toNormalPVM μS hnormal := rfl
+    (wotSpectralMeasureToNormalAffiliatedObservable μS hnormal).spectralMeasure =
+      wotSpectralMeasureToNormalPVM μS hnormal := rfl
 
 /-- Package the complex-spectrum version directly as a normal affiliated operator. -/
-def wotSpectralMeasure_toNormalAffiliatedOperator
+def wotSpectralMeasureToNormalAffiliatedOperator
     (μS : QuantumMechanics.WOTSpectralMeasure ℂ H)
     (hnormal : WOTNormalityCertificate μS) :
     NormalAffiliatedOperator (B(H)) :=
-  ⟨wotSpectralMeasure_toNormalPVM μS hnormal⟩
+  ⟨wotSpectralMeasureToNormalPVM μS hnormal⟩
 
 @[simp] lemma wotSpectralMeasure_toNormalAffiliatedOperator_spectralMeasure
     (μS : QuantumMechanics.WOTSpectralMeasure ℂ H)
     (hnormal : WOTNormalityCertificate μS) :
-    (wotSpectralMeasure_toNormalAffiliatedOperator μS hnormal).spectralMeasure =
-      wotSpectralMeasure_toNormalPVM μS hnormal := rfl
+    (wotSpectralMeasureToNormalAffiliatedOperator μS hnormal).spectralMeasure =
+      wotSpectralMeasureToNormalPVM μS hnormal := rfl
 
 /-- The identity representation of `B(H)` as a faithful normal affiliation bridge, using the
 completed trace-class predual directly. -/
 noncomputable def traceClassAffiliationBridge :
     FaithfulNormalAffiliationBridge (A := B(H)) (H := H) :=
   NormalAffiliationBridge.ofFaithfulPredualRepresentation
-    (representation (H := H)) (fun E => normalPVM_toPredualPVM E)
+    (representation (H := H)) (fun E => normalPVMToPredualPVM E)
     (fun _ => rfl) (predualMatrixCoefficientCertificate (H := H)) (by
       intro E f hf
       apply PredualPVM.ext
       intro S hS
       rw [normalPVM_toPredualPVM_apply,
-        PredualPVM.map_apply (normalPVM_toPredualPVM E) hf hS,
+        PredualPVM.map_apply (normalPVMToPredualPVM E) hf hS,
         NormalPVM.map_apply E hf hS]
       rfl) (by
       intro a b h
@@ -587,13 +587,13 @@ trace-class predual rather than a separately supplied normality certificate. -/
 noncomputable def traceClassOperatorAffiliationBridge :
     FaithfulNormalOperatorAffiliationBridge (A := B(H)) (H := H) :=
   NormalAffiliationBridge.FaithfulNormalOperatorAffiliationBridge.ofPredualRepresentation
-    (traceClassAffiliationBridge (H := H)) (fun E => normalPVM_toPredualPVM E)
+    (traceClassAffiliationBridge (H := H)) (fun E => normalPVMToPredualPVM E)
     (fun _ => rfl) (predualMatrixCoefficientCertificate (H := H)) (by
       intro E f hf
       apply PredualPVM.ext
       intro S hS
       rw [normalPVM_toPredualPVM_apply,
-        PredualPVM.map_apply (normalPVM_toPredualPVM E) hf hS,
+        PredualPVM.map_apply (normalPVMToPredualPVM E) hf hS,
         NormalPVM.map_apply E hf hS]
       rfl) (by
       intro a b h

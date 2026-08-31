@@ -25,14 +25,14 @@ and singular-continuous subspaces.
 
 * `WOTSpectralMeasure.pointSpectrumSet E` : the (proved countable) set of reals `l` with
   `E {l} ≠ 0`.
-* `WOTSpectralMeasure.H_pp E` : the pure-point subspace, the range of `E (pointSpectrumSet E)`.
-* `WOTSpectralMeasure.H_cont E` : the orthogonal complement of `H_pp E`; proved to equal the range
-  of `E (pointSpectrumSet E)ᶜ`, and every vector state `E.diagonalMeasure x` for `x ∈ H_cont E` is
+* `WOTSpectralMeasure.Hpp E` : the pure-point subspace, the range of `E (pointSpectrumSet E)`.
+* `WOTSpectralMeasure.Hcont E` : the orthogonal complement of `Hpp E`; proved to equal the range
+  of `E (pointSpectrumSet E)ᶜ`, and every vector state `E.diagonalMeasure x` for `x ∈ Hcont E` is
   proved to be atom-free.
 * `WOTSpectralMeasure.IsPureAC`, `WOTSpectralMeasure.IsPureSC` : membership predicates on
-  `H_cont E` via the classical Lebesgue decomposition of the diagonal measure against `volume`.
-* `WOTSpectralMeasure.H_ac E`, `WOTSpectralMeasure.H_sc E` : the corresponding submodules of
-  `H_cont E`, proved to be genuine (closed-under-`+`/`smul`) submodules, and proved orthogonal to
+  `Hcont E` via the classical Lebesgue decomposition of the diagonal measure against `volume`.
+* `WOTSpectralMeasure.Hac E`, `WOTSpectralMeasure.Hsc E` : the corresponding submodules of
+  `Hcont E`, proved to be genuine (closed-under-`+`/`smul`) submodules, and proved orthogonal to
   each other.
 
 ## Main results
@@ -45,16 +45,16 @@ and singular-continuous subspaces.
 * `WOTSpectralMeasure.pointSpectrumSet_countable`, `.measurableSet_pointSpectrumSet` : the point
   spectrum is countable, hence Borel.
 * `WOTSpectralMeasure.diagonalMeasure_nullSingletonClass_of_mem_H_cont` : vector states supported
-  on `H_cont E` are genuinely atom-free (not merely off the point spectrum).
-* `WOTSpectralMeasure.isPureAC_submodule`, `.isPureSC_submodule` : `H_ac`/`H_sc` are honest
-  submodules of `H_cont E`.
-* `WOTSpectralMeasure.H_ac_isOrtho_H_sc` : `H_ac E ⟂ H_sc E`.
+  on `Hcont E` are genuinely atom-free (not merely off the point spectrum).
+* `WOTSpectralMeasure.isPureACSubmodule`, `.isPureSCSubmodule` : `Hac`/`Hsc` are honest
+  submodules of `Hcont E`.
+* `WOTSpectralMeasure.H_ac_isOrtho_H_sc` : `Hac E ⟂ Hsc E`.
 * `WOTSpectralMeasure.diagonalMeasure_apply_eq_restrict` : the vector-state measure of `E S x` is
   the restriction to `S` of the vector-state measure of `x`, for every measurable `S`.
-* `WOTSpectralMeasure.apply_mem_H_cont_of_mem_H_cont` : `H_cont E` is invariant under every
+* `WOTSpectralMeasure.apply_mem_H_cont_of_mem_H_cont` : `Hcont E` is invariant under every
   spectral projection `E T`.
 * `WOTSpectralMeasure.H_cont_eq_sup_H_ac_H_sc` : the completeness of the a.c./s.c. splitting of
-  `H_cont E` (Reed-Simon Vol. I, Theorem VII.4), proved in full.
+  `Hcont E` (Reed-Simon Vol. I, Theorem VII.4), proved in full.
 
 Every theorem in this file is proved without `sorry`.
 
@@ -315,20 +315,20 @@ theorem measurableSet_pointSpectrumSet : MeasurableSet E.pointSpectrumSet :=
   E.pointSpectrumSet_countable.measurableSet
 
 /-- The pure-point subspace: the range of the projection onto the point spectrum. -/
-def H_pp : Submodule ℂ H := (ContinuousLinearMapWOT.toCLM (E E.pointSpectrumSet)).range
+def Hpp : Submodule ℂ H := (ContinuousLinearMapWOT.toCLM (E E.pointSpectrumSet)).range
 
-theorem isClosed_H_pp : IsClosed (E.H_pp : Set H) :=
+theorem isClosed_H_pp : IsClosed (E.Hpp : Set H) :=
   ContinuousLinearMap.IsIdempotentElem.isClosed_range
     (congrArg ContinuousLinearMapWOT.toCLM (E.isStarProjection E.pointSpectrumSet).isIdempotentElem)
 
 /-! ## Phase 2, item 4 : the continuous subspace -/
 
 /-- The continuous subspace: the orthogonal complement of the pure-point subspace. -/
-def H_cont : Submodule ℂ H := (E.H_pp)ᗮ
+def Hcont : Submodule ℂ H := (E.Hpp)ᗮ
 
-/-- `H_cont E` is also the range of the complementary projection. -/
+/-- `Hcont E` is also the range of the complementary projection. -/
 theorem H_cont_eq_range_compl :
-    E.H_cont = (ContinuousLinearMapWOT.toCLM (E E.pointSpectrumSetᶜ)).range := by
+    E.Hcont = (ContinuousLinearMapWOT.toCLM (E E.pointSpectrumSetᶜ)).range := by
   set S := E.pointSpectrumSet
   have hSc : MeasurableSet Sᶜ := E.measurableSet_pointSpectrumSet.compl
   set p : H →L[ℂ] H := ContinuousLinearMapWOT.toCLM (E S)
@@ -361,7 +361,7 @@ theorem H_cont_eq_range_compl :
       have := congrArg (fun f : H →L[ℂ] H => f v) hqp
       simpa using this
     simp [LinearMap.mem_ker, LinearMap.sub_apply, this, sub_eq_zero, eq_comm]
-  show (E.H_pp)ᗮ = _
+  show (E.Hpp)ᗮ = _
   show (LinearMap.range (p : H →ₗ[ℂ] H))ᗮ = _
   rw [horth, ← hrangeq]
 
@@ -373,10 +373,10 @@ theorem diagonalMeasure_singleton_eq_zero_of_notMem_pointSpectrumSet
   rw [← E.apply_eq_zero_iff_diagonalMeasure_eq_zero (measurableSet_singleton a) x, ha]
   simp
 
-/-- For `x ∈ H_cont E`, the diagonal measure `E.diagonalMeasure x` vanishes on the whole point
+/-- For `x ∈ Hcont E`, the diagonal measure `E.diagonalMeasure x` vanishes on the whole point
 spectrum (not merely at points outside it). -/
 theorem diagonalMeasure_pointSpectrumSet_eq_zero_of_mem_H_cont
-    {x : H} (hx : x ∈ E.H_cont) : E.diagonalMeasure x E.pointSpectrumSet = 0 := by
+    {x : H} (hx : x ∈ E.Hcont) : E.diagonalMeasure x E.pointSpectrumSet = 0 := by
   rw [E.H_cont_eq_range_compl] at hx
   obtain ⟨y, hy⟩ := hx
   rw [← E.apply_eq_zero_iff_diagonalMeasure_eq_zero E.measurableSet_pointSpectrumSet x, ← hy]
@@ -386,9 +386,9 @@ theorem diagonalMeasure_pointSpectrumSet_eq_zero_of_mem_H_cont
   have := congrArg ContinuousLinearMapWOT.toCLM this
   exact congrArg (fun f : H →L[ℂ] H => f y) this
 
-/-- **Phase 2, item 5.** For `x ∈ H_cont E`, `E.diagonalMeasure x` is genuinely atom-free as a
+/-- **Phase 2, item 5.** For `x ∈ Hcont E`, `E.diagonalMeasure x` is genuinely atom-free as a
 measure on all of `ℝ`, not merely off `pointSpectrumSet E`. -/
-theorem diagonalMeasure_nullSingletonClass_of_mem_H_cont {x : H} (hx : x ∈ E.H_cont) :
+theorem diagonalMeasure_nullSingletonClass_of_mem_H_cont {x : H} (hx : x ∈ E.Hcont) :
     NullSingletonClass (E.diagonalMeasure x) where
   measure_singleton a := by
     by_cases ha : a ∈ E.pointSpectrumSet
@@ -400,8 +400,8 @@ theorem diagonalMeasure_nullSingletonClass_of_mem_H_cont {x : H} (hx : x ∈ E.H
 
 /-! ## Phase 2, items 6-8 : Lebesgue decomposition of the diagonal measure -/
 
-/-- Restriction of `E.diagonalMeasure` to `H_cont E`, as a subtype. -/
-abbrev ContVec := (E.H_cont : Submodule ℂ H)
+/-- Restriction of `E.diagonalMeasure` to `Hcont E`, as a subtype. -/
+abbrev ContVec := (E.Hcont : Submodule ℂ H)
 
 instance : IsFiniteMeasure (E.diagonalMeasure (0 : H)) := E.diagonalMeasure_isFinite 0
 
@@ -464,15 +464,15 @@ theorem isPureAC_smul (c : ℂ) {x : E.ContVec} (hx : E.IsPureAC x) : E.IsPureAC
   exact hx.smul_left _
 
 /-- **Phase 2, item 7 (a.c. case).** The purely absolutely continuous vectors form a submodule of
-`H_cont E`. -/
-def isPureAC_submodule : Submodule ℂ E.ContVec where
+`Hcont E`. -/
+def isPureACSubmodule : Submodule ℂ E.ContVec where
   carrier := {x | E.IsPureAC x}
   zero_mem' := E.isPureAC_zero
   add_mem' := E.isPureAC_add
   smul_mem' c _ hx := E.isPureAC_smul c hx
 
-/-- The pure a.c. subspace of `H` (as a submodule of `H`, via `H_cont E`). -/
-def H_ac : Submodule ℂ H := (E.isPureAC_submodule).map E.H_cont.subtype
+/-- The pure a.c. subspace of `H` (as a submodule of `H`, via `Hcont E`). -/
+def Hac : Submodule ℂ H := (E.isPureACSubmodule).map E.Hcont.subtype
 
 theorem isPureSC_zero : E.IsPureSC (0 : E.ContVec) := by
   rw [E.isPureSC_iff_mutuallySingular]
@@ -520,18 +520,18 @@ theorem isPureSC_smul (c : ℂ) {x : E.ContVec} (hx : E.IsPureSC x) : E.IsPureSC
   exact hx.smul _
 
 /-- **Phase 2, item 7 (s.c. case).** The purely singular continuous vectors form a submodule of
-`H_cont E`. -/
-def isPureSC_submodule : Submodule ℂ E.ContVec where
+`Hcont E`. -/
+def isPureSCSubmodule : Submodule ℂ E.ContVec where
   carrier := {x | E.IsPureSC x}
   zero_mem' := E.isPureSC_zero
   add_mem' := E.isPureSC_add
   smul_mem' c _ hx := E.isPureSC_smul c hx
 
-/-- The pure s.c. subspace of `H` (as a submodule of `H`, via `H_cont E`). -/
-def H_sc : Submodule ℂ H := (E.isPureSC_submodule).map E.H_cont.subtype
+/-- The pure s.c. subspace of `H` (as a submodule of `H`, via `Hcont E`). -/
+def Hsc : Submodule ℂ H := (E.isPureSCSubmodule).map E.Hcont.subtype
 
-/-- **Phase 2, item 8.** `H_ac E` and `H_sc E` are orthogonal. -/
-theorem H_ac_isOrtho_H_sc : E.H_ac ⟂ E.H_sc := by
+/-- **Phase 2, item 8.** `Hac E` and `Hsc E` are orthogonal. -/
+theorem H_ac_isOrtho_H_sc : E.Hac ⟂ E.Hsc := by
   rw [Submodule.isOrtho_iff_inner_eq]
   rintro u ⟨x, hx, rfl⟩ v ⟨y, hy, rfl⟩
   have hx' : E.IsPureAC x := hx
@@ -603,15 +603,15 @@ lemma diagonalMeasure_apply_eq_restrict (S : Set ℝ) (hS : MeasurableSet S) (x 
       _ = ⟪x, (pS * pT * pS) x⟫_ℂ := rfl
   rw [hinner]
 
-/-- **`H_cont E` is invariant under every spectral projection.** If `x ∈ H_cont E` then
-`E T x ∈ H_cont E` for every measurable `T`. Proof: `x ∈ H_cont E` forces `E S x = 0` where
+/-- **`Hcont E` is invariant under every spectral projection.** If `x ∈ Hcont E` then
+`E T x ∈ Hcont E` for every measurable `T`. Proof: `x ∈ Hcont E` forces `E S x = 0` where
 `S = pointSpectrumSet E` (already available as
 `diagonalMeasure_pointSpectrumSet_eq_zero_of_mem_H_cont`), hence `E Sᶜ x = x`; then
 `E T x = E T (E Sᶜ x) = E (T ∩ Sᶜ) x`, and applying `E Sᶜ` to this again reproduces
 `E (Sᶜ ∩ (T ∩ Sᶜ)) x = E (T ∩ Sᶜ) x = E T x`, so `E T x` is fixed by `E Sᶜ`, i.e. lies in its
-range, which is `H_cont E` by `H_cont_eq_range_compl`. -/
+range, which is `Hcont E` by `H_cont_eq_range_compl`. -/
 theorem apply_mem_H_cont_of_mem_H_cont {T : Set ℝ} (hT : MeasurableSet T) {x : H}
-    (hx : x ∈ E.H_cont) : E T x ∈ E.H_cont := by
+    (hx : x ∈ E.Hcont) : E T x ∈ E.Hcont := by
   set S := E.pointSpectrumSet with hSdef
   have hSmeas : MeasurableSet S := E.measurableSet_pointSpectrumSet
   have hxS0 : E S x = 0 :=
@@ -642,16 +642,16 @@ theorem apply_mem_H_cont_of_mem_H_cont {T : Set ℝ} (hT : MeasurableSet T) {x :
 /-- **Completeness of the a.c./s.c. splitting (Reed-Simon Vol. I, Theorem VII.4).** Every vector of
 the
 continuous subspace decomposes as a sum of a purely absolutely continuous vector and a purely
-singular continuous vector: `H_cont E = H_ac E ⊔ H_sc E`.
+singular continuous vector: `Hcont E = Hac E ⊔ Hsc E`.
 
 Following M. Reed and B. Simon, *Methods of Modern Mathematical Physics I: Functional Analysis*,
-Theorem VII.4: for `x ∈ H_cont E`, let `N` be the Lebesgue-decomposition singular support of
+Theorem VII.4: for `x ∈ Hcont E`, let `N` be the Lebesgue-decomposition singular support of
 `E.diagonalMeasure x` against `volume` (`volume N = 0`, and `E.diagonalMeasure x` restricted to
 `Nᶜ` is the a.c. part). Set `x_sc := E N x` and `x_ac := E Nᶜ x`; then `x = x_sc + x_ac`, `x_ac` is
 purely a.c. and `x_sc` is purely s.c., by `diagonalMeasure_apply_eq_restrict` together with the
 elementary fact that any measure restricted to a `volume`-null set is `⟂ₘ volume`, and that the
 a.c. part of a measure restricted to the complement of its own singular support stays `≪ volume`. -/
-theorem H_cont_eq_sup_H_ac_H_sc : E.H_cont = E.H_ac ⊔ E.H_sc := by
+theorem H_cont_eq_sup_H_ac_H_sc : E.Hcont = E.Hac ⊔ E.Hsc := by
   apply le_antisymm
   · intro x hx
     set h := MeasureTheory.Measure.mutuallySingular_singularPart
@@ -671,9 +671,9 @@ theorem H_cont_eq_sup_H_ac_H_sc : E.H_cont = E.H_ac ⊔ E.H_sc := by
       have h1 := congrArg ContinuousLinearMapWOT.toCLM hEsum
       have h2 := congrArg (fun f : H →L[ℂ] H => f x) h1
       simpa using h2.symm
-    -- both halves stay in `H_cont E`, since it is invariant under every spectral projection
-    have hNc_mem : E Nᶜ x ∈ E.H_cont := E.apply_mem_H_cont_of_mem_H_cont hNmeas.compl hx
-    have hN_mem : E N x ∈ E.H_cont := E.apply_mem_H_cont_of_mem_H_cont hNmeas hx
+    -- both halves stay in `Hcont E`, since it is invariant under every spectral projection
+    have hNc_mem : E Nᶜ x ∈ E.Hcont := E.apply_mem_H_cont_of_mem_H_cont hNmeas.compl hx
+    have hN_mem : E N x ∈ E.Hcont := E.apply_mem_H_cont_of_mem_H_cont hNmeas hx
     set x_ac : E.ContVec := ⟨E Nᶜ x, hNc_mem⟩ with hx_ac_def
     set x_sc : E.ContVec := ⟨E N x, hN_mem⟩ with hx_sc_def
     -- (b) `x_ac = E Nᶜ x` is purely a.c.
@@ -712,12 +712,12 @@ theorem H_cont_eq_sup_H_ac_H_sc : E.H_cont = E.H_ac ⊔ E.H_sc := by
         (by simp [Set.compl_union_self])
       rw [MeasureTheory.Measure.restrict_apply hNmeas.compl]
       simp
-    have hac_mem : E Nᶜ x ∈ E.H_ac := Submodule.mem_map.mpr ⟨x_ac, hac, rfl⟩
-    have hsc_mem : E N x ∈ E.H_sc := Submodule.mem_map.mpr ⟨x_sc, hsc, rfl⟩
+    have hac_mem : E Nᶜ x ∈ E.Hac := Submodule.mem_map.mpr ⟨x_ac, hac, rfl⟩
+    have hsc_mem : E N x ∈ E.Hsc := Submodule.mem_map.mpr ⟨x_sc, hsc, rfl⟩
     rw [hxdecomp, add_comm (E N x) (E Nᶜ x)]
     exact Submodule.add_mem_sup hac_mem hsc_mem
-  · exact sup_le (E.H_cont.map_subtype_le E.isPureAC_submodule)
-      (E.H_cont.map_subtype_le E.isPureSC_submodule)
+  · exact sup_le (E.Hcont.map_subtype_le E.isPureACSubmodule)
+      (E.Hcont.map_subtype_le E.isPureSCSubmodule)
 
 end WOTSpectralMeasure
 end QuantumMechanics

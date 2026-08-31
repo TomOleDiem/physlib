@@ -71,15 +71,15 @@ data needed to write down the weak-⋆ topology `A` inherits from it
 class WStarAlgebra (A : Type*) extends OperatorAlgebra A where
   /-- The predual: a Banach space `E` with `A ≃ₗᵢ[ℂ] StrongDual ℂ E` isometrically. -/
   Predual : Type*
-  predual_normedAddCommGroup : NormedAddCommGroup Predual
-  predual_normedSpace : NormedSpace ℂ Predual
-  predual_completeSpace : CompleteSpace Predual
+  predualNormedAddCommGroup : NormedAddCommGroup Predual
+  predualNormedSpace : NormedSpace ℂ Predual
+  predualCompleteSpace : CompleteSpace Predual
   /-- The defining isometric identification `A ≃ₗᵢ[ℂ] StrongDual ℂ (Predual A)`, `a ↦ (ξ ↦
   ⟨a, ξ⟩)` for the duality pairing `A` inherits from being `Predual A`'s dual. -/
   toDual : A ≃ₗᵢ[ℂ] StrongDual ℂ Predual
 
-attribute [instance] WStarAlgebra.predual_normedAddCommGroup WStarAlgebra.predual_normedSpace
-  WStarAlgebra.predual_completeSpace
+attribute [instance] WStarAlgebra.predualNormedAddCommGroup WStarAlgebra.predualNormedSpace
+  WStarAlgebra.predualCompleteSpace
 
 namespace WStarAlgebra
 

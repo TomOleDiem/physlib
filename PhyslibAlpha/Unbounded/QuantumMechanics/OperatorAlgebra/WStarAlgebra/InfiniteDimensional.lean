@@ -53,9 +53,9 @@ end TraceClass
 /- `B(H)` with its trace class as predual. -/
 noncomputable instance instWStarAlgebraOfInfiniteDimensional : WStarAlgebra (B(H)) where
   Predual := TraceClass H
-  predual_normedAddCommGroup := TraceClass.instNormedAddCommGroup
-  predual_normedSpace := TraceClass.instNormedSpace
-  predual_completeSpace := TraceClass.instCompleteSpace
+  predualNormedAddCommGroup := TraceClass.instNormedAddCommGroup
+  predualNormedSpace := TraceClass.instNormedSpace
+  predualCompleteSpace := TraceClass.instCompleteSpace
   toDual := TraceClass.tracePairingEquiv
 
 end OperatorAlgebra

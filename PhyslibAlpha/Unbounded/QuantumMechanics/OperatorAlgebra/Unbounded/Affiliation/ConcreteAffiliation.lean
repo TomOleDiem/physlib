@@ -266,7 +266,7 @@ This constructor is convenient for models whose natural proof is that every Cayl
 projection commutes with the commutant of `M`; it packages the certificate through the projection
 criterion and exposes the same domain-aware spectral and Stone API as
 `ofEssentialSelfAdjointCore`. -/
-noncomputable def ofEssentialSelfAdjointCore_of_cayleyProjection_commutes_commutant
+noncomputable def ofEssentialSelfAdjointCoreOfCayleyProjectionCommutesCommutant
     (C : EssentialSelfAdjointCore (H := H))
     (hcomm : ∀ S : Set ℂ, MeasurableSet S → ∀ y ∈ M.commutant,
       Commute y (ContinuousLinearMapWOT.toCLM
@@ -281,7 +281,7 @@ lemma ofEssentialSelfAdjointCore_of_cayleyProjection_commutes_commutant_operator
     (hcomm : ∀ S : Set ℂ, MeasurableSet S → ∀ y ∈ M.commutant,
       Commute y (ContinuousLinearMapWOT.toCLM
         (cayleyBoundedSpectralMeasure C.closure C.closure_isSelfAdjoint S))) :
-    (ofEssentialSelfAdjointCore_of_cayleyProjection_commutes_commutant C hcomm).operator =
+    (ofEssentialSelfAdjointCoreOfCayleyProjectionCommutesCommutant C hcomm).operator =
       C.closure := rfl
 
 end AffiliatedSelfAdjointOperator
@@ -336,7 +336,7 @@ variable {M : VonNeumannAlgebra H}
 
 /-- Construct the affiliated closure from membership of all real spectral projections in the
 chosen concrete von Neumann algebra. -/
-noncomputable def ofEssentialSelfAdjointCore_of_realSpectralProjection_mem
+noncomputable def ofEssentialSelfAdjointCoreOfRealSpectralProjectionMem
     (C : EssentialSelfAdjointCore (H := H))
     (hmem : ∀ S : Set ℝ, MeasurableSet S →
       ContinuousLinearMapWOT.toCLM
@@ -352,7 +352,7 @@ lemma ofEssentialSelfAdjointCore_of_realSpectralProjection_mem_operator
     (hmem : ∀ S : Set ℝ, MeasurableSet S →
       ContinuousLinearMapWOT.toCLM
         (cayleyRealSpectralMeasure C.closure C.closure_isSelfAdjoint S) ∈ M) :
-    (ofEssentialSelfAdjointCore_of_realSpectralProjection_mem C hmem).operator = C.closure := rfl
+    (ofEssentialSelfAdjointCoreOfRealSpectralProjectionMem C hmem).operator = C.closure := rfl
 
 end AffiliatedSelfAdjointOperator
 
@@ -381,8 +381,8 @@ variable {M : VonNeumannAlgebra H} (T : AffiliatedSelfAdjointOperator M)
 
 /-- Construct the affiliated closure from commutation of its real spectral projections with the
 commutant.  This is the real-coordinate model-facing form of
-`ofEssentialSelfAdjointCore_of_cayleyProjection_commutes_commutant`. -/
-noncomputable def ofEssentialSelfAdjointCore_of_realSpectralProjection_commutes_commutant
+`ofEssentialSelfAdjointCoreOfCayleyProjectionCommutesCommutant`. -/
+noncomputable def ofEssentialSelfAdjointCoreOfRealSpectralProjectionCommutesCommutant
     (C : EssentialSelfAdjointCore (H := H))
     (hcomm : ∀ S : Set ℝ, MeasurableSet S → ∀ y ∈ M.commutant,
       Commute y (ContinuousLinearMapWOT.toCLM
@@ -398,7 +398,7 @@ lemma ofEssentialSelfAdjointCore_of_realSpectralProjection_commutes_commutant_op
     (hcomm : ∀ S : Set ℝ, MeasurableSet S → ∀ y ∈ M.commutant,
       Commute y (ContinuousLinearMapWOT.toCLM
         (cayleyRealSpectralMeasure C.closure C.closure_isSelfAdjoint S))) :
-    (ofEssentialSelfAdjointCore_of_realSpectralProjection_commutes_commutant C hcomm).operator =
+    (ofEssentialSelfAdjointCoreOfRealSpectralProjectionCommutesCommutant C hcomm).operator =
       C.closure := rfl
 
 /-- The canonical real spectral measure of the affiliated operator. -/

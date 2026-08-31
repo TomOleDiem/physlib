@@ -758,7 +758,7 @@ lemma realMultiplicationOperator_selfAdjointSpectralTheorem
 
 /- The multiplication model carries the full domain-aware spectral theorem: its maximal
 operator domain is exactly the finite second moment domain of its pushed-forward PVM. -/
-def realMultiplicationOperator_domainAwareSelfAdjointSpectralTheorem
+def realMultiplicationOperatorDomainAwareSelfAdjointSpectralTheorem
     [IsFiniteMeasureOnCompacts μ] {f : Space d → ℝ} (hf : Measurable f) :
     OperatorAlgebra.DomainAwareSelfAdjointSpectralTheorem
       (realMultiplicationOperator (μ := μ) f)
@@ -813,7 +813,7 @@ lemma realMultiplicationOperator_closure_eq
     simp [realMultiplicationOperator]
 
 /-- All reusable analytic data for the maximal real multiplication operator in one package. -/
-def realMultiplicationOperator_spectralData
+def realMultiplicationOperatorSpectralData
     [IsFiniteMeasureOnCompacts μ] {f : Space d → ℝ} (hf : Measurable f) :
     OperatorAlgebra.EssentialSelfAdjointSpectralData
       (realMultiplicationOperator (μ := μ) f) where
@@ -822,7 +822,7 @@ def realMultiplicationOperator_spectralData
   spectralMeasure := multiplicationSpectralMeasure (μ := μ) f hf
   spectralTheorem := by
     rw [realMultiplicationOperator_closure_eq (μ := μ) f hf.aestronglyMeasurable]
-    exact realMultiplicationOperator_domainAwareSelfAdjointSpectralTheorem (μ := μ) hf
+    exact realMultiplicationOperatorDomainAwareSelfAdjointSpectralTheorem (μ := μ) hf
 
 /-!
 ### Momentum as a transported multiplication operator
@@ -886,7 +886,7 @@ lemma fourierMomentumOperator_domainAwareSelfAdjointSpectralTheorem
     [IsFiniteMeasureOnCompacts (volume : Measure (Space d))] (i : Fin d) :
     OperatorAlgebra.DomainAwareSelfAdjointSpectralTheorem
       (fourierMomentumOperator i) (fourierMomentumSpectralMeasure i) := by
-  exact (realMultiplicationOperator_domainAwareSelfAdjointSpectralTheorem
+  exact (realMultiplicationOperatorDomainAwareSelfAdjointSpectralTheorem
     (μ := volume) (momentumCoordinate_measurable i)).unitaryConj
     (SpaceDHilbertSpace.fourierUnitary d).symm
 
@@ -896,7 +896,7 @@ lemma fourierMomentumOperator_isEssentiallySelfAdjoint
   exact LinearPMap.IsSelfAdjoint.isEssentiallySelfAdjoint
     (fourierMomentumOperator_isSelfAdjoint i)
 
-def fourierMomentumOperator_spectralData
+def fourierMomentumOperatorSpectralData
     [IsFiniteMeasureOnCompacts (volume : Measure (Space d))] (i : Fin d) :
     OperatorAlgebra.EssentialSelfAdjointSpectralData (fourierMomentumOperator i) where
   essentiallySelfAdjoint := fourierMomentumOperator_isEssentiallySelfAdjoint i
