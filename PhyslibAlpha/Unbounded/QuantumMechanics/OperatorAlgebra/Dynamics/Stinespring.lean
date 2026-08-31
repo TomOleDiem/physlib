@@ -38,10 +38,12 @@ namespace OperatorAlgebra.TensorStinespring
 variable {A H : Type*} [OperatorAlgebra A]
   [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
 
+/-- The tensor-product carrier `A ⊗[ℂ] H` the whole construction below lives on. -/
 @[nolint unusedArguments]
 abbrev T (A H : Type*) [OperatorAlgebra A]
     [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H] := A ⊗[ℂ] H
 
+/-- The functional `b ⊗ k ↦ ⟪h, J(a⋆b) k⟫`, the building block of the kernel inner product. -/
 noncomputable def baseFunctional (J : A →CP B(H)) (a : A) (h : H) :
     T A H →ₗ[ℂ] ℂ :=
   TensorProduct.lift (LinearMap.mk₂ ℂ
@@ -65,6 +67,7 @@ lemma baseFunctional_tmul (J : A →CP B(H)) (a b : A) (h k : H) :
     baseFunctional J a h (b ⊗ₜ[ℂ] k) = inner ℂ h (J (star a * b) k) := by
   rfl
 
+/-- `baseFunctional`, packaged as a sesquilinear map in `(a, h)`. -/
 noncomputable def sesquiBilinear (J : A →CP B(H)) :
     A →ₛₗ[starRingEnd ℂ] H →ₛₗ[starRingEnd ℂ] (T A H →ₗ[ℂ] ℂ) :=
   LinearMap.mk₂'ₛₗ (starRingEnd ℂ) (starRingEnd ℂ)
@@ -74,6 +77,8 @@ noncomputable def sesquiBilinear (J : A →CP B(H)) :
     (by intro a h₁ h₂; ext x; simp [baseFunctional])
     (by intro c a h; ext x; simp [baseFunctional]; ring)
 
+/-- The (possibly degenerate) sesquilinear form on `T A H` induced by lifting `sesquiBilinear`
+through the tensor product. -/
 noncomputable def tensorInner (J : A →CP B(H)) :
     T A H →ₛₗ[starRingEnd ℂ] (T A H →ₗ[ℂ] ℂ) :=
   TensorProduct.lift (sesquiBilinear J)
@@ -129,6 +134,7 @@ lemma tensorInner_nonneg (J : A →CP B(H)) (x : T A H) :
   simpa [tensorInner, sesquiBilinear, baseFunctional, v, hv,
     Finset.sum_apply, inner_sum, sum_inner] using hp
 
+/-- `tensorInner`, packaged as a `PreInnerProductSpace.Core` on `T A H`. -/
 noncomputable def tensorCore (J : A →CP B(H)) :
     PreInnerProductSpace.Core ℂ (T A H) where
   inner := fun x y => tensorInner J x y
@@ -147,6 +153,7 @@ noncomputable def tensorCore (J : A →CP B(H)) :
       ((tensorInner J).map_smulₛₗ r x)
     simpa [smul_eq_mul] using hs
 
+/-- Left multiplication by `a` on the algebra factor of `T A H`. -/
 noncomputable def leftMul (a : A) : T A H →ₗ[ℂ] T A H :=
   TensorProduct.map (LinearMap.mulLeft ℂ a) (LinearMap.id)
 
@@ -250,11 +257,15 @@ lemma tensorInner_leftMul_nonneg (J : A →CP B(H)) {q : A} (hq : 0 ≤ q)
 
 /-! The seminorm and pre-Hilbert structures induced by the kernel. -/
 
+/-- The seminormed-group structure `T A H` inherits from `tensorCore`'s (possibly degenerate)
+inner product. -/
 noncomputable def tensorSeminormed (J : A →CP B(H)) :
     SeminormedAddCommGroup (T A H) :=
   letI : PreInnerProductSpace.Core ℂ (T A H) := tensorCore J
   InnerProductSpace.Core.toSeminormedAddCommGroup (c := tensorCore J)
 
+/-- The inner product space structure on `T A H`, with respect to `tensorSeminormed`, coming
+from `tensorCore`. -/
 noncomputable def tensorInnerProductSpace (J : A →CP B(H)) :
     @InnerProductSpace ℂ (T A H) inferInstance (tensorSeminormed J) := by
   letI : PreInnerProductSpace.Core ℂ (T A H) := tensorCore J
@@ -377,6 +388,7 @@ lemma uniformContinuous_neg (J : A →CP B(H)) :
   simp only [NNReal.coe_one, one_mul]
   exact le_rfl
 
+/-- `leftMul a`, bundled as a continuous linear map for the kernel seminorm. -/
 noncomputable def leftMulCLM (J : A →CP B(H)) (a : A) :
     letI : SeminormedAddCommGroup (T A H) := tensorSeminormed J
     letI : InnerProductSpace ℂ (T A H) := tensorInnerProductSpace J
@@ -393,6 +405,7 @@ lemma leftMulCLM_apply (J : A →CP B(H)) (a : A) (x : T A H) :
   letI : InnerProductSpace ℂ (T A H) := tensorInnerProductSpace J
   rfl
 
+/-- The continuous extension of `leftMulCLM` to the completion of `T A H`. -/
 noncomputable def leftMulCompletion (J : A →CP B(H)) (a : A) :
     letI : SeminormedAddCommGroup (T A H) := tensorSeminormed J
     letI : PseudoMetricSpace (T A H) := SeminormedAddCommGroup.toPseudoMetricSpace
@@ -472,6 +485,8 @@ namespace Canonical
 
 open ContinuousLinearMap
 
+/-- A type synonym for `T A H` carrying the CP-kernel-dependent seminorm and inner product,
+kept separate so the tensor product retains its own module structure. -/
 @[nolint unusedArguments]
 def Pre (J : A →CP B(H)) := T A H
 
@@ -496,8 +511,10 @@ noncomputable instance (J : A →CP B(H)) : IsBoundedSMul ℂ (Pre J) :=
 noncomputable instance (J : A →CP B(H)) : UniformContinuousConstSMul ℂ (Pre J) :=
   IsBoundedSMul.toUniformContinuousConstSMul
 
+/-- The completion of `Pre J`: the canonical Stinespring Hilbert space attached to `J`. -/
 abbrev K (J : A →CP B(H)) := UniformSpace.Completion (Pre J)
 
+/-- `leftMul a`, viewed as an operator on `Pre J`. -/
 noncomputable def preLeftMul (J : A →CP B(H)) (a : A) :
     Pre J →ₗ[ℂ] Pre J := leftMul a
 
@@ -505,6 +522,7 @@ noncomputable def preLeftMul (J : A →CP B(H)) (a : A) :
 lemma preLeftMul_apply (J : A →CP B(H)) (a : A) (x : Pre J) :
     preLeftMul J a x = leftMul a x := rfl
 
+/-- `preLeftMul`, bundled as a continuous linear map. -/
 noncomputable def preLeftMulCLM (J : A →CP B(H)) (a : A) :
     Pre J →L[ℂ] Pre J :=
   (preLeftMul J a).mkContinuous ‖a‖ (fun x => leftMul_norm_le a J x)
@@ -524,6 +542,7 @@ lemma completion_leftMul_norm_le (J : A →CP B(H)) (a : A) (x : K J) :
       preLeftMulCLM_apply, preLeftMul_apply, UniformSpace.Completion.norm_coe]
     exact leftMul_norm_le a J y
 
+/-- The continuous extension of `preLeftMulCLM` to the completion `K J`. -/
 noncomputable def leftMulK (J : A →CP B(H)) (a : A) : K J →L[ℂ] K J :=
   ((preLeftMulCLM J a).completion.toLinearMap).mkContinuous ‖a‖
     (completion_leftMul_norm_le J a)
@@ -607,6 +626,7 @@ lemma leftMulK_star (J : A →CP B(H)) (a : A) :
     rw [tensorInner_leftMul]
     simp only [star_star]
 
+/-- The canonical embedding `H → Pre J`, `h ↦ 1 ⊗ h`. -/
 noncomputable def preEmbedding (J : A →CP B(H)) : H →ₗ[ℂ] Pre J :=
   (TensorProduct.mk ℂ A H) 1
 
@@ -639,9 +659,11 @@ lemma preEmbedding_norm_le (J : A →CP B(H)) (h : H) :
   exact (sq_le_sq₀ (norm_nonneg _) (mul_nonneg (Real.sqrt_nonneg _)
     (norm_nonneg _))).mp hsq
 
+/-- `preEmbedding`, bundled as a continuous linear map. -/
 noncomputable def preEmbeddingCLM (J : A →CP B(H)) : H →L[ℂ] Pre J :=
   (preEmbedding J).mkContinuous (Real.sqrt ‖J (1 : A)‖) (preEmbedding_norm_le J)
 
+/-- The canonical embedding `H → K J` into the completed Stinespring space. -/
 noncomputable def embedding (J : A →CP B(H)) : H →L[ℂ] K J :=
   (UniformSpace.Completion.toComplL : Pre J →L[ℂ] K J).comp (preEmbeddingCLM J)
 
@@ -650,6 +672,7 @@ lemma embedding_apply (J : A →CP B(H)) (h : H) :
     embedding J h = (preEmbedding J h : K J) := rfl
 
 set_option backward.isDefEq.respectTransparency false in
+/-- The representation of `A` on `K J` by (extended) left multiplication. -/
 noncomputable def canonicalRepresentation (J : A →CP B(H)) :
     Representation A (K J) where
   toFun := leftMulK J
@@ -690,6 +713,8 @@ lemma canonical_stinespring_identity (J : A →CP B(H)) (a : A) :
   rw [leftMul_tmul, tensorInner_tmul]
   simp
 
+/-- The canonical Stinespring witness assembled from `canonicalRepresentation` and
+`embedding`. -/
 noncomputable def canonicalWitness (J : A →CP B(H)) :
     StinespringWitness A H (K J) J where
   representation := canonicalRepresentation J
@@ -835,6 +860,8 @@ those algebraic laws.  Its completion is the reusable Kolmogorov/GNS factorisati
 additional multiplicative cocycle identities needed for the full Evans--Lewis converse are kept
 separate below. -/
 
+/-- A positivity-and-sesquilinearity package for an operator-valued kernel `A → A → B(H)`,
+the reusable input to the GNS/Kolmogorov factorisation below. -/
 structure PositiveOperatorKernelData
     {A H : Type*} [OperatorAlgebra A]
     [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H] where
@@ -858,6 +885,7 @@ namespace PositiveOperatorKernelData
 variable {A H : Type*} [OperatorAlgebra A]
   [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
 
+/-- The (possibly indefinite) sesquilinear form on `A →₀ H` induced by the kernel. -/
 noncomputable def kernelInner (K : PositiveOperatorKernelData (A := A) (H := H))
     (x y : A →₀ H) : ℂ :=
   x.sum fun a u => y.sum fun b v => inner ℂ u (K.kernel a b v)
@@ -949,6 +977,7 @@ lemma kernelInner_nonneg (K : PositiveOperatorKernelData (A := A) (H := H))
   simp_rw [← e.symm.sum_comp]
   simpa [s, v, map_sum] using h
 
+/-- `kernelInner`, packaged as a `PreInnerProductSpace.Core` on `A →₀ H`. -/
 noncomputable def core (K : PositiveOperatorKernelData (A := A) (H := H)) :
     PreInnerProductSpace.Core ℂ (A →₀ H) where
   inner := K.kernelInner
@@ -963,11 +992,14 @@ noncomputable def core (K : PositiveOperatorKernelData (A := A) (H := H)) :
 
 /-! The completion and the canonical kernel vectors. -/
 
+/-- The seminormed-group structure `A →₀ H` inherits from `core`'s inner product. -/
 noncomputable def seminormed (K : PositiveOperatorKernelData (A := A) (H := H)) :
     SeminormedAddCommGroup (A →₀ H) :=
   letI : PreInnerProductSpace.Core ℂ (A →₀ H) := K.core
   InnerProductSpace.Core.toSeminormedAddCommGroup (c := K.core)
 
+/-- The inner product space structure on `A →₀ H`, with respect to `seminormed`, coming from
+`core`. -/
 noncomputable def innerProductSpace (K : PositiveOperatorKernelData (A := A) (H := H)) :
     @InnerProductSpace ℂ (A →₀ H) inferInstance (K.seminormed) := by
   letI : PreInnerProductSpace.Core ℂ (A →₀ H) := K.core
@@ -977,6 +1009,7 @@ noncomputable def innerProductSpace (K : PositiveOperatorKernelData (A := A) (H 
 
 namespace Canonical
 
+/-- A type synonym for `A →₀ H` carrying the kernel-dependent seminorm and inner product. -/
 @[nolint unusedArguments]
 abbrev Pre (K : PositiveOperatorKernelData (A := A) (H := H)) := A →₀ H
 
@@ -993,6 +1026,7 @@ noncomputable instance (K : PositiveOperatorKernelData (A := A) (H := H)) :
     UniformContinuousConstSMul ℂ (Pre K) :=
   IsBoundedSMul.toUniformContinuousConstSMul
 
+/-- The completion of `Pre K`: the GNS Hilbert space of the kernel `K`. -/
 abbrev Completion (K : PositiveOperatorKernelData (A := A) (H := H)) :=
   UniformSpace.Completion (Pre K)
 
@@ -1033,6 +1067,7 @@ noncomputable instance (K : PositiveOperatorKernelData (A := A) (H := H)) :
     IsUniformAddGroup (Pre K) := IsUniformAddGroup.mk'
       (uniformContinuous_add K) (uniformContinuous_neg K)
 
+/-- The canonical embedding `H → Pre K` at the algebra point `a`, `x ↦ single a x`. -/
 noncomputable def preEmbedding (K : PositiveOperatorKernelData (A := A) (H := H))
     (a : A) : H →ₗ[ℂ] Pre K :=
   Finsupp.lsingle a
@@ -1071,11 +1106,13 @@ lemma preEmbedding_norm_le (K : PositiveOperatorKernelData (A := A) (H := H))
   exact (sq_le_sq₀ (norm_nonneg _) (mul_nonneg (Real.sqrt_nonneg _)
     (norm_nonneg _))).mp hsq
 
+/-- `preEmbedding`, bundled as a continuous linear map. -/
 noncomputable def preEmbeddingCLM (K : PositiveOperatorKernelData (A := A) (H := H))
     (a : A) : H →L[ℂ] Pre K :=
   (preEmbedding K a).mkContinuous (Real.sqrt ‖K.kernel a a‖)
     (preEmbedding_norm_le K a)
 
+/-- The canonical embedding `H → Completion K` at the algebra point `a`. -/
 noncomputable def embedding (K : PositiveOperatorKernelData (A := A) (H := H))
     (a : A) : H →L[ℂ] Completion K :=
   letI : SeminormedAddCommGroup (Pre K) := K.seminormed
@@ -1137,16 +1174,22 @@ open ContinuousLinearMap
 For an Evans--Lewis kernel the canonical vectors satisfy a cocycle identity.  The resulting action
 is the representation action on the defect space; its bounded extension is developed below. -/
 
+/-- The cocycle identity an Evans--Lewis kernel satisfies: the defining algebraic relation
+between the kernel's two shifted forms, needed to build a genuine representation action on the
+kernel's GNS space. -/
 def HasKernelCocycle
     (K : PositiveOperatorKernelData (A := B(H)) (H := H)) : Prop :=
   ∀ a c d : B(H),
     K.kernel (a * c) d - star c * K.kernel a d =
       K.kernel c (star a * d) - K.kernel c (star a) * d
 
+/-- The kernel vanishes whenever either argument is `1`. -/
 def HasKernelZeroOne
     (K : PositiveOperatorKernelData (A := B(H)) (H := H)) : Prop :=
   (∀ b : B(H), K.kernel 1 b = 0) ∧ (∀ a : B(H), K.kernel a 1 = 0)
 
+/-- The candidate representation action of `a : B(H)` on `Pre K`, built from the cocycle
+identity. -/
 noncomputable def actionPre
     (K : PositiveOperatorKernelData (A := B(H)) (H := H))
   (a : B(H)) : Pre K →ₗ[ℂ] Pre K :=
@@ -1472,6 +1515,8 @@ lemma actionPre_norm_le
   have hax : 0 ≤ ‖a‖ * ‖z‖ := mul_nonneg (norm_nonneg _) (norm_nonneg _)
   nlinarith [hreal']
 
+/-- `actionPre a`, bundled as a continuous linear map (its norm is controlled given the
+cocycle and zero-one hypotheses). -/
 noncomputable def actionPreCLM
     (K : PositiveOperatorKernelData (A := B(H)) (H := H))
     (hK : HasKernelCocycle K) (h1 : HasKernelZeroOne K) (a : B(H)) :
@@ -1485,6 +1530,7 @@ lemma actionPreCLM_apply
     (a : B(H)) (z : Pre K) :
     actionPreCLM K hK h1 a z = actionPre K a z := rfl
 
+/-- The continuous extension of `actionPreCLM` to the completion. -/
 noncomputable def actionCompletion
     (K : PositiveOperatorKernelData (A := B(H)) (H := H))
     (hK : HasKernelCocycle K) (h1 : HasKernelZeroOne K) (a : B(H)) :
@@ -1679,6 +1725,7 @@ lemma actionCompletion_one
 structure CompletionAction
     (K : PositiveOperatorKernelData (A := B(H)) (H := H))
     (hK : HasKernelCocycle K) (h1 : HasKernelZeroOne K) where
+  /-- The underlying map `B(H) → Completion K →L[ℂ] Completion K`. -/
   map : B(H) → Completion K →L[ℂ] Completion K
   map_add : ∀ a b, map (a + b) = map a + map b
   map_smul : ∀ (r : ℂ) (a : B(H)), map (r • a) = r • map a
@@ -1686,6 +1733,7 @@ structure CompletionAction
   map_star : ∀ a, map (star a) = (map a).adjoint
   map_one : map 1 = ContinuousLinearMap.id ℂ (Completion K)
 
+/-- The unital star representation `actionCompletion` packaged as a `CompletionAction`. -/
 noncomputable def completionAction
     (K : PositiveOperatorKernelData (A := B(H)) (H := H))
     (hK : HasKernelCocycle K) (h1 : HasKernelZeroOne K) :
@@ -1751,6 +1799,7 @@ variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteS
 representation-free: it packages exactly what conditional complete positivity gives before one
 asks for the extra multiplicative structure required by a Christensen--Evans jump map. -/
 
+/-- The Evans--Lewis kernel of a generator `L`, packaged as `PositiveOperatorKernelData`. -/
 noncomputable def evansLewisKernelData
     (L : B(H) →L[ℂ] B(H))
     (hstar : ∀ a : B(H), star (L a) = L (star a))
@@ -1809,6 +1858,7 @@ lemma evansLewisKernelData_hasKernelCocycle
   simp [evansLewisKernel, star_mul, mul_assoc, mul_left_comm, mul_comm]
   noncomm_ring
 
+/-- The completion of the Evans--Lewis kernel's `Pre` space: its GNS Hilbert space. -/
 abbrev EvansLewisKernelHilbert
     (L : B(H) →L[ℂ] B(H))
     (hstar : ∀ a : B(H), star (L a) = L (star a))
@@ -1816,6 +1866,7 @@ abbrev EvansLewisKernelHilbert
   PositiveOperatorKernelData.Canonical.Completion
     (evansLewisKernelData L hstar hpositive)
 
+/-- The canonical embedding of `H` into `EvansLewisKernelHilbert`. -/
 noncomputable def evansLewisKernelEmbedding
     (L : B(H) →L[ℂ] B(H))
     (hstar : ∀ a : B(H), star (L a) = L (star a))
@@ -2497,6 +2548,7 @@ block representation acts on a finite Hilbert sum.  The following inverse identi
 presentations.  This is the small analytic lemma needed when proving that a Stinespring compression
 is completely positive. -/
 
+/-- The continuous linear embedding of `H` into coordinate `j` of `PiLp 2 (Fin n → H)`. -/
 noncomputable def piLpSingleCLM (n : ℕ) (j : Fin n) :
     H →L[ℂ] PiLp 2 (fun _ : Fin n => H) := by
   let s : H →ₗ[ℂ] PiLp 2 (fun _ : Fin n => H) :=
@@ -2526,6 +2578,8 @@ lemma piLpSingleCLM_apply (n : ℕ) (j : Fin n) (x : H) :
   change (piLpSingleCLM n j) x = PiLp.single 2 j x
   simp [piLpSingleCLM]
 
+/-- Recovers the `CStarMatrix` block entries of a bounded operator on `PiLp 2 (Fin n → H)`:
+the inverse of `blockMatrixMap`. -/
 noncomputable def blockMatrixInverse
     {n : ℕ} (T : B(PiLp 2 (fun _ : Fin n => H))) :
     CStarMatrix (Fin n) (Fin n) B(H) := fun i j =>
@@ -2632,6 +2686,7 @@ The usual Stinespring compression does not require the implementing operator to 
 the source algebra.  This is the form needed for the converse: the canonical representation acts
 on the Evans--Lewis Hilbert space, while its defect maps the physical Hilbert space into it. -/
 
+/-- The entrywise (diagonal) action of `V : H →L[ℂ] K` on `PiLp 2 (Fin n → H) → PiLp 2 (Fin n → K)`. -/
 @[nolint unusedArguments]
 noncomputable def piLpMap
     {H K : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
@@ -2655,6 +2710,8 @@ lemma piLpMap_apply
     (piLpMap V x).ofLp i = V (x.ofLp i) := by
   simp [piLpMap]
 
+/-- Compression of a representation `π` by a (not necessarily source-algebra) implementing
+operator `V`: `a ↦ V⋆ π(a) V`. -/
 noncomputable def compressionLinearMap
     {H K : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
     [NormedAddCommGroup K] [InnerProductSpace ℂ K] [CompleteSpace K]
@@ -2692,6 +2749,7 @@ lemma compressionLinearMap_star
   intro x
   rfl
 
+/-- `compressionLinearMap`, bundled as a continuous linear map. -/
 noncomputable def compressionContinuousLinearMap
     {H K : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
     [NormedAddCommGroup K] [InnerProductSpace ℂ K] [CompleteSpace K]
@@ -2739,6 +2797,7 @@ lemma compressionContinuousLinearMap_star
   change compressionLinearMap π V (star a) = star (compressionLinearMap π V a)
   exact compressionLinearMap_star π V a
 
+/-- `compressionContinuousLinearMap`, packaged as a completely positive map. -/
 noncomputable def compressionCPMap
     {H K : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
     [NormedAddCommGroup K] [InnerProductSpace ℂ K] [CompleteSpace K]

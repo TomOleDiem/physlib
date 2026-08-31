@@ -140,9 +140,12 @@ def IsAnalyticVector (T : H →ₗ.[ℂ] H) (x : H) : Prop :=
 The proposition is ideal for stating density assumptions; this structure is the corresponding
 proof-relevant package needed to name the next exponential chart. -/
 structure AnalyticVectorWitness (T : H →ₗ.[ℂ] H) where
+  /-- The vector the witness is analytic for. -/
   state : H
+  /-- The iterate sequence witnessing `Tⁿ state`. -/
   iterates : ℕ → T.domain
   iterates_spec : IteratesSeq T state iterates
+  /-- The radius at which the majorant series is known to converge. -/
   radius : ℝ
   radius_pos : 0 < radius
   summable : Summable (fun n => ‖(iterates n : H)‖ * radius ^ n / n.factorial)
@@ -152,6 +155,7 @@ lemma AnalyticVectorWitness.isAnalytic {T : H →ₗ.[ℂ] H} (W : AnalyticVecto
     T.IsAnalyticVector W.state :=
   ⟨W.iterates, W.iterates_spec, W.radius, W.radius_pos, W.summable⟩
 
+/-- Extracts an explicit `AnalyticVectorWitness` from a proof that `x` is an analytic vector. -/
 noncomputable def AnalyticVectorWitness.ofIsAnalytic
     {T : H →ₗ.[ℂ] H} {x : H} (h : T.IsAnalyticVector x) : AnalyticVectorWitness T := by
   let v : ℕ → T.domain := Classical.choose h
@@ -1293,6 +1297,7 @@ lemma IsEntireVector.add {T : H →ₗ.[ℂ] H} {x y : H}
       ((hallv t ht).add (hallw t ht))
 
 omit [CompleteSpace H] in
+/-- The submodule of entire vectors for `T`. -/
 def entireVectors (T : H →ₗ.[ℂ] H) : Submodule ℂ H where
   carrier := {x | T.IsEntireVector x}
   zero_mem' := isEntireVector_zero T
@@ -1421,8 +1426,10 @@ lemma IsSymmetric.closure_of_denseAnalyticVectors
 /-- A local norm-preserving orbit on a symmetric operator's analytic radius.  The finite-radius
 Nelson construction starts with this object and must extend it by overlapping local pieces. -/
 structure LocalAnalyticOrbit (T : H →ₗ.[ℂ] H) (x : H) where
+  /-- The radius on which the orbit is defined. -/
   radius : ℝ
   radius_pos : 0 < radius
+  /-- The orbit itself, as a function of real time. -/
   toFun : ℝ → H
   initial : toFun 0 = x
   mem_domain : ∀ s, |s| < radius → toFun s ∈ T.closure.domain
@@ -1436,7 +1443,7 @@ namespace LocalAnalyticOrbit
 instance {T : H →ₗ.[ℂ] H} {x : H} : CoeFun (LocalAnalyticOrbit T x)
     (fun _ => ℝ → H) := ⟨LocalAnalyticOrbit.toFun⟩
 
-/- Recentring is the basic overlap operation in the finite-radius continuation argument. -/
+/-- Recentring is the basic overlap operation in the finite-radius continuation argument. -/
 def translateTo {T : H →ₗ.[ℂ] H} {x : H} (U : LocalAnalyticOrbit T x) (a : ℝ)
     (ha : |a| < U.radius) : LocalAnalyticOrbit T (U a) :=
   let r : ℝ := U.radius - |a|
@@ -1635,6 +1642,7 @@ end LocalAnalyticOrbit
 closed operator.  This is the exact analytic certificate needed by the deficiency argument; the
 finite-radius Nelson proof constructs it by patching the local exponential series. -/
 structure GlobalAnalyticOrbit (T : H →ₗ.[ℂ] H) (x : H) where
+  /-- The orbit itself, as a function of real time. -/
   toFun : ℝ → H
   initial : toFun 0 = x
   mem_domain : ∀ s, toFun s ∈ T.closure.domain
@@ -1720,6 +1728,7 @@ lemma summable_shifted_factorial_majorant {a : ℕ → ℝ} {t q : ℝ}
     _ ≤ b n * K := mul_le_mul_of_nonneg_left hcoef hbase
     _ = K * b n := by rw [mul_comm]
 
+/-- The iterate sequence `v` shifted by `k` steps, `n ↦ v (n + k)`. -/
 def shiftedIterates {T : H →ₗ.[ℂ] H} (v : ℕ → T.domain) (k : ℕ) : ℕ → T.domain :=
   fun n => v (n + k)
 
@@ -2081,9 +2090,14 @@ lemma IsAnalyticVector.analyticExp_at_isAnalyticVector_of_radius
 The following cover is deliberately an interface: the analytic change-of-origin estimate belongs
 to the finite-radius part of Nelson's theorem, while the topological gluing is independent of it. -/
 
+/-- A countable cover of `ℝ` by local analytic orbits, all based at states of the same norm as
+`x`, agreeing pairwise on their overlaps. -/
 structure LocalOrbitCover (T : H →ₗ.[ℂ] H) (x : H) where
+  /-- The state each local chart is based at. -/
   state : ℕ → H
+  /-- The real-time center of each local chart. -/
   center : ℕ → ℝ
+  /-- The local analytic orbit chart based at `state n`. -/
   chart : ∀ n, LocalAnalyticOrbit T (state n)
   center_zero : center 0 = 0
   state_zero : state 0 = x
@@ -2097,10 +2111,16 @@ structure LocalOrbitCover (T : H →ₗ.[ℂ] H) (x : H) where
 the full overlap of two symmetric charts, which need not be contained in a recentered symmetric
 domain. -/
 
+/-- A `LocalOrbitCover` where compatibility is only required on a (possibly smaller) symmetric
+core of each chart's radius. -/
 structure LocalOrbitCoreCover (T : H →ₗ.[ℂ] H) (x : H) where
+  /-- The state each local chart is based at. -/
   state : ℕ → H
+  /-- The real-time center of each local chart. -/
   center : ℕ → ℝ
+  /-- The local analytic orbit chart based at `state n`. -/
   chart : ∀ n, LocalAnalyticOrbit T (state n)
+  /-- The radius of the (possibly smaller) core used for compatibility. -/
   coreRadius : ℕ → ℝ
   core_pos : ∀ n, 0 < coreRadius n
   core_le : ∀ n, coreRadius n ≤ (chart n).radius
@@ -2229,7 +2249,7 @@ noncomputable def LocalOrbitCoreCover.ofIntIndex
     intro m n s hm hn
     exact compatible _ _ s hm hn
 
-/-! Package the grid argument with the abstract core-cover certificate.  The analytic work needed
+/-- Package the grid argument with the abstract core-cover certificate.  The analytic work needed
 to construct the charts is intentionally not hidden here: callers only have to provide the local
 adjacent equality, while this lemma supplies coverage and all non-adjacent compatibility. -/
 noncomputable def LocalOrbitCoreCover.ofAdjacentIntIndex
@@ -2255,6 +2275,8 @@ noncomputable def LocalOrbitCoreCover.ofAdjacentIntIndex
     (fun m n s hm hn => eq_of_adjacent hδ core_pos hadj (by simpa [center] using hm)
       (by simpa [center] using hn))
 
+/-- Restricts every chart of a core cover down to its core radius, forgetting the extra room
+outside it. -/
 noncomputable def LocalOrbitCoreCover.toLocalOrbitCover
     {T : H →ₗ.[ℂ] H} {x : H} (C : LocalOrbitCoreCover T x) : LocalOrbitCover T x where
   state := C.state
@@ -2271,6 +2293,8 @@ noncomputable def LocalOrbitCoreCover.toLocalOrbitCover
     intro m n s hm hn
     exact C.compatible m n s hm hn
 
+/-- Glues a local orbit cover into a single global analytic orbit, choosing at each time the
+chart that covers it. -/
 noncomputable def LocalOrbitCover.toGlobal {T : H →ₗ.[ℂ] H} {x : H}
     (C : LocalOrbitCover T x) : GlobalAnalyticOrbit T x where
   toFun := fun s => C.chart (Classical.choose (C.cover s))
@@ -2330,6 +2354,7 @@ noncomputable def LocalOrbitCover.toGlobal {T : H →ₗ.[ℂ] H} {x : H}
             (C.chart n).norm_eq (s - C.center n) hn
       _ = ‖x‖ := C.state_norm n
 
+/-- Glues a core cover into a single global analytic orbit, via its underlying `LocalOrbitCover`. -/
 noncomputable def LocalOrbitCoreCover.toGlobal {T : H →ₗ.[ℂ] H} {x : H}
     (C : LocalOrbitCoreCover T x) : GlobalAnalyticOrbit T x :=
   C.toLocalOrbitCover.toGlobal
@@ -2651,7 +2676,7 @@ lemma IsAnalyticVector.localAnalyticOrbit_at_exp_of_radius
   obtain ⟨U⟩ := IsAnalyticVector.localAnalyticOrbit hy hclosedSym hclosedense
   exact LocalAnalyticOrbit.of_closure hT U
 
-/-! Advance a proof-relevant analytic witness by a prescribed real step.  The new radius is chosen
+/-- Advance a proof-relevant analytic witness by a prescribed real step.  The new radius is chosen
 as the midpoint of a fixed lower bound and the old radius; consequently repeated advancement
 preserves a uniform positive lower bound instead of consuming the radius geometrically. -/
 noncomputable def AnalyticVectorWitness.advance
@@ -2731,7 +2756,7 @@ lemma AnalyticVectorWitness.advance_norm
   have hnorm := analyticExp_norm_eq_norm hsym hdense W.iterates_spec ha' W.summable
   simpa [AnalyticVectorWitness.advance] using hnorm
 
-/-! A two-sided line of witnesses with a fixed lower-radius invariant.  Positive indices advance
+/-- A two-sided line of witnesses with a fixed lower-radius invariant.  Positive indices advance
 by `δ`, negative indices by `-δ`; the midpoint choice in `advance` makes the invariant stable in
 both directions. -/
 noncomputable def AnalyticVectorWitness.uniformIntegerLineData
@@ -2765,6 +2790,7 @@ noncomputable def AnalyticVectorWitness.uniformIntegerLineData
     · exact (AnalyticVectorWitness.advance_norm hclosed hsym hdense ih.1 hr ih.2.1 ha).trans ih.2.2
   exact fun n => Int.inductionOn' (motive := motive) n 0 base succ pred
 
+/-- The two-sided line of witnesses underlying `uniformIntegerLineData`. -/
 noncomputable def AnalyticVectorWitness.uniformIntegerLine
     {T : H →ₗ.[ℂ] H} (hclosed : T.closure = T)
     (hsym : T.IsSymmetric)
