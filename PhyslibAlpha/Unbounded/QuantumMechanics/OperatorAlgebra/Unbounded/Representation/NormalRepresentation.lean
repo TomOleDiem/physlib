@@ -70,6 +70,7 @@ of unit-vector states.  The certificate is deliberately explicit: a concrete rep
 it from its chosen predual, while this structure lets the spectral theory consume that theorem
 without baking it in as an axiom. -/
 structure NormalVectorStateCertificate (π : Representation A H) where
+  /-- The normal state at each unit vector. -/
   state : ∀ x : H, ‖x‖ = 1 → NormalState A
   apply : ∀ (x : H) (hx : ‖x‖ = 1) (a : A), state x hx a = ⟪x, π a x⟫_ℂ
 
@@ -127,6 +128,7 @@ predual functional.  The following certificate records exactly that fact and con
 
 /-- A representation whose bounded matrix coefficients are represented by the chosen predual. -/
 structure PredualMatrixCoefficientCertificate (π : Representation A H) where
+  /-- The predual vector representing each matrix coefficient. -/
   coefficient : H → H → WStarAlgebra.Predual A
   apply : ∀ (x y : H) (a : A),
     WStarAlgebra.predualPairing (coefficient x y) a = ⟪y, π a x⟫_ℂ
@@ -441,6 +443,7 @@ def matrixCoefficientLinearMap (π : Representation A H) (x y : H) : A →ₗ[�
 /-- A representation is normal when all of its bounded matrix coefficients are weak-star
 continuous for the chosen von Neumann predual. -/
 structure NormalRepresentation where
+  /-- The underlying Hilbert-space representation. -/
   representation : Representation A H
   matrixCoefficient_continuous : ∀ x y : H,
     Continuous[WStarAlgebra.weakStarTopology A, inferInstance]
@@ -468,6 +471,8 @@ lemma continuous_normalCoeffTopologyEquiv_inv :
   funext φ
   simp [normalCoeffTopologyEquiv]
 
+/-- `matrixCoefficientLinearMap`, transported along the algebra/predual identification to a
+linear functional on `WeakDual ℂ (WStarAlgebra.Predual A)`. -/
 def normalCoeffOnWeakDual (π : Representation A H) (x y : H) :
     WeakDual ℂ (WStarAlgebra.Predual A) →ₗ[ℂ] ℂ :=
   (matrixCoefficientLinearMap π x y).comp
@@ -553,6 +558,7 @@ noncomputable def ofPredualMatrixCoefficientCertificate
 
 end NormalRepresentation
 
+/-- The normal vector state at a unit vector `x`, for a normal representation. -/
 noncomputable def normalVectorState
     (π : NormalRepresentation (A := A) (H := H)) (x : H) (hx : ‖x‖ = 1) :
     NormalState A where
@@ -585,9 +591,11 @@ noncomputable def NormalRepresentation.toPredualMatrixCoefficientCertificate
 
 /-! ## The representation boundary -/
 
-/- A normality witness for a representation of the normal PVM layer. -/
+/-- A normality witness for a representation of the normal PVM layer. -/
 structure NormalAffiliationBridge where
+  /-- The underlying Hilbert-space representation. -/
   representation : Representation A H
+  /-- The represented weak-operator spectral measure of an abstract normal PVM. -/
   toWOTSpectralMeasure : NormalPVM ℝ A → QuantumMechanics.WOTSpectralMeasure ℝ H
   toWOTSpectralMeasure_apply :
     ∀ (E : NormalPVM ℝ A) (S : Set ℝ),
@@ -624,6 +632,7 @@ All consequences below are formal: indicators, exponentials, and resolvents need
 affiliation argument once this certificate is supplied. -/
 structure NormalBorelRepresentationCertificate
     (bridge : NormalAffiliationBridge (A := A) (H := H)) where
+  /-- The abstract normal Borel functional calculus attached to each normal PVM. -/
   calculus : ∀ E : NormalPVM ℝ A, NormalBorelFunctionalCalculus E
   represented_boundedFC :
     ∀ (E : NormalPVM ℝ A) (f : ℝ → ℂ)
@@ -771,6 +780,7 @@ operators.  The inherited real part is used for self-adjoint domains; the comple
 the representation compatibility of arbitrary measurable complex functional calculus. -/
 structure NormalOperatorAffiliationBridge
     extends NormalAffiliationBridge (A := A) (H := H) where
+  /-- The represented weak-operator spectral measure of an abstract complex normal PVM. -/
   toWOTSpectralMeasureComplex : NormalPVM ℂ A → QuantumMechanics.WOTSpectralMeasure ℂ H
   toWOTSpectralMeasureComplex_apply :
     ∀ (E : NormalPVM ℂ A) (S : Set ℂ),
@@ -787,6 +797,7 @@ structure NormalOperatorBorelRepresentationCertificate
     (bridge : NormalOperatorAffiliationBridge (A := A) (H := H))
     extends NormalBorelRepresentationCertificate
       (bridge.toNormalAffiliationBridge) where
+  /-- The abstract normal Borel functional calculus attached to each complex normal PVM. -/
   calculusComplex : ∀ E : NormalPVM ℂ A, NormalBorelFunctionalCalculus E
   represented_boundedFCComplex :
     ∀ (E : NormalPVM ℂ A) (f : ℂ → ℂ)
@@ -830,6 +841,8 @@ lemma represented_indicator
 certificate, so arbitrary measurable complex functional calculus is available at the algebra
 boundary as soon as this one compatibility theorem has been supplied. -/
 
+/-- The abstract complex bounded functional calculus of a normal affiliated operator, via the
+certificate's complex calculus. -/
 noncomputable def abstractBoundedFC
     (T : NormalAffiliatedOperator A) (f : ℂ → ℂ)
     (hf : Measurable f) (hfb : ∃ C : ℝ, ∀ x, ‖f x‖ ≤ C) : A :=

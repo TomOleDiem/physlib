@@ -31,12 +31,16 @@ namespace OperatorAlgebra
 
 variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
 
+/-- The real part of a spectral point of `U`, as a compactly supported continuous function on
+`spectrum ℂ U`. -/
 def spectrumRealPart (U : H →L[ℂ] H) :
     CompactlySupportedContinuousMap (spectrum ℂ U) ℝ :=
   ⟨⟨fun z => z.1.re, by fun_prop⟩,
     hasCompactSupport_def.mpr
       (IsCompact.of_isClosed_subset isCompact_univ (isClosed_tsupport _) (subset_univ _))⟩
 
+/-- The imaginary part of a spectral point of `U`, as a compactly supported continuous function
+on `spectrum ℂ U`. -/
 def spectrumImagPart (U : H →L[ℂ] H) :
     CompactlySupportedContinuousMap (spectrum ℂ U) ℝ :=
   ⟨⟨fun z => z.1.im, by fun_prop⟩,
@@ -155,6 +159,7 @@ lemma polarizedCfcScalarMeasure_integral_spectrum_coe
         (Complex.I : ℂ) • cfcRealOperator U hU (spectrumImagPart U)) x⟫_ℂ := hfinal
     _ = ⟪y, U x⟫_ℂ := by rw [hsplit]
 
+/-- The Cayley unitary of `T`, as a bounded continuous linear map. -/
 def cayleyBoundedOperator (T : H →ₗ.[ℂ] H) (hT : IsSelfAdjoint T) : H →L[ℂ] H :=
   (cayleyUnitary T hT).toLinearIsometry.toContinuousLinearMap
 
@@ -204,6 +209,8 @@ lemma cayleyBoundedOperator_mem_unitary (T : H →ₗ.[ℂ] H) (hT : IsSelfAdjoi
     ext x
     simp [ContinuousLinearMap.mul_def]
 
+/-- The pushforward of the Cayley unitary's continuous functional calculus spectral measure
+along `spectrum ℂ U ↪ ℂ`. -/
 noncomputable def cayleyBoundedSpectralMeasure (T : H →ₗ.[ℂ] H) (hT : IsSelfAdjoint T) :
     QuantumMechanics.WOTSpectralMeasure ℂ H :=
   let U := cayleyBoundedOperator T hT
@@ -239,6 +246,8 @@ lemma cfcSpectralMeasure_ambient_reconstruction
       (fun z : spectrum ℂ U => (z.1 : ℂ)) x y = ⟪y, U x⟫_ℂ
   exact cfcSpectralMeasure_reconstruction_coe U hU x y
 
+/-- The generic bounded normal spectral certificate for `U`, from its continuous functional
+calculus. -/
 noncomputable def cfcBoundedNormalSpectralData
     (U : H →L[ℂ] H) (hU : IsStarNormal U) :
     QuantumMechanics.WOTSpectralMeasure.BoundedNormalSpectralData U where
@@ -250,6 +259,7 @@ noncomputable def cfcBoundedNormalSpectralData
 The only extra work is the support calculation: the normal PVM is pushed forward from the compact
 spectrum, and the spectrum of a unitary lies on the unit circle. -/
 
+/-- The bounded unitary spectral certificate for a unitary with no spectral mass at `1`. -/
 noncomputable def cfcBoundedUnitarySpectralData
     (u : H ≃ₗᵢ[ℂ] H)
     (h1 : (1 : ℂ) ∉ spectrum ℂ (u : H →L[ℂ] H)) :
@@ -706,6 +716,7 @@ closed unit disk; support reduction makes it equal to `1 - z` wherever the spect
 sees it.
 -/
 
+/-- `z ↦ 1 - z` on the unit circle, extended by zero elsewhere so it is globally bounded. -/
 def cayleyDifferenceMultiplier (z : ℂ) : ℂ :=
   if ‖z‖ = 1 then 1 - z else 0
 
@@ -803,6 +814,7 @@ lemma boundedIntegral_cayleyDifferenceMultiplier_eq_sub
   rw [hqint, hsub]
   simp [inner_sub_right]
 
+/-- The bounded unitary spectral certificate for `T`'s Cayley unitary. -/
 noncomputable def cayleyBoundedUnitarySpectralData
     (T : H →ₗ.[ℂ] H) (hT : IsSelfAdjoint T) :
     QuantumMechanics.WOTSpectralMeasure.BoundedUnitarySpectralData
@@ -814,6 +826,8 @@ noncomputable def cayleyBoundedUnitarySpectralData
     simpa [cayleyUnitary_apply, cayleyBoundedOperator_apply] using
       cayleyBoundedSpectralMeasure_reconstruction T hT x y
 
+/-- The real spectral measure of `T`, transported from its Cayley unitary's bounded unitary
+spectral data. -/
 noncomputable def cayleyRealSpectralMeasure
     (T : H →ₗ.[ℂ] H) (hT : IsSelfAdjoint T) :
     QuantumMechanics.WOTSpectralMeasure ℝ H :=
@@ -1649,6 +1663,8 @@ theorem unboundedSpectralTheorem_of_essentiallySelfAdjoint
       (cayleyRealSpectralMeasure T.closure hT) := by
   exact cayleyDomainAwareSelfAdjointSpectralTheorem T.closure hT
 
+/-- The essential-self-adjointness spectral data built from the Cayley construction, given only
+an essential-self-adjointness witness for `T`. -/
 noncomputable def cayleyEssentiallySelfAdjointSpectralData
     (T : H →ₗ.[ℂ] H) (hT : LinearPMap.IsEssentiallySelfAdjoint T) :
     EssentialSelfAdjointSpectralData T where

@@ -57,6 +57,7 @@ measure.  This is the representation-dependent form of an affiliated observable.
 structure ConcreteAffiliatedObservable (α : Type*) [MeasurableSpace α]
     (H : Type*) [NormedAddCommGroup H]
     [InnerProductSpace ℂ H] [CompleteSpace H] where
+  /-- The observable's spectral measure, represented on `H`. -/
   spectralMeasure : QuantumMechanics.WOTSpectralMeasure α H
 
 /-- A representation of an affiliated observable by a weak-operator spectral measure.
@@ -68,8 +69,11 @@ bounded operator.  In particular, a concrete self-adjoint operator is not itself
 object: its affiliated observable is. -/
 structure RepresentedAffiliatedObservable (A H : Type*) [OperatorAlgebra A]
     [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H] where
+  /-- The Hilbert-space representation of `A`. -/
   representation : Representation A H
+  /-- The underlying abstract affiliated observable. -/
   observable : AffiliatedObservable A
+  /-- The observable's spectral measure, represented on `H`. -/
   spectralMeasure : QuantumMechanics.WOTSpectralMeasure ℝ H
   spectralProjection_apply : ∀ S : Set ℝ,
     representation (observable.spectralProjection S : A) = (spectralMeasure S).toCLM
@@ -100,7 +104,9 @@ norm-valued countable additivity is the part that cannot be inferred from WOT ad
 infinite dimension. -/
 structure AffiliationBridge (A H : Type*) [OperatorAlgebra A]
     [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H] where
+  /-- The Hilbert-space representation of `A`. -/
   representation : Representation A H
+  /-- The abstract PVM built from a WOT spectral measure. -/
   toPVM : QuantumMechanics.WOTSpectralMeasure ℝ H → PVM ℝ A
   toPVM_apply : ∀ (μS : QuantumMechanics.WOTSpectralMeasure ℝ H) (S : Set ℝ),
     representation (toPVM μS S : A) = (μS S).toCLM
@@ -154,6 +160,8 @@ faithfulness of the representation.  We keep it as a separate extension so exist
 bridges do not acquire an artificial obligation, while the uniqueness statements below can use it
 exactly where it is mathematically needed. -/
 
+/-- An `AffiliationBridge` whose representation is faithful, so the abstract projection can be
+recovered from its represented form. -/
 structure FaithfulAffiliationBridge (A H : Type*) [OperatorAlgebra A]
     [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
     extends AffiliationBridge A H where
@@ -556,7 +564,7 @@ namespace DomainAwareSelfAdjointSpectralTheorem
 variable {T : H →ₗ.[ℂ] H}
 variable {μS : QuantumMechanics.WOTSpectralMeasure ℝ H}
 
-/- Transport the domain-aware theorem through a Hilbert-space unitary.  The only
+/-- Transport the domain-aware theorem through a Hilbert-space unitary.  The only
 additional input beyond the weak transport is the diagonal-measure equivariance
 lemma, which makes the square-moment domain equivariant as well. -/
 def unitaryConj {H' : Type*} [NormedAddCommGroup H'] [InnerProductSpace ℂ H']
@@ -579,9 +587,12 @@ def unitaryConj {H' : Type*} [NormedAddCommGroup H'] [InnerProductSpace ℂ H']
 
 end DomainAwareSelfAdjointSpectralTheorem
 
+/-- A self-adjoint operator together with its weak-operator spectral measure and the
+corresponding spectral theorem. -/
 structure SelfAdjointSpectralData
     (T : H →ₗ.[ℂ] H) where
   isSelfAdjoint : IsSelfAdjoint T
+  /-- The operator's spectral measure. -/
   spectralMeasure : QuantumMechanics.WOTSpectralMeasure ℝ H
   spectralTheorem : SelfAdjointSpectralTheorem T spectralMeasure
 
@@ -591,6 +602,7 @@ weak unbounded integral law and the exact square-moment domain. -/
 structure EssentialSelfAdjointSpectralData
     (T : H →ₗ.[ℂ] H) where
   essentiallySelfAdjoint : LinearPMap.IsEssentiallySelfAdjoint T
+  /-- The operator's spectral measure (of the closure). -/
   spectralMeasure : QuantumMechanics.WOTSpectralMeasure ℝ H
   spectralTheorem : DomainAwareSelfAdjointSpectralTheorem T.closure spectralMeasure
 
@@ -624,6 +636,7 @@ lemma unique_selfAdjoint_extension {S : H →ₗ.[ℂ] H}
     (hTS : T ≤ S) (hS : IsSelfAdjoint S) : S = T.closure :=
   SelfAdjointClosureData.unique_selfAdjoint_extension D.closureData hTS hS
 
+/-- The closure's spectral data, forgetting the algebraic packaging. -/
 def toConcreteAffiliatedObservable : ConcreteAffiliatedObservable ℝ H :=
   ⟨D.spectralMeasure⟩
 
