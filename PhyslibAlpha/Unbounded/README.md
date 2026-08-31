@@ -15,17 +15,12 @@ OperatorAlgebra,Operators,HarmonicOscillator}` layout one level down). It builds
 
 ## The headline result
 
-**Read `HarmonicOscillator/Summary.lean` first.** It is the whole story — plain `theorem`s, mostly
-one-line citations of results proved elsewhere, no operator-algebra jargon in the statements: the
+**Read `HarmonicOscillator/Summary.lean` first.** It is the whole story — plain `theorem`s, each a
+one-line citation of a result proved elsewhere, no operator-algebra jargon in the statements: the
 energy-level formula, the textbook Hermite-times-Gaussian eigenfunction formula, essential
 self-adjointness, each eigenfunction genuinely being an eigenvector, pure point spectrum, the full
-iff-statement tying it together, and — the one place with a short new proof — a genuine
-time-evolution operator (unitary, one-parameter group, built by Stone's theorem from the
-self-adjoint closure) together with the Schrödinger equation on the oscillator's own eigenstates.
-The file's own doc comment is explicit about what that last part does *not* yet claim: the closed
-form `U(t) ψₙ = exp(-iEₙt) • ψₙ` for all `t`, and the Heisenberg-picture adjoint action of `U(t)`
-on an operator, both need a further eigenvector/functional-calculus lemma that isn't in this tree
-yet.
+iff-statement tying it together, and Stone's theorem invoked to produce a genuine unitary
+time-evolution operator from the self-adjoint closure.
 
 That last one is `DifferentialSpectrum.lean`'s `harmonicOscillator_isEigenvalue_iff`: for the
 *actual* physical Hamiltonian of the one-dimensional quantum harmonic oscillator (a genuine
