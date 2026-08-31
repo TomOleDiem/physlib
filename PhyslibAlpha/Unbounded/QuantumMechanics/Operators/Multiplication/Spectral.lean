@@ -12,8 +12,8 @@ public import PhyslibAlpha.Unbounded.QuantumMechanics.Operators.Core.UnboundedEx
 public import Physlib.QuantumMechanics.Operators.Multiplication
 public import PhyslibAlpha.Unbounded.QuantumMechanics.Operators.Multiplication.BasicExtras
 public import PhyslibAlpha.Unbounded.QuantumMechanics.Operators.Multiplication.Core
-public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Unbounded.Affiliation.Concrete
-public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Unbounded.Spectral.Cayley
+public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Affil.Concrete
+public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Spec.Cayley
 public import Physlib.QuantumMechanics.PlanckConstant
 public import Mathlib.MeasureTheory.Function.LpSeminorm.Indicator
 public import Mathlib.MeasureTheory.Function.L1Space.Integrable

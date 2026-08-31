@@ -7,7 +7,7 @@ module
 
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.TraceClass.Polar
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.TraceClass.TraceProduct
-public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.TraceClass.HilbertSchmidtAlgebra
+public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.TraceClass.HSAlgebra
 
 /-!
 # The first general trace-class ideal consequences

@@ -6,8 +6,8 @@ Authors: Tom Ole Diem
 module
 
 public import PhyslibAlpha.Unbounded.QuantumMechanics.HarmonicOscillator.EssentialSelfAdjointness
-public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Unbounded.Examples.HarmonicOscillator
-public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Unbounded.Examples.Spectrum
+public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Examples.HarmonicOscillator
+public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Examples.Spectrum
 public import Physlib.Mathematics.InnerProductSpace.Gaussian
 
 /-! # The differential oscillator core

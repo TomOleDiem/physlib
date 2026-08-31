@@ -6,7 +6,7 @@ Authors: Tom Ole Diem
 module
 
 public import PhyslibAlpha.Unbounded.QuantumMechanics.HarmonicOscillator.DifferentialCore
-public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Unbounded.Spectral.EigenvectorSpectralAtom
+public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Spec.EigenvectorSpectralAtom
 
 /-! # The explicit Hermite discrete-sum spectral-projection formula
 

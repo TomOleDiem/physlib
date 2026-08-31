@@ -10,10 +10,10 @@ public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.States.Exp
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.States.NormalState
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.States.Uncertainty
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.States.DensityOperator
-public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.States.DensityOperatorQuadraticForm
-public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.States.DensityOperatorTraceBridge
-public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.States.DensityOperatorTraceState
-public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.States.NormalStateRepresentation
+public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.States.DensityQuadraticForm
+public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.States.DensityTraceBridge
+public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.States.DensityTraceState
+public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.States.NormalStateRepr
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.States.Distribution
 
 /-! # State theory

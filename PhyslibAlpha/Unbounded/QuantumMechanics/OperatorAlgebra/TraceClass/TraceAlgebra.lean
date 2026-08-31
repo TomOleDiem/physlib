@@ -8,7 +8,7 @@ module
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.TraceClass.GeneralIdeal
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.TraceClass.PositiveIdeal
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.TraceClass.RankOne
-public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.TraceClass.PositiveIdealEstimate
+public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.TraceClass.PosIdealEstimate
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.TraceClass.PositiveDomination
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.TraceClass.GeneralProduct
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.TraceClass.IdealNorm

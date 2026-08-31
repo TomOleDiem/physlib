@@ -14,6 +14,6 @@ public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Dynamics.C
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Dynamics.Stinespring
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Dynamics.Lindblad
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Dynamics.FiniteDimensional
-public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Dynamics.FiniteDimensionalChristensenEvans
+public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Dynamics.FiniteDimCE
 
 /-! # Reversible and irreversible operator-algebraic dynamics -/

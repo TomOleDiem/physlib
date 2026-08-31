@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import PhyslibAlpha.Unbounded.QuantumMechanics.Operators.SpectralTheory.UnboundedSpectralIntegral
+public import PhyslibAlpha.Unbounded.QuantumMechanics.Operators.SpectralTheory.SpectralIntegral
 public import Mathlib.Analysis.Calculus.Deriv.Comp
 public import Mathlib.Analysis.Calculus.Deriv.Mul
 public import Mathlib.Analysis.Complex.RealDeriv

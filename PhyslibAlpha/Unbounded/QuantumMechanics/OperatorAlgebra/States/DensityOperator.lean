@@ -12,7 +12,7 @@ public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.TraceClass
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.FiniteDim.Trace
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.States.NormalState
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Measurement.PVM
-public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.WStarAlgebra.InfiniteDimensional
+public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.WStarAlgebra.InfiniteDim
 public import Physlib.Meta.TODO.Basic
 
 /-!

@@ -6,8 +6,8 @@ Authors: Tom Ole Diem
 module
 
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.TraceClass.TraceProduct
-public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.TraceClass.HilbertSchmidtAlgebra
-public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.TraceClass.HilbertSchmidtEstimate
+public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.TraceClass.HSAlgebra
+public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.TraceClass.HSEstimate
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.TraceClass.Polar
 public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.TraceClass.GeneralIdeal
 

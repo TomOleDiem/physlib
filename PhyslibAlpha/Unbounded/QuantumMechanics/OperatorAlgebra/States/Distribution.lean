@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Unbounded.Affiliation.Affiliated
+public import PhyslibAlpha.Unbounded.QuantumMechanics.OperatorAlgebra.Affil.Affiliated
 
 /-!
 
