@@ -62,6 +62,14 @@ TODO "Determine the energy eigenstates of the quantum harmonic oscillator
 TODO "Determine the energy eigenstates of the isotropic quantum harmonic oscillator
   in the 'spherical basis' in terms of spherical harmonics."
 
+/-! The `d = 1` case of the first two TODOs above is answered, with full unbounded-operator
+rigor (essential self-adjointness of the Hamiltonian on `L²(ℝ)`, not an assumption), in
+`HarmonicOscillator/Unbounded/Summary.lean` -- see that file for the one-dimensional spectrum
+and Hermite-polynomial eigenstates. It works with the existing curated
+`Physlib.QuantumMechanics.HarmonicOscillator.OneDimension.HarmonicOscillator`, a different type
+from `HarmonicOscillator d` here; connecting the two (and generalizing the unbounded-operator
+argument to arbitrary `d`) remains open. -/
+
 noncomputable section
 namespace QuantumMechanics
 
