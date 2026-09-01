@@ -42,7 +42,7 @@ variable {𝓗 : Type*} [NormedAddCommGroup 𝓗] [InnerProductSpace ℂ 𝓗] [
 
 /-- Needed to invoke `NormedSpace.map_exp` (which requires `Algebra ℚ` on the target algebra) at
 `B(𝓗)`; obtained by restricting the ambient `NormedAlgebra ℂ (B(𝓗))` along `ℚ ⊆ ℂ`. -/
-noncomputable local instance : NormedAlgebra ℚ (B(𝓗)) :=
+noncomputable local instance hamiltonianNormedAlgebraRat : NormedAlgebra ℚ (B(𝓗)) :=
   .restrictScalars ℚ ℂ (B(𝓗))
 
 namespace UnitaryOneParameterGroup
@@ -194,12 +194,14 @@ private lemma G_add_smul_one (ℏ : ℝ) (H : Observable (B(𝓗))) (c : ℝ) :
   rw [smul_add, hc, smul_smul]
 
 /-- A central element (a scalar multiple of `1`) brackets to zero with anything. -/
+@[nolint unusedArguments]
 private lemma central_cancel (z : ℂ) (x : B(𝓗)) :
     ⁅x, z • (1 : B(𝓗))⁆ = 0 := by
   simp [LieRing.of_associative_ring_bracket]
 
 /-- The bracket distributes over addition in its second argument (the ring-commutator bracket is
 bi-additive). -/
+@[nolint unusedArguments]
 private lemma lie_add' (x m n : B(𝓗)) : ⁅x, m + n⁆ = ⁅x, m⁆ + ⁅x, n⁆ := by
   simp only [LieRing.of_associative_ring_bracket]
   noncomm_ring

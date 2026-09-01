@@ -6,7 +6,7 @@ Authors: Tom Ole Diem
 module
 
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.FiniteDim.DensityOperator
-public import Physlib.Mathematics.OperatorAlgebra.State
+public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.States.Convex
 
 /-!
 

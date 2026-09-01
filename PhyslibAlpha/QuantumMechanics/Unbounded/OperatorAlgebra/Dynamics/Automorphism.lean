@@ -6,9 +6,9 @@ Authors: Tom Ole Diem
 module
 
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.HilbertSpace
-public import Physlib.QuantumMechanics.OperatorAlgebra.Observables.Lie
+public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.AutomorphismGroup
+public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Observables.Lie
 public import Physlib.Mathematics.OneParameterSubgroups.Unitary
-public import Physlib.Mathematics.OperatorAlgebra.Dynamics
 public import Mathlib.Analysis.Normed.Operator.ContinuousAlgEquiv
 public import Mathlib.Analysis.CStarAlgebra.Hom
 
@@ -255,6 +255,7 @@ lemma hasDerivAt_toAutomorphism (U : UnitaryOneParameterGroup H) (a : B(H)) (t :
   exact hd
 
 /-- A function on `ℝ` with everywhere-zero derivative is constant. -/
+@[nolint unusedArguments]
 private lemma const_of_hasDerivAt_zero {f : ℝ → B(H)} (hf : ∀ s, HasDerivAt f 0 s) (t : ℝ) :
     f t = f 0 := by
   apply isOpen_univ.is_const_of_deriv_eq_zero isPreconnected_univ

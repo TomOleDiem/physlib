@@ -55,6 +55,10 @@ public import PhyslibAlpha.QuantumMechanics.HarmonicOscillator.Unbounded.Intende
 public import PhyslibAlpha.QuantumMechanics.HarmonicOscillator.Unbounded.OneDimension.Plancherel
 public import PhyslibAlpha.QuantumMechanics.HarmonicOscillator.Unbounded.SpectralProjections
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Basic
+public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics
+public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.Automorphism
+public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.AutomorphismGroup
+public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.Hamiltonian
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.CPClosure
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.ChristensenEvans
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.ChristensenEvans.P1
@@ -71,6 +75,8 @@ public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.S
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.Stinespring.Converse
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Dynamics.Trotter
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.FiniteDim.DensityOperator
+public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.FiniteDim.StateRepresentation
+public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.FiniteDim.PureStates
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.FiniteDim.DensityOperatorGeometry
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.FiniteDim.Matrix
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.FiniteDim.Trace
@@ -87,6 +93,7 @@ public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Observable
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.Observables.Observable
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.States
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.States.Basic
+public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.States.Convex
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.States.DensityOperator
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.States.DensityQuadraticForm
 public import PhyslibAlpha.QuantumMechanics.Unbounded.OperatorAlgebra.States.DensityTraceBridge
