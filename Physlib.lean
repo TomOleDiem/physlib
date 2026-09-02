@@ -351,7 +351,6 @@ public import Physlib.QuantumMechanics.InfiniteSquareWell.Basic
 public import Physlib.QuantumMechanics.OperatorAlgebra.Basic
 public import Physlib.QuantumMechanics.OperatorAlgebra.Dynamics.Automorphism
 public import Physlib.QuantumMechanics.OperatorAlgebra.HilbertSpace
-public import Physlib.QuantumMechanics.OperatorAlgebra.Measurement.POVM
 public import Physlib.QuantumMechanics.OperatorAlgebra.Measurement.SpectralMeasure
 public import Physlib.QuantumMechanics.OperatorAlgebra.Observables.Basic
 public import Physlib.QuantumMechanics.OperatorAlgebra.Observables.Effects
