@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.QuantumMechanics.OperatorAlgebra.Observables.Effects
+public import PhyslibAlpha.QuantumMechanics.OperatorAlgebra.Observables.Effects
 public import Mathlib.Analysis.CStarAlgebra.Projection
 
 /-!

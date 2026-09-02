@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.QuantumMechanics.OperatorAlgebra.Observables.Basic
+public import PhyslibAlpha.QuantumMechanics.OperatorAlgebra.Observables.Basic
 public import Physlib.Meta.TODO.Basic
 public import Mathlib.Algebra.Jordan.Basic
 public import Mathlib.LinearAlgebra.Complex.Module

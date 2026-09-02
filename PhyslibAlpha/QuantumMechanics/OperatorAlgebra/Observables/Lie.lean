@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.QuantumMechanics.OperatorAlgebra.Observables.Jordan
+public import PhyslibAlpha.QuantumMechanics.OperatorAlgebra.Observables.Jordan
 public import Mathlib.Algebra.Lie.OfAssociative
 public import Mathlib.LinearAlgebra.Complex.Module
 

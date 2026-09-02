@@ -5,8 +5,8 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.QuantumMechanics.OperatorAlgebra.States.Statistics
-public import Physlib.QuantumMechanics.OperatorAlgebra.Observables.Lie
+public import PhyslibAlpha.QuantumMechanics.OperatorAlgebra.States.Statistics
+public import PhyslibAlpha.QuantumMechanics.OperatorAlgebra.Observables.Lie
 public import Mathlib.Analysis.CStarAlgebra.GelfandNaimarkSegal
 
 /-!

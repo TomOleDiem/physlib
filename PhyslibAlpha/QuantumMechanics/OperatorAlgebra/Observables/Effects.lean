@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.QuantumMechanics.OperatorAlgebra.Observables.Positive
+public import PhyslibAlpha.QuantumMechanics.OperatorAlgebra.Observables.Positive
 public import Mathlib.Analysis.CStarAlgebra.ContinuousFunctionalCalculus.Instances
 
 /-!

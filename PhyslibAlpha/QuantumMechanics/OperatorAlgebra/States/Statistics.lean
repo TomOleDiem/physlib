@@ -5,8 +5,8 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.QuantumMechanics.OperatorAlgebra.States.Basic
-public import Physlib.QuantumMechanics.OperatorAlgebra.Observables.Jordan
+public import PhyslibAlpha.QuantumMechanics.OperatorAlgebra.States.Basic
+public import PhyslibAlpha.QuantumMechanics.OperatorAlgebra.Observables.Jordan
 
 /-!
 

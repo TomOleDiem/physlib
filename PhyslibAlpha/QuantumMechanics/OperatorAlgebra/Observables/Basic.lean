@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.QuantumMechanics.OperatorAlgebra.Basic
+public import PhyslibAlpha.QuantumMechanics.OperatorAlgebra.Basic
 public import Mathlib.Analysis.CStarAlgebra.Spectrum
 
 /-!

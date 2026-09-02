@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.QuantumMechanics.OperatorAlgebra.States.Convex
+public import PhyslibAlpha.QuantumMechanics.OperatorAlgebra.States.Convex
 
 /-!
 # Pure states
