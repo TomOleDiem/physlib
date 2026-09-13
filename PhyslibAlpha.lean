@@ -228,3 +228,4 @@ public import PhyslibAlpha.AlgebraicFramework.CStarAlgebra.JordanSpecial
 -- public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JB.GeneratedByOne.CFC_AUDIT
 -- public import PhyslibAlpha.AlgebraicFramework.EXTERNAL_INTEGRATION_PLAN
 -- public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.Unbounded.UNBOUNDED_SPECTRAL_ROADMAP
+public import PhyslibAlpha.Relativity.General.Schwarzschild.IncompressibleSphere
