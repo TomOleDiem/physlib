@@ -46,7 +46,7 @@ theorem isClosed_essSpectrum {A : H →ₗ.[ℂ] H} (hA : IsSelfAdjoint A) :
     IsClosed (essSpectrum hA) := by
   rw [← isSeqClosed_iff_isClosed]
   intro lamSeq lamLim hmem hlim
-  simp only [essSpectrum, Set.mem_setOf_eq] at hmem
+  simp only [essSpectrum, Set.mem_ofPred_eq] at hmem
   choose ψ hψnorm hψweak hψeig using hmem
   -- The countable family of all vectors, and its separable closed span `K`.
   set S : Set H := Set.range (fun p : ℕ × ℕ => ((ψ p.1 p.2 : H))) with _hSdef
