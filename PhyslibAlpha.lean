@@ -147,6 +147,12 @@ public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.Unbounded.Stone
 public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.Unbounded.Flow.Stone
 public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.Unbounded.Flow.StoneAPI
 public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.Unbounded.Flow.StoneInvariance
+public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.Unbounded.EssentialSpectrum.Defs
+public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.Unbounded.EssentialSpectrum.WeakCompact
+public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.Unbounded.EssentialSpectrum.Closed
+public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.Unbounded.EssentialSpectrum.Smul
+public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.Unbounded.EssentialSpectrum.Weyl
+public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.Unbounded.EssentialSpectrum.Discrete
 public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.State.Density
 public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.State.Vector
 public import PhyslibAlpha.AlgebraicFramework.Measurement.Basic
@@ -166,6 +172,7 @@ public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.Basic
 public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.Hom
 public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.FreeJordanTwo
 public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.Operator
+public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.Quadratic.Triple
 public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.Examples.SpinFactor
 public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.Observable
 public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.ProjectionResolution
@@ -211,3 +218,13 @@ public import PhyslibAlpha.AlgebraicFramework.CStarAlgebra.JordanStatistics
 public import PhyslibAlpha.AlgebraicFramework.CStarAlgebra.JordanPositivity
 public import PhyslibAlpha.AlgebraicFramework.CStarAlgebra.JordanCFC
 public import PhyslibAlpha.AlgebraicFramework.CStarAlgebra.JordanSpecial
+
+-- Roadmap/audit documents (`.md`, not Lean modules — cannot be `import`ed) are still listed here,
+-- as comments, so `lake exe alphaFileImports` recognizes every file under `AlgebraicFramework/`.
+-- public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JB_ROADMAP
+-- public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.EXCEPTIONAL_ALBERT_ROADMAP
+-- public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.EXTERNAL_JORDAN_ALGEBRA_AUDIT
+-- public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JB.GENERATED_SUBALGEBRA_ROADMAP
+-- public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JB.GeneratedByOne.CFC_AUDIT
+-- public import PhyslibAlpha.AlgebraicFramework.EXTERNAL_INTEGRATION_PLAN
+-- public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.Unbounded.UNBOUNDED_SPECTRAL_ROADMAP
