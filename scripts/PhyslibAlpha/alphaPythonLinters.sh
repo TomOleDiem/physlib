@@ -10,7 +10,11 @@ set -exo pipefail
 
 touch scripts/style-exceptions.txt
 
-git ls-files 'PhyslibAlpha/*.lean' | xargs ./scripts/lint-style.py "$@"
+# `git ls-files` includes paths scheduled for deletion until the change is committed.  Remove
+# those paths so a rename/removal is linted by its replacement rather than failing on a vanished
+# file.
+comm -23 <(git ls-files 'PhyslibAlpha/*.lean' | sort) \
+  <(git ls-files -d -- 'PhyslibAlpha/*.lean' | sort) | xargs ./scripts/lint-style.py "$@"
 
 # 2. Global checks on the PhyslibAlpha repository
 

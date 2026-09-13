@@ -102,9 +102,11 @@ continuous functional calculus square root, and Mathlib's `HilbertBasis` Parseva
 
 omit [CompleteSpace H] in
 /-- **Parseval's identity**, in the form needed below: for a Hilbert basis `{eᵢ}` and any vector
-`y`, `∑ᵢ |⟪eᵢ, y⟫|² = ‖y‖²`, unconditionally (`HasSum`, not merely `tsum`). -/
+`y`, `∑ᵢ |⟪eᵢ, y⟫|² = ‖y‖²`, unconditionally (`HasSum`, not merely `tsum`). Not `private`: reused
+verbatim by `HilbertSpace/TraceClass/Banach.lean`'s Hilbert–Schmidt-domination argument for
+`opNorm_le_traceNorm`. -/
 @[nolint unusedArguments]
-private lemma hasSum_norm_sq_inner_basis {w : Set H} (b : HilbertBasis w ℂ H) (y : H) :
+theorem hasSum_norm_sq_inner_basis {w : Set H} (b : HilbertBasis w ℂ H) (y : H) :
     HasSum (fun i : w => ‖⟪b i, y⟫_ℂ‖ ^ 2) (‖y‖ ^ 2) := by
   have h := b.hasSum_inner_mul_inner y y
   have hpt : ∀ i : w, ⟪y, b i⟫_ℂ * ⟪b i, y⟫_ℂ = ((‖⟪b i, y⟫_ℂ‖ ^ 2 : ℝ) : ℂ) := fun i => by
@@ -273,6 +275,15 @@ decomposition `T = U|T|`), together with basis-independence, is left to the late
 Banach space phase; the self-adjoint case is handled directly below without polar decomposition. -/
 def trace (T : H →L[ℂ] H) (h : IsTraceClass T) : ℂ :=
   ∑' i : h.choose, ⟪h.choose_spec.choose i, T (h.choose_spec.choose i)⟫_ℂ
+
+/-- The witness proof argument of `trace` is immaterial (by `Prop`'s proof irrelevance, the two
+`IsTraceClass` proofs are already definitionally equal; this lemma packages that fact for `rw`).
+Extension of this file added for `WStarAlgebra/HilbertSpaceInstance.lean`'s rank-one trace
+computations, mirroring `traceNorm_congr` above. -/
+theorem trace_congr {T : H →L[ℂ] H} {h₁ h₂ : IsTraceClass T} :
+    trace T h₁ = trace T h₂ := by
+  have hh : h₁ = h₂ := Subsingleton.elim _ _
+  rw [hh]
 
 /-- The trace norm is independent of the witness basis used in `IsTraceClass`.  This is the
 strong form of `summable_inner_abs_of_hilbertBasis`: the square-root/Parseval argument identifies

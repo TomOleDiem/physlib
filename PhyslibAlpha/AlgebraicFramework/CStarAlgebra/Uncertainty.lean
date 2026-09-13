@@ -68,10 +68,12 @@ lemma bracket_centered (ω : 𝓢[A]) (a b : Observable A) :
   congr 1
   show (centered ω a : A) * centered ω b - (centered ω b : A) * centered ω a =
       (a : A) * b - (b : A) * a
-  simp only [centered, AddSubgroup.coe_sub, selfAdjoint.val_smul, selfAdjoint.val_one, mul_sub,
-    sub_mul]
-  rw [smul_one_comm (ω⟨b⟩) (a : A), smul_one_comm (ω⟨a⟩) (b : A),
-    smul_one_comm (ω⟨a⟩) (ω⟨b⟩ • (1 : A))]
+  simp only [centered, LinearMap.centered, AddSubgroup.coe_sub, selfAdjoint.val_smul,
+    selfAdjoint.val_one, mul_sub, sub_mul]
+  rw [smul_one_comm ((expectation ω).toLinearMap b) (a : A),
+    smul_one_comm ((expectation ω).toLinearMap a) (b : A),
+    smul_one_comm ((expectation ω).toLinearMap a)
+      ((expectation ω).toLinearMap b • (1 : A))]
   abel
 
 /-- The expectation of a raw product of two fluctuations splits into a real symmetric part
@@ -93,7 +95,9 @@ lemma apply_centered_mul_centered (ω : 𝓢[A]) (a b : Observable A) :
     rw [Complex.I_sq]
     push_cast
     ring
-  rw [hcomm, show covariance ω a b = z.re from rfl, mul_comm, Complex.re_add_im]
+  have hcov : covariance ω a b = z.re := by
+    rw [covariance_eq_re_apply_centered_mul, hz]
+  rw [hcomm, hcov, mul_comm, Complex.re_add_im]
 
 /-! ## Cauchy–Schwarz -/
 
