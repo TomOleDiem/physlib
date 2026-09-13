@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JB.GeneratedByOne.ContinuousFunctionalCalculus
+public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JB.GeneratedByOne.CFC
 public import PhyslibAlpha.AlgebraicFramework.OrderUnit.Effect.Basic
 
 /-!

@@ -7,7 +7,7 @@ module
 
 public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JB.GeneratedByOne.Closed
 public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JB.GeneratedByOne.Inherited
-public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JB.GeneratedByOne.PositiveInvertibility
+public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JB.GeneratedByOne.PosInvertibility
 public import Mathlib.Analysis.Normed.Algebra.Spectrum
 public import Mathlib.Analysis.Polynomial.Factorization
 

@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JB.GeneratedByOne.ContinuousFunctionalCalculus
+public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JB.GeneratedByOne.CFC
 
 /-!
 
@@ -13,7 +13,7 @@ public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JB.GeneratedByOne.
 
 ## i. Overview
 
-`jordanSqrt_eq_of_mem_closedGeneratedByOne` (`ContinuousFunctionalCalculus.lean`) only proves
+`jordanSqrt_eq_of_mem_closedGeneratedByOne` (`CFC.lean`) only proves
 uniqueness of the canonical positive square root among roots already known to lie in
 `ClosedGeneratedByOne a`. This file removes that restriction: it proves that **every** nonnegative
 `b` with `b * b = a` equals `jordanSqrt a ha`, for `b` an arbitrary element of the ambient JB

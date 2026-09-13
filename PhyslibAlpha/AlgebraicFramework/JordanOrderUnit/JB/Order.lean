@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JB.GeneratedByOne.PositiveInvertibility
+public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JB.GeneratedByOne.PosInvertibility
 
 /-!
 

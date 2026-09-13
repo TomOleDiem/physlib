@@ -1,4 +1,0 @@
-PhyslibAlpha/AlgebraicFramework/JordanOrderUnit/JB/GeneratedByOne/Effect.lean : line 8 : ERR_LIN : Line has more than 100 characters
-PhyslibAlpha/AlgebraicFramework/JordanOrderUnit/JB/GeneratedByOne/Spectrum.lean : line 10 : ERR_LIN : Line has more than 100 characters
-PhyslibAlpha/AlgebraicFramework/JordanOrderUnit/JB/GeneratedByOne/SquareRootUniqueness.lean : line 8 : ERR_LIN : Line has more than 100 characters
-PhyslibAlpha/AlgebraicFramework/JordanOrderUnit/JB/Order.lean : line 8 : ERR_LIN : Line has more than 100 characters

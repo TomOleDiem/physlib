@@ -205,12 +205,12 @@ public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JB.Dynamics
 public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JB.GeneratedByOne.Closed
 public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JB.GeneratedByOne.Inherited
 public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JB.GeneratedByOne.Spectrum
-public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JB.GeneratedByOne.ContinuousFunctionalCalculus
+public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JB.GeneratedByOne.CFC
 public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JB.GeneratedByOne.SquareRootUniqueness
 public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JB.GeneratedByOne.Effect
 public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.Lueders
 public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JB.GeneratedByOne.Uniform
-public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JB.GeneratedByOne.PositiveInvertibility
+public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JB.GeneratedByOne.PosInvertibility
 public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JB.Order
 public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JBW.Basic
 public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.JBW.ProjectionResolution
