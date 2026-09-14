@@ -110,6 +110,14 @@ public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.TraceClass.GeneralIde
 public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.TraceClass.GeneralProduct
 public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.TraceClass.IdealNorm
 public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.TraceClass.Banach
+public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.TraceClass.TraceAlgebra
+public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.TraceClass.RankOne
+public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.TraceClass.Pairing
+public import PhyslibAlpha.AlgebraicFramework.WStarAlgebra.BoundedSesquilinearForm
+public import PhyslibAlpha.AlgebraicFramework.WStarAlgebra.TracePairingNorm
+public import PhyslibAlpha.AlgebraicFramework.WStarAlgebra.TracePairingSurjectivity
+public import PhyslibAlpha.AlgebraicFramework.WStarAlgebra.RankOnePairing
+public import PhyslibAlpha.AlgebraicFramework.WStarAlgebra.Concrete
 public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.Unbounded.Cayley.Basic
 public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.Unbounded.Cayley.Measure
 public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.Unbounded.Cayley.Certificate

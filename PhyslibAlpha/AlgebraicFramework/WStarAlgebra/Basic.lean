@@ -56,9 +56,15 @@ only the identification and its transport back along it.
 
 ## Concrete realization
 
-The genuinely concrete instance — `A := B(H)` with predual the trace-class operators `𝒮₁(H)` and
-`toDual` the trace pairing `a ↦ (ρ ↦ Tr(aρ))` — needs a `TraceClass H` Banach space this repo does
-not yet have. This file stays at the abstract weak-⋆ and normal-state layer.
+The genuinely concrete instance — `A := H →L[ℂ] H` with predual the trace-class operators
+`𝒮₁(H)` (`HilbertSpace/TraceClass/Banach.lean`) and `toDual` the trace pairing `a ↦ (ρ ↦ Tr(aρ))`
+— is built in `WStarAlgebra/Concrete.lean`, as
+`instWStarAlgebraStructureContinuousLinearMap`. The trace pairing's boundedness and linearity are
+proved in `HilbertSpace/TraceClass/Pairing.lean`; its isometry (via rank-one test vectors) in
+`WStarAlgebra/TracePairingNorm.lean`; and its surjectivity onto the full strong dual of `𝒮₁(H)`
+(via a Hilbert–Schmidt truncation/density argument) in
+`WStarAlgebra/TracePairingSurjectivity.lean`. This file itself stays at the abstract weak-⋆ and
+normal-state layer.
 
 -/
 
