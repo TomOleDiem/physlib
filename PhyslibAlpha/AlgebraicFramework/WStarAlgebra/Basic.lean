@@ -30,8 +30,9 @@ identification — built directly on `Basic/CStarAlgebra/`'s bare-hypothesis con
 class. It is a different name for a related but genuinely different (data vs. `Prop`) notion than
 Mathlib's `WStarAlgebra`, not a competing definition of the same one; connecting the two — every
 `WStarAlgebraStructure A` gives a proof of `WStarAlgebra A` — needs converting our `≃ₗᵢ[ℂ]`
-(linear) identification to Mathlib's `≃ₗᵢ⋆[ℂ]` (conjugate-linear) one, genuine linear-algebra work
-not attempted here.
+(linear) identification to Mathlib's `≃ₗᵢ⋆[ℂ]` (conjugate-linear) one. This conversion is carried
+out in `WStarAlgebra/Mathlib.lean` (`WStarAlgebraStructure.toWStarAlgebra`), via the
+scalar-conjugation type twist `WStarAlgebra/ConjSpace.lean` sets up.
 
 Mathlib's own weak-⋆ topology machinery for the dual of a normed space
 (`Mathlib.Analysis.Normed.Module.WeakDual`, `WeakDual`/`StrongDual`) does essentially all of the
