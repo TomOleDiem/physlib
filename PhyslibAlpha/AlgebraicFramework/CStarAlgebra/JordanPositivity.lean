@@ -25,9 +25,12 @@ the Jordan-native statements, using `mul_self_eq` from `CStarAlgebra/Jordan.lean
 square of a single element is the ordinary square) and ordinary two-sided vanishing to obtain
 Jordan orthogonality.
 
-Square roots, `|a|`, and the CFC-based characterization `a ≥ 0 ⟺ σ(a) ⊆ [0,∞)` are not attempted
-here: their abstract versions require the single-observable JB functional calculus. They remain on
-that analytic path rather than being duplicated as realization-specific constructions.
+Square roots, `|a|`, and the CFC-based characterization `a ≥ 0 ⟺ σ(a) ⊆ [0,∞)` are not
+duplicated here: their abstract versions already live on the single-observable JB functional
+calculus path, `JordanOrderUnit/JB/GeneratedByOne/CFC.lean` (`jordanAbs`,
+`jordanPosPart`/`jordanNegPart`, `jordanCfc_nonneg_iff`), which applies uniformly to this
+realization's `selfAdjoint A` once it is known to be a `JBAlgebra` — no realization-specific
+restatement is needed.
 
 ## ii. Key definitions and results
 
