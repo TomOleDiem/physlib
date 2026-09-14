@@ -28,11 +28,14 @@ is automatically Jordan-compatible, recovering the expected physics. The convers
 compatibility implies associative commutativity) is *not* claimed here; it is a separate, harder
 question left open.
 
-A genuinely stronger notion — that `a` and `b` *jointly generate an associative Jordan subalgebra*,
-giving a two-observable joint functional calculus — needs a two-generator analogue of
+A genuinely stronger notion — that `a` and `b` *jointly generate an associative Jordan
+subalgebra*, giving a two-observable joint functional calculus — needs a two-generator analogue of
 `Power/GeneratedByOne.lean` and, in turn, a two-variable strengthening of
-`Power/Associative.lean`'s open power-associativity theorem. That is real, disconnected future
-work, not attempted here (see `JB_ROADMAP.md` item 10).
+`Power/Associative.lean`'s open power-associativity theorem. `FreeJordanTwo.lean`/
+`FreeSpecialTwo.lean` lay the groundwork (the abstract and concrete special free Jordan algebras
+on two generators), but the two hard theorems connecting them — Shirshov (the abstract algebra
+embeds specially) and Cohn (every quotient of a special algebra stays special) — are real,
+disconnected future work, not attempted here.
 
 ## ii. Key definitions and results
 
