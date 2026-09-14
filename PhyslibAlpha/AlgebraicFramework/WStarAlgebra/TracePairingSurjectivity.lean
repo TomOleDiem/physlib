@@ -17,9 +17,10 @@ trace class is converted into a bounded sesquilinear form by testing it on rank-
 the Riesz theorem (`BoundedSesquilinearForm.lean`) turns that form into a bounded operator.
 
 The density of the linear span of rank-one trace-class operators in the trace class is proved
-directly below (`rankOneSpan_dense`) via a Hilbert–Schmidt truncation argument, rather than kept as
-an external hypothesis: this repo's `TraceClass` files already supply every ingredient the argument
-needs (`isHilbertSchmidt_polarFactor_mul_sqrt_abs_and_sqrt_abs`, `traceNorm_mul_le_of_isHilbertSchmidt`).
+directly below (`rankOneSpan_dense`) via a Hilbert–Schmidt truncation argument, rather than kept
+as an external hypothesis: this repo's `TraceClass` files already supply every ingredient the
+argument needs (`isHilbertSchmidt_polarFactor_mul_sqrt_abs_and_sqrt_abs`,
+`traceNorm_mul_le_of_isHilbertSchmidt`).
 -/
 
 set_option maxHeartbeats 1000000
@@ -124,7 +125,8 @@ private theorem rankOneTraceClass_norm_le (x y : H) :
           (InnerProductSpace.rankOne ℂ x y * P * (1 : H →L[ℂ] H)) hprod := by
         rw [traceNorm_smul]
       _ ≤ ‖c⁻¹‖ *
-          (‖InnerProductSpace.rankOne ℂ x y‖ * traceNorm P hP * ‖(1 : H →L[ℂ] H)‖) := by
+          (‖InnerProductSpace.rankOne ℂ x y‖ * traceNorm P hP *
+            ‖(1 : H →L[ℂ] H)‖) := by
         gcongr
       _ = ‖x‖ * ‖y‖ := by
         rw [hnormP]
