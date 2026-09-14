@@ -205,6 +205,7 @@ public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.Quadratic.Projecti
 public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.Power.GeneratedByOne
 public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.Power.Generated
 public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.FreeSpecialTwo
+public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.ShirshovWords
 public import PhyslibAlpha.AlgebraicFramework.JordanOrderUnit.Power.Ring
 public import PhyslibAlpha.AlgebraicFramework.Algebra.Derivation
 public import PhyslibAlpha.AlgebraicFramework.Algebra.Statistics
