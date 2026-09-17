@@ -27,10 +27,9 @@ PhysLib's default `LTMCTDimensionBase` in two ways:
 
 ## References
 
-* ISO/IEC 80000-1:2009, *Quantities and units — Part 1: General*.
-* JCGM 200:2012, *International vocabulary of metrology — Basic and general concepts
-  and associated terms (VIM, 3rd edition)*.
-
+* ISO/IEC 80000-1:2009, Quantities and units — Part 1: General. [ref: iso_80000_1_2009]
+* JCGM 200:2012, International vocabulary of metrology — Basic and general concepts and associated
+  terms (VIM, 3rd edition). [ref: jcgm_200_2012]
 -/
 
 @[expose] public section
@@ -56,7 +55,13 @@ inductive ISQDimensionBase where
   | amount
   /-- The luminous-intensity base quantity. -/
   | luminousIntensity
-deriving DecidableEq, Fintype
+deriving DecidableEq
+
+instance : Fintype ISQDimensionBase where
+  elems := {.length, .mass, .time, .current, .temperature, .amount, .luminousIntensity}
+  complete := fun x => by cases x <;> decide
+
+instance : DimensionBasis ISQDimensionBase := DimensionBasis.pi _
 
 namespace ISQDimensionBase
 

@@ -5,10 +5,11 @@ Authors: Joseph Tooby-Smith
 -/
 module
 
+public import Physlib.Relativity.LorentzGroup.Rotations
 public import Physlib.Relativity.SpeedOfLight
-public import Physlib.Relativity.Tensors.RealTensor.Vector.Tensorial
+public import Physlib.SpaceAndTime.Space.EuclideanGroup.Action
 public import Physlib.SpaceAndTime.Space.Integrals.Basic
-public import Physlib.SpaceAndTime.Time.Basic
+public import Physlib.SpaceAndTime.Time.InnerProductSpace
 public import Physlib.Meta.Informal.Basic
 /-!
 # Spacetime
@@ -25,6 +26,8 @@ allowing it to be used in tensorial expressions.
 ## ii. Key results
 
 - `SpaceTime d` : The type corresponding to `d+1` dimensional spacetime.
+- `space_equivariant` : Spatial projection intertwines the Lorentz and Euclidean actions
+  of the same rotation about the coordinate origin.
 - `toTimeAndSpace` : A continuous linear equivalence between `SpaceTime d`
   and `Time × Space d`.
 
@@ -62,6 +65,7 @@ allowing it to be used in tensorial expressions.
 
 ## iv. References
 
+* None.
 -/
 
 @[expose] public section
@@ -224,13 +228,19 @@ lemma space_toCoord_symm {d : ℕ} (f : Fin 1 ⊕ Fin d → ℝ) :
 
 -/
 
-open realLorentzTensor
-open Tensor
-
-/-- The function `space` is equivariant with respect to rotations. -/
-informal_lemma space_equivariant where
-  deps := [``space]
-  tag := "7MTYX"
+/-- Spatial projection intertwines a rotation's Lorentz action on spacetime with its
+Euclidean action on space, using the same special orthogonal matrix on both sides.
+These are rotations about the coordinate origin; no boosts or translations are included. -/
+lemma space_equivariant {d : ℕ}
+    (R : Matrix.specialOrthogonalGroup (Fin d) ℝ) (x : SpaceTime d) :
+    space ((LorentzGroup.ofSpecialOrthogonal R : LorentzGroup d) • x) =
+      EuclideanGroup.ofRotation R • space x := by
+  ext i
+  rw [Lorentz.Vector.smul_eq_mulVec, EuclideanGroup.smul_apply]
+  -- The Lorentz spatial block is R; the Euclidean action has zero translation.
+  change (Matrix.fromBlocks 1 0 0 R.val *ᵥ x) (Sum.inr i) =
+    (R.val *ᵥ (fun j => x (Sum.inr j) - 0)) i + 0
+  simp [Matrix.fromBlocks_mulVec, Function.comp_def]
 
 /-!
 
@@ -304,11 +314,13 @@ lemma toTimeAndSpace_symm_apply_time_space {d : ℕ} {c : SpeedOfLight} (x : Spa
     (toTimeAndSpace c).symm (x.time c, x.space) = x :=
   (toTimeAndSpace c).left_inv x
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp]
 lemma space_toTimeAndSpace_symm {d : ℕ} {c : SpeedOfLight} (t : Time) (s : Space d) :
     ((toTimeAndSpace c).symm (t, s)).space = s := by
   simp [space, toTimeAndSpace]
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp]
 lemma time_toTimeAndSpace_symm {d : ℕ} {c : SpeedOfLight} (t : Time) (s : Space d) :
     ((toTimeAndSpace c).symm (t, s)).time c = t := by
@@ -349,6 +361,7 @@ lemma toTimeAndSpace_symm_fderiv {d : ℕ} {c : SpeedOfLight} (x : Time × Space
 #### B.3.3. `toTimeAndSpace` acting on spatial basis vectors
 
 -/
+set_option backward.isDefEq.respectTransparency false in
 lemma toTimeAndSpace_basis_inr {d : ℕ} {c : SpeedOfLight} (i : Fin d) :
     toTimeAndSpace c (Lorentz.Vector.basis (Sum.inr i))
     = (0, Space.basis i) := by
@@ -363,6 +376,7 @@ lemma toTimeAndSpace_basis_inr {d : ℕ} {c : SpeedOfLight} (i : Fin d) :
 
 -/
 
+set_option backward.isDefEq.respectTransparency false in
 lemma toTimeAndSpace_basis_inl {d : ℕ} {c : SpeedOfLight} :
     toTimeAndSpace (d := d) c (Lorentz.Vector.basis (Sum.inl 0)) = (⟨1/c.val⟩, 0) := by
   refine Prod.ext ?_ ?_
@@ -415,6 +429,7 @@ lemma timeSpaceBasis_apply_inr {d : ℕ} (c : SpeedOfLight) (i : Fin d) :
 
 -/
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The equivalence on of `SpaceTime` taking `(1, 0, 0, ...)` to
 of `(c, 0, 0, ....)` and keeping all other components the same. -/
 def timeSpaceBasisEquiv {d : ℕ} (c : SpeedOfLight) :
@@ -485,6 +500,7 @@ def timeSpaceBasisEquiv {d : ℕ} (c : SpeedOfLight) :
 
 -/
 
+set_option backward.isDefEq.respectTransparency false in
 lemma det_timeSpaceBasisEquiv {d : ℕ} (c : SpeedOfLight) :
     (timeSpaceBasisEquiv (d := d) c).det = c.val := by
   rw [@LinearEquiv.coe_det]
@@ -504,6 +520,7 @@ lemma det_timeSpaceBasisEquiv {d : ℕ} (c : SpeedOfLight) :
 
 -/
 
+set_option backward.isDefEq.respectTransparency false in
 lemma timeSpaceBasis_eq_map_basis {d : ℕ} (c : SpeedOfLight) :
     timeSpaceBasis (d := d) c =
     Module.Basis.map (Lorentz.Vector.basis (d := d)) (timeSpaceBasisEquiv c).toLinearEquiv := by

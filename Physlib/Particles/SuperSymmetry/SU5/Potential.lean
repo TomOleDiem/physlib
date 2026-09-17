@@ -45,9 +45,8 @@ The terms of the Kahler potential are:
 
 ## iv. References
 
-- The main reference for the terms, and notation used in this module is: arXiv:0912.0853
-A previous version of this code was replaced in PR#569.
-
+* The main reference for the terms, and notation used in this module is: arXiv:0912.0853 A previous
+  version of this code was replaced in PR#569. [ref: arxiv_0912_0853]
 -/
 
 @[expose] public section
@@ -65,6 +64,7 @@ present in both the super-potential and Kahler potential.
 
 -/
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Relevant terms part of the superpotential and Kahler potential of the `SU(5)` SUSY GUT. -/
 inductive PotentialTerm
   /-- The term `μ 5Hu 5̄Hd` appearing in the super-potential. -/

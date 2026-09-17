@@ -52,6 +52,7 @@ We also prove some basic vector-identities involving of the curl operator.
 
 ## iv. References
 
+* None.
 -/
 
 @[expose] public section
@@ -663,6 +664,7 @@ TODO "Generalize the statement that a curl-free field is a gradient
 -/
 
 open KroneckerDelta in
+set_option backward.isDefEq.respectTransparency false in
 /-- The components of the curl as a contraction with the Levi-Civita symbol,
 `(∇ ⨯ f) x i = ∑ j k, ε_{ijk} ∂[j] fₖ x`. -/
 lemma curl_eq_sum_leviCivitaSymbol (f : Space → EuclideanSpace ℝ (Fin 3))

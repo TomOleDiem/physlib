@@ -268,7 +268,7 @@ lemma succSuccAbove_natAdd_image_range_castAdd {n n1 : ℕ}
     (succSuccAbove (n := n1 + n) (Fin.natAdd n1 i) (Fin.natAdd n1 j)) ''
     (Set.range (Fin.castAdd (m := n) (n := n1))) = {i | i.1 < n1} := by
   ext a
-  simp only [Set.mem_image, Set.mem_range, exists_exists_eq_and, Set.mem_setOf_eq]
+  simp only [Set.mem_image, Set.mem_range, exists_exists_eq_and, Set.mem_ofPred_eq]
   conv_lhs =>
     enter [1, b]
     rw [succSuccAbove_natAdd_apply_castAdd i j]
@@ -429,5 +429,17 @@ lemma funPredPredAbove_id { n1 : ℕ} (i j : Fin (n1 + 1 + 1)) (hij : i ≠ j) :
     funPredPredAbove i j hij id (Function.bijective_id) = id := by
   ext1 m
   simp [funPredPredAbove]
+
+/-- Pointwise form of commuting deletion of one slot with deletion of a pair. -/
+lemma succSuccAbove_succAbove_comm_apply {n : ℕ} (i j : Fin (n + 1 + 1 + 1))
+    (k : Fin (n + 1)) (m : Fin n) :
+    (i.succSuccAbove j k).succAbove
+        (((Fin.predAbove 0 (i.succSuccAbove j k)).predAbove i).succSuccAbove
+          ((Fin.predAbove 0 (i.succSuccAbove j k)).predAbove j) m) =
+      i.succSuccAbove j (k.succAbove m) := by
+  apply Fin.val_injective
+  simp only [Fin.succSuccAbove, Fin.succAbove, Fin.predAbove, Fin.lt_def, Fin.val_castSucc,
+    Fin.val_succ, Fin.castPred, apply_ite Fin.val]
+  grind (splits := 60)
 
 end Fin

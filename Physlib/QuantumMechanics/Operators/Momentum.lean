@@ -36,6 +36,7 @@ Notation:
 
 ## iv. References
 
+* None.
 -/
 
 TODO "Extend the domain of the momentum operator to the Sobolev space `H¹`."
@@ -152,7 +153,7 @@ lemma momentumSqOperator_domain_eq : momentumSqOperator.domain = SchwartzSubmodu
   rw [momentumSqOperator_eq, sum_domain]
   rcases eq_zero_or_pos d with rfl | hd
   · simp [SchwartzSubmodule.zero_eq_top]
-  · letI := Fin.pos_iff_nonempty.mp hd
+  · let := Fin.pos_iff_nonempty.mp hd
     rw [← iInf_const (a := SchwartzSubmodule d) (ι := Fin d)]
     congr
 

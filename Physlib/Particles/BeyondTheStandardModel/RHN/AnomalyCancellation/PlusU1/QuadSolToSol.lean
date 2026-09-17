@@ -9,11 +9,11 @@ public import Physlib.Particles.BeyondTheStandardModel.RHN.AnomalyCancellation.P
 /-!
 # Solutions from quad solutions
 
-We use $B-L$ to form a surjective map from quad solutions to solutions. The main reference
-for this material is:
+We use $B-L$ to form a surjective map from quad solutions to solutions.
 
-- https://arxiv.org/abs/2006.03588
+## References
 
+* The main reference for this material is https://arxiv.org/abs/2006.03588. [ref: arxiv_2006_03588]
 -/
 
 @[expose] public section
@@ -102,7 +102,7 @@ def quadSolToSolInv {n : ℕ} : (PlusU1 n).Sols → (PlusU1 n).QuadSols × ℚ �
 
 lemma quadSolToSolInv_1 (S : (PlusU1 n).Sols) :
     (quadSolToSolInv S).1 = S.1 := by
-  simp only [quadSolToSolInv, α₁, BL_val, SMνACCs.cubeTriLin_toFun_apply_apply, Fin.isValue,
+  simp only [quadSolToSolInv, α₁, BL_val,
     neg_mul, neg_eq_zero, mul_eq_zero, OfNat.ofNat_ne_zero, false_or]
   split <;> rfl
 

@@ -67,8 +67,8 @@ The following results exist for both `prodP` and `prodT` :
 
 ## iv. References
 
-- arXiv:2411.07667
-
+* Tooby-Smith, Formalization of physics index notation in Lean 4, arXiv:2411.07667.
+  [ref: tooby_smith_2024_index_notation]
 -/
 
 @[expose] public section
@@ -305,7 +305,6 @@ lemma Pure.prodP_permP_right {n n'} {c : Fin n → C} {c' : Fin n' → C}
 
 -/
 
-set_option backward.isDefEq.respectTransparency false in
 lemma Pure.prodP_assoc {n n1 n2} {c : Fin n → C}
     {c1 : Fin n1 → C} {c2 : Fin n2 → C}
     (p : Pure S c) (p1 : Pure S c1) (p2 : Pure S c2) :

@@ -21,9 +21,8 @@ A boost is the special case of a generalised boost when `u = basis 0`.
 
 ## References
 
-- The main argument follows: Guillem Cobos, The Lorentz Group, 2015:
-  https://diposit.ub.edu/dspace/bitstream/2445/68763/2/memoria.pdf
-
+* The main argument follows: Guillem Cobos, The Lorentz Group, 2015:
+  https://diposit.ub.edu/dspace/bitstream/2445/68763/2/memoria.pdf. [ref: cobos_2015_lorentz_group]
 -/
 
 @[expose] public section
@@ -216,6 +215,7 @@ def generalizedBoost (u v : Velocity d) : LorentzGroup d :=
       genBoostAux₁_add_genBoostAux₂_minkowskiProduct]
   ring⟩
 
+set_option backward.isDefEq.respectTransparency false in
 lemma generalizedBoost_apply (u v : Velocity d) (x : Vector d) :
     generalizedBoost u v • x = x + genBoostAux₁ u v x + genBoostAux₂ u v x:= by
   rw [smul_eq_mulVec]
@@ -383,11 +383,7 @@ lemma generalizedBoost_inv (u v : Velocity d) :
     minkowskiProduct_symm v.1 u.1]
   match_scalars <;> field_simp <;> ring
 
-/-- The time component of a generalised boost.
-
-A proof of this result can be found at the below link:
-https://leanprover.zulipchat.com/#narrow/channel/479953-Physlib/topic/Lorentz.20group/near/523249684
--/
+/-- The time component of a generalised boost. -/
 lemma generalizedBoost_timeComponent_eq (u v : Velocity d) :
     (generalizedBoost u v).1 (Sum.inl 0) (Sum.inl 0) = 1 +
     ‖u.1.timeComponent • v.1.spatialPart -

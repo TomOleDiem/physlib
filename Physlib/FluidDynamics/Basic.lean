@@ -6,7 +6,7 @@ Authors: Florian Wiesner
 module
 
 public import Physlib.SpaceAndTime.Space.Basic
-public import Physlib.SpaceAndTime.Time.Basic
+public import Physlib.SpaceAndTime.Time.InnerProductSpace
 /-!
 
 # Basic field types for fluid dynamics
@@ -32,6 +32,7 @@ The structure-specific APIs are organized in the corresponding `FluidFlow`, `Cau
 
 ## iv. References
 
+* None.
 -/
 
 @[expose] public section
