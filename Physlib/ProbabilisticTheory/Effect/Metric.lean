@@ -18,8 +18,7 @@ Effects sit inside `E`, so pulling back the order-unit norm along the inclusion 
 gives them a metric space structure for free.
 
 Effects also correspond to points of the order-unit-norm ball, by the affine rescaling
-`e ↦ 2 • e - 1` that turns `[0, 1]` into the symmetric `[-1, 1]` the norm itself ranges over
-(`equivBall`).
+`e ↦ 2 • e - 1` that turns `[0, 1]` into the symmetric `[-1, 1]` the norm itself ranges over.
 
 ## ii. Key results
 
