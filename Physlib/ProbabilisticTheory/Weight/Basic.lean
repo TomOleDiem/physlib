@@ -1,0 +1,157 @@
+/-
+Copyright (c) 2026 Tom Ole Diem. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Tom Ole Diem
+-/
+module
+
+public import Mathlib.Data.ENNReal.Basic
+public import Mathlib.Data.ENNReal.Inv
+public import Mathlib.Data.ENNReal.Action
+public import Physlib.ProbabilisticTheory.OrderUnit.Basic
+public import Physlib.ProbabilisticTheory.OrderUnit.Cone
+
+/-!
+# Weights
+
+## i. Overview
+
+A state assigns each positive observable a nonnegative expectation value, normalized so the
+certain outcome reads exactly `1`. A *weight* generalizes this by dropping the normalization and
+letting the values be extended nonnegative reals, possibly `+∞`. This matters especially in
+infinite dimensions: the trace on `B(H)` is only finite on the trace-class operators and genuinely
+diverges to `+∞` elsewhere. A state is then the special case that happens to be finite everywhere
+and normalized.
+
+## ii. Key results
+
+- `Weight.mono` : weights are monotone on the positive cone.
+- `Weight.IsFinite.isSemifinite` : a finite weight is automatically semifinite.
+- `Weight.IsFinite.normalize_isState` : rescaling a finite weight that's nonzero at the order unit
+  turns it into a state.
+
+## iii. Table of contents
+
+- A. Weights
+- B. States as weights
+
+## iv. References
+
+- G. Ludwig, *Foundations of Quantum Mechanics I*, Springer, 1983.
+  <https://link.springer.com/book/10.1007/978-3-642-86751-4>
+
+-/
+
+@[expose] public section
+
+open scoped ENNReal NNReal
+
+variable {E : Type*} [AddCommGroup E] [PartialOrder E] [IsOrderedAddMonoid E]
+  [Module ℝ E] [PosSMulMono ℝ E]
+
+/-!
+
+## A. Weights
+
+-/
+
+/-- An extended nonnegative linear functional on the positive cone. -/
+abbrev Weight (E : Type*) [AddCommGroup E] [PartialOrder E] [IsOrderedAddMonoid E]
+    [Module ℝ E] [PosSMulMono ℝ E] := PosCone E →ₗ[ℝ≥0] ℝ≥0∞
+
+namespace Weight
+
+@[ext]
+lemma ext {w₁ w₂ : Weight E} (h : ∀ A, w₁ A = w₂ A) : w₁ = w₂ :=
+  LinearMap.ext h
+
+/-- Only the zero positive element has weight zero. -/
+def IsFaithful (w : Weight E) : Prop := ∀ A : PosCone E, w A = 0 → A = 0
+
+/-- A weight has no infinite values. -/
+def IsFinite (w : Weight E) : Prop := ∀ A : PosCone E, w A ≠ ⊤
+
+/-- A weight is the supremum of its finite values below each positive element. -/
+def IsSemifinite (w : Weight E) : Prop := ∀ A : PosCone E,
+  w A = ⨆ B : {B : PosCone E // B ≤ A ∧ w B ≠ ⊤}, w B
+
+/-- Weights are monotone on the positive cone. -/
+lemma mono (w : Weight E) : Monotone (w : PosCone E → ℝ≥0∞) := by
+  intro A B hAB
+  have hC : (0 : E) ≤ (B : E) - (A : E) := sub_nonneg.mpr hAB
+  let C : PosCone E := ⟨(B : E) - (A : E), hC⟩
+  have hAC : A + C = B := by
+    ext
+    change (A : E) + ((B : E) - (A : E)) = B
+    abel
+  calc
+    w A ≤ w A + w C := le_self_add
+    _ = w (A + C) := (map_add w A C).symm
+    _ = w B := by rw [hAC]
+
+/-- A finite weight is semifinite. -/
+lemma IsFinite.isSemifinite {w : Weight E} (hw : w.IsFinite) : w.IsSemifinite := by
+  intro A
+  apply le_antisymm
+  · exact le_iSup (fun B : {B : PosCone E // B ≤ A ∧ w B ≠ ⊤} => w B)
+      ⟨A, le_rfl, hw A⟩
+  · apply iSup_le
+    intro B
+    exact w.mono B.2.1
+
+/-- A finite weight's real value is additive. -/
+lemma IsFinite.toReal_map_add {w : Weight E} (hw : w.IsFinite) (A B : PosCone E) :
+    (w (A + B)).toReal = (w A).toReal + (w B).toReal := by
+  rw [w.map_add, ENNReal.toReal_add (hw A) (hw B)]
+
+/-- A weight's real value scales linearly under nonnegative real scaling, whether or not it's
+finite: on the infinite side, both sides read `0`. -/
+lemma toReal_map_nnreal_smul (w : Weight E) (k : ℝ≥0) (A : PosCone E) :
+    (w (k • A)).toReal = k * (w A).toReal := by
+  rw [w.map_smul, ENNReal.smul_def, smul_eq_mul, ENNReal.toReal_mul, ENNReal.coe_toReal]
+
+/-- A weight preserves existing directed suprema in the positive cone. -/
+def IsNormal (w : Weight E) : Prop := ∀ (D : Set (PosCone E)) (A : PosCone E),
+  D.Nonempty → DirectedOn (· ≤ ·) D → IsLUB D A → IsLUB (w '' D) (w A)
+
+variable [One E] [IsOrderUnit E]
+
+/-!
+
+## B. States as weights
+
+-/
+
+/-- A weight that's finite everywhere and gives the certain outcome weight exactly `1`. -/
+structure IsState (w : Weight E) : Prop where
+  /-- A state is finite everywhere. -/
+  finite : w.IsFinite
+  /-- A state gives the certain outcome weight exactly `1`. -/
+  normalized : w PosCone.unit = 1
+
+/-- Rescaling a finite weight that's nonzero at the order unit. -/
+noncomputable def IsFinite.normalize {w : Weight E} (_hw : w.IsFinite) (_h : w PosCone.unit ≠ 0) :
+    Weight E where
+  toFun A := (w PosCone.unit)⁻¹ * w A
+  map_add' A B := by rw [map_add, mul_add]
+  map_smul' c A := by
+    simp only [map_smul, ENNReal.smul_def, smul_eq_mul, RingHom.id_apply]
+    ring
+
+lemma IsFinite.normalize_apply {w : Weight E} (hw : w.IsFinite) (h : w PosCone.unit ≠ 0)
+    (A : PosCone E) : hw.normalize h A = (w PosCone.unit)⁻¹ * w A := rfl
+
+/-- Normalizing a finite weight keeps it finite. -/
+lemma IsFinite.normalize_isFinite {w : Weight E} (hw : w.IsFinite) (h : w PosCone.unit ≠ 0) :
+    (hw.normalize h).IsFinite := fun A => by
+  rw [normalize_apply]
+  exact ENNReal.mul_ne_top (ENNReal.inv_ne_top.mpr h) (hw A)
+
+/-- Normalizing a finite weight makes it a state: the order unit is scaled to weight exactly
+`1`. -/
+lemma IsFinite.normalize_isState {w : Weight E} (hw : w.IsFinite) (h : w PosCone.unit ≠ 0) :
+    (hw.normalize h).IsState where
+  finite := hw.normalize_isFinite h
+  normalized := by rw [normalize_apply]; exact ENNReal.inv_mul_cancel h (hw PosCone.unit)
+
+end Weight
