@@ -1,0 +1,422 @@
+/-
+Copyright (c) 2026 Tom Ole Diem. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Tom Ole Diem
+-/
+module
+
+public import Mathlib.Analysis.Normed.Module.Basic
+public import Mathlib.Topology.Sequences
+public import Mathlib.Topology.Order.OrderClosed
+public import Physlib.ProbabilisticTheory.OrderUnit.Basic
+
+/-!
+
+# Archimedean order-unit spaces
+
+## i. Overview
+
+The Archimedean condition is a regularity assumption on an order-unit space that rules out
+infinitesimal elements. With it, the order and the distinguished unit `1` determine a natural
+norm,
+
+`‖A‖₁ = inf {r ≥ 0 | -r • 1 ≤ A ≤ r • 1}`.
+
+Thus the unit interval sets the scale of the theory: `[-1, 1]` is exactly the closed unit ball. For
+self-adjoint matrices, this recovers the usual operator norm. Concretely, this is the Minkowski
+functional of the order interval `[-1, 1]`: convexity of that interval gives the triangle
+inequality, and its symmetry gives homogeneity, for free. The Archimedean condition is only needed
+afterwards, to upgrade this from a seminorm to a genuine norm.
+
+This file develops this norm and packages a copy of `E` carrying it as `WithOrderUnitNorm E`.
+
+## ii. Key results
+
+- `IsArchimedeanOrderUnit.orderUnitNorm_eq_zero_iff` : the order-unit norm separates points.
+- `IsArchimedeanOrderUnit.closedIciTopology` : the positive cone is closed in the order-unit-norm
+  topology.
+
+## iii. Table of contents
+
+- A. Archimedean order units
+- B. The order-unit bounds and norm
+- C. Norm axioms
+- D. The induced normed space
+- E. Order-closedness of the topology
+- F. A separate copy carrying the order-unit norm
+
+## iv. References
+
+-/
+
+@[expose] public section
+
+/-!
+
+## A. Archimedean order units
+
+-/
+
+/-- The distinguished element `1` is an Archimedean order unit. -/
+class IsArchimedeanOrderUnit (E : Type*) [AddCommGroup E] [PartialOrder E] [Module ℝ E] [One E] :
+    Prop extends IsOrderUnit E where
+  /-- If `A` is smaller than every positive multiple of `1`, however small, `A` is already
+  `≤ 0`. -/
+  le_zero_of_forall_pos_smul_one_le : ∀ A : E, (∀ ε : ℝ, 0 < ε → A ≤ ε • (1 : E)) → A ≤ 0
+
+/-- The real numbers form an Archimedean order-unit space. -/
+instance instIsArchimedeanOrderUnitReal : IsArchimedeanOrderUnit ℝ where
+  isOrderUnitElement_one := ⟨zero_le_one, fun A => by
+    obtain ⟨n, hn⟩ := exists_nat_ge A
+    exact ⟨n, by simpa using hn⟩⟩
+  le_zero_of_forall_pos_smul_one_le A hA := by
+    by_contra h
+    have hApos : 0 < A := lt_of_not_ge h
+    have := hA (A / 2) (by positivity)
+    simp only [smul_eq_mul, mul_one] at this
+    linarith
+
+namespace IsArchimedeanOrderUnit
+
+variable {E : Type*} [AddCommGroup E] [PartialOrder E] [IsOrderedAddMonoid E] [Module ℝ E]
+  [One E] [IsArchimedeanOrderUnit E]
+
+/-!
+
+## B. The order-unit bounds and norm
+
+-/
+
+/-- The nonnegative scalars that bound an element on both sides by the order unit. -/
+def orderUnitBounds (A : E) : Set ℝ :=
+  {r | 0 ≤ r ∧ -(r • (1 : E)) ≤ A ∧ A ≤ r • (1 : E)}
+
+/-- The order-unit norm is the infimum of the order-unit bounds. -/
+noncomputable def orderUnitNorm (A : E) : ℝ :=
+  sInf (orderUnitBounds A)
+
+/-- Every element has some order-unit bound: this is just `IsOrderUnit`'s two-sided bound,
+repackaged as a natural number in `orderUnitBounds`. -/
+lemma orderUnitBounds_nonempty (A : E) : (orderUnitBounds A).Nonempty := by
+  obtain ⟨n, hl, hu⟩ := IsOrderUnit.exists_two_sided_bound A
+  refine ⟨n, Nat.cast_nonneg n, ?_, ?_⟩
+  · simpa only [Nat.cast_smul_eq_nsmul] using hl
+  · simpa only [Nat.cast_smul_eq_nsmul] using hu
+
+omit [IsOrderedAddMonoid E] [IsArchimedeanOrderUnit E] in
+/-- The order-unit bounds are bounded below by `0`, so their infimum (the norm) is well-behaved. -/
+lemma orderUnitBounds_bddBelow (A : E) : BddBelow (orderUnitBounds A) :=
+  ⟨0, fun _ hr ↦ hr.1⟩
+
+/-- The order-unit norm is an infimum of nonnegative reals, hence itself nonnegative. -/
+lemma orderUnitNorm_nonneg (A : E) : 0 ≤ orderUnitNorm A :=
+  le_csInf (orderUnitBounds_nonempty A) fun _ hr ↦ hr.1
+
+omit [IsOrderedAddMonoid E] [IsArchimedeanOrderUnit E] in
+/-- Any order-unit bound on `A` is an upper bound for `A`'s order-unit norm. -/
+lemma orderUnitNorm_le {A : E} {r : ℝ} (hr : r ∈ orderUnitBounds A) :
+    orderUnitNorm A ≤ r :=
+  csInf_le (orderUnitBounds_bddBelow A) hr
+
+@[simp]
+lemma orderUnitNorm_zero : orderUnitNorm (0 : E) = 0 := by
+  apply le_antisymm
+  · exact orderUnitNorm_le ⟨le_rfl, by simp, by simp⟩
+  · exact orderUnitNorm_nonneg 0
+
+omit [IsArchimedeanOrderUnit E] in
+/-- Negation preserves the set of order-unit bounds: a symmetric interval bounding `A` bounds
+`-A` too. -/
+lemma orderUnitBounds_neg (A : E) : orderUnitBounds (-A) = orderUnitBounds A := by
+  ext r
+  constructor <;> rintro ⟨hr, hl, hu⟩ <;>
+    exact ⟨hr, by simpa only [neg_neg] using neg_le_neg hu,
+      by simpa only [neg_smul, neg_neg] using neg_le_neg hl⟩
+
+omit [IsArchimedeanOrderUnit E] in
+@[simp]
+lemma orderUnitNorm_neg (A : E) : orderUnitNorm (-A) = orderUnitNorm A := by
+  unfold orderUnitNorm
+  rw [orderUnitBounds_neg]
+
+omit [IsArchimedeanOrderUnit E] in
+/-- Order-unit bounds add: a bound for `A` and a bound for `B` combine to a bound for `A + B`,
+which is what drives the triangle inequality for `orderUnitNorm`. -/
+lemma add_mem_orderUnitBounds {A B : E} {r s : ℝ} (hr : r ∈ orderUnitBounds A)
+    (hs : s ∈ orderUnitBounds B) : r + s ∈ orderUnitBounds (A + B) := by
+  refine ⟨add_nonneg hr.1 hs.1, ?_, ?_⟩
+  · rw [add_smul, neg_add]
+    exact add_le_add hr.2.1 hs.2.1
+  · rw [add_smul]
+    exact add_le_add hr.2.2 hs.2.2
+
+/-- An infimum can always be approximated from above: there is an order-unit bound on `A` within
+`ε` of the norm itself. -/
+lemma exists_orderUnitBound_lt (A : E) {ε : ℝ} (hε : 0 < ε) :
+    ∃ r ∈ orderUnitBounds A, r < orderUnitNorm A + ε := by
+  apply exists_lt_of_csInf_lt (orderUnitBounds_nonempty A)
+  exact lt_add_of_pos_right _ hε
+
+lemma orderUnitNorm_add_le (A B : E) :
+    orderUnitNorm (A + B) ≤ orderUnitNorm A + orderUnitNorm B := by
+  apply le_of_forall_pos_le_add
+  intro ε hε
+  obtain ⟨r, hr, hrlt⟩ := exists_orderUnitBound_lt A (half_pos hε)
+  obtain ⟨s, hs, hslt⟩ := exists_orderUnitBound_lt B (half_pos hε)
+  calc
+    orderUnitNorm (A + B) ≤ r + s := orderUnitNorm_le (add_mem_orderUnitBounds hr hs)
+    _ ≤ (orderUnitNorm A + ε / 2) + (orderUnitNorm B + ε / 2) :=
+      add_le_add hrlt.le hslt.le
+    _ = orderUnitNorm A + orderUnitNorm B + ε := by ring
+
+/-!
+
+## C. Norm axioms
+
+-/
+
+variable [PosSMulMono ℝ E]
+
+/-- Scaling the unit by a larger nonnegative real gives a larger multiple: `r ↦ r • 1` is
+monotone. -/
+lemma smul_one_mono {r s : ℝ} (hrs : r ≤ s) :
+    r • (1 : E) ≤ s • (1 : E) := by
+  have h : 0 ≤ (s - r) • (1 : E) :=
+    smul_nonneg (sub_nonneg.mpr hrs) IsOrderUnit.one_nonneg
+  calc
+    r • (1 : E) = s • (1 : E) - (s - r) • (1 : E) := by
+      rw [← sub_smul, sub_sub_cancel]
+    _ ≤ s • (1 : E) := sub_le_self _ h
+
+/-- The infimum defining the order-unit norm is attained. This is where the Archimedean axiom
+is used, to pass from "bounded by `r + ε` for every `ε`" to "bounded by `r`". -/
+lemma le_orderUnitNorm_smul_one (A : E) : A ≤ orderUnitNorm A • (1 : E) := by
+  apply sub_nonpos.mp
+  apply le_zero_of_forall_pos_smul_one_le
+  intro ε hε
+  obtain ⟨r, hr, hrlt⟩ := exists_orderUnitBound_lt A hε
+  calc
+    A - orderUnitNorm A • (1 : E) ≤ r • (1 : E) - orderUnitNorm A • (1 : E) :=
+      sub_le_sub_right hr.2.2 _
+    _ = (r - orderUnitNorm A) • (1 : E) := by rw [sub_smul]
+    _ ≤ ε • (1 : E) := smul_one_mono (by linarith)
+
+/-- `A` is also bounded below by `-(orderUnitNorm A • 1)`. -/
+lemma neg_orderUnitNorm_smul_one_le (A : E) : -(orderUnitNorm A • (1 : E)) ≤ A := by
+  have h := le_orderUnitNorm_smul_one (-A)
+  rw [orderUnitNorm_neg] at h
+  simpa only [neg_smul, neg_neg] using neg_le_neg h
+
+/-- The norm itself is an order-unit bound, i.e. the infimum defining `orderUnitNorm` is a
+minimum. -/
+lemma orderUnitNorm_mem_orderUnitBounds (A : E) : orderUnitNorm A ∈ orderUnitBounds A :=
+  ⟨orderUnitNorm_nonneg A, neg_orderUnitNorm_smul_one_le A, le_orderUnitNorm_smul_one A⟩
+
+/-- An element with order-unit norm strictly below `ε` is itself bounded above by `ε • 1`. -/
+lemma le_smul_one_of_orderUnitNorm_lt {A : E} {ε : ℝ} (h : orderUnitNorm A < ε) :
+    A ≤ ε • (1 : E) :=
+  (le_orderUnitNorm_smul_one A).trans (smul_one_mono h.le)
+
+/-- The mirror image of `le_smul_one_of_orderUnitNorm_lt`. -/
+lemma neg_smul_one_le_of_orderUnitNorm_lt {A : E} {ε : ℝ} (h : orderUnitNorm A < ε) :
+    -(ε • (1 : E)) ≤ A := by
+  have h' : -A ≤ ε • (1 : E) := le_smul_one_of_orderUnitNorm_lt (by rwa [orderUnitNorm_neg])
+  simpa using neg_le_neg h'
+
+/-- The order-unit norm is characterized exactly by its symmetric order interval. -/
+lemma orderUnitNorm_le_iff {A : E} {r : ℝ} :
+    orderUnitNorm A ≤ r ↔ 0 ≤ r ∧ -(r • (1 : E)) ≤ A ∧ A ≤ r • (1 : E) := by
+  constructor
+  · intro h
+    refine ⟨(orderUnitNorm_nonneg A).trans h, ?_, ?_⟩
+    · exact (neg_le_neg (smul_one_mono h)).trans (neg_orderUnitNorm_smul_one_le A)
+    · exact (le_orderUnitNorm_smul_one A).trans (smul_one_mono h)
+  · exact orderUnitNorm_le
+
+/-- The order-unit norm is definite: `‖A‖₁ = 0` forces `A = 0`. -/
+lemma orderUnitNorm_eq_zero_iff {A : E} : orderUnitNorm A = 0 ↔ A = 0 := by
+  constructor
+  · intro hA
+    have h := orderUnitNorm_mem_orderUnitBounds A
+    have hu : A ≤ 0 := by simpa [hA] using h.2.2
+    have hl : 0 ≤ A := by simpa [hA] using h.2.1
+    exact le_antisymm hu hl
+  · rintro rfl
+    exact orderUnitNorm_zero
+
+/-- Nonnegative scalar multiplication scales the order-unit norm from above. -/
+lemma orderUnitNorm_smul_le {r : ℝ} (hr : 0 ≤ r) (A : E) :
+    orderUnitNorm (r • A) ≤ r * orderUnitNorm A := by
+  apply orderUnitNorm_le_iff.mpr
+  refine ⟨mul_nonneg hr (orderUnitNorm_nonneg A), ?_, ?_⟩
+  · calc
+    -((r * orderUnitNorm A) • (1 : E)) = r • -(orderUnitNorm A • (1 : E)) := by
+      rw [smul_neg, smul_smul]
+    _ ≤ r • A :=
+      smul_le_smul_of_nonneg_left (neg_orderUnitNorm_smul_one_le A) hr
+  · calc
+    r • A ≤ r • (orderUnitNorm A • (1 : E)) :=
+      smul_le_smul_of_nonneg_left (le_orderUnitNorm_smul_one A) hr
+    _ = (r * orderUnitNorm A) • (1 : E) := by rw [smul_smul]
+
+/-- Positive scalar multiplication scales the order-unit norm. -/
+lemma orderUnitNorm_smul_of_pos {r : ℝ} (hr : 0 < r) (A : E) :
+    orderUnitNorm (r • A) = r * orderUnitNorm A := by
+  apply le_antisymm
+  · exact orderUnitNorm_smul_le hr.le A
+  · have h := orderUnitNorm_smul_le (inv_nonneg.mpr hr.le) (r • A)
+    have hA : orderUnitNorm A ≤ r⁻¹ * orderUnitNorm (r • A) := by
+      calc
+        orderUnitNorm A = orderUnitNorm (r⁻¹ • (r • A)) := by
+          rw [smul_smul, inv_mul_cancel₀ hr.ne', one_smul]
+      _ ≤ r⁻¹ * orderUnitNorm (r • A) := h
+    calc
+      r * orderUnitNorm A ≤ r * (r⁻¹ * orderUnitNorm (r • A)) :=
+        mul_le_mul_of_nonneg_left hA hr.le
+      _ = orderUnitNorm (r • A) := by
+        rw [← mul_assoc, mul_inv_cancel₀ hr.ne', one_mul]
+
+/-- The order-unit norm is absolutely homogeneous. -/
+lemma orderUnitNorm_smul (r : ℝ) (A : E) :
+    orderUnitNorm (r • A) = |r| * orderUnitNorm A := by
+  rcases lt_trichotomy r 0 with hr | rfl | hr
+  · calc
+      orderUnitNorm (r • A) = orderUnitNorm ((-r) • (-A)) := by
+        rw [smul_neg, neg_smul, neg_neg]
+      _ = (-r) * orderUnitNorm (-A) := orderUnitNorm_smul_of_pos (neg_pos.mpr hr) (-A)
+      _ = (-r) * orderUnitNorm A := by rw [orderUnitNorm_neg]
+      _ = |r| * orderUnitNorm A := by rw [abs_of_neg hr]
+  · simp
+  · rw [orderUnitNorm_smul_of_pos hr, abs_of_pos hr]
+
+/-- Rescaling any nonzero element down to the unit ball: `(orderUnitNorm A)⁻¹ • A` has norm at
+most `1`, and scaling it back up by `orderUnitNorm A` recovers `A`. -/
+lemma exists_orderUnitNorm_le_one_smul_eq {A : E} (hA : orderUnitNorm A ≠ 0) :
+    ∃ B : E, orderUnitNorm B ≤ 1 ∧ orderUnitNorm A • B = A := by
+  refine ⟨(orderUnitNorm A)⁻¹ • A, ?_, ?_⟩
+  · rw [orderUnitNorm_smul, abs_of_nonneg (inv_nonneg.mpr (orderUnitNorm_nonneg A)),
+      inv_mul_cancel₀ hA]
+  · rw [smul_smul, mul_inv_cancel₀ hA, one_smul]
+
+/-!
+
+## D. The induced normed space
+
+-/
+
+/-- The order-unit norm packaged as an additive-group norm. -/
+noncomputable def orderUnitAddGroupNorm : AddGroupNorm E where
+  toFun := orderUnitNorm
+  map_zero' := orderUnitNorm_zero
+  add_le' := orderUnitNorm_add_le
+  neg' := orderUnitNorm_neg
+  eq_zero_of_map_eq_zero' _ hA := orderUnitNorm_eq_zero_iff.mp hA
+
+/-- The normed additive group induced by the Archimedean order unit. -/
+@[implicit_reducible]
+noncomputable def orderUnitNormedAddCommGroup : NormedAddCommGroup E :=
+  orderUnitAddGroupNorm.toNormedAddCommGroup
+
+/-- The real normed-space structure induced by the Archimedean order unit. -/
+@[implicit_reducible]
+noncomputable def orderUnitNormedSpace :
+    letI : NormedAddCommGroup E := orderUnitNormedAddCommGroup
+    NormedSpace ℝ E := by
+  letI : NormedAddCommGroup E := orderUnitNormedAddCommGroup
+  refine
+    { ‹Module ℝ E› with
+      norm_smul_le := ?_ }
+  intro r A
+  change orderUnitNorm (r • A) ≤ ‖r‖ * orderUnitNorm A
+  rw [orderUnitNorm_smul, Real.norm_eq_abs]
+
+/-!
+
+## E. Order-closedness of the topology
+
+-/
+
+/-- No sequence of elements that are all `≥ 0` can converge to something negative. -/
+lemma isClosed_Ici_zero :
+    letI := orderUnitNormedAddCommGroup (E := E)
+    IsClosed (Set.Ici (0 : E)) := by
+  let := orderUnitNormedAddCommGroup (E := E)
+  apply IsSeqClosed.isClosed
+  intro x p hx hp
+  apply neg_nonpos.mp
+  apply le_zero_of_forall_pos_smul_one_le
+  intro ε hε
+  obtain ⟨N, hN⟩ := Metric.tendsto_atTop.mp hp ε hε
+  have hnorm : orderUnitNorm (x N - p) < ε := by
+    have hdist := hN N le_rfl
+    rwa [dist_eq_norm] at hdist
+  calc
+    -p ≤ x N - p := by simpa using sub_le_sub_right (hx N) p
+    _ ≤ ε • (1 : E) := le_smul_one_of_orderUnitNorm_lt hnorm
+
+/-- The same holds relative to any reference `a`, not just `0`:
+no sequence of elements that are all `≥ a` can converge to something below `a`. -/
+lemma closedIciTopology :
+    letI := orderUnitNormedAddCommGroup (E := E)
+    ClosedIciTopology E := by
+  let := orderUnitNormedAddCommGroup (E := E)
+  refine ⟨fun a => ?_⟩
+  have hEq : Set.Ici a = (fun A : E => A - a) ⁻¹' Set.Ici (0 : E) := by
+    ext A
+    simp [Set.mem_Ici]
+  rw [hEq]
+  exact isClosed_Ici_zero.preimage (continuous_id.sub continuous_const)
+
+end IsArchimedeanOrderUnit
+
+/-!
+
+## F. A separate copy carrying the order-unit norm
+
+-/
+
+/-- A separate copy of `E` carrying the order-unit norm. `E` itself is left untouched, so this
+stays usable even when `E` already carries a different norm for other purposes — e.g. the
+self-adjoint matrices already have their operator norm, and this lets the order-unit norm coexist
+with it instead of overwriting it. -/
+def WithOrderUnitNorm (E : Type*) := E
+
+namespace WithOrderUnitNorm
+
+variable {E : Type*} [AddCommGroup E] [PartialOrder E] [IsOrderedAddMonoid E] [Module ℝ E]
+  [PosSMulMono ℝ E] [One E] [IsArchimedeanOrderUnit E]
+
+-- `WithOrderUnitNorm E` is definitionally `E`, so every algebraic and order structure on `E`
+-- transfers across unchanged; only the norm below is genuinely new.
+instance : AddCommGroup (WithOrderUnitNorm E) := inferInstanceAs (AddCommGroup E)
+instance : Module ℝ (WithOrderUnitNorm E) := inferInstanceAs (Module ℝ E)
+instance : PartialOrder (WithOrderUnitNorm E) := inferInstanceAs (PartialOrder E)
+instance : IsOrderedAddMonoid (WithOrderUnitNorm E) := inferInstanceAs (IsOrderedAddMonoid E)
+instance : PosSMulMono ℝ (WithOrderUnitNorm E) := inferInstanceAs (PosSMulMono ℝ E)
+instance : One (WithOrderUnitNorm E) := inferInstanceAs (One E)
+instance : IsOrderUnit (WithOrderUnitNorm E) := inferInstanceAs (IsOrderUnit E)
+instance : IsArchimedeanOrderUnit (WithOrderUnitNorm E) :=
+  inferInstanceAs (IsArchimedeanOrderUnit E)
+
+/-- The canonical normed additive group on the order-unit-norm copy. -/
+noncomputable instance : NormedAddCommGroup (WithOrderUnitNorm E) :=
+  IsArchimedeanOrderUnit.orderUnitNormedAddCommGroup (E := E)
+
+/-- The canonical real normed-space structure on the order-unit-norm copy. -/
+noncomputable instance : NormedSpace ℝ (WithOrderUnitNorm E) :=
+  IsArchimedeanOrderUnit.orderUnitNormedSpace (E := E)
+
+/-- The identity linear equivalence between `E` and its order-unit-norm copy. -/
+def linearEquiv : E ≃ₗ[ℝ] WithOrderUnitNorm E := LinearEquiv.refl ℝ E
+
+omit [PartialOrder E] [IsOrderedAddMonoid E] [PosSMulMono ℝ E] [One E] [IsArchimedeanOrderUnit E]
+  in
+@[simp]
+lemma linearEquiv_apply (A : E) : linearEquiv A = A := rfl
+
+/-- The norm on the copy is, by construction, exactly the order-unit norm on the original. -/
+@[simp]
+lemma norm_eq_orderUnitNorm (A : WithOrderUnitNorm E) :
+    ‖A‖ = IsArchimedeanOrderUnit.orderUnitNorm (show E from A) := rfl
+
+end WithOrderUnitNorm
