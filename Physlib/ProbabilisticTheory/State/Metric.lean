@@ -28,12 +28,15 @@ the nearest pure state.
   order-unit norm.
 - `UnitalPositiveLinearMap.dist` : the operator-norm distance between states.
 - `UnitalPositiveLinearMap.distToPure` : a state's distance to the nearest pure state.
+- `UnitalPositiveLinearMap.continuous_apply` : evaluation at a fixed observable is continuous for
+  the state metric.
 
 ## iii. Table of contents
 
 - A. States are bounded by the order-unit norm
 - B. The state metric
 - C. Distance to the nearest pure state
+- D. Continuity of state evaluation
 
 -/
 
@@ -188,5 +191,40 @@ lemma distToPure_eq_zero_of_isPure {ω : 𝓢[ℝ, E]} (h : IsPure ω) : distToP
 /-- `distToPure` is `1`-Lipschitz: states close in `dist` are similarly mixed. -/
 lemma lipschitzWith_distToPure : LipschitzWith 1 (distToPure (E := E)) :=
   Metric.lipschitz_infDist_pt {φ : 𝓢[ℝ, E] | IsPure φ}
+
+/-!
+
+## D. Continuity of state evaluation
+
+-/
+
+/-- Two states' predictions on a fixed observable differ by at most the observable's order-unit
+norm times how far apart the states are. -/
+lemma abs_apply_sub_apply_le_orderUnitNorm_mul_dist (ω φ : 𝓢[ℝ, E]) (A : E) :
+    |ω A - φ A| ≤ orderUnitNorm A * dist ω φ := by
+  rcases eq_or_ne (orderUnitNorm A) 0 with hA | hA
+  · simp [orderUnitNorm_eq_zero_iff.mp hA]
+  · obtain ⟨B, hB1, hAB⟩ := exists_orderUnitNorm_le_one_smul_eq hA
+    have hle : |ω B - φ B| ≤ dist ω φ := le_ciSup (dist_bddAbove ω φ) ⟨B, hB1⟩
+    have h1 : ω A = orderUnitNorm A * ω B := by
+      conv_lhs => rw [← hAB]
+      rw [map_smul, smul_eq_mul]
+    have h2 : φ A = orderUnitNorm A * φ B := by
+      conv_lhs => rw [← hAB]
+      rw [map_smul, smul_eq_mul]
+    rw [h1, h2, ← mul_sub, abs_mul, abs_of_nonneg (orderUnitNorm_nonneg A)]
+    exact mul_le_mul_of_nonneg_left hle (orderUnitNorm_nonneg A)
+
+/-- Evaluation at a fixed observable is Lipschitz for the state metric, with Lipschitz constant
+the observable's order-unit norm. -/
+lemma lipschitzWith_apply (A : E) :
+    LipschitzWith (Real.toNNReal (orderUnitNorm A)) (fun ω : 𝓢[ℝ, E] => ω A) :=
+  LipschitzWith.of_dist_le' fun ω φ => by
+    rw [Real.dist_eq]
+    exact abs_apply_sub_apply_le_orderUnitNorm_mul_dist ω φ A
+
+/-- Evaluation at a fixed observable is continuous for the state metric. -/
+lemma continuous_apply (A : E) : Continuous (fun ω : 𝓢[ℝ, E] => ω A) :=
+  (lipschitzWith_apply A).continuous
 
 end UnitalPositiveLinearMap
