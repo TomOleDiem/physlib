@@ -34,10 +34,9 @@ Effects also correspond to points of the order-unit-norm ball, by the affine res
 
 @[expose] public section
 
-open IsArchimedeanOrderUnit
+open ArchimedeanOrderUnitSpace
 
-variable {E : Type*} [AddCommGroup E] [PartialOrder E] [IsOrderedAddMonoid E] [Module ℝ E]
-  [PosSMulMono ℝ E] [One E] [IsArchimedeanOrderUnit E]
+variable {E : Type*} [ArchimedeanOrderUnitSpace E]
 
 namespace Effect
 
@@ -86,12 +85,10 @@ lemma mem_effect_two_inv_smul_one_add (A : {A : E // orderUnitNorm A ≤ 1}) :
   have h2 := smul_le_smul_of_nonneg_left h (show (0 : ℝ) ≤ (2 : ℝ)⁻¹ by norm_num)
   rwa [smul_smul, inv_mul_cancel₀ (two_ne_zero), one_smul] at h2
 
-omit [IsOrderedAddMonoid E] [PosSMulMono ℝ E] [IsArchimedeanOrderUnit E] in
 /-- Re-centering, then undoing it, returns the original effect. -/
 lemma two_inv_smul_one_add_two_smul_sub_one (e : Effect E) :
     (2 : ℝ)⁻¹ • (1 + ((2 : ℝ) • (e : E) - 1)) = (e : E) := by module
 
-omit [IsOrderedAddMonoid E] [PosSMulMono ℝ E] [IsArchimedeanOrderUnit E] in
 /-- Undoing the re-centering, then redoing it, returns the original ball point. -/
 lemma two_smul_two_inv_smul_one_add_sub_one (A : {A : E // orderUnitNorm A ≤ 1}) :
     (2 : ℝ) • ((2 : ℝ)⁻¹ • (1 + (A : E))) - 1 = (A : E) := by
