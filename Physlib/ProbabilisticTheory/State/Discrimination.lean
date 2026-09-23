@@ -49,10 +49,11 @@ Two equally likely states are easier to tell apart exactly when they sit farther
 
 @[expose] public section
 
-variable {E : Type*} [AddCommGroup E] [PartialOrder E] [IsOrderedAddMonoid E] [Module ℝ E]
-  [PosSMulMono ℝ E] [One E] [IsOrderUnit E]
-
 namespace UnitalPositiveLinearMap
+
+section OrderUnitSpace
+
+variable {E : Type*} [OrderUnitSpace E]
 
 /-! ## A. Success probability and the advantage of a test -/
 
@@ -65,7 +66,6 @@ def successProb (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) (e : Effect E) :
 def advantage (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) (e : Effect E) : ℝ :=
   (p : ℝ) * ω₀ (e : E) - (1 - (p : ℝ)) * ω₁ (e : E)
 
-omit [PosSMulMono ℝ E] [IsOrderUnit E] in
 /-- Success probability equals the baseline `1 - p` plus the advantage of test `e`. -/
 lemma successProb_eq_add_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) (e : Effect E) :
     successProb ω₀ ω₁ p e = (1 - (p : ℝ)) + advantage ω₀ ω₁ p e := by
@@ -76,7 +76,6 @@ lemma successProb_eq_add_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterva
 
 /-! ## B. The Helstrom bound -/
 
-omit [IsOrderedAddMonoid E] [PosSMulMono ℝ E] [IsOrderUnit E] in
 /-- No test's advantage beats the prior weight `p` of the state it favors. -/
 lemma advantage_le (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) (e : Effect E) :
     advantage ω₀ ω₁ p e ≤ (p : ℝ) := by
@@ -87,12 +86,10 @@ lemma advantage_le (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) (e : Effect E
   have h4 : 0 ≤ (1 - (p : ℝ)) * ω₁ (e : E) := mul_nonneg (by linarith [p.2.2]) h2
   linarith
 
-omit [IsOrderedAddMonoid E] [PosSMulMono ℝ E] [IsOrderUnit E] in
 lemma bddAbove_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) :
     BddAbove (Set.range (advantage ω₀ ω₁ p)) :=
   ⟨(p : ℝ), by rintro _ ⟨e, rfl⟩; exact advantage_le ω₀ ω₁ p e⟩
 
-omit [PosSMulMono ℝ E] [IsOrderUnit E] in
 lemma bddAbove_successProb (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) :
     BddAbove (Set.range (successProb ω₀ ω₁ p)) := by
   obtain ⟨b, hb⟩ := bddAbove_advantage ω₀ ω₁ p
@@ -105,7 +102,6 @@ lemma bddAbove_successProb (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) :
 noncomputable def optimalSuccessProb (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) : ℝ :=
   ⨆ e : Effect E, successProb ω₀ ω₁ p e
 
-omit [PosSMulMono ℝ E] in
 /-- The Helstrom bound: optimal success probability is the baseline `1 - p` plus the best
 advantage any test can give. -/
 lemma optimalSuccessProb_eq (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) :
@@ -124,15 +120,16 @@ lemma optimalSuccessProb_eq (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) :
       linarith
     linarith
 
+end OrderUnitSpace
+
 /-! ## C. Equal priors: the bound is the state distance -/
 
 section Archimedean
 
-variable [IsArchimedeanOrderUnit E]
+variable {E : Type*} [ArchimedeanOrderUnitSpace E]
 
-open IsArchimedeanOrderUnit
+open ArchimedeanOrderUnitSpace
 
-omit [PosSMulMono ℝ E] [IsOrderUnit E] [IsArchimedeanOrderUnit E] in
 /-- Complementing an effect negates `ω₀ e - ω₁ e`. -/
 lemma sub_complement_eq_neg_sub (ω₀ ω₁ : 𝓢[ℝ, E]) (e : Effect E) :
     ω₀ ((Effect.complement e : E)) - ω₁ ((Effect.complement e : E))
@@ -140,7 +137,6 @@ lemma sub_complement_eq_neg_sub (ω₀ ω₁ : 𝓢[ℝ, E]) (e : Effect E) :
   show ω₀ (1 - (e : E)) - ω₁ (1 - (e : E)) = _
   simp only [map_sub, map_one]; ring
 
-omit [IsOrderedAddMonoid E] [PosSMulMono ℝ E] [IsOrderUnit E] [IsArchimedeanOrderUnit E] in
 lemma bddAbove_sub (ω₀ ω₁ : 𝓢[ℝ, E]) :
     BddAbove (Set.range fun e : Effect E => ω₀ (e : E) - ω₁ (e : E)) :=
   ⟨1, by
@@ -149,7 +145,6 @@ lemma bddAbove_sub (ω₀ ω₁ : 𝓢[ℝ, E]) :
     have h2 : (0 : ℝ) ≤ ω₁ (e : E) := map_nonneg ω₁ e.2.1
     linarith⟩
 
-omit [IsOrderedAddMonoid E] [PosSMulMono ℝ E] [IsOrderUnit E] [IsArchimedeanOrderUnit E] in
 lemma bddAbove_abs_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) :
     BddAbove (Set.range fun e : Effect E => |ω₀ (e : E) - ω₁ (e : E)|) :=
   ⟨1, by
@@ -160,7 +155,6 @@ lemma bddAbove_abs_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) :
     have h4 : (0 : ℝ) ≤ ω₀ (e : E) := map_nonneg ω₀ e.2.1
     rw [abs_le]; constructor <;> linarith⟩
 
-omit [PosSMulMono ℝ E] [IsArchimedeanOrderUnit E] in
 /-- The best advantage equals its own absolute value: complementing an effect flips its sign. -/
 lemma ciSup_advantage_eq_ciSup_abs (ω₀ ω₁ : 𝓢[ℝ, E]) :
     (⨆ e : Effect E, (ω₀ (e : E) - ω₁ (e : E))) = ⨆ e : Effect E, |ω₀ (e : E) - ω₁ (e : E)| := by
@@ -175,7 +169,6 @@ lemma ciSup_advantage_eq_ciSup_abs (ω₀ ω₁ : 𝓢[ℝ, E]) :
     rw [sub_complement_eq_neg_sub] at h2
     exact abs_le.mpr ⟨by linarith, h1⟩
 
-omit [IsOrderUnit E] in
 /-- The state distance is the largest `|ω₀ e - ω₁ e|` over unit-ball effects
 (`Effect.equivBall`). -/
 lemma dist_eq_ciSup_abs_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) :
@@ -193,7 +186,6 @@ lemma dist_eq_ciSup_abs_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) :
     exact le_ciSup hbdd' (Effect.equivBall.symm A)
   · exact ciSup_le fun e => le_ciSup (dist_bddAbove ω₀ ω₁) (Effect.equivBall e)
 
-omit [IsOrderUnit E] in
 /-- The state distance is exactly twice the largest advantage a single effect can give. -/
 lemma dist_eq_two_mul_ciSup_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) :
     dist ω₀ ω₁ = 2 * ⨆ e : Effect E, (ω₀ (e : E) - ω₁ (e : E)) := by
@@ -208,7 +200,6 @@ lemma dist_eq_two_mul_ciSup_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) :
       = 2 * ⨆ e : Effect E, |ω₀ (e : E) - ω₁ (e : E)| from by
     rw [← smul_eq_mul, Real.smul_iSup_of_nonneg (by norm_num : (0 : ℝ) ≤ 2)]; simp [smul_eq_mul]]
 
-omit [IsOrderUnit E] in
 /-- For equal priors, the Helstrom bound is `1/2` plus a quarter of the state distance. -/
 lemma optimalSuccessProb_half_half_eq (ω₀ ω₁ : 𝓢[ℝ, E]) :
     optimalSuccessProb ω₀ ω₁ ⟨1 / 2, by norm_num, by norm_num⟩ = 1 / 2 + dist ω₀ ω₁ / 4 := by
