@@ -8,8 +8,7 @@ module
 public import Mathlib.Geometry.Convex.Cone.Pointed
 public import Mathlib.Data.Real.Basic
 public import Mathlib.Data.NNReal.Defs
-public import Mathlib.Topology.Order.OrderClosed
-public import Physlib.ProbabilisticTheory.OrderUnit.Basic
+public import Physlib.ProbabilisticTheory.OrderUnit.Archimedean
 
 /-!
 # Ordered positive cones
@@ -25,8 +24,8 @@ These elements form a cone: they are closed under addition and scaling by nonneg
 
 - `PosCone` : the cone of positive observables, `PointedCone.positive ℝ E`. Its carrier is exactly
   `{A | 0 ≤ A}` (`PointedCone.mem_positive`) and it is convex (`PointedCone.convex`).
-- `PosCone.isClosed` : the positive cone is closed whenever the order itself is topologically
-  closed.
+- `PosCone.isClosed` : the positive cone is closed in the order-unit-norm topology of an
+  Archimedean order-unit space.
 - `PosCone.nonneg_add_eq_zero` : the positive cone meets its negation only at `0`.
 - `PosCone.exists_real_shift_nonneg` : enough copies of the order unit shift any element into the
   cone.
@@ -50,24 +49,25 @@ open scoped NNReal
 -/
 
 /-- The positive pointed cone of an ordered real module. -/
-abbrev PosCone (E : Type*) [AddCommMonoid E] [PartialOrder E] [IsOrderedAddMonoid E]
-    [Module ℝ E] [PosSMulMono ℝ E] : PointedCone ℝ E :=
+abbrev PosCone (E : Type*) [OrderedVectorSpace E] : PointedCone ℝ E :=
   PointedCone.positive ℝ E
 
 namespace PosCone
 
-variable {E : Type*} [AddCommMonoid E] [PartialOrder E] [IsOrderedAddMonoid E]
-  [Module ℝ E] [PosSMulMono ℝ E]
+section OrderedVectorSpace
+
+variable {E : Type*} [OrderedVectorSpace E]
 
 /-- The positive cone carries a nonnegative-real scalar action. -/
 instance instModule : Module ℝ≥0 (PosCone E) :=
   inferInstanceAs (Module {c : ℝ // 0 ≤ c} (PointedCone.positive ℝ E))
 
-omit [Module ℝ E] [PosSMulMono ℝ E] in
 /-- A nonnegative vector that adds with another nonnegative vector to `0` is itself `0`: the
 positive cone meets its negation only at `0`. -/
 lemma nonneg_add_eq_zero {A B : E} (hA : 0 ≤ A) (hB : 0 ≤ B) (hAB : A + B = 0) : A = 0 :=
   le_antisymm (hAB ▸ le_add_of_nonneg_right hB) hA
+
+end OrderedVectorSpace
 
 /-!
 
@@ -75,11 +75,18 @@ lemma nonneg_add_eq_zero {A B : E} (hA : 0 ≤ A) (hB : 0 ≤ B) (hAB : A + B = 
 
 -/
 
-variable [TopologicalSpace E] [ClosedIciTopology E]
+section ArchimedeanOrderUnitSpace
 
-/-- The positive cone is closed whenever the order itself is closed in the topology. -/
-lemma isClosed : IsClosed (PosCone E : Set E) := by
-  simpa [PosCone, PointedCone.mem_positive] using (isClosed_Ici : IsClosed (Set.Ici (0 : E)))
+variable {E : Type*} [ArchimedeanOrderUnitSpace E]
+
+/-- The positive cone is closed in the topology induced by the order-unit norm. -/
+lemma isClosed :
+    letI := ArchimedeanOrderUnitSpace.orderUnitNormedAddCommGroup (E := E)
+    IsClosed (PosCone E : Set E) := by
+  simpa [PosCone, PointedCone.mem_positive] using
+    (ArchimedeanOrderUnitSpace.isClosed_Ici_zero (E := E))
+
+end ArchimedeanOrderUnitSpace
 
 /-!
 
@@ -87,23 +94,25 @@ lemma isClosed : IsClosed (PosCone E : Set E) := by
 
 -/
 
-variable {E : Type*} [AddCommGroup E] [PartialOrder E] [IsOrderedAddMonoid E] [Module ℝ E]
-  [PosSMulMono ℝ E] [One E] [IsOrderUnit E]
+section OrderUnitSpace
 
-/-- The order unit, as a point of the positive cone. -/
-def unit : PosCone E := ⟨1, IsOrderUnit.one_nonneg⟩
+variable {E : Type*} [OrderUnitSpace E]
+
+/-- The order unit, regarded as a point of the positive cone. -/
+instance instOne : One (PosCone E) := ⟨⟨1, OrderUnitSpace.one_nonneg⟩⟩
 
 @[simp]
-lemma coe_unit : ((unit : PosCone E) : E) = (1 : E) := rfl
+lemma coe_one : ((1 : PosCone E) : E) = (1 : E) := rfl
 
-omit [PosSMulMono ℝ E] in
 /-- Every element becomes nonnegative after adding enough copies of the order unit: the positive
 cone reaches everywhere, once you're allowed to shift by the unit. -/
 lemma exists_real_shift_nonneg (A : E) : ∃ r : ℝ, 0 ≤ r • (1 : E) + A := by
-  obtain ⟨n, hn⟩ := IsOrderUnit.exists_nsmul_one_le (-A)
+  obtain ⟨n, hn⟩ := OrderUnitSpace.exists_nsmul_one_le (-A)
   refine ⟨n, ?_⟩
   rw [← Nat.cast_smul_eq_nsmul ℝ n (1 : E)] at hn
   rw [← sub_neg_eq_add]
   exact sub_nonneg.mpr hn
+
+end OrderUnitSpace
 
 end PosCone
