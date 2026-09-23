@@ -31,7 +31,7 @@ space, its order, and this distinguished unit gives the abstract order-unit sett
 
 ## iii. Table of contents
 
-- A. Order-unit elements
+- A. Ordered vector spaces and order units
 - B. Consequences of being an order unit
 
 ## iv. References
@@ -50,31 +50,18 @@ space, its order, and this distinguished unit gives the abstract order-unit sett
 class OrderedVectorSpace (E : Type*) extends AddCommGroup E, PartialOrder E, Module ℝ E,
     IsOrderedAddMonoid E, PosSMulMono ℝ E
 
-/-- A positive element `A` is an order unit if every element is bounded above by a natural
-multiple of `A`. -/
-class IsOrderUnitElement {E : Type*} [AddCommMonoid E] [PartialOrder E] (A : E) : Prop where
-  /-- An order-unit element is nonnegative. -/
-  nonneg : 0 ≤ A
-  /-- Every element is bounded above by a natural multiple of the order unit. -/
-  exists_nsmul_le : ∀ B : E, ∃ n : ℕ, B ≤ n • A
-
-/-- An ordered real vector space whose distinguished element `1` is an order unit. No
-multiplication is assumed. -/
+/-- An ordered real vector space whose distinguished element `1` is an order unit: it is
+nonnegative, and every element is bounded above by a natural multiple of it. No multiplication is
+assumed. -/
 class OrderUnitSpace (E : Type*) extends OrderedVectorSpace E, One E where
-  /-- `1` itself satisfies the order-unit condition. -/
-  isOrderUnitElement_one : IsOrderUnitElement (1 : E)
+  /-- The distinguished unit is nonnegative. -/
+  one_nonneg : 0 ≤ (1 : E)
+  /-- Every element is bounded above by a natural multiple of the order unit. -/
+  exists_nsmul_one_le : ∀ B : E, ∃ n : ℕ, B ≤ n • (1 : E)
 
 namespace OrderUnitSpace
 
 variable {E : Type*} [OrderUnitSpace E]
-
-/-- The distinguished unit is positive. -/
-lemma one_nonneg : 0 ≤ (1 : E) :=
-  OrderUnitSpace.isOrderUnitElement_one.nonneg
-
-/-- Every element is bounded by some finite multiple of the identity. -/
-lemma exists_nsmul_one_le (A : E) : ∃ n : ℕ, A ≤ n • (1 : E) :=
-  OrderUnitSpace.isOrderUnitElement_one.exists_nsmul_le A
 
 /-!
 

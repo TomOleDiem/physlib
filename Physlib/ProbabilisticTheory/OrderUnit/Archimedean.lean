@@ -64,9 +64,10 @@ class ArchimedeanOrderUnitSpace (E : Type*) extends OrderUnitSpace E where
 
 /-- The real numbers form an Archimedean order-unit space. -/
 instance instArchimedeanOrderUnitSpaceReal : ArchimedeanOrderUnitSpace ℝ where
-  isOrderUnitElement_one := ⟨zero_le_one, fun A => by
+  one_nonneg := zero_le_one
+  exists_nsmul_one_le A := by
     obtain ⟨n, hn⟩ := exists_nat_ge A
-    exact ⟨n, by simpa using hn⟩⟩
+    exact ⟨n, by simpa using hn⟩
   le_zero_of_forall_pos_smul_one_le A hA := by
     by_contra h
     have hApos : 0 < A := lt_of_not_ge h
