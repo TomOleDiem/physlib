@@ -30,8 +30,7 @@ actually run is itself a legitimate measurement.
 
 @[expose] public section
 
-variable {E : Type*} [AddCommGroup E] [PartialOrder E] [IsOrderedAddMonoid E] [One E]
-  [Module ℝ E] [PosSMulMono ℝ E]
+variable {E : Type*} [OrderUnitSpace E]
 
 namespace Effect
 

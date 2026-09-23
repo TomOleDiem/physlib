@@ -31,12 +31,9 @@ be written as a nontrivial mixture of two distinct effects. Sharp effects genera
 
 @[expose] public section
 
-variable {E : Type*} [AddCommGroup E] [PartialOrder E] [IsOrderedAddMonoid E] [One E]
-  [Module ℝ E] [PosSMulMono ℝ E]
-
 namespace Effect
 
-variable [IsOrderUnit E]
+variable {E : Type*} [OrderUnitSpace E]
 
 /-!
 
@@ -50,7 +47,7 @@ def IsSharp (e : Effect E) : Prop := (e : E) ∈ Set.extremePoints ℝ (Set.Icc 
 
 /-- The impossible outcome 0 is sharp. -/
 lemma isSharp_zero : IsSharp (0 : Effect E) := by
-  refine ⟨⟨le_refl 0, IsOrderUnit.one_nonneg⟩,
+  refine ⟨⟨le_refl 0, OrderUnitSpace.one_nonneg⟩,
     fun x₁ hx₁ _ hx₂ ⟨a, b, ha, hb, _, hz⟩ => ?_⟩
   have hax : a • x₁ = 0 :=
     PosCone.nonneg_add_eq_zero
@@ -58,7 +55,6 @@ lemma isSharp_zero : IsSharp (0 : Effect E) := by
   have := congrArg (a⁻¹ • ·) hax
   rwa [inv_smul_smul₀ ha.ne', smul_zero] at this
 
-omit [PosSMulMono ℝ E] [IsOrderUnit E] in
 /-- Sharpness is preserved by taking the complement:
 `e ↦ 1 - e` is an affine involution of the effect interval. -/
 lemma isSharp_complement {e : Effect E} (h : IsSharp e) : IsSharp (complement e) := by
@@ -77,7 +73,6 @@ lemma isSharp_complement {e : Effect E} (h : IsSharp e) : IsSharp (complement e)
   have hsum : x₁ + (e : E) = 1 := by rw [← x1eq]; abel
   exact eq_sub_of_add_eq hsum
 
-omit [PosSMulMono ℝ E] [IsOrderUnit E] in
 /-- Sharpness is preserved by taking the complement, in either direction. -/
 lemma isSharp_complement_iff {e : Effect E} : IsSharp (complement e) ↔ IsSharp e :=
   ⟨fun h => complement_complement e ▸ isSharp_complement h, isSharp_complement⟩

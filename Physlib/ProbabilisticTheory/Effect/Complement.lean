@@ -36,7 +36,7 @@ Physically, a state's probability of "no" is always `1` minus its probability of
 
 namespace Effect
 
-variable {E : Type*} [AddCommGroup E] [PartialOrder E] [IsOrderedAddMonoid E] [One E]
+variable {E : Type*} [OrderUnitSpace E]
 
 /-!
 
@@ -53,16 +53,22 @@ lemma complement_complement (e : Effect E) : complement (complement e) = e := by
   apply Subtype.ext
   simp [complement]
 
-variable [IsOrderUnit E]
+/-!
 
-instance : Zero (Effect E) := ⟨0, le_refl 0, IsOrderUnit.one_nonneg⟩
-instance : One (Effect E) := ⟨1, IsOrderUnit.one_nonneg, le_refl 1⟩
+## B. Monotonicity of the complement
+
+-/
+
+/-- The complement reverses order: a more certain test's complement is a less certain one. -/
+lemma complement_antitone : Antitone (complement (E := E)) :=
+  fun _ _ h => sub_le_sub_left (show (_ : E) ≤ _ from h) 1
+
+instance : Zero (Effect E) := ⟨0, le_refl 0, OrderUnitSpace.one_nonneg⟩
+instance : One (Effect E) := ⟨1, OrderUnitSpace.one_nonneg, le_refl 1⟩
 instance : Nonempty (Effect E) := ⟨0⟩
 
-omit [IsOrderedAddMonoid E] in
 @[simp] lemma coe_zero : ((0 : Effect E) : E) = 0 := rfl
 
-omit [IsOrderedAddMonoid E] in
 @[simp] lemma coe_one : ((1 : Effect E) : E) = 1 := rfl
 
 @[simp]
@@ -77,24 +83,10 @@ lemma complement_one : complement (1 : Effect E) = 0 := by
 
 /-!
 
-## B. Monotonicity of the complement
-
--/
-
-omit [IsOrderUnit E] in
-/-- The complement reverses order: a more certain test's complement is a less certain one. -/
-lemma complement_antitone : Antitone (complement (E := E)) :=
-  fun _ _ h => sub_le_sub_left (show (_ : E) ≤ _ from h) 1
-
-variable [Module ℝ E] [PosSMulMono ℝ E]
-
-/-!
-
 ## C. The complement and mixtures
 
 -/
 
-omit [IsOrderUnit E] in
 /-- Mixing commutes with taking the complement. -/
 lemma complement_mix (e f : Effect E) (t : unitInterval) :
     complement (mix e f t) = mix (complement e) (complement f) t := by
