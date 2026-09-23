@@ -50,10 +50,6 @@ space, its order, and this distinguished unit gives the abstract order-unit sett
 class OrderedVectorSpace (E : Type*) extends AddCommGroup E, PartialOrder E, Module ℝ E,
     IsOrderedAddMonoid E, PosSMulMono ℝ E
 
-/-- An ordered real vector space with a distinguished element `1`, without assuming it is an
-order unit. -/
-class OrderedVectorSpaceWithUnit (E : Type*) extends OrderedVectorSpace E, One E
-
 /-- A positive element `A` is an order unit if every element is bounded above by a natural
 multiple of `A`. -/
 class IsOrderUnitElement {E : Type*} [AddCommMonoid E] [PartialOrder E] (A : E) : Prop where
@@ -64,7 +60,7 @@ class IsOrderUnitElement {E : Type*} [AddCommMonoid E] [PartialOrder E] (A : E) 
 
 /-- An ordered real vector space whose distinguished element `1` is an order unit. No
 multiplication is assumed. -/
-class OrderUnitSpace (E : Type*) extends OrderedVectorSpaceWithUnit E where
+class OrderUnitSpace (E : Type*) extends OrderedVectorSpace E, One E where
   /-- `1` itself satisfies the order-unit condition. -/
   isOrderUnitElement_one : IsOrderUnitElement (1 : E)
 
