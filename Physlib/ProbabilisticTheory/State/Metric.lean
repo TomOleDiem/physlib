@@ -39,10 +39,9 @@ the nearest pure state.
 
 @[expose] public section
 
-open IsArchimedeanOrderUnit
+open ArchimedeanOrderUnitSpace
 
-variable {E : Type*} [AddCommGroup E] [PartialOrder E] [IsOrderedAddMonoid E] [Module ℝ E]
-  [PosSMulMono ℝ E] [One E] [IsArchimedeanOrderUnit E]
+variable {E : Type*} [ArchimedeanOrderUnitSpace E]
 
 namespace UnitalPositiveLinearMap
 
@@ -52,7 +51,6 @@ namespace UnitalPositiveLinearMap
 
 -/
 
-omit [PosSMulMono ℝ E] in
 /-- A state never overshoots the order-unit norm. -/
 lemma apply_le_orderUnitNorm (ω : 𝓢[ℝ, E]) (A : E) : ω A ≤ orderUnitNorm A := by
   apply le_of_forall_pos_le_add
@@ -62,7 +60,6 @@ lemma apply_le_orderUnitNorm (ω : 𝓢[ℝ, E]) (A : E) : ω A ≤ orderUnitNor
   simp only [map_sub, map_smul, smul_eq_mul, map_one, mul_one] at hpos
   linarith
 
-omit [PosSMulMono ℝ E] in
 /-- A state's values are bounded by the order-unit norm in both directions. -/
 lemma abs_apply_le_orderUnitNorm (ω : 𝓢[ℝ, E]) (A : E) : |ω A| ≤ orderUnitNorm A := by
   have h1 : ω A ≤ orderUnitNorm A := apply_le_orderUnitNorm ω A
@@ -70,7 +67,6 @@ lemma abs_apply_le_orderUnitNorm (ω : 𝓢[ℝ, E]) (A : E) : |ω A| ≤ orderU
   rw [_root_.map_neg, orderUnitNorm_neg] at h2
   exact abs_le.mpr ⟨by linarith, h1⟩
 
-omit [PosSMulMono ℝ E] in
 /-- Two states' predictions on any observable of order-unit norm at most `1` never differ by more
 than `2`. -/
 lemma abs_apply_sub_apply_le_two (ω φ : 𝓢[ℝ, E]) {A : E} (hA : orderUnitNorm A ≤ 1) :
@@ -88,7 +84,6 @@ lemma abs_apply_sub_apply_le_two (ω φ : 𝓢[ℝ, E]) {A : E} (hA : orderUnitN
 
 -/
 
-omit [PosSMulMono ℝ E] in
 /-- The values `|ω A - φ A|` of two states, restricted to the order-unit-norm unit ball, are
 bounded by `2`. -/
 lemma dist_bddAbove (ω φ : 𝓢[ℝ, E]) :
@@ -100,17 +95,14 @@ observable of order-unit norm at most `1`. -/
 noncomputable def dist (ω φ : 𝓢[ℝ, E]) : ℝ :=
   ⨆ A : {A : E // orderUnitNorm A ≤ 1}, |ω A - φ A|
 
-omit [PosSMulMono ℝ E] in
 lemma dist_nonneg (ω φ : 𝓢[ℝ, E]) : 0 ≤ dist ω φ :=
   le_trans (abs_nonneg _) (le_ciSup (dist_bddAbove ω φ) ⟨0, by simp⟩)
 
-omit [PosSMulMono ℝ E] in
 /-- The whole state space has diameter at most `2`: it's a bounded metric space. -/
 lemma dist_le_two (ω φ : 𝓢[ℝ, E]) : dist ω φ ≤ 2 := by
   have : Nonempty {A : E // orderUnitNorm A ≤ 1} := ⟨0, by simp⟩
   exact ciSup_le fun A => abs_apply_sub_apply_le_two ω φ A.2
 
-omit [PosSMulMono ℝ E] in
 @[simp]
 lemma dist_self (ω : 𝓢[ℝ, E]) : dist ω ω = 0 := by
   have : Nonempty {A : E // orderUnitNorm A ≤ 1} := ⟨0, by simp⟩
@@ -119,12 +111,10 @@ lemma dist_self (ω : 𝓢[ℝ, E]) : dist ω ω = 0 := by
   unfold dist
   rw [this, ciSup_const]
 
-omit [IsOrderedAddMonoid E] [PosSMulMono ℝ E] [IsArchimedeanOrderUnit E] in
 lemma dist_comm (ω φ : 𝓢[ℝ, E]) : dist ω φ = dist φ ω := by
   unfold dist
   simp_rw [abs_sub_comm]
 
-omit [PosSMulMono ℝ E] in
 lemma dist_triangle (ω φ ψ : 𝓢[ℝ, E]) : dist ω ψ ≤ dist ω φ + dist φ ψ := by
   have : Nonempty {A : E // orderUnitNorm A ≤ 1} := ⟨0, by simp⟩
   apply ciSup_le
