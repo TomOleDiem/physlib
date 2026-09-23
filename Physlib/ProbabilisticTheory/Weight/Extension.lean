@@ -33,8 +33,7 @@ check the result does not depend on the `r` chosen.
 
 open scoped ENNReal NNReal
 
-variable {E : Type*} [AddCommGroup E] [PartialOrder E] [IsOrderedAddMonoid E]
-  [Module ℝ E] [PosSMulMono ℝ E] [One E] [IsOrderUnit E]
+variable {E : Type*} [OrderUnitSpace E]
 
 namespace Weight
 
@@ -51,7 +50,7 @@ namespace IsFinite
 /-- `A` shifted into the cone by `r` copies of the order unit, minus the corresponding multiple
 of the weight of the order unit. -/
 noncomputable def rawValue (_hw : w.IsFinite) (A : E) (r : ℝ) (h : 0 ≤ r • (1 : E) + A) : ℝ :=
-  (w ⟨r • (1 : E) + A, h⟩).toReal - r * (w PosCone.unit).toReal
+  (w ⟨r • (1 : E) + A, h⟩).toReal - r * (w 1).toReal
 
 /-- Shifting by a larger `s` and a smaller `r` agree: the extra `s - r` copies of the unit added
 to the cone element are exactly cancelled by the extra `(s - r) * w 1` subtracted off. -/
@@ -59,7 +58,8 @@ lemma rawValue_of_le (hw : w.IsFinite) (A : E) {r s : ℝ} (hr : 0 ≤ r • (1 
     (hs : 0 ≤ s • (1 : E) + A) (hrs : r ≤ s) : rawValue hw A s hs = rawValue hw A r hr := by
   set t : ℝ≥0 := (s - r).toNNReal with ht_def
   have ht : (t : ℝ) = s - r := Real.coe_toNNReal _ (by linarith)
-  have hcone : (⟨s • (1 : E) + A, hs⟩ : PosCone E) = ⟨r • (1 : E) + A, hr⟩ + t • PosCone.unit := by
+  have hcone : (⟨s • (1 : E) + A, hs⟩ : PosCone E) =
+      ⟨r • (1 : E) + A, hr⟩ + t • (1 : PosCone E) := by
     apply Subtype.ext
     show s • (1 : E) + A = (r • (1 : E) + A) + (t : ℝ) • (1 : E)
     rw [ht]

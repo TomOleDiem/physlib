@@ -46,20 +46,26 @@ and normalized.
 
 open scoped ENNReal NNReal
 
-variable {E : Type*} [AddCommGroup E] [PartialOrder E] [IsOrderedAddMonoid E]
-  [Module ℝ E] [PosSMulMono ℝ E]
-
 /-!
 
 ## A. Weights
 
 -/
 
+section OrderedVectorSpace
+
+variable {E : Type*} [OrderedVectorSpace E]
+
 /-- An extended nonnegative linear functional on the positive cone. -/
-abbrev Weight (E : Type*) [AddCommGroup E] [PartialOrder E] [IsOrderedAddMonoid E]
-    [Module ℝ E] [PosSMulMono ℝ E] := PosCone E →ₗ[ℝ≥0] ℝ≥0∞
+abbrev Weight (E : Type*) [OrderedVectorSpace E] := PosCone E →ₗ[ℝ≥0] ℝ≥0∞
+
+end OrderedVectorSpace
 
 namespace Weight
+
+section OrderedVectorSpace
+
+variable {E : Type*} [OrderedVectorSpace E]
 
 @[ext]
 lemma ext {w₁ w₂ : Weight E} (h : ∀ A, w₁ A = w₂ A) : w₁ = w₂ :=
@@ -114,7 +120,7 @@ lemma toReal_map_nnreal_smul (w : Weight E) (k : ℝ≥0) (A : PosCone E) :
 def IsNormal (w : Weight E) : Prop := ∀ (D : Set (PosCone E)) (A : PosCone E),
   D.Nonempty → DirectedOn (· ≤ ·) D → IsLUB D A → IsLUB (w '' D) (w A)
 
-variable [One E] [IsOrderUnit E]
+end OrderedVectorSpace
 
 /-!
 
@@ -122,36 +128,42 @@ variable [One E] [IsOrderUnit E]
 
 -/
 
+section OrderUnitSpace
+
+variable {E : Type*} [OrderUnitSpace E]
+
 /-- A weight that's finite everywhere and gives the certain outcome weight exactly `1`. -/
 structure IsState (w : Weight E) : Prop where
   /-- A state is finite everywhere. -/
   finite : w.IsFinite
   /-- A state gives the certain outcome weight exactly `1`. -/
-  normalized : w PosCone.unit = 1
+  normalized : w 1 = 1
 
 /-- Rescaling a finite weight that's nonzero at the order unit. -/
-noncomputable def IsFinite.normalize {w : Weight E} (_hw : w.IsFinite) (_h : w PosCone.unit ≠ 0) :
+noncomputable def IsFinite.normalize {w : Weight E} (_hw : w.IsFinite) (_h : w 1 ≠ 0) :
     Weight E where
-  toFun A := (w PosCone.unit)⁻¹ * w A
+  toFun A := (w 1)⁻¹ * w A
   map_add' A B := by rw [map_add, mul_add]
   map_smul' c A := by
     simp only [map_smul, ENNReal.smul_def, smul_eq_mul, RingHom.id_apply]
     ring
 
-lemma IsFinite.normalize_apply {w : Weight E} (hw : w.IsFinite) (h : w PosCone.unit ≠ 0)
-    (A : PosCone E) : hw.normalize h A = (w PosCone.unit)⁻¹ * w A := rfl
+lemma IsFinite.normalize_apply {w : Weight E} (hw : w.IsFinite) (h : w 1 ≠ 0)
+    (A : PosCone E) : hw.normalize h A = (w 1)⁻¹ * w A := rfl
 
 /-- Normalizing a finite weight keeps it finite. -/
-lemma IsFinite.normalize_isFinite {w : Weight E} (hw : w.IsFinite) (h : w PosCone.unit ≠ 0) :
+lemma IsFinite.normalize_isFinite {w : Weight E} (hw : w.IsFinite) (h : w 1 ≠ 0) :
     (hw.normalize h).IsFinite := fun A => by
   rw [normalize_apply]
   exact ENNReal.mul_ne_top (ENNReal.inv_ne_top.mpr h) (hw A)
 
 /-- Normalizing a finite weight makes it a state: the order unit is scaled to weight exactly
 `1`. -/
-lemma IsFinite.normalize_isState {w : Weight E} (hw : w.IsFinite) (h : w PosCone.unit ≠ 0) :
+lemma IsFinite.normalize_isState {w : Weight E} (hw : w.IsFinite) (h : w 1 ≠ 0) :
     (hw.normalize h).IsState where
   finite := hw.normalize_isFinite h
-  normalized := by rw [normalize_apply]; exact ENNReal.inv_mul_cancel h (hw PosCone.unit)
+  normalized := by rw [normalize_apply]; exact ENNReal.inv_mul_cancel h (hw 1)
+
+end OrderUnitSpace
 
 end Weight
