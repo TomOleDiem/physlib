@@ -42,8 +42,7 @@ another.
 
 @[expose] public section
 
-variable {E : Type*} [AddCommGroup E] [PartialOrder E] [IsOrderedAddMonoid E] [Module ℝ E]
-  [PosSMulMono ℝ E] [One E] [IsArchimedeanOrderUnit E]
+variable {E : Type*} [ArchimedeanOrderUnitSpace E]
 
 namespace UnitalPositiveLinearMap
 
@@ -53,12 +52,10 @@ namespace UnitalPositiveLinearMap
 
 -/
 
-omit [IsOrderedAddMonoid E] [PosSMulMono ℝ E] [IsArchimedeanOrderUnit E] in
 /-- State–effect evaluation takes values in `[0, 1]`. -/
 lemma apply_mem_Icc (ω : 𝓢[ℝ, E]) (e : Effect E) : ω (e : E) ∈ Set.Icc (0 : ℝ) 1 :=
   ⟨map_nonneg ω e.2.1, (ω.monotone' e.2.2).trans_eq (map_one ω)⟩
 
-omit [IsArchimedeanOrderUnit E] in
 /-- Evaluation is affine in the effect argument. See `mix_apply` for the state argument. -/
 lemma apply_mix (ω : 𝓢[ℝ, E]) (e f : Effect E) (t : unitInterval) :
     ω ((Effect.mix e f t : E)) = (t : ℝ) * ω (e : E) + (1 - (t : ℝ)) * ω (f : E) := by
@@ -70,9 +67,8 @@ lemma apply_mix (ω : 𝓢[ℝ, E]) (e f : Effect E) (t : unitInterval) :
 
 -/
 
-omit [IsArchimedeanOrderUnit E] in
 /-- Two states that agree on all effects agree on every nonnegative element. -/
-lemma ext_of_effect_eq_of_nonneg [IsOrderUnit E] {ω φ : 𝓢[ℝ, E]}
+lemma ext_of_effect_eq_of_nonneg {ω φ : 𝓢[ℝ, E]}
     (h : ∀ e : Effect E, ω (e : E) = φ (e : E)) {B : E} (hB : 0 ≤ B) : ω B = φ B := by
   obtain ⟨r, hr, hrB⟩ := Effect.exists_pos_smul_mem hB
   have heq := h ⟨r • B, hrB⟩
@@ -80,18 +76,16 @@ lemma ext_of_effect_eq_of_nonneg [IsOrderUnit E] {ω φ : 𝓢[ℝ, E]}
   rw [map_smul, map_smul, smul_eq_mul, smul_eq_mul] at heq
   exact mul_left_cancel₀ hr.ne' heq
 
-omit [IsArchimedeanOrderUnit E] in
 /-- A state is determined by its values on effects. -/
-lemma ext_of_effect_eq [IsOrderUnit E] {ω φ : 𝓢[ℝ, E]}
+lemma ext_of_effect_eq {ω φ : 𝓢[ℝ, E]}
     (h : ∀ e : Effect E, ω (e : E) = φ (e : E)) : ω = φ := by
   apply UnitalPositiveLinearMap.ext
   intro A
-  obtain ⟨Ap, An, hAp, hAn, rfl⟩ := IsOrderUnit.exists_eq_sub_nonneg A
+  obtain ⟨Ap, An, hAp, hAn, rfl⟩ := OrderUnitSpace.exists_eq_sub_nonneg A
   rw [map_sub, map_sub, ext_of_effect_eq_of_nonneg h hAp, ext_of_effect_eq_of_nonneg h hAn]
 
-omit [IsArchimedeanOrderUnit E] in
 /-- Evaluation on effects is injective on states. -/
-theorem injective_apply_effect [IsOrderUnit E] :
+theorem injective_apply_effect :
     Function.Injective (fun (ω : 𝓢[ℝ, E]) (e : Effect E) => ω (e : E)) :=
   fun _ _ h => ext_of_effect_eq (congrFun h)
 

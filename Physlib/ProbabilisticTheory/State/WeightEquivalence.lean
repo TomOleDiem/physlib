@@ -33,8 +33,7 @@ the correspondence between them is a genuine theorem.
 
 open scoped ENNReal
 
-variable {E : Type*} [AddCommGroup E] [PartialOrder E] [IsOrderedAddMonoid E]
-  [Module ℝ E] [PosSMulMono ℝ E] [One E] [IsOrderUnit E]
+variable {E : Type*} [OrderUnitSpace E]
 
 namespace Weight
 
@@ -55,8 +54,8 @@ noncomputable def toUnitalPositiveLinearMap (hw : w.IsState) : 𝓢[ℝ, E] :=
       rw [Weight.IsFinite.toLinearMap_apply, hw.finite.toFun_of_nonneg ⟨A, hA⟩]
       exact ENNReal.toReal_nonneg)
     (calc
-      hw.finite.toLinearMap (1 : E) = (w PosCone.unit).toReal :=
-        hw.finite.toFun_of_nonneg PosCone.unit
+      hw.finite.toLinearMap (1 : E) = (w (1 : PosCone E)).toReal :=
+        hw.finite.toFun_of_nonneg (1 : PosCone E)
       _ = 1 := by rw [hw.normalized, ENNReal.toReal_one])
 
 @[simp]
@@ -89,12 +88,10 @@ noncomputable def toWeight (s : 𝓢[ℝ, E]) : Weight E where
     rw [hcA, ENNReal.ofReal_mul c.coe_nonneg, ENNReal.ofReal_coe_nnreal, ENNReal.smul_def,
       smul_eq_mul]
 
-omit [IsOrderUnit E] in
 @[simp]
 lemma toWeight_apply (s : 𝓢[ℝ, E]) (A : PosCone E) : s.toWeight A = ENNReal.ofReal (s (A : E)) :=
   rfl
 
-omit [IsOrderUnit E] in
 /-- The weight induced by a state agrees with the state itself on the positive cone. -/
 lemma toReal_toWeight_apply (s : 𝓢[ℝ, E]) (A : PosCone E) : (s.toWeight A).toReal = s (A : E) := by
   rw [toWeight_apply, ENNReal.toReal_ofReal (map_nonneg s A.2)]
@@ -104,8 +101,8 @@ and normalized (`s` sends the order unit to `1`). -/
 lemma toWeight_isState (s : 𝓢[ℝ, E]) : s.toWeight.IsState where
   finite _ := ENNReal.ofReal_ne_top
   normalized := by
-    show ENNReal.ofReal (s ((PosCone.unit : PosCone E) : E)) = 1
-    rw [PosCone.coe_unit, map_one, ENNReal.ofReal_one]
+    show ENNReal.ofReal (s ((1 : PosCone E) : E)) = 1
+    rw [PosCone.coe_one, map_one, ENNReal.ofReal_one]
 
 end UnitalPositiveLinearMap
 
@@ -133,7 +130,7 @@ noncomputable def stateEquiv : {w : Weight E // w.IsState} ≃ 𝓢[ℝ, E] wher
     set hw := s.toWeight_isState
     show hw.finite.toFun A = s A
     rw [hw.finite.toFun_eq A hr, IsFinite.rawValue]
-    simp only [UnitalPositiveLinearMap.toReal_toWeight_apply, PosCone.coe_unit, _root_.map_add,
+    simp only [UnitalPositiveLinearMap.toReal_toWeight_apply, PosCone.coe_one, _root_.map_add,
       _root_.map_smul, smul_eq_mul, _root_.map_one]
     ring
 

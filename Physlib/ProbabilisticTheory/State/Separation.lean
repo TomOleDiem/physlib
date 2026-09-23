@@ -42,10 +42,9 @@ separation fact.
 
 @[expose] public section
 
-open IsArchimedeanOrderUnit
+open ArchimedeanOrderUnitSpace
 
-variable {E : Type*} [AddCommGroup E] [PartialOrder E] [IsOrderedAddMonoid E] [Module ℝ E]
-  [PosSMulMono ℝ E] [One E] [IsArchimedeanOrderUnit E]
+variable {E : Type*} [ArchimedeanOrderUnitSpace E]
 
 namespace UnitalPositiveLinearMap
 
@@ -55,13 +54,12 @@ namespace UnitalPositiveLinearMap
 
 -/
 
-omit [IsOrderedAddMonoid E] [PosSMulMono ℝ E] in
 /-- A positive functional vanishing at the order unit vanishes everywhere: the unit sandwiches
 every element between multiples of it. -/
 lemma apply_eq_zero_of_apply_one_eq_zero {p : E →ₚ[ℝ] ℝ} (h1 : p (1 : E) = 0) (A : E) :
     p A = 0 := by
-  obtain ⟨n, hn⟩ := IsOrderUnit.exists_nsmul_one_le A
-  obtain ⟨m, hm⟩ := IsOrderUnit.exists_nsmul_one_le (-A)
+  obtain ⟨n, hn⟩ := OrderUnitSpace.exists_nsmul_one_le A
+  obtain ⟨m, hm⟩ := OrderUnitSpace.exists_nsmul_one_le (-A)
   have hupper : p A ≤ 0 := by simpa [h1] using p.monotone' hn
   have hlower : 0 ≤ p A := by
     have h := p.monotone' hm
@@ -87,7 +85,7 @@ lemma exists_apply_neg_of_not_nonneg {A : E} (hA : ¬ 0 ≤ A) : ∃ ω : 𝓢[�
     linarith
   let p : E →ₚ[ℝ] ℝ := PositiveLinearMap.mk₀ f.toLinearMap hf_nonneg
   have hf_one_pos : 0 < f (1 : E) := by
-    have hf_one_nonneg : 0 ≤ f (1 : E) := hf_nonneg 1 IsOrderUnit.one_nonneg
+    have hf_one_nonneg : 0 ≤ f (1 : E) := hf_nonneg 1 OrderUnitSpace.one_nonneg
     refine lt_of_le_of_ne hf_one_nonneg fun hf_one => ?_
     have heq : f A = 0 := apply_eq_zero_of_apply_one_eq_zero (p := p) hf_one.symm A
     linarith [hfA.trans hu]
@@ -125,15 +123,15 @@ lemma state_nonempty [Nontrivial E] : Nonempty (𝓢[ℝ, E]) := by
     constructor
     intro a b
     have hzero (B : E) : B = 0 := by
-      obtain ⟨n, hn⟩ := IsOrderUnit.exists_nsmul_one_le B
-      obtain ⟨m, hm⟩ := IsOrderUnit.exists_nsmul_one_le (-B)
+      obtain ⟨n, hn⟩ := OrderUnitSpace.exists_nsmul_one_le B
+      obtain ⟨m, hm⟩ := OrderUnitSpace.exists_nsmul_one_le (-B)
       have hB_nonpos : B ≤ 0 := by simpa [hone] using hn
       have hB_nonneg : 0 ≤ B := neg_nonpos.mp (by simpa [hone] using hm)
       exact le_antisymm hB_nonpos hB_nonneg
     rw [hzero a, hzero b]
   have hnot : ¬ 0 ≤ -(1 : E) := by
     intro h
-    exact hone_ne (le_antisymm (neg_nonneg.mp h) IsOrderUnit.one_nonneg)
+    exact hone_ne (le_antisymm (neg_nonneg.mp h) OrderUnitSpace.one_nonneg)
   obtain ⟨ω, _⟩ := exists_apply_neg_of_not_nonneg hnot
   exact ⟨ω⟩
 
