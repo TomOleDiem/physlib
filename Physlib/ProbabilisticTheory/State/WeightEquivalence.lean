@@ -80,9 +80,8 @@ noncomputable def toWeight (s : 𝓢[ℝ, E]) : Weight E where
     rw [map_add, ENNReal.ofReal_add (map_nonneg s A.2) (map_nonneg s B.2)]
   map_smul' c A := by
     show ENNReal.ofReal (s ((c : ℝ) • (A : E))) = c • ENNReal.ofReal (s (A : E))
-    have hcA : s ((c : ℝ) • (A : E)) = (c : ℝ) * s (A : E) := by rw [map_smul, smul_eq_mul]
-    rw [hcA, ENNReal.ofReal_mul c.coe_nonneg, ENNReal.ofReal_coe_nnreal, ENNReal.smul_def,
-      smul_eq_mul]
+    rw [map_smul, smul_eq_mul, ENNReal.ofReal_mul c.coe_nonneg, ENNReal.ofReal_coe_nnreal,
+      ENNReal.smul_def, smul_eq_mul]
 
 @[simp]
 lemma toWeight_apply (s : 𝓢[ℝ, E]) (A : PosCone E) : s.toWeight A = ENNReal.ofReal (s (A : E)) :=
