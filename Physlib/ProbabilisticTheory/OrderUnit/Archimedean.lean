@@ -151,9 +151,8 @@ variable {E : Type*} [ArchimedeanOrderUnitSpace E]
 /-- An infimum can always be approximated from above: there is an order-unit bound on `A` within
 `ε` of the norm itself. -/
 lemma exists_orderUnitBound_lt (A : E) {ε : ℝ} (hε : 0 < ε) :
-    ∃ r ∈ orderUnitBounds A, r < orderUnitNorm A + ε := by
-  apply exists_lt_of_csInf_lt (orderUnitBounds_nonempty A)
-  exact lt_add_of_pos_right _ hε
+    ∃ r ∈ orderUnitBounds A, r < orderUnitNorm A + ε :=
+  exists_lt_of_csInf_lt (orderUnitBounds_nonempty A) (lt_add_of_pos_right _ hε)
 
 lemma orderUnitNorm_add_le (A B : E) :
     orderUnitNorm (A + B) ≤ orderUnitNorm A + orderUnitNorm B := by
