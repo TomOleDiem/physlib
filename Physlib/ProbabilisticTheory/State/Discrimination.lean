@@ -5,11 +5,8 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.ProbabilisticTheory.State.Basic
 public import Physlib.ProbabilisticTheory.State.Metric
 public import Physlib.ProbabilisticTheory.Effect.Complement
-public import Mathlib.Topology.UnitInterval
-public import Mathlib.Tactic.Module
 
 /-!
 # State discrimination
@@ -86,11 +83,11 @@ lemma advantage_le (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) (e : Effect E
   have h4 : 0 ≤ (1 - (p : ℝ)) * ω₁ (e : E) := mul_nonneg (by linarith [p.2.2]) h2
   linarith
 
-lemma bddAbove_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) :
+private lemma bddAbove_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) :
     BddAbove (Set.range (advantage ω₀ ω₁ p)) :=
   ⟨(p : ℝ), by rintro _ ⟨e, rfl⟩; exact advantage_le ω₀ ω₁ p e⟩
 
-lemma bddAbove_successProb (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) :
+private lemma bddAbove_successProb (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) :
     BddAbove (Set.range (successProb ω₀ ω₁ p)) := by
   obtain ⟨b, hb⟩ := bddAbove_advantage ω₀ ω₁ p
   exact ⟨(1 - (p : ℝ)) + b, by
@@ -131,13 +128,13 @@ variable {E : Type*} [ArchimedeanOrderUnitSpace E]
 open ArchimedeanOrderUnitSpace
 
 /-- Complementing an effect negates `ω₀ e - ω₁ e`. -/
-lemma sub_complement_eq_neg_sub (ω₀ ω₁ : 𝓢[ℝ, E]) (e : Effect E) :
+private lemma sub_complement_eq_neg_sub (ω₀ ω₁ : 𝓢[ℝ, E]) (e : Effect E) :
     ω₀ ((Effect.complement e : E)) - ω₁ ((Effect.complement e : E))
       = -(ω₀ (e : E) - ω₁ (e : E)) := by
   show ω₀ (1 - (e : E)) - ω₁ (1 - (e : E)) = _
   simp only [map_sub, map_one]; ring
 
-lemma bddAbove_sub (ω₀ ω₁ : 𝓢[ℝ, E]) :
+private lemma bddAbove_sub (ω₀ ω₁ : 𝓢[ℝ, E]) :
     BddAbove (Set.range fun e : Effect E => ω₀ (e : E) - ω₁ (e : E)) :=
   ⟨1, by
     rintro _ ⟨e, rfl⟩
@@ -145,7 +142,7 @@ lemma bddAbove_sub (ω₀ ω₁ : 𝓢[ℝ, E]) :
     have h2 : (0 : ℝ) ≤ ω₁ (e : E) := map_nonneg ω₁ e.2.1
     linarith⟩
 
-lemma bddAbove_abs_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) :
+private lemma bddAbove_abs_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) :
     BddAbove (Set.range fun e : Effect E => |ω₀ (e : E) - ω₁ (e : E)|) :=
   ⟨1, by
     rintro _ ⟨e, rfl⟩
@@ -171,7 +168,7 @@ lemma ciSup_advantage_eq_ciSup_abs (ω₀ ω₁ : 𝓢[ℝ, E]) :
 
 /-- The state distance is the largest `|ω₀ e - ω₁ e|` over unit-ball effects
 (`Effect.equivBall`). -/
-lemma dist_eq_ciSup_abs_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) :
+private lemma dist_eq_ciSup_abs_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) :
     dist ω₀ ω₁ =
       ⨆ e : Effect E, |ω₀ ((Effect.equivBall e : E)) - ω₁ ((Effect.equivBall e : E))| := by
   have : Nonempty {A : E // orderUnitNorm A ≤ 1} := ⟨0, by simp⟩

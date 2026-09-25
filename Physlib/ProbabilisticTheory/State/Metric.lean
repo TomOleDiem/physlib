@@ -143,13 +143,6 @@ lemma apply_equivBall (ψ : 𝓢[ℝ, E]) (e : Effect E) :
   show ψ ((2 : ℝ) • (e : E) - 1) = _
   rw [map_sub, map_smul, map_one, smul_eq_mul]
 
-/-- A state is 1-Lipschitz for the effect metric: it can't separate two effects more than they
-actually are. -/
-lemma abs_apply_sub_apply_le (ω : 𝓢[ℝ, E]) (e f : Effect E) :
-    |ω (e : E) - ω (f : E)| ≤ Dist.dist e f := by
-  rw [Effect.dist_eq_orderUnitNorm, ← map_sub]
-  exact abs_apply_le_orderUnitNorm ω _
-
 /-- States, metrized by the operator norm induced by the order-unit norm on `E`. -/
 noncomputable instance : MetricSpace (𝓢[ℝ, E]) where
   dist := dist
