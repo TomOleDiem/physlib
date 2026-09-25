@@ -48,7 +48,7 @@ variable {w : Weight E}
 namespace IsState
 
 /-- A finite normalized weight extends to a state. -/
-noncomputable def toUnitalPositiveLinearMap (hw : w.IsState) : 𝓢[ℝ, E] :=
+noncomputable def toState (hw : w.IsState) : 𝓢[ℝ, E] :=
   UnitalPositiveLinearMap.ofLinearMap (hw.finite.toLinearMap)
     (fun A hA => by
       rw [Weight.IsFinite.toLinearMap_apply, hw.finite.toFun_of_nonneg ⟨A, hA⟩]
@@ -57,10 +57,6 @@ noncomputable def toUnitalPositiveLinearMap (hw : w.IsState) : 𝓢[ℝ, E] :=
       hw.finite.toLinearMap (1 : E) = (w (1 : PosCone E)).toReal :=
         hw.finite.toFun_of_nonneg (1 : PosCone E)
       _ = 1 := by rw [hw.normalized, ENNReal.toReal_one])
-
-@[simp]
-lemma toUnitalPositiveLinearMap_apply (hw : w.IsState) (A : E) :
-    hw.toUnitalPositiveLinearMap A = hw.finite.toFun A := rfl
 
 end IsState
 
@@ -116,13 +112,13 @@ namespace Weight
 
 /-- Finite normalized weights correspond exactly to states. -/
 noncomputable def stateEquiv : {w : Weight E // w.IsState} ≃ 𝓢[ℝ, E] where
-  toFun w := w.2.toUnitalPositiveLinearMap
+  toFun w := w.2.toState
   invFun s := ⟨s.toWeight, s.toWeight_isState⟩
   left_inv := by
     rintro ⟨w, hw⟩
     refine Subtype.ext (Weight.ext fun A => ?_)
-    show ENNReal.ofReal (hw.toUnitalPositiveLinearMap (A : E)) = w A
-    simp [hw.toUnitalPositiveLinearMap_apply, ENNReal.ofReal_toReal (hw.finite A)]
+    change ENNReal.ofReal (hw.finite.toFun (A : E)) = w A
+    simp [ENNReal.ofReal_toReal (hw.finite A)]
   right_inv := by
     intro s
     refine UnitalPositiveLinearMap.ext fun A => ?_

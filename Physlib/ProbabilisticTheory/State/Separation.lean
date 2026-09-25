@@ -56,7 +56,8 @@ namespace UnitalPositiveLinearMap
 
 /-- A positive functional vanishing at the order unit vanishes everywhere: the unit sandwiches
 every element between multiples of it. -/
-lemma apply_eq_zero_of_apply_one_eq_zero {p : E →ₚ[ℝ] ℝ} (h1 : p (1 : E) = 0) (A : E) :
+private lemma apply_eq_zero_of_apply_one_eq_zero {p : E →ₚ[ℝ] ℝ}
+    (h1 : p (1 : E) = 0) (A : E) :
     p A = 0 := by
   obtain ⟨n, hn⟩ := OrderUnitSpace.exists_nsmul_one_le A
   obtain ⟨m, hm⟩ := OrderUnitSpace.exists_nsmul_one_le (-A)
@@ -116,7 +117,7 @@ lemma nonneg_iff_forall_state_nonneg (A : E) : 0 ≤ A ↔ ∀ ω : 𝓢[ℝ, E]
 -/
 
 /-- Every nontrivial Archimedean order-unit space has a state. -/
-lemma state_nonempty [Nontrivial E] : Nonempty (𝓢[ℝ, E]) := by
+instance instNonemptyState [Nontrivial E] : Nonempty (𝓢[ℝ, E]) := by
   have hone_ne : (1 : E) ≠ 0 := by
     intro hone
     apply not_subsingleton E
@@ -139,7 +140,7 @@ lemma state_nonempty [Nontrivial E] : Nonempty (𝓢[ℝ, E]) := by
 lemma exists_state_abs_apply_gt_of_lt_orderUnitNorm [Nontrivial E] (A : E) {r : ℝ}
     (hr : r < orderUnitNorm A) : ∃ ω : 𝓢[ℝ, E], r < |ω A| := by
   by_cases hr0 : r < 0
-  · obtain ⟨ω⟩ := state_nonempty (E := E)
+  · obtain ⟨ω⟩ := (inferInstance : Nonempty (𝓢[ℝ, E]))
     exact ⟨ω, hr0.trans_le (abs_nonneg _)⟩
   have hr_nonneg : 0 ≤ r := le_of_not_gt hr0
   have hnot : r ∉ orderUnitBounds A := fun hr_mem =>
@@ -163,7 +164,7 @@ lemma sSup_abs_apply_eq_orderUnitNorm [Nontrivial E] (A : E) :
     sSup (Set.range fun ω : 𝓢[ℝ, E] => |ω A|) = orderUnitNorm A := by
   have hbdd : BddAbove (Set.range fun ω : 𝓢[ℝ, E] => |ω A|) :=
     ⟨orderUnitNorm A, by rintro _ ⟨ω, rfl⟩; exact abs_apply_le_orderUnitNorm ω A⟩
-  obtain ⟨ω₀⟩ := state_nonempty (E := E)
+  obtain ⟨ω₀⟩ := (inferInstance : Nonempty (𝓢[ℝ, E]))
   have hne : (Set.range fun ω : 𝓢[ℝ, E] => |ω A|).Nonempty := ⟨|ω₀ A|, Set.mem_range_self ω₀⟩
   apply le_antisymm
   · exact csSup_le hne fun _ h => by
@@ -178,7 +179,7 @@ lemma sSup_abs_apply_eq_orderUnitNorm [Nontrivial E] (A : E) :
 @[simp]
 lemma orderUnitNorm_one [Nontrivial E] : orderUnitNorm (1 : E) = 1 := by
   rw [← sSup_abs_apply_eq_orderUnitNorm]
-  obtain ⟨ω₀⟩ := state_nonempty (E := E)
+  obtain ⟨ω₀⟩ := (inferInstance : Nonempty (𝓢[ℝ, E]))
   have hrange : (Set.range fun ω : 𝓢[ℝ, E] => |ω (1 : E)|) = {1} := by
     ext y
     constructor
@@ -202,7 +203,7 @@ lemma ext_of_forall_apply_eq [Nontrivial E] {A B : E} (h : ∀ ω : 𝓢[ℝ, E]
       constructor
       · rintro ⟨ω, rfl⟩; rw [map_sub, h ω, sub_self, abs_zero]
       · rintro rfl
-        obtain ⟨ω⟩ := state_nonempty (E := E)
+        obtain ⟨ω⟩ := (inferInstance : Nonempty (𝓢[ℝ, E]))
         exact ⟨ω, by rw [map_sub, h ω, sub_self, abs_zero]⟩
     rw [hrange, csSup_singleton]
   exact sub_eq_zero.mp (orderUnitNorm_eq_zero_iff.mp h0)

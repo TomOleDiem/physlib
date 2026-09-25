@@ -68,7 +68,7 @@ lemma apply_mix (ω : 𝓢[ℝ, E]) (e f : Effect E) (t : unitInterval) :
 -/
 
 /-- Two states that agree on all effects agree on every nonnegative element. -/
-lemma ext_of_effect_eq_of_nonneg {ω φ : 𝓢[ℝ, E]}
+private lemma ext_of_effect_eq_of_nonneg {ω φ : 𝓢[ℝ, E]}
     (h : ∀ e : Effect E, ω (e : E) = φ (e : E)) {B : E} (hB : 0 ≤ B) : ω B = φ B := by
   obtain ⟨r, hr, hrB⟩ := Effect.exists_pos_smul_mem hB
   have heq := h ⟨r • B, hrB⟩
@@ -85,7 +85,7 @@ lemma ext_of_effect_eq {ω φ : 𝓢[ℝ, E]}
   rw [map_sub, map_sub, ext_of_effect_eq_of_nonneg h hAp, ext_of_effect_eq_of_nonneg h hAn]
 
 /-- Evaluation on effects is injective on states. -/
-theorem injective_apply_effect :
+lemma injective_apply_effect :
     Function.Injective (fun (ω : 𝓢[ℝ, E]) (e : Effect E) => ω (e : E)) :=
   fun _ _ h => ext_of_effect_eq (congrFun h)
 
@@ -100,12 +100,7 @@ all states. -/
 lemma _root_.Effect.dist_eq_sSup_abs_apply [Nontrivial E] (e f : Effect E) :
     Dist.dist e f = sSup (Set.range fun ω : 𝓢[ℝ, E] => |ω (e : E) - ω (f : E)|) := by
   rw [Effect.dist_eq_orderUnitNorm, ← sSup_abs_apply_eq_orderUnitNorm]
-  congr 1
-  ext y
-  simp only [Set.mem_range]
-  constructor
-  · rintro ⟨ω, rfl⟩; exact ⟨ω, by rw [map_sub]⟩
-  · rintro ⟨ω, rfl⟩; exact ⟨ω, by rw [map_sub]⟩
+  simp_rw [map_sub]
 
 /-- An effect is determined by its values under all states. -/
 lemma _root_.Effect.ext_of_forall_apply_eq [Nontrivial E] {e f : Effect E}
@@ -113,7 +108,7 @@ lemma _root_.Effect.ext_of_forall_apply_eq [Nontrivial E] {e f : Effect E}
   Subtype.ext (UnitalPositiveLinearMap.ext_of_forall_apply_eq h)
 
 /-- Evaluation by states is injective on effects. -/
-theorem _root_.Effect.injective_apply_state [Nontrivial E] :
+lemma _root_.Effect.injective_apply_state [Nontrivial E] :
     Function.Injective (fun (e : Effect E) (ω : 𝓢[ℝ, E]) => ω (e : E)) :=
   fun _ _ h => Effect.ext_of_forall_apply_eq (congrFun h)
 
