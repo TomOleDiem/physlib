@@ -79,9 +79,7 @@ lemma advantage_le (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) (e : Effect E
   show (p : ℝ) * ω₀ (e : E) - (1 - (p : ℝ)) * ω₁ (e : E) ≤ (p : ℝ)
   have h1 : ω₀ (e : E) ≤ 1 := (ω₀.monotone' e.2.2).trans_eq (map_one ω₀)
   have h2 : 0 ≤ ω₁ (e : E) := map_nonneg ω₁ e.2.1
-  have h3 : (p : ℝ) * ω₀ (e : E) ≤ (p : ℝ) * 1 := mul_le_mul_of_nonneg_left h1 p.2.1
-  have h4 : 0 ≤ (1 - (p : ℝ)) * ω₁ (e : E) := mul_nonneg (by linarith [p.2.2]) h2
-  linarith
+  nlinarith [p.2.1, p.2.2]
 
 lemma bddAbove_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) :
     BddAbove (Set.range (advantage ω₀ ω₁ p)) :=
