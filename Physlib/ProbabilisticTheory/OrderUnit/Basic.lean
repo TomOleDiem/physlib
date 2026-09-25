@@ -77,11 +77,10 @@ lemma exists_two_sided_bound (A : E) : ∃ n : ℕ, -(n • (1 : E)) ≤ A ∧ A
   exact neg_le_of_neg_le <| hm.trans (nsmul_le_nsmul_left one_nonneg (le_max_right n m))
 
 /-- Every element is a difference of two positive elements. -/
-lemma exists_eq_sub_nonneg (A : E) :
-    ∃ Ap An : E, 0 ≤ Ap ∧ 0 ≤ An ∧ A = Ap - An := by
-  obtain ⟨n, hn⟩ := OrderUnitSpace.exists_nsmul_one_le (-A)
-  refine ⟨A + n • (1 : E), n • (1 : E), ?_, nsmul_nonneg OrderUnitSpace.one_nonneg n, ?_⟩
-  · simpa using add_le_add_right hn A
+lemma exists_eq_sub_nonneg (A : E) : ∃ Ap An : E, 0 ≤ Ap ∧ 0 ≤ An ∧ A = Ap - An := by
+  obtain ⟨n, hn⟩ := exists_nsmul_one_le (-A)
+  refine ⟨A + n • (1 : E), n • (1 : E), ?_, nsmul_nonneg one_nonneg n, ?_⟩
+  · exact neg_le_iff_add_nonneg'.mp hn
   · exact (add_sub_cancel_right A (n • (1 : E))).symm
 
 end OrderUnitSpace
