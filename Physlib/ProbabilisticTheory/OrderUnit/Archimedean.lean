@@ -70,9 +70,8 @@ instance instArchimedeanOrderUnitSpaceReal : ArchimedeanOrderUnitSpace ℝ where
     exact ⟨n, by simpa using hn⟩
   le_zero_of_forall_pos_smul_one_le A hA := by
     by_contra h
-    have hApos : 0 < A := lt_of_not_ge h
-    have := hA (A / 2) (by positivity)
-    simp only [smul_eq_mul, mul_one] at this
+    have := hA (A / 2) (by positivity [lt_of_not_ge h])
+    rw [smul_eq_mul, mul_one] at this
     linarith
 
 namespace ArchimedeanOrderUnitSpace
