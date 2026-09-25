@@ -58,19 +58,15 @@ lemma isSharp_zero : IsSharp (0 : Effect E) := by
 `e ↦ 1 - e` is an affine involution of the effect interval. -/
 lemma isSharp_complement {e : Effect E} (h : IsSharp e) : IsSharp (complement e) := by
   refine ⟨(complement e).2, fun x₁ hx₁ x₂ hx₂ ⟨a, b, ha, hb, hab, hz⟩ => ?_⟩
-  have hone : a • (1 : E) + b • (1 : E) = 1 := by rw [← add_smul, hab, one_smul]
   have key : a • (1 - x₁) + b • (1 - x₂) = (e : E) := by
-    have hsplit : a • (1 - x₁) + b • (1 - x₂) =
-        (a • (1 : E) + b • (1 : E)) - (a • x₁ + b • x₂) := by
-      simp only [smul_sub]; abel
-    rw [hsplit, hone, hz]
+    rw [show a • (1 - x₁) + b • (1 - x₂) = (a • (1 : E) + b • (1 : E)) - (a • x₁ + b • x₂) from
+      by module, ← add_smul, hab, one_smul, hz]
     show (1 : E) - (1 - (e : E)) = (e : E)
     abel
   have x1eq := (mem_extremePoints_iff_left.mp h).2 (1 - x₁)
     ⟨sub_nonneg.mpr hx₁.2, sub_le_self 1 hx₁.1⟩ (1 - x₂)
     ⟨sub_nonneg.mpr hx₂.2, sub_le_self 1 hx₂.1⟩ ⟨a, b, ha, hb, hab, key⟩
-  have hsum : x₁ + (e : E) = 1 := by rw [← x1eq]; abel
-  exact eq_sub_of_add_eq hsum
+  exact eq_sub_of_add_eq (by rw [← x1eq]; abel)
 
 /-- Sharpness is preserved by taking the complement, in either direction. -/
 lemma isSharp_complement_iff {e : Effect E} : IsSharp (complement e) ↔ IsSharp e :=

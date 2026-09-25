@@ -73,10 +73,8 @@ lemma complement_one : complement (1 : Effect E) = 0 := Subtype.ext (by simp [co
 
 /-- Mixing commutes with taking the complement. -/
 lemma complement_mix (e f : Effect E) (t : unitInterval) :
-    complement (mix e f t) = mix (complement e) (complement f) t := by
-  apply Subtype.ext
-  show (1 : E) - ((t : ℝ) • (e : E) + (1 - (t : ℝ)) • (f : E))
-      = (t : ℝ) • ((1 : E) - (e : E)) + (1 - (t : ℝ)) • ((1 : E) - (f : E))
-  module
+    complement (mix e f t) = mix (complement e) (complement f) t :=
+  Subtype.ext (show (1 : E) - ((t : ℝ) • (e : E) + (1 - (t : ℝ)) • (f : E))
+      = (t : ℝ) • ((1 : E) - (e : E)) + (1 - (t : ℝ)) • ((1 : E) - (f : E)) from by module)
 
 end Effect

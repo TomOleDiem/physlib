@@ -78,9 +78,9 @@ lemma mem_effect_two_inv_smul_one_add (A : {A : E // orderUnitNorm A ≤ 1}) :
   obtain ⟨-, hAl, hAu⟩ := orderUnitNorm_le_iff.mp A.2
   rw [one_smul] at hAl hAu
   refine ⟨smul_nonneg (by norm_num) (by simpa using add_le_add (le_refl (1 : E)) hAl), ?_⟩
-  have h := add_le_add (le_refl (1 : E)) hAu
-  rw [show (1 : E) + 1 = (2 : ℝ) • (1 : E) from by module] at h
-  have h2 := smul_le_smul_of_nonneg_left h (show (0 : ℝ) ≤ (2 : ℝ)⁻¹ by norm_num)
+  have h2 := smul_le_smul_of_nonneg_left (add_le_add (le_refl (1 : E)) hAu)
+    (show (0 : ℝ) ≤ (2 : ℝ)⁻¹ by norm_num)
+  rw [show (1 : E) + 1 = (2 : ℝ) • (1 : E) from by module] at h2
   rwa [smul_smul, inv_mul_cancel₀ (two_ne_zero), one_smul] at h2
 
 /-- Re-centering, then undoing it, returns the original effect. -/
