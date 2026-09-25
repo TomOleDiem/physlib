@@ -5,10 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.ProbabilisticTheory.OrderUnit.Basic
-public import Physlib.ProbabilisticTheory.Effect.Basic
 public import Physlib.ProbabilisticTheory.Effect.Convex
-public import Mathlib.Tactic.Module
 
 /-!
 # Complementary effects
@@ -49,9 +46,8 @@ def complement (e : Effect E) : Effect E :=
   ⟨1 - e.1, sub_nonneg.mpr e.2.2, sub_le_self 1 e.2.1⟩
 
 @[simp]
-lemma complement_complement (e : Effect E) : complement (complement e) = e := by
-  apply Subtype.ext
-  simp [complement]
+lemma complement_complement (e : Effect E) : complement (complement e) = e :=
+  Subtype.ext (by simp [complement])
 
 /-!
 
@@ -63,23 +59,11 @@ lemma complement_complement (e : Effect E) : complement (complement e) = e := by
 lemma complement_antitone : Antitone (complement (E := E)) :=
   fun _ _ h => sub_le_sub_left (show (_ : E) ≤ _ from h) 1
 
-instance : Zero (Effect E) := ⟨0, le_refl 0, OrderUnitSpace.one_nonneg⟩
-instance : One (Effect E) := ⟨1, OrderUnitSpace.one_nonneg, le_refl 1⟩
-instance : Nonempty (Effect E) := ⟨0⟩
-
-@[simp] lemma coe_zero : ((0 : Effect E) : E) = 0 := rfl
-
-@[simp] lemma coe_one : ((1 : Effect E) : E) = 1 := rfl
+@[simp]
+lemma complement_zero : complement (0 : Effect E) = 1 := Subtype.ext (by simp [complement])
 
 @[simp]
-lemma complement_zero : complement (0 : Effect E) = 1 := by
-  apply Subtype.ext
-  simp [complement]
-
-@[simp]
-lemma complement_one : complement (1 : Effect E) = 0 := by
-  apply Subtype.ext
-  simp [complement]
+lemma complement_one : complement (1 : Effect E) = 0 := Subtype.ext (by simp [complement])
 
 /-!
 

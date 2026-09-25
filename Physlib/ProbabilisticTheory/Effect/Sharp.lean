@@ -5,9 +5,8 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.ProbabilisticTheory.Effect.Complement
-public import Physlib.ProbabilisticTheory.Effect.Convex
 public import Mathlib.Analysis.Convex.Strict.Extreme
+public import Physlib.ProbabilisticTheory.Effect.Complement
 
 /-!
 # Sharp effects
@@ -33,6 +32,8 @@ be written as a nontrivial mixture of two distinct effects. Sharp effects genera
 
 namespace Effect
 
+open OrderUnitSpace
+
 variable {E : Type*} [OrderUnitSpace E]
 
 /-!
@@ -47,13 +48,11 @@ def IsSharp (e : Effect E) : Prop := (e : E) ∈ Set.extremePoints ℝ (Set.Icc 
 
 /-- The impossible outcome 0 is sharp. -/
 lemma isSharp_zero : IsSharp (0 : Effect E) := by
-  refine ⟨⟨le_refl 0, OrderUnitSpace.one_nonneg⟩,
-    fun x₁ hx₁ _ hx₂ ⟨a, b, ha, hb, _, hz⟩ => ?_⟩
-  have hax : a • x₁ = 0 :=
-    PosCone.nonneg_add_eq_zero
-      (smul_nonneg ha.le hx₁.1) (smul_nonneg hb.le hx₂.1) (by simpa using hz)
-  have := congrArg (a⁻¹ • ·) hax
-  rwa [inv_smul_smul₀ ha.ne', smul_zero] at this
+  refine ⟨⟨le_refl 0, one_nonneg⟩,
+    fun x₁ hx₁ x₂ hx₂ ⟨a, b, ha, hb, _, hz⟩ => ?_⟩
+  have hax := (add_eq_zero_iff_of_nonneg (smul_nonneg ha.le hx₁.1)
+    (smul_nonneg hb.le hx₂.1)).mp (by simpa using hz) |>.1
+  exact (smul_eq_zero.mp hax).resolve_left ha.ne'
 
 /-- Sharpness is preserved by taking the complement:
 `e ↦ 1 - e` is an affine involution of the effect interval. -/

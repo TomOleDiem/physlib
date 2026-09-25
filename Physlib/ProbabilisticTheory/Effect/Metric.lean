@@ -5,9 +5,9 @@ Authors: Tom Ole Diem
 -/
 module
 
+public import Mathlib.Tactic.Module
 public import Physlib.ProbabilisticTheory.Effect.Basic
 public import Physlib.ProbabilisticTheory.OrderUnit.Archimedean
-public import Mathlib.Topology.MetricSpace.Defs
 
 /-!
 # The metric space of effects
@@ -47,7 +47,7 @@ namespace Effect
 -/
 
 /-- Effects, metrized by restricting the order-unit norm: pulling back the normed group structure
-on `E` along the inclusion `Effect E ↪ E` -/
+on `E` along the inclusion `Effect E ↪ E`. -/
 noncomputable instance : MetricSpace (Effect E) :=
   letI := orderUnitNormedAddCommGroup (E := E)
   MetricSpace.induced Subtype.val Subtype.val_injective inferInstance
@@ -62,45 +62,32 @@ lemma dist_eq_orderUnitNorm (e f : Effect E) : dist e f = orderUnitNorm ((e : E)
 
 -/
 
-/-- Doubling and re-centering an effect at the order unit lands in the order-unit-norm ball. -/
-lemma orderUnitNorm_two_smul_sub_one_le_one (e : Effect E) :
-    orderUnitNorm ((2 : ℝ) • (e : E) - 1) ≤ 1 := by
-  rw [orderUnitNorm_le_iff]
-  refine ⟨by norm_num, ?_, ?_⟩
-  · rw [one_smul, ← sub_nonneg,
-      show (2 : ℝ) • (e : E) - 1 - -(1 : E) = (2 : ℝ) • (e : E) from by module]
-    exact smul_nonneg (by norm_num) e.2.1
-  · rw [one_smul, ← sub_nonneg,
-      show (1 : E) - ((2 : ℝ) • (e : E) - 1) = (2 : ℝ) • (1 - (e : E)) from by module]
-    exact smul_nonneg (by norm_num) (sub_nonneg.mpr e.2.2)
-
-/-- Undoing the re-centering on a point of the order-unit-norm ball gives back an effect. -/
-lemma mem_effect_two_inv_smul_one_add (A : {A : E // orderUnitNorm A ≤ 1}) :
-    (2 : ℝ)⁻¹ • (1 + (A : E)) ∈ (Effect E : Set E) := by
-  obtain ⟨-, hAl, hAu⟩ := orderUnitNorm_le_iff.mp A.2
-  rw [one_smul] at hAl hAu
-  refine ⟨smul_nonneg (by norm_num) (by simpa using add_le_add (le_refl (1 : E)) hAl), ?_⟩
-  have h := add_le_add (le_refl (1 : E)) hAu
-  rw [show (1 : E) + 1 = (2 : ℝ) • (1 : E) from by module] at h
-  have h2 := smul_le_smul_of_nonneg_left h (show (0 : ℝ) ≤ (2 : ℝ)⁻¹ by norm_num)
-  rwa [smul_smul, inv_mul_cancel₀ (two_ne_zero), one_smul] at h2
-
-/-- Re-centering, then undoing it, returns the original effect. -/
-lemma two_inv_smul_one_add_two_smul_sub_one (e : Effect E) :
-    (2 : ℝ)⁻¹ • (1 + ((2 : ℝ) • (e : E) - 1)) = (e : E) := by module
-
-/-- Undoing the re-centering, then redoing it, returns the original ball point. -/
-lemma two_smul_two_inv_smul_one_add_sub_one (A : {A : E // orderUnitNorm A ≤ 1}) :
-    (2 : ℝ) • ((2 : ℝ)⁻¹ • (1 + (A : E))) - 1 = (A : E) := by
-  rw [smul_smul, mul_inv_cancel₀ (two_ne_zero), one_smul]
-  module
-
 /-- Effects correspond to points of the order-unit-norm ball by doubling and re-centering at the
 order unit: `e ↦ 2 • e - 1`, with inverse `A ↦ (1 + A) / 2`. -/
 noncomputable def equivBall : Effect E ≃ {A : E // orderUnitNorm A ≤ 1} where
-  toFun e := ⟨(2 : ℝ) • (e : E) - 1, orderUnitNorm_two_smul_sub_one_le_one e⟩
-  invFun A := ⟨(2 : ℝ)⁻¹ • (1 + (A : E)), mem_effect_two_inv_smul_one_add A⟩
-  left_inv e := Subtype.ext (two_inv_smul_one_add_two_smul_sub_one e)
-  right_inv A := Subtype.ext (two_smul_two_inv_smul_one_add_sub_one A)
+  toFun e := ⟨(2 : ℝ) • (e : E) - 1, by
+    rw [orderUnitNorm_le_iff]
+    refine ⟨by norm_num, ?_, ?_⟩
+    · rw [one_smul, ← sub_nonneg,
+        show (2 : ℝ) • (e : E) - 1 - -(1 : E) = (2 : ℝ) • (e : E) from by module]
+      exact smul_nonneg (by norm_num) e.2.1
+    · rw [one_smul, ← sub_nonneg,
+        show (1 : E) - ((2 : ℝ) • (e : E) - 1) = (2 : ℝ) • (1 - (e : E)) from by module]
+      exact smul_nonneg (by norm_num) (sub_nonneg.mpr e.2.2)⟩
+  invFun A := ⟨(2 : ℝ)⁻¹ • (1 + (A : E)), by
+    obtain ⟨-, hAl, hAu⟩ := orderUnitNorm_le_iff.mp A.2
+    rw [one_smul] at hAl hAu
+    refine ⟨smul_nonneg (by norm_num) (by simpa using add_le_add (le_refl (1 : E)) hAl), ?_⟩
+    have h := add_le_add (le_refl (1 : E)) hAu
+    rw [show (1 : E) + 1 = (2 : ℝ) • (1 : E) from by module] at h
+    have h2 := smul_le_smul_of_nonneg_left h (show (0 : ℝ) ≤ (2 : ℝ)⁻¹ by norm_num)
+    rwa [smul_smul, inv_mul_cancel₀ (two_ne_zero), one_smul] at h2⟩
+  left_inv e := Subtype.ext (by
+    change (2 : ℝ)⁻¹ • (1 + ((2 : ℝ) • (e : E) - 1)) = (e : E)
+    module)
+  right_inv A := Subtype.ext (by
+    change (2 : ℝ) • ((2 : ℝ)⁻¹ • (1 + (A : E))) - 1 = (A : E)
+    rw [smul_smul, mul_inv_cancel₀ (two_ne_zero), one_smul]
+    module)
 
 end Effect
