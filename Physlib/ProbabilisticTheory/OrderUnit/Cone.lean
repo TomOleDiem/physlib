@@ -26,9 +26,6 @@ These elements form a cone: they are closed under addition and scaling by nonneg
   `{A | 0 ≤ A}` (`PointedCone.mem_positive`) and it is convex (`PointedCone.convex`).
 - `PosCone.isClosed` : the positive cone is closed in the order-unit-norm topology of an
   Archimedean order-unit space.
-- `PosCone.nonneg_add_eq_zero` : the positive cone meets its negation only at `0`.
-- `PosCone.exists_real_shift_nonneg` : enough copies of the order unit shift any element into the
-  cone.
 
 ## iii. Table of contents
 
@@ -62,11 +59,6 @@ variable {E : Type*} [OrderedVectorSpace E]
 instance instModule : Module ℝ≥0 (PosCone E) :=
   inferInstanceAs (Module {c : ℝ // 0 ≤ c} (PointedCone.positive ℝ E))
 
-/-- A nonnegative vector that adds with another nonnegative vector to `0` is itself `0`: the
-positive cone meets its negation only at `0`. -/
-lemma nonneg_add_eq_zero {A B : E} (hA : 0 ≤ A) (hB : 0 ≤ B) (hAB : A + B = 0) : A = 0 :=
-  le_antisymm (hAB ▸ le_add_of_nonneg_right hB) hA
-
 end OrderedVectorSpace
 
 /-!
@@ -76,6 +68,8 @@ end OrderedVectorSpace
 -/
 
 section ArchimedeanOrderUnitSpace
+
+open scoped ArchimedeanOrderUnitSpace
 
 variable {E : Type*} [ArchimedeanOrderUnitSpace E]
 
@@ -99,14 +93,6 @@ instance instOne : One (PosCone E) := ⟨⟨1, OrderUnitSpace.one_nonneg⟩⟩
 
 @[simp]
 lemma coe_one : ((1 : PosCone E) : E) = (1 : E) := rfl
-
-/-- Every element becomes nonnegative after adding enough copies of the order unit: the positive
-cone reaches everywhere, once you're allowed to shift by the unit. -/
-lemma exists_real_shift_nonneg (A : E) : ∃ r : ℝ, 0 ≤ r • (1 : E) + A := by
-  obtain ⟨n, hn⟩ := OrderUnitSpace.exists_nsmul_one_le (-A)
-  use n
-  rw [← sub_neg_eq_add, sub_nonneg]
-  exact_mod_cast hn
 
 end OrderUnitSpace
 

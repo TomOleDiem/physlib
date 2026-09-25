@@ -28,6 +28,9 @@ space, its order, and this distinguished unit gives the abstract order-unit sett
   for some `n`.
 - `OrderUnitSpace.exists_eq_sub_nonneg` : every observable is a difference of two positive
   observables.
+- `OrderUnitSpace.exists_real_shift_nonneg` : enough copies of the order unit shift any element
+  into the positive cone.
+- `OrderedVectorSpace.nonneg_add_eq_zero` : the positive cone meets its negation only at `0`.
 
 ## iii. Table of contents
 
@@ -83,4 +86,23 @@ lemma exists_eq_sub_nonneg (A : E) : ∃ Ap An : E, 0 ≤ Ap ∧ 0 ≤ An ∧ A 
   · exact neg_le_iff_add_nonneg'.mp hn
   · exact (add_sub_cancel_right A (n • (1 : E))).symm
 
+/-- Every element becomes nonnegative after adding enough copies of the order unit: the positive
+cone reaches everywhere, once you're allowed to shift by the unit. -/
+lemma exists_real_shift_nonneg (A : E) : ∃ r : ℝ, 0 ≤ r • (1 : E) + A := by
+  obtain ⟨n, hn⟩ := exists_nsmul_one_le (-A)
+  use n
+  rw [← sub_neg_eq_add, sub_nonneg]
+  exact_mod_cast hn
+
 end OrderUnitSpace
+
+namespace OrderedVectorSpace
+
+variable {E : Type*} [OrderedVectorSpace E]
+
+/-- A nonnegative vector that adds with another nonnegative vector to `0` is itself `0`: the
+positive cone meets its negation only at `0`. -/
+lemma nonneg_add_eq_zero {A B : E} (hA : 0 ≤ A) (hB : 0 ≤ B) (hAB : A + B = 0) : A = 0 :=
+  le_antisymm (hAB ▸ le_add_of_nonneg_right hB) hA
+
+end OrderedVectorSpace

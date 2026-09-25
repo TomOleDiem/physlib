@@ -76,6 +76,8 @@ instance instArchimedeanOrderUnitSpaceReal : ArchimedeanOrderUnitSpace ℝ where
 
 namespace ArchimedeanOrderUnitSpace
 
+open OrderUnitSpace
+
 section OrderUnitSpace
 
 variable {E : Type*} [OrderUnitSpace E]
@@ -177,7 +179,7 @@ monotone. -/
 lemma smul_one_mono {r s : ℝ} (hrs : r ≤ s) :
     r • (1 : E) ≤ s • (1 : E) := by
   have h : 0 ≤ (s - r) • (1 : E) :=
-    smul_nonneg (sub_nonneg.mpr hrs) OrderUnitSpace.one_nonneg
+    smul_nonneg (sub_nonneg.mpr hrs) one_nonneg
   calc
     r • (1 : E) = s • (1 : E) - (s - r) • (1 : E) := by
       rw [← sub_smul, sub_sub_cancel]
@@ -307,26 +309,20 @@ noncomputable def orderUnitAddGroupNorm : AddGroupNorm E where
   neg' := orderUnitNorm_neg
   eq_zero_of_map_eq_zero' _ hA := orderUnitNorm_eq_zero_iff.mp hA
 
-/-- The normed additive group induced by the Archimedean order unit. -/
-@[implicit_reducible]
-noncomputable def orderUnitNormedAddCommGroup : NormedAddCommGroup E :=
-  let normed := orderUnitAddGroupNorm.toNormedAddCommGroup
-  { normed with toAddCommGroup := inferInstance }
+/-- The normed additive group induced by the Archimedean order unit.
 
-/-- The real normed-space structure induced by the Archimedean order unit. -/
-@[implicit_reducible]
-noncomputable def orderUnitNormedSpace :
-    letI : NormedAddCommGroup E := orderUnitNormedAddCommGroup
-    NormedSpace ℝ E := by
-  let module : Module ℝ E := inferInstance
-  letI : NormedAddCommGroup E := orderUnitNormedAddCommGroup
-  letI : Module ℝ E := module
-  refine
-    { module with
-      norm_smul_le := ?_ }
-  intro r A
-  change orderUnitNorm (r • A) ≤ ‖r‖ * orderUnitNorm A
-  rw [orderUnitNorm_smul, Real.norm_eq_abs]
+This is a `scoped instance`, not a plain one: registering it globally would put a second,
+non-defeq `NormedAddCommGroup` instance on every `ArchimedeanOrderUnitSpace` that already has a
+norm of its own (starting with `ℝ` itself), which is a textbook instance diamond. Opting in with
+`open scoped ArchimedeanOrderUnitSpace` keeps the convenience of instance search without poisoning
+unrelated files. -/
+noncomputable scoped instance orderUnitNormedAddCommGroup : NormedAddCommGroup E :=
+  orderUnitAddGroupNorm.toNormedAddCommGroup
+
+/-- The real normed-space structure induced by the Archimedean order unit. See
+`orderUnitNormedAddCommGroup` for why this is a `scoped instance`. -/
+noncomputable scoped instance orderUnitNormedSpace : NormedSpace ℝ E where
+  norm_smul_le r A := le_of_eq (orderUnitNorm_smul r A)
 
 /-!
 
@@ -335,22 +331,17 @@ noncomputable def orderUnitNormedSpace :
 -/
 
 /-- No sequence of elements that are all `≥ 0` can converge to something negative. -/
-lemma isClosed_Ici_zero :
-    letI := orderUnitNormedAddCommGroup (E := E)
-    IsClosed (Set.Ici (0 : E)) := by
-  let := orderUnitNormedAddCommGroup (E := E)
+lemma isClosed_Ici_zero : IsClosed (Set.Ici (0 : E)) := by
   apply IsSeqClosed.isClosed
   intro x p hx hp
   apply neg_nonpos.mp
   apply le_zero_of_forall_pos_smul_one_le
   intro ε hε
   obtain ⟨N, hN⟩ := Metric.tendsto_atTop.mp hp ε hε
-  have hnorm : orderUnitNorm (x N - p) < ε := by
-    have hdist := hN N le_rfl
-    rwa [dist_eq_norm] at hdist
-  calc
-    -p ≤ x N - p := by simpa using sub_le_sub_right (hx N) p
-    _ ≤ ε • (1 : E) := le_smul_one_of_orderUnitNorm_lt hnorm
+  specialize hN N (le_refl N)
+  rw [dist_eq_norm] at hN
+  apply le_trans _ (le_smul_one_of_orderUnitNorm_lt hN)
+  simpa using hx N
 
 /-- The same holds relative to any reference `a`, not just `0`. -/
 instance closedIciTopology : ClosedIciTopology E where
