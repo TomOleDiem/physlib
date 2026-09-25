@@ -171,7 +171,6 @@ lemma ciSup_advantage_eq_ciSup_abs (ω₀ ω₁ : 𝓢[ℝ, E]) :
 private lemma dist_eq_ciSup_abs_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) :
     dist ω₀ ω₁ =
       ⨆ e : Effect E, |ω₀ ((Effect.equivBall e : E)) - ω₁ ((Effect.equivBall e : E))| := by
-  have : Nonempty {A : E // orderUnitNorm A ≤ 1} := ⟨0, by simp⟩
   have hbdd' : BddAbove (Set.range
       fun e : Effect E => |ω₀ ((Effect.equivBall e : E)) - ω₁ ((Effect.equivBall e : E))|) := by
     obtain ⟨b, hb⟩ := dist_bddAbove ω₀ ω₁
