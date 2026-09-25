@@ -30,7 +30,7 @@ actually run is itself a legitimate measurement.
 
 @[expose] public section
 
-variable {E : Type*} [OrderUnitSpace E]
+variable {E : Type*} [OrderedVectorSpace E] [One E]
 
 namespace Effect
 

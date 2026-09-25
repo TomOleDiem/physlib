@@ -48,7 +48,7 @@ namespace Effect
 
 /-- Effects, metrized by restricting the order-unit norm: pulling back the normed group structure
 on `E` along the inclusion `Effect E ↪ E`. -/
-noncomputable instance : MetricSpace (Effect E) :=
+noncomputable instance instMetricSpace : MetricSpace (Effect E) :=
   MetricSpace.induced Subtype.val Subtype.val_injective inferInstance
 
 lemma dist_eq_orderUnitNorm (e f : Effect E) : dist e f = orderUnitNorm ((e : E) - (f : E)) :=

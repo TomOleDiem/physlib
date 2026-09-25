@@ -52,9 +52,9 @@ open OrderUnitSpace
 
 variable {E : Type*} [OrderUnitSpace E]
 
-instance : Zero (Effect E) := ⟨0, le_refl 0, one_nonneg⟩
+instance instZero : Zero (Effect E) := ⟨0, le_refl 0, one_nonneg⟩
 
-instance : One (Effect E) := ⟨1, one_nonneg, le_refl 1⟩
+instance instOne : One (Effect E) := ⟨1, one_nonneg, le_refl 1⟩
 
 @[simp] lemma coe_zero : ((0 : Effect E) : E) = 0 := rfl
 
