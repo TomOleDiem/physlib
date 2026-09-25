@@ -69,12 +69,13 @@ end OrderedVectorSpace
 
 section ArchimedeanOrderUnitSpace
 
+open ArchimedeanOrderUnitSpace
 open scoped ArchimedeanOrderUnitSpace
 
 variable {E : Type*} [ArchimedeanOrderUnitSpace E]
 
 /-- The positive cone is closed in the topology induced by the order-unit norm. -/
-lemma isClosed : IsClosed (PosCone E : Set E) := ArchimedeanOrderUnitSpace.isClosed_Ici_zero
+lemma isClosed : IsClosed (PosCone E : Set E) := isClosed_Ici_zero
 
 end ArchimedeanOrderUnitSpace
 
