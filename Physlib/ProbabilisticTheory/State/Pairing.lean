@@ -68,7 +68,7 @@ lemma apply_mix (ω : 𝓢[ℝ, E]) (e f : Effect E) (t : unitInterval) :
 -/
 
 /-- Two states that agree on all effects agree on every nonnegative element. -/
-private lemma ext_of_effect_eq_of_nonneg {ω φ : 𝓢[ℝ, E]}
+lemma ext_of_effect_eq_of_nonneg {ω φ : 𝓢[ℝ, E]}
     (h : ∀ e : Effect E, ω (e : E) = φ (e : E)) {B : E} (hB : 0 ≤ B) : ω B = φ B := by
   obtain ⟨r, hr, hrB⟩ := Effect.exists_pos_smul_mem hB
   have heq := h ⟨r • B, hrB⟩

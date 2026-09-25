@@ -90,6 +90,8 @@ lemma dist_bddAbove (ω φ : 𝓢[ℝ, E]) :
     BddAbove (Set.range fun A : {A : E // orderUnitNorm A ≤ 1} => |ω A - φ A|) :=
   ⟨2, by rintro _ ⟨A, rfl⟩; exact abs_apply_sub_apply_le_two ω φ A.2⟩
 
+instance : Nonempty {A : E // orderUnitNorm A ≤ 1} := ⟨0, by simp⟩
+
 /-- The operator-norm distance between two states: how far apart their predictions can get on an
 observable of order-unit norm at most `1`. -/
 noncomputable def dist (ω φ : 𝓢[ℝ, E]) : ℝ :=
@@ -99,13 +101,11 @@ lemma dist_nonneg (ω φ : 𝓢[ℝ, E]) : 0 ≤ dist ω φ :=
   le_trans (abs_nonneg _) (le_ciSup (dist_bddAbove ω φ) ⟨0, by simp⟩)
 
 /-- The whole state space has diameter at most `2`: it's a bounded metric space. -/
-lemma dist_le_two (ω φ : 𝓢[ℝ, E]) : dist ω φ ≤ 2 := by
-  have : Nonempty {A : E // orderUnitNorm A ≤ 1} := ⟨0, by simp⟩
-  exact ciSup_le fun A => abs_apply_sub_apply_le_two ω φ A.2
+lemma dist_le_two (ω φ : 𝓢[ℝ, E]) : dist ω φ ≤ 2 :=
+  ciSup_le fun A => abs_apply_sub_apply_le_two ω φ A.2
 
 @[simp]
 lemma dist_self (ω : 𝓢[ℝ, E]) : dist ω ω = 0 := by
-  have : Nonempty {A : E // orderUnitNorm A ≤ 1} := ⟨0, by simp⟩
   have : (fun A : {A : E // orderUnitNorm A ≤ 1} => |ω A - ω A|) = fun _ => (0 : ℝ) := by
     ext A; simp
   unfold dist
@@ -116,7 +116,6 @@ lemma dist_comm (ω φ : 𝓢[ℝ, E]) : dist ω φ = dist φ ω := by
   simp_rw [abs_sub_comm]
 
 lemma dist_triangle (ω φ ψ : 𝓢[ℝ, E]) : dist ω ψ ≤ dist ω φ + dist φ ψ := by
-  have : Nonempty {A : E // orderUnitNorm A ≤ 1} := ⟨0, by simp⟩
   apply ciSup_le
   intro A
   calc |ω A - ψ A| ≤ |ω A - φ A| + |φ A - ψ A| := abs_sub_le _ _ _
