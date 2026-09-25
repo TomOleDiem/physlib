@@ -71,13 +71,10 @@ variable {E : Type*} [OrderUnitSpace E]
 
 /-- Every element is bounded on both sides by a natural multiple of the order unit. -/
 lemma exists_two_sided_bound (A : E) : ∃ n : ℕ, -(n • (1 : E)) ≤ A ∧ A ≤ n • (1 : E) := by
-  obtain ⟨n, hn⟩ := OrderUnitSpace.exists_nsmul_one_le A
-  obtain ⟨m, hm⟩ := OrderUnitSpace.exists_nsmul_one_le (-A)
-  refine ⟨max n m, ?_,
-    hn.trans (nsmul_le_nsmul_left OrderUnitSpace.one_nonneg (le_max_left n m))⟩
-  have hm' : -A ≤ max n m • (1 : E) :=
-    hm.trans (nsmul_le_nsmul_left OrderUnitSpace.one_nonneg (le_max_right n m))
-  simpa using neg_le_neg hm'
+  obtain ⟨n, hn⟩ := exists_nsmul_one_le A
+  obtain ⟨m, hm⟩ := exists_nsmul_one_le (-A)
+  refine ⟨max n m, ?_, hn.trans (nsmul_le_nsmul_left one_nonneg (le_max_left n m))⟩
+  exact neg_le_of_neg_le <| hm.trans (nsmul_le_nsmul_left one_nonneg (le_max_right n m))
 
 /-- Every element is a difference of two positive elements. -/
 lemma exists_eq_sub_nonneg (A : E) :
