@@ -343,8 +343,9 @@ lemma isClosed_Ici_zero : IsClosed (Set.Ici (0 : E)) := by
   apply le_trans _ (le_smul_one_of_orderUnitNorm_lt hN)
   simpa using hx N
 
-/-- The same holds relative to any reference `a`, not just `0`. -/
-instance closedIciTopology : ClosedIciTopology E where
+/-- The same holds relative to any reference `a`, not just `0`. See `orderUnitNormedAddCommGroup`
+for why this is a `scoped instance`: its statement already pins down the scoped topology. -/
+scoped instance closedIciTopology : ClosedIciTopology E where
   isClosed_Ici a := by
     rw [← zero_add a, ← Set.preimage_sub_const_Ici]
     exact isClosed_Ici_zero.preimage (continuous_sub_right a)
