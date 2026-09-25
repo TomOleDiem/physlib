@@ -65,15 +65,15 @@ positive real: the effect interval reaches in every direction the positive cone 
 lemma exists_pos_smul_mem {B : E} (hB : 0 ≤ B) :
     ∃ r : ℝ, 0 < r ∧ r • B ∈ (Effect E : Set E) := by
   obtain ⟨n, hn⟩ := exists_nsmul_one_le B
+  rw [← Nat.cast_smul_eq_nsmul ℝ n (1 : E)] at hn
   refine ⟨((n : ℝ) + 1)⁻¹, by positivity, smul_nonneg (by positivity) hB, ?_⟩
-  have hBr : B ≤ ((n : ℝ) + 1) • (1 : E) :=
-    calc
-      B ≤ n • (1 : E) := hn
-      _ = (n : ℝ) • (1 : E) := (Nat.cast_smul_eq_nsmul ℝ n (1 : E)).symm
-      _ ≤ ((n : ℝ) + 1) • (1 : E) :=
-        smul_le_smul_of_nonneg_right (le_add_of_nonneg_right zero_le_one)
-          one_nonneg
-  have hs := smul_le_smul_of_nonneg_left hBr (by positivity : (0 : ℝ) ≤ ((n : ℝ) + 1)⁻¹)
-  simpa [smul_smul, inv_mul_cancel₀ (by positivity : (n : ℝ) + 1 ≠ 0)] using hs
+  have hle : (n : ℝ) * ((n : ℝ) + 1)⁻¹ ≤ 1 := by
+    rw [← div_eq_mul_inv, div_le_one (by positivity)]
+    exact le_add_of_nonneg_right zero_le_one
+  calc ((n : ℝ) + 1)⁻¹ • B ≤ ((n : ℝ) + 1)⁻¹ • ((n : ℝ) • (1 : E)) :=
+        smul_le_smul_of_nonneg_left hn (by positivity)
+    _ = ((n : ℝ) * ((n : ℝ) + 1)⁻¹) • (1 : E) := by rw [smul_smul, mul_comm]
+    _ ≤ (1 : ℝ) • (1 : E) := smul_le_smul_of_nonneg_right hle one_nonneg
+    _ = 1 := one_smul ℝ 1
 
 end Effect
