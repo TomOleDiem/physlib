@@ -122,7 +122,7 @@ noncomputable def stateEquiv : {w : Weight E // w.IsState} ≃ 𝓢[ℝ, E] wher
   right_inv := by
     intro s
     refine UnitalPositiveLinearMap.ext fun A => ?_
-    obtain ⟨r, hr⟩ := PosCone.exists_real_shift_nonneg A
+    obtain ⟨r, hr⟩ := OrderUnitSpace.exists_real_shift_nonneg A
     set hw := s.toWeight_isState
     show hw.finite.toFun A = s A
     rw [hw.finite.toFun_eq A hr, IsFinite.rawValue]

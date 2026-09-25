@@ -42,9 +42,9 @@ that's exactly a positive linear map preserving the distinguished unit.
 /-- A positive linear map preserving `1`. -/
 structure UnitalPositiveLinearMap (R E F : Type*) [Semiring R]
     [AddCommMonoid E] [PartialOrder E] [AddCommMonoid F] [PartialOrder F]
-    [Module R E] [Module R F] [One E] [One F] extends E →ₚ[R] F, OneHom E F
-
-attribute [nolint docBlame] UnitalPositiveLinearMap.toOneHom
+    [Module R E] [Module R F] [One E] [One F] extends E →ₚ[R] F where
+  /-- A unital positive linear map preserves the order unit. -/
+  map_one' : toPositiveLinearMap 1 = 1
 
 /-- Notation for positive unital linear maps. -/
 notation:25 E " →ₚ₁[" R:25 "] " F:0 => UnitalPositiveLinearMap R E F

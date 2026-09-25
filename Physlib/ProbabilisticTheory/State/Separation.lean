@@ -70,8 +70,6 @@ private lemma apply_eq_zero_of_apply_one_eq_zero {p : E →ₚ[ℝ] ℝ}
 
 /-- Every element outside the positive cone is strictly separated from it by a state. -/
 lemma exists_apply_neg_of_not_nonneg {A : E} (hA : ¬ 0 ≤ A) : ∃ ω : 𝓢[ℝ, E], ω A < 0 := by
-  let := orderUnitNormedAddCommGroup (E := E)
-  let := orderUnitNormedSpace (E := E)
   obtain ⟨f, u, hfA, hcone⟩ := geometric_hahn_banach_point_closed
     (convex_Ici (0 : E)) isClosed_Ici_zero hA
   have hu : u < 0 := by simpa using hcone 0 le_rfl

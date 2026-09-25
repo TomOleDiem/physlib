@@ -84,8 +84,8 @@ lemma rawValue_indep (hw : w.IsFinite) (A : E) {r s : ℝ} (hr : 0 ≤ r • (1 
 open Classical in
 /-- The linear extension of a finite weight from the positive cone to all of `E`. -/
 noncomputable def toFun (hw : w.IsFinite) (A : E) : ℝ :=
-  rawValue hw A (PosCone.exists_real_shift_nonneg A).choose
-    (PosCone.exists_real_shift_nonneg A).choose_spec
+  rawValue hw A (OrderUnitSpace.exists_real_shift_nonneg A).choose
+    (OrderUnitSpace.exists_real_shift_nonneg A).choose_spec
 
 /-- The extension can be computed via any valid shift `r`, not just the one `toFun` happens to
 pick. -/
@@ -108,8 +108,8 @@ lemma toFun_zero (hw : w.IsFinite) : toFun hw (0 : E) = 0 := by
 
 /-- The extension of a finite weight is additive. -/
 lemma toFun_add (hw : w.IsFinite) (A B : E) : toFun hw (A + B) = toFun hw A + toFun hw B := by
-  obtain ⟨r, hr⟩ := PosCone.exists_real_shift_nonneg A
-  obtain ⟨s, hs⟩ := PosCone.exists_real_shift_nonneg B
+  obtain ⟨r, hr⟩ := OrderUnitSpace.exists_real_shift_nonneg A
+  obtain ⟨s, hs⟩ := OrderUnitSpace.exists_real_shift_nonneg B
   have hrs : (0 : E) ≤ (r + s) • (1 : E) + (A + B) := by
     have heq : (r + s) • (1 : E) + (A + B) = (r • (1 : E) + A) + (s • (1 : E) + B) := by module
     rw [heq]; exact add_nonneg hr hs
@@ -132,7 +132,7 @@ lemma toFun_neg (hw : w.IsFinite) (A : E) : toFun hw (-A) = -toFun hw A := by
 /-- Nonnegative real homogeneity of the finite-weight extension. -/
 lemma toFun_real_nonneg_smul (hw : w.IsFinite) {t : ℝ} (ht : 0 ≤ t) (A : E) :
     toFun hw (t • A) = t * toFun hw A := by
-  obtain ⟨r, hr⟩ := PosCone.exists_real_shift_nonneg A
+  obtain ⟨r, hr⟩ := OrderUnitSpace.exists_real_shift_nonneg A
   have hcr : (0 : E) ≤ (t * r) • (1 : E) + t • A := by
     have heq : (t * r) • (1 : E) + t • A = t • (r • (1 : E) + A) := by module
     rw [heq]; exact smul_nonneg ht hr
