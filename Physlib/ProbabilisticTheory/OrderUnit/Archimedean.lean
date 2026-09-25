@@ -354,15 +354,9 @@ lemma isClosed_Ici_zero :
     _ ≤ ε • (1 : E) := le_smul_one_of_orderUnitNorm_lt hnorm
 
 /-- The same holds relative to any reference `a`, not just `0`. -/
-instance closedIciTopology :
-    letI := orderUnitNormedAddCommGroup (E := E)
-    ClosedIciTopology E := by
-  let := orderUnitNormedAddCommGroup (E := E)
-  refine ⟨fun a => ?_⟩
-  have hEq : Set.Ici a = (fun A : E => A - a) ⁻¹' Set.Ici (0 : E) := by
-    ext A
-    simp [Set.mem_Ici]
-  rw [hEq]
-  exact isClosed_Ici_zero.preimage (continuous_id.sub continuous_const)
+instance closedIciTopology : ClosedIciTopology E where
+  isClosed_Ici a := by
+    rw [← zero_add a, ← Set.preimage_sub_const_Ici]
+    exact isClosed_Ici_zero.preimage (continuous_sub_right a)
 
 end ArchimedeanOrderUnitSpace
