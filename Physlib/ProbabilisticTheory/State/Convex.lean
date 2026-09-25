@@ -47,7 +47,7 @@ variable {E : Type*} [AddCommGroup E] [PartialOrder E] [IsOrderedAddMonoid E]
 -/
 
 /-- Randomize between two states with probability `t` of choosing the first. -/
-noncomputable def mix (ω φ : 𝓢[ℝ, E]) (t : unitInterval) : 𝓢[ℝ, E] :=
+def mix (ω φ : 𝓢[ℝ, E]) (t : unitInterval) : 𝓢[ℝ, E] :=
   ofLinearMap ((t : ℝ) • ω.toLinearMap + (1 - (t : ℝ)) • φ.toLinearMap)
     (fun A hA => by
       simp only [LinearMap.add_apply, LinearMap.smul_apply, smul_eq_mul]
@@ -62,10 +62,6 @@ noncomputable def mix (ω φ : 𝓢[ℝ, E]) (t : unitInterval) : 𝓢[ℝ, E] :
 @[simp]
 lemma mix_apply (ω φ : 𝓢[ℝ, E]) (t : unitInterval) (A : E) :
     mix ω φ t A = (t : ℝ) * ω A + (1 - (t : ℝ)) * φ A := rfl
-
-/-- The underlying linear functional of a mixture is the given convex combination. -/
-lemma mix_toLinearMap (ω φ : 𝓢[ℝ, E]) (t : unitInterval) :
-    (mix ω φ t).toLinearMap = (t : ℝ) • ω.toLinearMap + (1 - (t : ℝ)) • φ.toLinearMap := rfl
 
 /-!
 
@@ -82,7 +78,7 @@ lemma stateSpace_convex : Convex ℝ (stateSpace (E := E)) := by
   rintro x ⟨ω, rfl⟩ y ⟨φ, rfl⟩ t s ht hs hts
   have hst : s = 1 - t := by linarith
   subst hst
-  exact ⟨mix ω φ ⟨t, ht, by linarith⟩, mix_toLinearMap ω φ ⟨t, ht, by linarith⟩⟩
+  exact ⟨mix ω φ ⟨t, ht, by linarith⟩, rfl⟩
 
 /-!
 
@@ -98,7 +94,7 @@ def IsMixed (ω : 𝓢[ℝ, E]) : Prop := ¬ ω.IsPure
 
 /-- A state lies in the open segment between two states exactly when it is a genuine (`t ≠ 0, 1`)
 mixture of them. -/
-lemma mem_openSegment_iff_exists_mix (ω φ ψ : 𝓢[ℝ, E]) :
+private lemma mem_openSegment_iff_exists_mix (ω φ ψ : 𝓢[ℝ, E]) :
     ω.toLinearMap ∈ openSegment ℝ φ.toLinearMap ψ.toLinearMap ↔
       ∃ t : unitInterval, t ≠ 0 ∧ t ≠ 1 ∧ mix φ ψ t = ω := by
   constructor
@@ -109,15 +105,13 @@ lemma mem_openSegment_iff_exists_mix (ω φ ψ : 𝓢[ℝ, E]) :
     · exact ne_of_gt (by exact_mod_cast ht)
     · exact ne_of_lt (by exact_mod_cast ht1)
     · apply toLinearMap_injective
-      change (mix φ ψ u).toLinearMap = ω.toLinearMap
-      rw [mix_toLinearMap]
       change t • φ.toLinearMap + (1 - t) • ψ.toLinearMap = ω.toLinearMap
       rwa [show 1 - t = s from by linarith]
   · rintro ⟨t, ht0, ht1, rfl⟩
     refine ⟨(t : ℝ), 1 - (t : ℝ), ?_, ?_, by ring, ?_⟩
     · exact_mod_cast unitInterval.pos_iff_ne_zero.mpr ht0
     · exact sub_pos.mpr (by exact_mod_cast unitInterval.lt_one_iff_ne_one.mpr ht1)
-    · rw [mix_toLinearMap]
+    · rfl
 
 /-- A state is pure exactly when every genuine (`t ≠ 0, 1`) binary decomposition is trivial: both
 components already equal it. -/
