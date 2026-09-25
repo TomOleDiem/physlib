@@ -81,15 +81,10 @@ def IsSemifinite (w : Weight E) : Prop := ∀ A : PosCone E,
 lemma mono (w : Weight E) : Monotone (w : PosCone E → ℝ≥0∞) := by
   intro A B hAB
   have hC : (0 : E) ≤ (B : E) - (A : E) := sub_nonneg.mpr hAB
-  let C : PosCone E := ⟨(B : E) - (A : E), hC⟩
-  have hAC : A + C = B := by
-    ext
-    change (A : E) + ((B : E) - (A : E)) = B
-    abel
-  calc
-    w A ≤ w A + w C := le_self_add
-    _ = w (A + C) := (map_add w A C).symm
-    _ = w B := by rw [hAC]
+  have hAC : A + (⟨(B : E) - (A : E), hC⟩ : PosCone E) = B :=
+    Subtype.ext (show (A : E) + ((B : E) - (A : E)) = B from by abel)
+  rw [← hAC, map_add]
+  exact le_self_add
 
 /-- A finite weight is semifinite. -/
 lemma IsFinite.isSemifinite {w : Weight E} (hw : w.IsFinite) : w.IsSemifinite := by
