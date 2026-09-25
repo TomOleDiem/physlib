@@ -131,9 +131,9 @@ lemma tensor_basis_repr_toTensor_apply {d : ℕ} (p : Vector d) (μ : ComponentI
 
 /-- Evaluating both indices of an element of `Vector d ⊗ Vector d` gives its coefficient
   in the tensor-product basis. -/
-lemma toField_eval_eval_eq_tensorProduct_repr {d} (F : Vector d ⊗[ℝ] Vector d)
+lemma toScalar_eval_eval_eq_tensorProduct_repr {d} (F : Vector d ⊗[ℝ] Vector d)
     (μ ν : Fin 1 ⊕ Fin d) :
-    toField {F | [μ] [ν]}ᵀ = (basis.tensorProduct basis).repr F (μ, ν) := by
+    toScalar {F | [μ] [ν]}ᵀ = (basis.tensorProduct basis).repr F (μ, ν) := by
   conv_rhs => rw [Tensorial.prod_eq_sum_eval basis_eq_map_tensor_basis basis_eq_map_tensor_basis F]
   simp [-Fintype.sum_sum_type, Basis.tensorProduct_repr_tmul_apply, Finsupp.single_apply]
   rfl
@@ -144,8 +144,7 @@ lemma tensor_basis_repr_toTensor_prod_apply {d} (F : Vector d ⊗[ℝ] Vector d)
     (b : ComponentIdx (S := realLorentzTensor d) (Fin.append ![Color.up] ![Color.up])) :
     (Tensor.basis _).repr (toTensor F) b = (basis.tensorProduct basis).repr F (b 0, b 1) := by
   rw [Tensorial.basis_toTensor_apply, Tensorial.basis_map_prod]
-  simp only [Nat.reduceSucc, Nat.reduceAdd, Basis.repr_reindex, Finsupp.mapDomain_equiv_apply,
-    Equiv.symm_symm, Fin.isValue]
+  simp only [Nat.reduceSucc, Nat.reduceAdd, Basis.repr_reindex, Fin.isValue]
   rw [tensor_basis_map_eq_basis_reindex]
   have hb : (((basis (d := d)).reindex indexEquiv.symm).tensorProduct
       (basis.reindex indexEquiv.symm)) =
@@ -153,7 +152,7 @@ lemma tensor_basis_repr_toTensor_prod_apply {d} (F : Vector d ⊗[ℝ] Vector d)
       (indexEquiv.symm.prodCongr indexEquiv.symm) := by
     ext ⟨i, j⟩
     simp
-  rw [hb, Module.Basis.repr_reindex_apply]
+  rw [hb, Finsupp.equivMapDomain_apply, Module.Basis.repr_reindex_apply]
   congr 1
 
 /-!

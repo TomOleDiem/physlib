@@ -267,8 +267,8 @@ lemma toFieldStrength_gaugeTransform {d} (A : ElectromagneticPotential d)
 lemma toFieldStrength_eval_gaugeTransform {d} (A : ElectromagneticPotential d)
     (χ : SpaceTime d → ℝ) (hA : Differentiable ℝ A) (hχ : ContDiff ℝ 2 χ) (x : SpaceTime d)
     (μ ν : Fin 1 ⊕ Fin d) :
-    toField {(gaugeTransform χ A).toFieldStrength x | [μ] [ν]}ᵀ =
-    toField {A.toFieldStrength x | [μ] [ν]}ᵀ := by
+    toScalar {(gaugeTransform χ A).toFieldStrength x | [μ] [ν]}ᵀ =
+    toScalar {A.toFieldStrength x | [μ] [ν]}ᵀ := by
   rw [toFieldStrength_gaugeTransform A χ hA hχ]
 
 /-!
@@ -343,7 +343,7 @@ lemma toFieldStrength_eval_bareGradient_inl_inr {d : ℕ} (i : Fin d)
     (x : SpaceTime d) :
     let χ : SpaceTime d → ℝ := fun y => y (Sum.inl 0) * y (Sum.inr i)
     let B : ElectromagneticPotential d := ⟨fun y μ => ∂_ μ χ y⟩
-    toField {B.toFieldStrength x | [Sum.inl 0] [Sum.inr i]}ᵀ = 2 := by
+    toScalar {B.toFieldStrength x | [Sum.inl 0] [Sum.inr i]}ᵀ = 2 := by
   intro χ B
   have hχ : ContDiff ℝ 2 χ := by
     show ContDiff ℝ 2 (fun y : SpaceTime d => y (Sum.inl 0) * y (Sum.inr i))
@@ -378,7 +378,7 @@ lemma toFieldStrength_eval_bareGradient_inl_inr {d : ℕ} (i : Fin d)
   simp_rw [hfderiv]
   simp only [_root_.add_apply, FunLike.coe_smul,
     Pi.smul_apply, Lorentz.Vector.coordCLM_apply, smul_eq_mul, Lorentz.Vector.basis_apply]
-  simp only [mul_ite, mul_one, mul_zero, ite_add, zero_add, if_true]
+  simp only [mul_ite, mul_one, mul_zero, ite_add, zero_add, ite_true]
   simp only [minkowskiMatrix.inl_0_inl_0, minkowskiMatrix.inr_i_inr_i]
   simp only [reduceCtorEq, ↓reduceIte, add_zero]
   simp only [Lorentz.Vector.fderiv_coord, Lorentz.Vector.coordCLM_apply,

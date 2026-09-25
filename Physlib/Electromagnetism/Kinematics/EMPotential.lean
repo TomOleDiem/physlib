@@ -601,7 +601,7 @@ open Tensorial
 /-- Evaluation of the tensor components of `∂_ μ A x ν`. -/
 lemma tensorDeriv_eval_eq {d} {A : ElectromagneticPotential d} (hA : Differentiable ℝ A)
     (x : SpaceTime d) (μ ν : Fin 1 ⊕ Fin d) :
-    toField {tensorDeriv A.val x | [μ] [ν]}ᵀ = ∂_ μ A x ν := by
+    toScalar {tensorDeriv A.val x | [μ] [ν]}ᵀ = ∂_ μ A x ν := by
   trans (Lorentz.CoVector.basis.tensorProduct Lorentz.Vector.basis).repr (deriv A x) (μ, ν); swap
   · simp [deriv, Basis.tensorProduct_repr_tmul_apply, Finsupp.single_apply]
   rw [deriv_eq_tensorDeriv _ hA]
@@ -609,7 +609,7 @@ lemma tensorDeriv_eval_eq {d} {A : ElectromagneticPotential d} (hA : Differentia
   obtain ⟨t, rfl⟩ := toTensor.symm.surjective t
   induction' t using Tensor.induction_on_basis with b a t h t1 t2 h1 h2
   · simp only [LinearEquiv.apply_symm_apply, basis_apply, evalT_pure, Pure.evalP, map_smul,
-      toField_pure, smul_eq_mul, mul_one, Pure.evalPCoeff]
+      toScalar_pure, smul_eq_mul, mul_one, Pure.evalPCoeff]
     change _ * (Lorentz.contrBasis d).repr (Lorentz.contrBasis d (b 1)) ν = _
     /- Transforming the basis -/
     let e : ComponentIdx (Fin.append ![Color.down] ![Color.up])
@@ -643,8 +643,7 @@ lemma toTensor_deriv_basis_repr_apply {d} (A : ElectromagneticPotential d)
     (Tensor.basis _).repr (Tensorial.toTensor (deriv A x)) b =
     ∂_ (b 0) A x (b 1) := by
   rw [Tensorial.basis_toTensor_apply, Tensorial.basis_map_prod]
-  simp only [Nat.reduceSucc, Nat.reduceAdd, Basis.repr_reindex, Finsupp.mapDomain_equiv_apply,
-    Equiv.symm_symm, Fin.isValue]
+  simp only [Nat.reduceSucc, Nat.reduceAdd, Basis.repr_reindex, Fin.isValue]
   rw [Lorentz.Vector.tensor_basis_map_eq_basis_reindex,
     Lorentz.CoVector.tensor_basis_map_eq_basis_reindex]
   have hb : (((Lorentz.CoVector.basis (d := d)).reindex
@@ -654,7 +653,7 @@ lemma toTensor_deriv_basis_repr_apply {d} (A : ElectromagneticPotential d)
       (Lorentz.CoVector.indexEquiv.symm.prodCongr Lorentz.Vector.indexEquiv.symm) := by
     ext ⟨i, j⟩
     simp
-  rw [hb, Module.Basis.repr_reindex_apply, deriv_basis_repr_apply]
+  rw [hb, Finsupp.equivMapDomain_apply, Module.Basis.repr_reindex_apply, deriv_basis_repr_apply]
   rfl
 
 /-!

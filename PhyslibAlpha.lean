@@ -27,6 +27,8 @@ public import PhyslibAlpha.SpaceAndTime.Space.Surfaces.SphericalCylinder
 public import PhyslibAlpha.SpaceAndTime.Space.Surfaces.SolidCylinder
 public import PhyslibAlpha.SpaceAndTime.Space.Surfaces.SolidSphere
 public import PhyslibAlpha.SpaceAndTime.Space.Surfaces.SphericalShell
+public import PhyslibAlpha.ClassicalMechanics.MomentMap
+public import PhyslibAlpha.ClassicalMechanics.MomentMapCohomology
 public import PhyslibAlpha.ClassicalMechanics.NortonDome.Basic
 public import PhyslibAlpha.ClassicalMechanics.NortonDome.Determinism
 public import PhyslibAlpha.ClassicalMechanics.NortonDome.NewtonianSystem
@@ -164,7 +166,9 @@ public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.Unbounded.EssentialSp
 public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.Unbounded.EssentialSpectrum.Weyl
 public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.Unbounded.EssentialSpectrum.Discrete
 public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.State.Density
+public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.State.DensityUncertainty
 public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.State.Vector
+public import PhyslibAlpha.AlgebraicFramework.HilbertSpace.State.VectorUncertainty
 public import PhyslibAlpha.AlgebraicFramework.Measurement.Basic
 public import PhyslibAlpha.AlgebraicFramework.Measurement.ClassicalSystem
 public import PhyslibAlpha.AlgebraicFramework.Measurement.Compatibility

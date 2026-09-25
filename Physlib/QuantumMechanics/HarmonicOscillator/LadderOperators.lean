@@ -14,11 +14,13 @@ public import Physlib.QuantumMechanics.Operators.Commutation
 ## i. Overview
 
 The ladder operators of the `d`-dimensional quantum harmonic oscillator, acting on Schwartz maps:
-the lowering (annihilation) operators `aᵢ = (xᵢ/ξᵢ + i ξᵢ pᵢ/ℏ)/√2`, the raising (creation)
-operators `aᵢ† = (xᵢ/ξᵢ - i ξᵢ pᵢ/ℏ)/√2` and the number operators `Nᵢ = aᵢ† aᵢ`, together with
+the lowering (annihilation) operators `aᵢ = (xᵢ/ξᵢ + i ξᵢ pᵢ/ℏ)/√2` and the raising (creation)
+operators `aᵢ† = (xᵢ/ξᵢ - i ξᵢ pᵢ/ℏ)/√2`, together with
 their commutation relations, which all follow from the canonical commutation relations
-`position_commutation_momentum`. The adjointness of `aᵢ` and `aᵢ†`, the Hamiltonian in terms of the
-number operators and its relation to the Hamiltonian of `Basic.lean` are still TODO items.
+`position_commutation_momentum`. The ladder operators are then lifted to unbounded operators on the
+Hilbert space with the Schwartz submodule as domain (like `momentumOperator`), `aᵢ†` being the
+formal adjoint of `aᵢ`. The number operators `Nᵢ = aᵢ† aᵢ` and the Hamiltonian written through them
+are in `NumberOperator.lean`.
 
 ## ii. Key results
 
@@ -26,9 +28,7 @@ number operators and its relation to the Hamiltonian of `Basic.lean` are still T
   `raising_commutation_raising`: `[aᵢ, aⱼ] = 0`, `[aᵢ†, aⱼ†] = 0`.
 - `position_eq_lowering_add_raising`, `momentum_eq_raising_sub_lowering`: the position and
   momentum operators in terms of the ladder operators.
-- `number_commutation_number`: `[Nᵢ, Nⱼ] = 0`; `number_commutation_lowering`,
-  `number_commutation_raising`: `[Nᵢ, aⱼ] = -δᵢⱼ aⱼ`, `[Nᵢ, aⱼ†] = δᵢⱼ aⱼ†`.
-- `lowering_comp_raising`: `aᵢ aᵢ† = Nᵢ + 𝟙`.
+- `loweringOperator_isFormalAdjoint_raisingOperator`: `aᵢ†` is the formal adjoint of `aᵢ`.
 
 ## iii. Table of contents
 
@@ -36,10 +36,7 @@ number operators and its relation to the Hamiltonian of `Basic.lean` are still T
   - A.1. Definitions
   - A.2. Commutation relations
   - A.3. Position and momentum in terms of the ladder operators
-- B. Number operators
-  - B.1. Definition
-  - B.2. Commutation relations
-- C. Hamiltonian
+  - A.4. The ladder operators as unbounded operators, adjointness
 
 ## iv. References
 
@@ -52,7 +49,9 @@ number operators and its relation to the Hamiltonian of `Basic.lean` are still T
 noncomputable section
 namespace QuantumMechanics.HarmonicOscillator
 
-open Complex Constants KroneckerDelta Bracket SchwartzMap ContinuousLinearMap
+open Complex Constants KroneckerDelta Bracket SchwartzMap ContinuousLinearMap SpaceDHilbertSpace
+open MeasureTheory SchwartzSubmodule
+open scoped InnerProductSpace
 
 attribute [local instance 100] LieRing.ofAssociativeRing
 attribute [local instance 100] LieAlgebra.ofAssociativeAlgebra
@@ -182,85 +181,56 @@ lemma momentum_eq_raising_sub_lowering :
   rw [I_pow_three, inv_pow, sqrt_two_sq_ofReal]
   field_simp
 
-TODO "Prove that the raising/lowering operators are adjoints of one another (tag as simp?)."
-
 /-!
 
-## B. Number operators
+### A.4. The ladder operators as unbounded operators, adjointness
 
 -/
 
-/-!
+/-- The lowering operator as an unbounded operator with domain the Schwartz submodule. -/
+def loweringOperator : Q.HS →ₗ.[ℂ] Q.HS where
+  domain := SchwartzSubmodule d
+  toFun := (schwartzIncl volume).1 ∘ₗ (Q.loweringCLM i).1 ∘ₗ (schwartzEquiv volume).symm.1
 
-### B.1. Definition
+/-- The raising operator as an unbounded operator with domain the Schwartz submodule. -/
+def raisingOperator : Q.HS →ₗ.[ℂ] Q.HS where
+  domain := SchwartzSubmodule d
+  toFun := (schwartzIncl volume).1 ∘ₗ (Q.raisingCLM i).1 ∘ₗ (schwartzEquiv volume).symm.1
 
--/
+lemma loweringOperator_apply (ψ : SchwartzSubmodule d) :
+    Q.loweringOperator i ψ =
+      schwartzEquiv volume (Q.loweringCLM i ((schwartzEquiv volume).symm ψ)) :=
+  rfl
 
-/-- The number operator `Nᵢ = aᵢ† aᵢ`. -/
-def numberCLM : 𝓢(Space d, ℂ) →L[ℂ] 𝓢(Space d, ℂ) := Q.raisingCLM i ∘L Q.loweringCLM i
+lemma raisingOperator_apply (ψ : SchwartzSubmodule d) :
+    Q.raisingOperator i ψ =
+      schwartzEquiv volume (Q.raisingCLM i ((schwartzEquiv volume).symm ψ)) :=
+  rfl
 
-lemma numberCLM_eq : Q.numberCLM i = Q.raisingCLM i ∘L Q.loweringCLM i := rfl
+/-- `⟪aᵢ f, g⟫ = ⟪f, aᵢ† g⟫` for Schwartz maps `f`, `g`. -/
+lemma loweringCLM_inner (f g : 𝓢(Space d, ℂ)) :
+    ⟪(schwartzEquiv volume (Q.loweringCLM i f) : Q.HS), schwartzEquiv volume g⟫_ℂ
+      = ⟪(schwartzEquiv volume f : Q.HS), schwartzEquiv volume (Q.raisingCLM i g)⟫_ℂ := by
+  simp only [loweringCLM_eq, raisingCLM_eq, map_add, map_smul, map_sub, smul_apply, add_apply,
+    sub_apply, Submodule.coe_add, Submodule.coe_smul, Submodule.coe_sub, inner_add_left,
+    inner_smul_left, inner_smul_right, inner_sub_right, positionCLM_inner, momentumCLM_inner]
+  simp only [map_inv₀, map_mul, map_div₀, Complex.conj_ofReal, Complex.conj_I]
+  ring
 
-TODO "Prove that the number operators are symmetric/self-adjoint."
+/-- `⟪aᵢ† f, g⟫ = ⟪f, aᵢ g⟫` for Schwartz maps `f`, `g`. -/
+lemma raisingCLM_inner (f g : 𝓢(Space d, ℂ)) :
+    ⟪(schwartzEquiv volume (Q.raisingCLM i f) : Q.HS), schwartzEquiv volume g⟫_ℂ
+      = ⟪(schwartzEquiv volume f : Q.HS), schwartzEquiv volume (Q.loweringCLM i g)⟫_ℂ := by
+  rw [← inner_conj_symm, ← Q.loweringCLM_inner i, inner_conj_symm]
 
-/-!
-
-### B.2. Commutation relations
-
--/
-
-/-- `[Nᵢ, aⱼ] = -δᵢⱼ aⱼ`. -/
-lemma number_commutation_lowering :
-    ⁅Q.numberCLM i, Q.loweringCLM j⁆ = -(δ[i,j] • Q.loweringCLM j) := by
-  rw [numberCLM_eq, leibniz_lie, lowering_commutation_lowering, raising_commutation_lowering,
-    comp_zero, zero_add, neg_comp, smul_comp, id_comp]
-  rcases eq_or_ne i j with rfl | hne
-  · rfl
-  · simp [eq_zero_of_ne hne]
-
-/-- `[Nᵢ, aⱼ†] = δᵢⱼ aⱼ†`. -/
-lemma number_commutation_raising :
-    ⁅Q.numberCLM i, Q.raisingCLM j⁆ = δ[i,j] • Q.raisingCLM j := by
-  rw [numberCLM_eq, leibniz_lie, lowering_commutation_raising, raising_commutation_raising,
-    zero_comp, add_zero, comp_smul, comp_id]
-  rcases eq_or_ne i j with rfl | hne
-  · rfl
-  · simp [eq_zero_of_ne hne]
-
-/-- `[Nᵢ, Nⱼ] = 0`. -/
-lemma number_commutation_number : ⁅Q.numberCLM i, Q.numberCLM j⁆ = 0 := by
-  simp only [numberCLM_eq]
-  rw [leibniz_lie, lie_leibniz, lie_leibniz, lowering_commutation_lowering,
-    lowering_commutation_raising, raising_commutation_lowering, raising_commutation_raising]
-  rcases eq_or_ne i j with rfl | hne
-  · simp only [eq_one_of_same, one_nsmul, comp_zero, zero_add, id_comp, comp_id, neg_comp,
-      comp_neg, zero_comp, add_zero]
-    abel
-  · simp [eq_zero_of_ne hne]
-
-/-- `aᵢ aᵢ† = Nᵢ + 𝟙`. -/
-lemma lowering_comp_raising :
-    Q.loweringCLM i ∘L Q.raisingCLM i =
-      Q.numberCLM i + ContinuousLinearMap.id ℂ 𝓢(Space d, ℂ) := by
-  have h := Q.lowering_commutation_raising i i
-  rw [eq_one_of_same, one_nsmul, Ring.lie_def, mul_def, mul_def] at h
-  rw [numberCLM_eq, add_comm]
-  exact sub_eq_iff_eq_add.mp h
-
-/-!
-
-## C. Hamiltonian
-
--/
-
-TODO "Define a Hamiltonian in terms of the number operators."
-
-TODO "Prove the commutation relations between the Hamiltonian and ladder/number operators."
-
-TODO "Relate the 'number operator' Hamiltonian to the 'K + T' Hamiltonian
-  (=/≤/≥ depending on their domains)."
-
-TODO "Prove that the two Hamiltonians define the same quantum system."
+/-- The raising operator is the formal adjoint of the lowering operator. -/
+lemma loweringOperator_isFormalAdjoint_raisingOperator :
+    (Q.loweringOperator i).IsFormalAdjoint (Q.raisingOperator i) := by
+  intro ψ φ
+  obtain ⟨f, rfl⟩ := (schwartzEquiv volume).surjective ψ
+  obtain ⟨g, rfl⟩ := (schwartzEquiv volume).surjective φ
+  simp only [loweringOperator_apply, raisingOperator_apply, LinearEquiv.symm_apply_apply]
+  exact Q.loweringCLM_inner i f g
 
 end QuantumMechanics.HarmonicOscillator
 
