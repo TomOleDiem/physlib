@@ -122,7 +122,7 @@ lemma toFun_add (hw : w.IsFinite) (A B : E) : toFun w (A + B) = toFun w A + toFu
   rw [hcone, hw.toReal_map_add]
   ring
 
-/-- The extension of a finite weight negates: a corollary of additivity and `toFun_zero`. -/
+/-- The extension of a finite weight is odd. -/
 lemma toFun_neg (hw : w.IsFinite) (A : E) : toFun w (-A) = -toFun w A := by
   have h := toFun_add hw A (-A)
   rw [add_neg_cancel, toFun_zero hw] at h
