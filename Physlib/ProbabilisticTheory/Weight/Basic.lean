@@ -5,10 +5,6 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Mathlib.Data.ENNReal.Basic
-public import Mathlib.Data.ENNReal.Inv
-public import Mathlib.Data.ENNReal.Action
-public import Physlib.ProbabilisticTheory.OrderUnit.Basic
 public import Physlib.ProbabilisticTheory.OrderUnit.Cone
 
 /-!

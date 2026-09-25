@@ -117,14 +117,14 @@ noncomputable def stateEquiv : {w : Weight E // w.IsState} ≃ 𝓢[ℝ, E] wher
   left_inv := by
     rintro ⟨w, hw⟩
     refine Subtype.ext (Weight.ext fun A => ?_)
-    change ENNReal.ofReal (hw.finite.toFun (A : E)) = w A
-    simp [ENNReal.ofReal_toReal (hw.finite A)]
+    change ENNReal.ofReal (IsFinite.toFun w (A : E)) = w A
+    rw [IsFinite.toFun_of_nonneg hw.finite A, ENNReal.ofReal_toReal (hw.finite A)]
   right_inv := by
     intro s
     refine UnitalPositiveLinearMap.ext fun A => ?_
     obtain ⟨r, hr⟩ := OrderUnitSpace.exists_real_shift_nonneg A
     set hw := s.toWeight_isState
-    show hw.finite.toFun A = s A
+    show IsFinite.toFun s.toWeight A = s A
     rw [hw.finite.toFun_eq A hr, IsFinite.rawValue]
     simp only [UnitalPositiveLinearMap.toReal_toWeight_apply, PosCone.coe_one, _root_.map_add,
       _root_.map_smul, smul_eq_mul, _root_.map_one]
