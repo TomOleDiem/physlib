@@ -94,7 +94,7 @@ def IsMixed (ω : 𝓢[ℝ, E]) : Prop := ¬ ω.IsPure
 
 /-- A state lies in the open segment between two states exactly when it is a genuine (`t ≠ 0, 1`)
 mixture of them. -/
-private lemma mem_openSegment_iff_exists_mix (ω φ ψ : 𝓢[ℝ, E]) :
+lemma mem_openSegment_iff_exists_mix (ω φ ψ : 𝓢[ℝ, E]) :
     ω.toLinearMap ∈ openSegment ℝ φ.toLinearMap ψ.toLinearMap ↔
       ∃ t : unitInterval, t ≠ 0 ∧ t ≠ 1 ∧ mix φ ψ t = ω := by
   constructor
