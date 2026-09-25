@@ -53,7 +53,7 @@ noncomputable def rawValue (w : Weight E) (A : E) (r : ℝ) (h : 0 ≤ r • (1 
 
 /-- Shifting by a larger `s` and a smaller `r` agree: the extra `s - r` copies of the unit added
 to the cone element are exactly cancelled by the extra `(s - r) * w 1` subtracted off. -/
-private lemma rawValue_of_le (hw : w.IsFinite) (A : E) {r s : ℝ} (hr : 0 ≤ r • (1 : E) + A)
+lemma rawValue_of_le (hw : w.IsFinite) (A : E) {r s : ℝ} (hr : 0 ≤ r • (1 : E) + A)
     (hs : 0 ≤ s • (1 : E) + A) (hrs : r ≤ s) : rawValue w A s hs = rawValue w A r hr := by
   set t : ℝ≥0 := (s - r).toNNReal with ht_def
   have ht : (t : ℝ) = s - r := Real.coe_toNNReal _ (by linarith)
@@ -68,7 +68,7 @@ private lemma rawValue_of_le (hw : w.IsFinite) (A : E) {r s : ℝ} (hr : 0 ≤ r
   ring
 
 /-- The shifted value of a finite weight does not depend on the chosen shift. -/
-private lemma rawValue_indep (hw : w.IsFinite) (A : E) {r s : ℝ} (hr : 0 ≤ r • (1 : E) + A)
+lemma rawValue_indep (hw : w.IsFinite) (A : E) {r s : ℝ} (hr : 0 ≤ r • (1 : E) + A)
     (hs : 0 ≤ s • (1 : E) + A) : rawValue w A r hr = rawValue w A s hs := by
   rcases le_total r s with hrs | hrs
   · exact (rawValue_of_le hw A hr hs hrs).symm
