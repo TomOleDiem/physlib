@@ -106,7 +106,7 @@ lemma orderUnitNorm_le {A : E} {r : ℝ} (hr : r ∈ orderUnitBounds A) :
 /-- Every element has some order-unit bound: this is just `OrderUnitSpace`'s two-sided bound,
 repackaged as a natural number in `orderUnitBounds`. -/
 lemma orderUnitBounds_nonempty (A : E) : (orderUnitBounds A).Nonempty := by
-  obtain ⟨n, hl, hu⟩ := OrderUnitSpace.exists_two_sided_bound A
+  obtain ⟨n, hl, hu⟩ := exists_two_sided_bound A
   refine ⟨n, Nat.cast_nonneg n, ?_, ?_⟩
   · simpa only [Nat.cast_smul_eq_nsmul] using hl
   · simpa only [Nat.cast_smul_eq_nsmul] using hu
