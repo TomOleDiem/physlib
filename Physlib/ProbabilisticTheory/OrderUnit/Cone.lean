@@ -80,11 +80,7 @@ section ArchimedeanOrderUnitSpace
 variable {E : Type*} [ArchimedeanOrderUnitSpace E]
 
 /-- The positive cone is closed in the topology induced by the order-unit norm. -/
-lemma isClosed :
-    letI := ArchimedeanOrderUnitSpace.orderUnitNormedAddCommGroup (E := E)
-    IsClosed (PosCone E : Set E) := by
-  simpa [PosCone, PointedCone.mem_positive] using
-    (ArchimedeanOrderUnitSpace.isClosed_Ici_zero (E := E))
+lemma isClosed : IsClosed (PosCone E : Set E) := ArchimedeanOrderUnitSpace.isClosed_Ici_zero
 
 end ArchimedeanOrderUnitSpace
 
