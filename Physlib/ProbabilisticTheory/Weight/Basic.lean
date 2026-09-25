@@ -5,10 +5,6 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Mathlib.Data.ENNReal.Basic
-public import Mathlib.Data.ENNReal.Inv
-public import Mathlib.Data.ENNReal.Action
-public import Physlib.ProbabilisticTheory.OrderUnit.Basic
 public import Physlib.ProbabilisticTheory.OrderUnit.Cone
 
 /-!
@@ -139,28 +135,27 @@ structure IsState (w : Weight E) : Prop where
   /-- A state gives the certain outcome weight exactly `1`. -/
   normalized : w 1 = 1
 
-/-- Rescaling a finite weight that's nonzero at the order unit. -/
-noncomputable def IsFinite.normalize {w : Weight E} (_hw : w.IsFinite) (_h : w 1 ≠ 0) :
-    Weight E where
+/-- Rescale a weight by the inverse of its value at the order unit. -/
+noncomputable def normalize (w : Weight E) : Weight E where
   toFun A := (w 1)⁻¹ * w A
   map_add' A B := by rw [map_add, mul_add]
   map_smul' c A := by
     simp only [map_smul, ENNReal.smul_def, smul_eq_mul, RingHom.id_apply]
     ring
 
-lemma IsFinite.normalize_apply {w : Weight E} (hw : w.IsFinite) (h : w 1 ≠ 0)
-    (A : PosCone E) : hw.normalize h A = (w 1)⁻¹ * w A := rfl
+lemma normalize_apply (w : Weight E) (A : PosCone E) :
+    normalize w A = (w 1)⁻¹ * w A := rfl
 
-/-- Normalizing a finite weight keeps it finite. -/
+/-- Normalizing a finite weight that's nonzero at the order unit keeps it finite. -/
 lemma IsFinite.normalize_isFinite {w : Weight E} (hw : w.IsFinite) (h : w 1 ≠ 0) :
-    (hw.normalize h).IsFinite := fun A => by
+    (normalize w).IsFinite := fun A => by
   rw [normalize_apply]
   exact ENNReal.mul_ne_top (ENNReal.inv_ne_top.mpr h) (hw A)
 
-/-- Normalizing a finite weight makes it a state: the order unit is scaled to weight exactly
-`1`. -/
+/-- Normalizing a finite weight that's nonzero at the order unit makes it a state: the order unit
+is scaled to weight exactly `1`. -/
 lemma IsFinite.normalize_isState {w : Weight E} (hw : w.IsFinite) (h : w 1 ≠ 0) :
-    (hw.normalize h).IsState where
+    (normalize w).IsState where
   finite := hw.normalize_isFinite h
   normalized := by rw [normalize_apply]; exact ENNReal.inv_mul_cancel h (hw 1)
 
