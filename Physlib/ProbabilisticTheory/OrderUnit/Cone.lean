@@ -108,10 +108,9 @@ lemma coe_one : ((1 : PosCone E) : E) = (1 : E) := rfl
 cone reaches everywhere, once you're allowed to shift by the unit. -/
 lemma exists_real_shift_nonneg (A : E) : ∃ r : ℝ, 0 ≤ r • (1 : E) + A := by
   obtain ⟨n, hn⟩ := OrderUnitSpace.exists_nsmul_one_le (-A)
-  refine ⟨n, ?_⟩
-  rw [← Nat.cast_smul_eq_nsmul ℝ n (1 : E)] at hn
-  rw [← sub_neg_eq_add]
-  exact sub_nonneg.mpr hn
+  use n
+  rw [← sub_neg_eq_add, sub_nonneg]
+  exact_mod_cast hn
 
 end OrderUnitSpace
 
