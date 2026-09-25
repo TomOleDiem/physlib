@@ -6,7 +6,7 @@ Authors: Tom Ole Diem
 module
 
 public import Mathlib.Tactic.Positivity
-public import Physlib.ProbabilisticTheory.OrderUnit.Basic
+public import Physlib.ProbabilisticTheory.OrderUnit.Cone
 
 /-!
 # Effects
@@ -21,6 +21,8 @@ elements of a POVM.
 ## ii. Key results
 
 - `Effect` : a bounded measurement outcome, the order interval `[0, 1]`.
+- `Effect.mem_iff_mem_posCone_and_one_sub_mem_posCone` : an effect is exactly a positive element
+  whose complement from the order unit is also positive.
 - `Effect.exists_pos_smul_mem` : every positive observable becomes an effect after scaling it down
   enough.
 
@@ -47,6 +49,17 @@ elements of a POVM.
 abbrev Effect (E : Type*) [PartialOrder E] [One E] [Zero E] := Set.Icc (0 : E) 1
 
 namespace Effect
+
+section OrderedVectorSpace
+
+variable {E : Type*} [OrderedVectorSpace E] [One E]
+
+/-- An effect is a positive element whose complement from the order unit is positive. -/
+lemma mem_iff_mem_posCone_and_one_sub_mem_posCone {A : E} :
+    A ∈ (Effect E : Set E) ↔ A ∈ PosCone E ∧ 1 - A ∈ PosCone E := by
+  simp only [Set.mem_Icc, PointedCone.mem_positive, sub_nonneg]
+
+end OrderedVectorSpace
 
 open OrderUnitSpace
 
