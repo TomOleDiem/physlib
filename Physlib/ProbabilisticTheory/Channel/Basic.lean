@@ -29,6 +29,7 @@ which is not expressible using the order-unit structure alone.
 
 - A. Unital positive linear maps
 - B. Constructing unital positive linear maps
+- C. Composing channels
 
 -/
 
@@ -101,5 +102,51 @@ variable {R E F : Type*} [Semiring R]
 def ofLinearMap (f : E →ₗ[R] F) (hpos : ∀ x, 0 ≤ x → 0 ≤ f x) (hone : f 1 = 1) : E →ₚ₁[R] F where
   toPositiveLinearMap := PositiveLinearMap.mk₀ f hpos
   map_one' := hone
+
+end UnitalPositiveLinearMap
+
+namespace UnitalPositiveLinearMap
+
+variable {R E F G : Type*} [Semiring R]
+  [AddCommMonoid E] [PartialOrder E] [AddCommMonoid F] [PartialOrder F]
+  [AddCommMonoid G] [PartialOrder G] [Module R E] [Module R F] [Module R G]
+  [One E] [One F] [One G]
+
+/-!
+
+## C. Composing channels
+
+-/
+
+variable (R E) in
+/-- The identity channel. -/
+protected def id : E →ₚ₁[R] E where
+  toPositiveLinearMap := .id R E
+  map_one' := rfl
+
+@[simp]
+lemma id_apply (x : E) : UnitalPositiveLinearMap.id R E x = x := rfl
+
+/-- The composite of two channels is again a channel: doing nothing changes nothing, and running
+one channel after another is still positive and leaves the certain outcome certain. -/
+def comp (g : F →ₚ₁[R] G) (f : E →ₚ₁[R] F) : E →ₚ₁[R] G where
+  toPositiveLinearMap := g.toPositiveLinearMap.comp f.toPositiveLinearMap
+  map_one' := by show g (f 1) = 1; rw [map_one f, map_one g]
+
+@[simp]
+lemma comp_apply (g : F →ₚ₁[R] G) (f : E →ₚ₁[R] F) (x : E) : g.comp f x = g (f x) := rfl
+
+@[simp]
+lemma comp_id (f : E →ₚ₁[R] F) : f.comp (.id R E) = f :=
+  ext fun _ => rfl
+
+@[simp]
+lemma id_comp (f : E →ₚ₁[R] F) : (UnitalPositiveLinearMap.id R F).comp f = f :=
+  ext fun _ => rfl
+
+lemma comp_assoc {H : Type*} [AddCommMonoid H] [PartialOrder H] [Module R H] [One H]
+    (h : G →ₚ₁[R] H) (g : F →ₚ₁[R] G) (f : E →ₚ₁[R] F) :
+    h.comp (g.comp f) = (h.comp g).comp f :=
+  ext fun _ => rfl
 
 end UnitalPositiveLinearMap

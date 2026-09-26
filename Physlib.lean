@@ -259,6 +259,10 @@ public import Physlib.ProbabilisticTheory.Effect.Complement
 public import Physlib.ProbabilisticTheory.Effect.Convex
 public import Physlib.ProbabilisticTheory.Effect.Metric
 public import Physlib.ProbabilisticTheory.Effect.Sharp
+public import Physlib.ProbabilisticTheory.Channel.Normal
+public import Physlib.ProbabilisticTheory.Measurement.Basic
+public import Physlib.ProbabilisticTheory.Measurement.MeasurableOutcome
+public import Physlib.ProbabilisticTheory.Measurement.ProbabilityLaw
 public import Physlib.ProbabilisticTheory.OrderUnit.Archimedean
 public import Physlib.ProbabilisticTheory.OrderUnit.Basic
 public import Physlib.ProbabilisticTheory.OrderUnit.Cone
