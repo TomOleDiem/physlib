@@ -54,8 +54,7 @@ namespace UnitalPositiveLinearMap
 
 -/
 
-/-- A positive functional vanishing at the order unit vanishes everywhere: the unit sandwiches
-every element between multiples of it. -/
+/-- A positive functional vanishing at the order unit vanishes everywhere. -/
 lemma apply_eq_zero_of_apply_one_eq_zero {p : E →ₚ[ℝ] ℝ}
     (h1 : p (1 : E) = 0) (A : E) :
     p A = 0 := by

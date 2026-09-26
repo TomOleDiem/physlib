@@ -51,8 +51,7 @@ of the weight of the order unit. -/
 noncomputable def rawValue (w : Weight E) (A : E) (r : ℝ) (h : 0 ≤ r • (1 : E) + A) : ℝ :=
   (w ⟨r • (1 : E) + A, h⟩).toReal - r * (w 1).toReal
 
-/-- Shifting by a larger `s` and a smaller `r` agree: the extra `s - r` copies of the unit added
-to the cone element are exactly cancelled by the extra `(s - r) * w 1` subtracted off. -/
+/-- Shifting by a larger `s` gives the same value as shifting by `r`. -/
 lemma rawValue_of_le (hw : w.IsFinite) (A : E) {r s : ℝ} (hr : 0 ≤ r • (1 : E) + A)
     (hs : 0 ≤ s • (1 : E) + A) (hrs : r ≤ s) : rawValue w A s hs = rawValue w A r hr := by
   set t : ℝ≥0 := (s - r).toNNReal
@@ -84,8 +83,7 @@ noncomputable def toFun (w : Weight E) (A : E) : ℝ :=
   rawValue w A (OrderUnitSpace.exists_real_shift_nonneg A).choose
     (OrderUnitSpace.exists_real_shift_nonneg A).choose_spec
 
-/-- The extension can be computed via any valid shift `r`, not just the one `toFun` happens to
-pick. -/
+/-- The extension can be computed with any shift `r` making `r • 1 + A` nonnegative. -/
 lemma toFun_eq (hw : w.IsFinite) (A : E) {r : ℝ} (h : 0 ≤ r • (1 : E) + A) :
     toFun w A = rawValue w A r h :=
   rawValue_indep hw A _ h

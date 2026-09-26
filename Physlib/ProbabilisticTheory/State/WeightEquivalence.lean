@@ -87,8 +87,7 @@ lemma toReal_toWeight_apply (s : 𝓢[ℝ, E]) (A : PosCone E) :
     (s.toWeight A).toReal = s (A : E) := by
   rw [toWeight_apply, ENNReal.toReal_ofReal (map_nonneg s A.2)]
 
-/-- The weight induced by a state is itself a state: finite (`ENNReal.ofReal` never reaches `⊤`)
-and normalized (`s` sends the order unit to `1`). -/
+/-- The weight induced by a state is finite and normalized. -/
 lemma toWeight_isState (s : 𝓢[ℝ, E]) : s.toWeight.IsState where
   finite _ := ENNReal.ofReal_ne_top
   normalized := by simp

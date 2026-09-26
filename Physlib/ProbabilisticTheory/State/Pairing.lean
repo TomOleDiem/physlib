@@ -58,7 +58,7 @@ namespace UnitalPositiveLinearMap
 lemma apply_mem_Icc (ω : 𝓢[ℝ, E]) (e : Effect E) : ω (e : E) ∈ Set.Icc (0 : ℝ) 1 :=
   ⟨map_nonneg ω e.2.1, (ω.monotone' e.2.2).trans_eq (map_one ω)⟩
 
-/-- Evaluation is affine in the effect argument. See `mix_apply` for the state argument. -/
+/-- Evaluation is affine in the effect argument. -/
 lemma apply_mix (ω : 𝓢[ℝ, E]) (e f : Effect E) (t : unitInterval) :
     ω ((Effect.mix e f t : E)) = (t : ℝ) * ω (e : E) + (1 - (t : ℝ)) * ω (f : E) := by
   rw [Effect.coe_mix, map_add, map_smul, map_smul, smul_eq_mul, smul_eq_mul]

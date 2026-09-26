@@ -46,11 +46,7 @@ namespace Effect
 
 -/
 
-/-- Effects, metrized by restricting the order-unit norm: pulling back the normed group structure
-on `E` along the inclusion `Effect E ↪ E`.
-
-This is scoped because `Effect E` is a subtype and therefore already inherits any metric on `E`.
-A global instance here would create an instance diamond whenever `E` has its own metric. -/
+/-- Effects, metrized by the order-unit norm on `E`. -/
 noncomputable scoped instance instMetricSpace : MetricSpace (Effect E) :=
   MetricSpace.induced Subtype.val Subtype.val_injective inferInstance
 
