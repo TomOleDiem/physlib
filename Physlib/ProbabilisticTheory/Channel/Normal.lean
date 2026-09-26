@@ -32,8 +32,7 @@ keep it countably additive (`Measurement/MeasurableOutcome.lean`).
 
 @[expose] public section
 
-variable {E₁ E₂ E₃ : Type*} [OrderedVectorSpace E₁] [OrderedVectorSpace E₂]
-  [OrderedVectorSpace E₃] [One E₁] [One E₂] [One E₃]
+variable {E₁ E₂ E₃ : Type*} [OrderUnitSpace E₁] [OrderUnitSpace E₂] [OrderUnitSpace E₃]
 
 namespace PositiveLinearMap
 
@@ -45,7 +44,6 @@ duplicated for each operational wrapper. -/
 def IsNormal (φ : E₁ →ₚ[ℝ] E₂) : Prop :=
   ∀ (D : Set E₁) (x : E₁), D.Nonempty → DirectedOn (· ≤ ·) D → IsLUB D x → IsLUB (φ '' D) (φ x)
 
-omit [One E₁] [One E₂] [One E₃] in
 /-- Normality of positive linear maps is closed under composition. -/
 lemma IsNormal.comp {φ : E₁ →ₚ[ℝ] E₂} {ψ : E₂ →ₚ[ℝ] E₃} (hφ : φ.IsNormal) (hψ : ψ.IsNormal) :
     (ψ.comp φ).IsNormal := fun D x hD hdirected hlub => by
