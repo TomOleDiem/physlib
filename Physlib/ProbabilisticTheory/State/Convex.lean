@@ -132,6 +132,24 @@ lemma IsPure.eq_of_mix {ω φ ψ : 𝓢[ℝ, E]} (hω : ω.IsPure) (t : unitInte
     (ht0 : t ≠ 0) (ht1 : t ≠ 1) (hmix : mix φ ψ t = ω) : φ = ω ∧ ψ = ω :=
   isPure_iff_forall_mix_eq.mp hω φ ψ t ht0 ht1 hmix
 
+/-- Purity transported along an injective map sending mixtures to convex combinations: a state
+is pure exactly when its image is an extreme point of the image of the state space. -/
+lemma isPure_iff_mem_extremePoints {X : Type*} [AddCommGroup X] [Module ℝ X]
+    {F : 𝓢[ℝ, E] → X} (hF : Function.Injective F)
+    (hmix : ∀ φ ψ t, F (mix φ ψ t) = (t : ℝ) • F φ + (1 - (t : ℝ)) • F ψ) (ω : 𝓢[ℝ, E]) :
+    ω.IsPure ↔ F ω ∈ (Set.range F).extremePoints ℝ := by
+  rw [isPure_iff_forall_mix_eq, mem_extremePoints]
+  refine ⟨fun h => ⟨⟨ω, rfl⟩, ?_⟩, fun h φ ψ t ht0 ht1 hω => ?_⟩
+  · rintro _ ⟨φ, rfl⟩ _ ⟨ψ, rfl⟩ ⟨t, s, ht, hs, hts, heq⟩
+    obtain rfl : s = 1 - t := by linarith
+    obtain ⟨rfl, rfl⟩ := h φ ψ ⟨t, ht.le, by linarith⟩ (fun h => ht.ne' (congrArg Subtype.val h))
+      (fun h => hs.ne' (by have : t = 1 := congrArg Subtype.val h; linarith))
+      (hF ((hmix _ _ _).trans heq))
+    exact ⟨rfl, rfl⟩
+  · obtain ⟨h1, h2⟩ := h.2 _ ⟨φ, rfl⟩ _ ⟨ψ, rfl⟩ ⟨t, 1 - t, unitInterval.pos_iff_ne_zero.2 ht0,
+      sub_pos.2 (unitInterval.lt_one_iff_ne_one.2 ht1), by ring, by rw [← hmix, hω]⟩
+    exact ⟨hF h1, hF h2⟩
+
 /-- A state is mixed exactly when it has a genuine nontrivial binary decomposition. -/
 lemma isMixed_iff_exists_mix_ne {ω : 𝓢[ℝ, E]} :
     ω.IsMixed ↔ ∃ (φ ψ : 𝓢[ℝ, E]) (t : unitInterval), t ≠ 0 ∧ t ≠ 1 ∧
