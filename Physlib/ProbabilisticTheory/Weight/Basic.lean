@@ -48,14 +48,8 @@ open scoped ENNReal NNReal
 
 -/
 
-section OrderedVectorSpace
-
-variable {E : Type*} [OrderedVectorSpace E]
-
 /-- An extended nonnegative linear functional on the positive cone. -/
 abbrev Weight (E : Type*) [OrderedVectorSpace E] := PosCone E →ₗ[ℝ≥0] ℝ≥0∞
-
-end OrderedVectorSpace
 
 namespace Weight
 
@@ -87,14 +81,8 @@ lemma mono (w : Weight E) : Monotone (w : PosCone E → ℝ≥0∞) := by
   exact le_self_add
 
 /-- A finite weight is semifinite. -/
-lemma IsFinite.isSemifinite {w : Weight E} (hw : w.IsFinite) : w.IsSemifinite := by
-  intro A
-  apply le_antisymm
-  · exact le_iSup (fun B : {B : PosCone E // B ≤ A ∧ w B ≠ ⊤} => w B)
-      ⟨A, le_rfl, hw A⟩
-  · apply iSup_le
-    intro B
-    exact w.mono B.2.1
+lemma IsFinite.isSemifinite {w : Weight E} (hw : w.IsFinite) : w.IsSemifinite := fun A =>
+  le_antisymm (le_iSup_of_le ⟨A, le_rfl, hw A⟩ le_rfl) (iSup_le fun B => w.mono B.2.1)
 
 /-- A finite weight's real value is additive. -/
 lemma IsFinite.toReal_map_add {w : Weight E} (hw : w.IsFinite) (A B : PosCone E) :
@@ -143,16 +131,15 @@ noncomputable def normalize (w : Weight E) : Weight E where
 
 /-- Normalizing a finite weight that's nonzero at the order unit keeps it finite. -/
 lemma IsFinite.normalize_isFinite {w : Weight E} (hw : w.IsFinite) (h : w 1 ≠ 0) :
-    (normalize w).IsFinite := fun A => by
-  rw [normalize_apply]
-  exact ENNReal.mul_ne_top (ENNReal.inv_ne_top.mpr h) (hw A)
+    (normalize w).IsFinite := fun A =>
+  ENNReal.mul_ne_top (ENNReal.inv_ne_top.mpr h) (hw A)
 
 /-- Normalizing a finite weight that's nonzero at the order unit makes it a state: the order unit
 is scaled to weight exactly `1`. -/
 lemma IsFinite.normalize_isState {w : Weight E} (hw : w.IsFinite) (h : w 1 ≠ 0) :
     (normalize w).IsState where
   finite := hw.normalize_isFinite h
-  normalized := by rw [normalize_apply]; exact ENNReal.inv_mul_cancel h (hw 1)
+  normalized := ENNReal.inv_mul_cancel h (hw 1)
 
 end OrderUnitSpace
 

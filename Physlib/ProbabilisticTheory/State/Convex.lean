@@ -6,6 +6,7 @@ Authors: Tom Ole Diem
 module
 
 public import Physlib.ProbabilisticTheory.State.Basic
+public import Physlib.ProbabilisticTheory.OrderUnit.Basic
 public import Mathlib.Analysis.Convex.Extreme
 public import Mathlib.Topology.UnitInterval
 
@@ -37,8 +38,7 @@ two others, an extreme point of that convex set. A mixed state is one that is a 
 
 namespace UnitalPositiveLinearMap
 
-variable {E : Type*} [AddCommGroup E] [PartialOrder E] [IsOrderedAddMonoid E]
-  [Module ℝ E] [One E]
+variable {E : Type*} [OrderUnitSpace E]
 
 /-!
 
@@ -49,14 +49,9 @@ variable {E : Type*} [AddCommGroup E] [PartialOrder E] [IsOrderedAddMonoid E]
 /-- Randomize between two states with probability `t` of choosing the first. -/
 def mix (ω φ : 𝓢[ℝ, E]) (t : unitInterval) : 𝓢[ℝ, E] :=
   ofLinearMap ((t : ℝ) • ω.toLinearMap + (1 - (t : ℝ)) • φ.toLinearMap)
-    (fun A hA => by
-      simp only [LinearMap.add_apply, LinearMap.smul_apply, smul_eq_mul]
-      exact add_nonneg (mul_nonneg t.2.1 (map_nonneg ω hA))
-        (mul_nonneg (sub_nonneg.mpr t.2.2) (map_nonneg φ hA)))
-    (by
-      show (t : ℝ) * ω 1 + (1 - (t : ℝ)) * φ 1 = 1
-      rw [map_one, map_one]
-      ring)
+    (fun _ hA => add_nonneg (mul_nonneg t.2.1 (map_nonneg ω hA))
+      (mul_nonneg (sub_nonneg.mpr t.2.2) (map_nonneg φ hA)))
+    (show (t : ℝ) * ω 1 + (1 - (t : ℝ)) * φ 1 = 1 by simp)
 
 /-- Evaluation of a mixture is the pointwise convex combination. -/
 @[simp]
@@ -100,7 +95,7 @@ lemma mem_openSegment_iff_exists_mix (ω φ ψ : 𝓢[ℝ, E]) :
   constructor
   · rintro ⟨t, s, ht, hs, hts, heq⟩
     have ht1 : t < 1 := by linarith
-    let u : unitInterval := ⟨t, by exact ⟨ht.le, ht1.le⟩⟩
+    let u : unitInterval := ⟨t, ht.le, ht1.le⟩
     refine ⟨u, ?_, ?_, ?_⟩
     · exact ne_of_gt (by exact_mod_cast ht)
     · exact ne_of_lt (by exact_mod_cast ht1)

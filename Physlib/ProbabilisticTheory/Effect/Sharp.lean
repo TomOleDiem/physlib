@@ -5,9 +5,8 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.ProbabilisticTheory.Effect.Complement
-public import Physlib.ProbabilisticTheory.Effect.Convex
 public import Mathlib.Analysis.Convex.Strict.Extreme
+public import Physlib.ProbabilisticTheory.Effect.Complement
 
 /-!
 # Sharp effects
@@ -33,11 +32,7 @@ be written as a nontrivial mixture of two distinct effects. Sharp effects genera
 
 namespace Effect
 
-open OrderUnitSpace
-
-section OrderedVectorSpace
-
-variable {E : Type*} [OrderedVectorSpace E] [One E]
+variable {E : Type*} [OrderUnitSpace E]
 
 /-!
 
@@ -47,18 +42,11 @@ variable {E : Type*} [OrderedVectorSpace E] [One E]
 
 /-- An effect is sharp when it is an extreme point of the effect interval: it cannot be written as
 a nontrivial mixture of two distinct effects. -/
-def IsSharp (e : Effect E) : Prop := (e : E) ∈ Set.extremePoints ℝ (Set.Icc (0 : E) 1)
-
-end OrderedVectorSpace
-
-section OrderUnitSpace
-
-variable {E : Type*} [OrderUnitSpace E]
+def IsSharp (e : Effect E) : Prop := (e : E) ∈ Set.extremePoints ℝ (Effect E : Set E)
 
 /-- The impossible outcome 0 is sharp. -/
 lemma isSharp_zero : IsSharp (0 : Effect E) := by
-  refine ⟨⟨le_refl 0, one_nonneg⟩,
-    fun x₁ hx₁ x₂ hx₂ ⟨a, b, ha, hb, _, hz⟩ => ?_⟩
+  refine ⟨(0 : Effect E).2, fun x₁ hx₁ x₂ hx₂ ⟨a, b, ha, hb, _, hz⟩ => ?_⟩
   have hax := (add_eq_zero_iff_of_nonneg (smul_nonneg ha.le hx₁.1)
     (smul_nonneg hb.le hx₂.1)).mp (by simpa using hz) |>.1
   exact (smul_eq_zero.mp hax).resolve_left ha.ne'
@@ -67,19 +55,15 @@ lemma isSharp_zero : IsSharp (0 : Effect E) := by
 `e ↦ 1 - e` is an affine involution of the effect interval. -/
 lemma isSharp_complement {e : Effect E} (h : IsSharp e) : IsSharp (complement e) := by
   refine ⟨(complement e).2, fun x₁ hx₁ x₂ hx₂ ⟨a, b, ha, hb, hab, hz⟩ => ?_⟩
-  have hone : a • (1 : E) + b • (1 : E) = 1 := by rw [← add_smul, hab, one_smul]
   have key : a • (1 - x₁) + b • (1 - x₂) = (e : E) := by
-    have hsplit : a • (1 - x₁) + b • (1 - x₂) =
-        (a • (1 : E) + b • (1 : E)) - (a • x₁ + b • x₂) := by
-      simp only [smul_sub]; abel
-    rw [hsplit, hone, hz]
+    rw [show a • (1 - x₁) + b • (1 - x₂) = (a • (1 : E) + b • (1 : E)) - (a • x₁ + b • x₂) from
+      by module, ← add_smul, hab, one_smul, hz]
     show (1 : E) - (1 - (e : E)) = (e : E)
     abel
   have x1eq := (mem_extremePoints_iff_left.mp h).2 (1 - x₁)
     ⟨sub_nonneg.mpr hx₁.2, sub_le_self 1 hx₁.1⟩ (1 - x₂)
     ⟨sub_nonneg.mpr hx₂.2, sub_le_self 1 hx₂.1⟩ ⟨a, b, ha, hb, hab, key⟩
-  have hsum : x₁ + (e : E) = 1 := by rw [← x1eq]; abel
-  exact eq_sub_of_add_eq hsum
+  exact eq_sub_of_add_eq (by rw [← x1eq]; abel)
 
 /-- Sharpness is preserved by taking the complement, in either direction. -/
 lemma isSharp_complement_iff {e : Effect E} : IsSharp (complement e) ↔ IsSharp e :=
@@ -88,7 +72,5 @@ lemma isSharp_complement_iff {e : Effect E} : IsSharp (complement e) ↔ IsSharp
 /-- The certain outcome 1 is sharp. -/
 lemma isSharp_one : IsSharp (1 : Effect E) :=
   complement_zero (E := E) ▸ isSharp_complement isSharp_zero
-
-end OrderUnitSpace
 
 end Effect

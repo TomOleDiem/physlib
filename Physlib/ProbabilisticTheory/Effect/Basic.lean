@@ -5,8 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Mathlib.Order.Interval.Set.Defs
-public import Physlib.ProbabilisticTheory.OrderUnit.Basic
+public import Mathlib.Tactic.Positivity
 public import Physlib.ProbabilisticTheory.OrderUnit.Cone
 
 /-!
@@ -62,13 +61,15 @@ lemma mem_iff_mem_posCone_and_one_sub_mem_posCone {A : E} :
 
 end OrderedVectorSpace
 
-section OrderUnitSpace
+open OrderUnitSpace
 
 variable {E : Type*} [OrderUnitSpace E]
 
-instance : Zero (Effect E) := ⟨0, le_refl 0, OrderUnitSpace.one_nonneg⟩
-instance : One (Effect E) := ⟨1, OrderUnitSpace.one_nonneg, le_refl 1⟩
-instance : Nonempty (Effect E) := ⟨0⟩
+instance instZero : Zero (Effect E) := ⟨0, le_refl 0, one_nonneg⟩
+
+instance instOne : One (Effect E) := ⟨1, one_nonneg, le_refl 1⟩
+
+instance instNonempty : Nonempty (Effect E) := ⟨0⟩
 
 @[simp] lemma coe_zero : ((0 : Effect E) : E) = 0 := rfl
 
@@ -78,18 +79,10 @@ instance : Nonempty (Effect E) := ⟨0⟩
 positive real: the effect interval reaches in every direction the positive cone does. -/
 lemma exists_pos_smul_mem {B : E} (hB : 0 ≤ B) :
     ∃ r : ℝ, 0 < r ∧ r • B ∈ (Effect E : Set E) := by
-  obtain ⟨n, hn⟩ := OrderUnitSpace.exists_nsmul_one_le B
-  have hn1 : (0 : ℝ) < (n : ℝ) + 1 := by positivity
+  obtain ⟨n, hn⟩ := exists_nsmul_one_le B
+  rw [← Nat.cast_smul_eq_nsmul ℝ] at hn
   refine ⟨((n : ℝ) + 1)⁻¹, by positivity, smul_nonneg (by positivity) hB, ?_⟩
-  have hBr : B ≤ ((n : ℝ) + 1) • (1 : E) :=
-    calc
-      B ≤ n • (1 : E) := hn
-      _ = (n : ℝ) • (1 : E) := (Nat.cast_smul_eq_nsmul ℝ n (1 : E)).symm
-      _ ≤ ((n : ℝ) + 1) • (1 : E) :=
-        smul_le_smul_of_nonneg_right (by linarith) OrderUnitSpace.one_nonneg
-  have hs := smul_le_smul_of_nonneg_left hBr (by positivity : (0 : ℝ) ≤ ((n : ℝ) + 1)⁻¹)
-  simpa [smul_smul, hn1.ne'] using hs
-
-end OrderUnitSpace
+  rw [inv_smul_le_iff_of_pos (by positivity)]
+  exact hn.trans (smul_le_smul_of_nonneg_right (by linarith) one_nonneg)
 
 end Effect

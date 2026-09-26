@@ -71,12 +71,7 @@ lemma abs_apply_le_orderUnitNorm (ω : 𝓢[ℝ, E]) (A : E) : |ω A| ≤ orderU
 than `2`. -/
 lemma abs_apply_sub_apply_le_two (ω φ : 𝓢[ℝ, E]) {A : E} (hA : orderUnitNorm A ≤ 1) :
     |ω A - φ A| ≤ 2 := by
-  have h1 := abs_apply_le_orderUnitNorm ω A
-  have h2 := abs_apply_le_orderUnitNorm φ A
-  calc |ω A - φ A| ≤ |ω A| + |φ A| := abs_sub _ _
-    _ ≤ orderUnitNorm A + orderUnitNorm A := add_le_add h1 h2
-    _ ≤ 1 + 1 := add_le_add hA hA
-    _ = 2 := by norm_num
+  linarith [abs_sub (ω A) (φ A), abs_apply_le_orderUnitNorm ω A, abs_apply_le_orderUnitNorm φ A]
 
 /-!
 
@@ -106,10 +101,7 @@ lemma dist_le_two (ω φ : 𝓢[ℝ, E]) : dist ω φ ≤ 2 :=
 
 @[simp]
 lemma dist_self (ω : 𝓢[ℝ, E]) : dist ω ω = 0 := by
-  have : (fun A : {A : E // orderUnitNorm A ≤ 1} => |ω A - ω A|) = fun _ => (0 : ℝ) := by
-    ext A; simp
-  unfold dist
-  rw [this, ciSup_const]
+  simp [dist]
 
 lemma dist_comm (ω φ : 𝓢[ℝ, E]) : dist ω φ = dist φ ω := by
   unfold dist
@@ -129,11 +121,8 @@ lemma eq_of_dist_eq_zero {ω φ : 𝓢[ℝ, E]} (h : dist ω φ = 0) : ω = φ :
   rcases eq_or_ne (orderUnitNorm A) 0 with hr | hr
   · simp [orderUnitNorm_eq_zero_iff.mp hr]
   · obtain ⟨B, hB1, hAB⟩ := exists_orderUnitNorm_le_one_smul_eq hr
-    have hle : |ω B - φ B| ≤ dist ω φ := le_ciSup (dist_bddAbove ω φ) ⟨B, hB1⟩
-    rw [h] at hle
-    have heq : ω B = φ B := sub_eq_zero.mp (abs_eq_zero.mp (le_antisymm hle (abs_nonneg _)))
-    have hstep : orderUnitNorm A • ω B = orderUnitNorm A • φ B := congrArg (orderUnitNorm A • ·) heq
-    rwa [← map_smul, ← map_smul, hAB] at hstep
+    have hB : |ω B - φ B| ≤ 0 := (le_ciSup (dist_bddAbove ω φ) ⟨B, hB1⟩).trans h.le
+    rw [← hAB, map_smul, map_smul, sub_eq_zero.mp (abs_nonpos_iff.mp hB)]
 
 /-- A state's value at a doubled, re-centered effect (`Effect.equivBall`) is twice its value at
 the effect, minus one. -/
