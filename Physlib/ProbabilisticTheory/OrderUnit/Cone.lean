@@ -70,7 +70,6 @@ end OrderedVectorSpace
 section ArchimedeanOrderUnitSpace
 
 open ArchimedeanOrderUnitSpace
-open scoped ArchimedeanOrderUnitSpace
 
 variable {E : Type*} [ArchimedeanOrderUnitSpace E]
 

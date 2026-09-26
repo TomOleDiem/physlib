@@ -53,10 +53,7 @@ noncomputable def toState (hw : w.IsState) : 𝓢[ℝ, E] :=
     (fun A hA => by
       rw [Weight.IsFinite.toLinearMap_apply, hw.finite.toFun_of_nonneg ⟨A, hA⟩]
       exact ENNReal.toReal_nonneg)
-    (calc
-      hw.finite.toLinearMap (1 : E) = (w (1 : PosCone E)).toReal :=
-        hw.finite.toFun_of_nonneg (1 : PosCone E)
-      _ = 1 := by rw [hw.normalized, ENNReal.toReal_one])
+    ((hw.finite.toFun_of_nonneg 1).trans (by simp [hw.normalized]))
 
 end IsState
 
@@ -74,10 +71,8 @@ namespace UnitalPositiveLinearMap
 cone, where they are automatically nonnegative. -/
 noncomputable def toWeight (s : 𝓢[ℝ, E]) : Weight E where
   toFun A := ENNReal.ofReal (s (A : E))
-  map_add' A B := by
-    show ENNReal.ofReal (s ((A : E) + (B : E))) =
-      ENNReal.ofReal (s (A : E)) + ENNReal.ofReal (s (B : E))
-    rw [map_add, ENNReal.ofReal_add (map_nonneg s A.2) (map_nonneg s B.2)]
+  map_add' A B := (congrArg ENNReal.ofReal (map_add s (A : E) B)).trans
+    (ENNReal.ofReal_add (map_nonneg s A.2) (map_nonneg s B.2))
   map_smul' c A := by
     show ENNReal.ofReal (s ((c : ℝ) • (A : E))) = c • ENNReal.ofReal (s (A : E))
     rw [map_smul, smul_eq_mul, ENNReal.ofReal_mul c.coe_nonneg, ENNReal.ofReal_coe_nnreal,
@@ -96,9 +91,7 @@ lemma toReal_toWeight_apply (s : 𝓢[ℝ, E]) (A : PosCone E) :
 and normalized (`s` sends the order unit to `1`). -/
 lemma toWeight_isState (s : 𝓢[ℝ, E]) : s.toWeight.IsState where
   finite _ := ENNReal.ofReal_ne_top
-  normalized := by
-    show ENNReal.ofReal (s ((1 : PosCone E) : E)) = 1
-    rw [PosCone.coe_one, map_one, ENNReal.ofReal_one]
+  normalized := by simp
 
 end UnitalPositiveLinearMap
 
@@ -119,13 +112,11 @@ noncomputable def stateEquiv : {w : Weight E // w.IsState} ≃ 𝓢[ℝ, E] wher
     refine Subtype.ext (Weight.ext fun A => ?_)
     change ENNReal.ofReal (IsFinite.toFun w (A : E)) = w A
     rw [IsFinite.toFun_of_nonneg hw.finite A, ENNReal.ofReal_toReal (hw.finite A)]
-  right_inv := by
-    intro s
-    refine UnitalPositiveLinearMap.ext fun A => ?_
+  right_inv s := by
+    ext A
     obtain ⟨r, hr⟩ := OrderUnitSpace.exists_real_shift_nonneg A
-    set hw := s.toWeight_isState
     show IsFinite.toFun s.toWeight A = s A
-    rw [hw.finite.toFun_eq A hr, IsFinite.rawValue]
+    rw [s.toWeight_isState.finite.toFun_eq A hr, IsFinite.rawValue]
     simp only [UnitalPositiveLinearMap.toReal_toWeight_apply, PosCone.coe_one, _root_.map_add,
       _root_.map_smul, smul_eq_mul, _root_.map_one]
     ring

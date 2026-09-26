@@ -73,16 +73,12 @@ lemma apply_mix (ω : 𝓢[ℝ, E]) (e f : Effect E) (t : unitInterval) :
 lemma ext_of_effect_eq_of_nonneg {ω φ : 𝓢[ℝ, E]}
     (h : ∀ e : Effect E, ω (e : E) = φ (e : E)) {B : E} (hB : 0 ≤ B) : ω B = φ B := by
   obtain ⟨r, hr, hrB⟩ := Effect.exists_pos_smul_mem hB
-  have heq := h ⟨r • B, hrB⟩
-  change ω (r • B) = φ (r • B) at heq
-  rw [map_smul, map_smul, smul_eq_mul, smul_eq_mul] at heq
-  exact mul_left_cancel₀ hr.ne' heq
+  exact mul_left_cancel₀ hr.ne' (by simpa using h ⟨r • B, hrB⟩)
 
 /-- A state is determined by its values on effects. -/
 lemma ext_of_effect_eq {ω φ : 𝓢[ℝ, E]}
     (h : ∀ e : Effect E, ω (e : E) = φ (e : E)) : ω = φ := by
-  apply UnitalPositiveLinearMap.ext
-  intro A
+  ext A
   obtain ⟨Ap, An, hAp, hAn, rfl⟩ := OrderUnitSpace.exists_eq_sub_nonneg A
   rw [map_sub, map_sub, ext_of_effect_eq_of_nonneg h hAp, ext_of_effect_eq_of_nonneg h hAn]
 

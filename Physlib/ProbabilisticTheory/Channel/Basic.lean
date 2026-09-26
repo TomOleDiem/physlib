@@ -80,7 +80,7 @@ lemma ext {f g : E →ₚ₁[R] F} (h : ∀ x, f x = g x) : f = g :=
 
 /-- Unital positive linear maps are determined by their underlying linear map. -/
 lemma toLinearMap_injective : Function.Injective (fun f : E →ₚ₁[R] F => f.toLinearMap) :=
-  fun _ _ h => ext fun x => congrArg (fun k : E →ₗ[R] F => k x) h
+  fun _ _ h => ext (LinearMap.congr_fun h)
 
 end UnitalPositiveLinearMap
 

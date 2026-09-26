@@ -61,39 +61,25 @@ lemma apply_eq_zero_of_apply_one_eq_zero {p : E →ₚ[ℝ] ℝ}
     p A = 0 := by
   obtain ⟨n, hn⟩ := OrderUnitSpace.exists_nsmul_one_le A
   obtain ⟨m, hm⟩ := OrderUnitSpace.exists_nsmul_one_le (-A)
-  have hupper : p A ≤ 0 := by simpa [h1] using p.monotone' hn
-  have hlower : 0 ≤ p A := by
-    have h := p.monotone' hm
-    simp [h1] at h
-    linarith
-  linarith
+  exact le_antisymm (by simpa [h1] using p.monotone' hn) (by simpa [h1] using p.monotone' hm)
 
 /-- Every element outside the positive cone is strictly separated from it by a state. -/
 lemma exists_apply_neg_of_not_nonneg {A : E} (hA : ¬ 0 ≤ A) : ∃ ω : 𝓢[ℝ, E], ω A < 0 := by
   obtain ⟨f, u, hfA, hcone⟩ := geometric_hahn_banach_point_closed
     (convex_Ici (0 : E)) isClosed_Ici_zero hA
   have hu : u < 0 := by simpa using hcone 0 le_rfl
-  have hf_nonneg : ∀ B : E, 0 ≤ B → 0 ≤ f B := by
-    intro B hB
-    by_contra hfB
-    have hfB' : f B < 0 := lt_of_not_ge hfB
-    set t : ℝ := (u - 1) / f B with ht_def
-    have ht : 0 ≤ t := div_nonneg_of_nonpos (by linarith) hfB'.le
-    have hsep := hcone (t • B) (smul_nonneg ht hB)
-    rw [map_smul, smul_eq_mul, ht_def, div_mul_cancel₀ (u - 1) hfB'.ne] at hsep
+  have hf_nonneg : ∀ B : E, 0 ≤ B → 0 ≤ f B := fun B hB => by
+    by_contra! hfB
+    have hsep := hcone (((u - 1) / f B) • B)
+      (smul_nonneg (div_nonneg_of_nonpos (by linarith) hfB.le) hB)
+    rw [map_smul, smul_eq_mul, div_mul_cancel₀ _ hfB.ne] at hsep
     linarith
-  let p : E →ₚ[ℝ] ℝ := PositiveLinearMap.mk₀ f.toLinearMap hf_nonneg
-  have hf_one_pos : 0 < f (1 : E) := by
-    have hf_one_nonneg : 0 ≤ f (1 : E) := hf_nonneg 1 OrderUnitSpace.one_nonneg
-    refine lt_of_le_of_ne hf_one_nonneg fun hf_one => ?_
-    have heq : f A = 0 := apply_eq_zero_of_apply_one_eq_zero (p := p) hf_one.symm A
+  have hf_one_pos : 0 < f (1 : E) := (hf_nonneg 1 OrderUnitSpace.one_nonneg).lt_of_ne fun h1 => by
+    have : f A = 0 := apply_eq_zero_of_apply_one_eq_zero (p := .mk₀ _ hf_nonneg) h1.symm A
     linarith [hfA.trans hu]
-  let ω : 𝓢[ℝ, E] := ofLinearMap ((f (1 : E))⁻¹ • f.toLinearMap)
+  exact ⟨ofLinearMap ((f (1 : E))⁻¹ • f.toLinearMap)
     (fun B hB => mul_nonneg (inv_nonneg.mpr hf_one_pos.le) (hf_nonneg B hB))
-    (by simp [hf_one_pos.ne'])
-  refine ⟨ω, ?_⟩
-  change (f (1 : E))⁻¹ * f A < 0
-  exact mul_neg_of_pos_of_neg (inv_pos.mpr hf_one_pos) (hfA.trans hu)
+    (by simp [hf_one_pos.ne']), mul_neg_of_pos_of_neg (inv_pos.mpr hf_one_pos) (hfA.trans hu)⟩
 
 /-!
 
@@ -116,23 +102,13 @@ lemma nonneg_iff_forall_state_nonneg (A : E) : 0 ≤ A ↔ ∀ ω : 𝓢[ℝ, E]
 
 /-- Every nontrivial Archimedean order-unit space has a state. -/
 instance instNonemptyState [Nontrivial E] : Nonempty (𝓢[ℝ, E]) := by
-  have hone_ne : (1 : E) ≠ 0 := by
-    intro hone
-    apply not_subsingleton E
-    constructor
-    intro a b
-    have hzero (B : E) : B = 0 := by
-      obtain ⟨n, hn⟩ := OrderUnitSpace.exists_nsmul_one_le B
-      obtain ⟨m, hm⟩ := OrderUnitSpace.exists_nsmul_one_le (-B)
-      have hB_nonpos : B ≤ 0 := by simpa [hone] using hn
-      have hB_nonneg : 0 ≤ B := neg_nonpos.mp (by simpa [hone] using hm)
-      exact le_antisymm hB_nonpos hB_nonneg
-    rw [hzero a, hzero b]
-  have hnot : ¬ 0 ≤ -(1 : E) := by
-    intro h
-    exact hone_ne (le_antisymm (neg_nonneg.mp h) OrderUnitSpace.one_nonneg)
-  obtain ⟨ω, _⟩ := exists_apply_neg_of_not_nonneg hnot
-  exact ⟨ω⟩
+  refine (exists_apply_neg_of_not_nonneg (A := -1) fun h => ?_).nonempty
+  have h1 : (1 : E) = 0 := le_antisymm (neg_nonneg.mp h) OrderUnitSpace.one_nonneg
+  have hz (B : E) : B = 0 := by
+    obtain ⟨n, hl, hu⟩ := OrderUnitSpace.exists_two_sided_bound B
+    exact le_antisymm (by simpa [h1] using hu) (by simpa [h1] using hl)
+  obtain ⟨a, b, hab⟩ := exists_pair_ne E
+  exact hab ((hz a).trans (hz b).symm)
 
 /-- Any scalar below the order-unit norm of `A` is exceeded by `|ω A|` for some state `ω`. -/
 lemma exists_state_abs_apply_gt_of_lt_orderUnitNorm [Nontrivial E] (A : E) {r : ℝ}
@@ -160,30 +136,16 @@ lemma exists_state_abs_apply_gt_of_lt_orderUnitNorm [Nontrivial E] (A : E) {r : 
 /-- The order-unit norm is the supremum of `|ω A|` over all states `ω`. -/
 lemma sSup_abs_apply_eq_orderUnitNorm [Nontrivial E] (A : E) :
     sSup (Set.range fun ω : 𝓢[ℝ, E] => |ω A|) = orderUnitNorm A := by
-  have hbdd : BddAbove (Set.range fun ω : 𝓢[ℝ, E] => |ω A|) :=
-    ⟨orderUnitNorm A, by rintro _ ⟨ω, rfl⟩; exact abs_apply_le_orderUnitNorm ω A⟩
-  obtain ⟨ω₀⟩ := (inferInstance : Nonempty (𝓢[ℝ, E]))
-  have hne : (Set.range fun ω : 𝓢[ℝ, E] => |ω A|).Nonempty := ⟨|ω₀ A|, Set.mem_range_self ω₀⟩
-  apply le_antisymm
-  · exact csSup_le hne fun _ h => by
-      obtain ⟨ω, rfl⟩ := h
-      exact abs_apply_le_orderUnitNorm ω A
-  · apply le_of_forall_lt
-    intro r hr
-    obtain ⟨ω, hω⟩ := exists_state_abs_apply_gt_of_lt_orderUnitNorm A hr
-    exact hω.trans_le (le_csSup hbdd (Set.mem_range_self ω))
+  refine csSup_eq_of_forall_le_of_forall_lt_exists_gt (Set.range_nonempty _)
+    (by rintro _ ⟨ω, rfl⟩; exact abs_apply_le_orderUnitNorm ω A) fun r hr => ?_
+  obtain ⟨ω, hω⟩ := exists_state_abs_apply_gt_of_lt_orderUnitNorm A hr
+  exact ⟨_, ⟨ω, rfl⟩, hω⟩
 
 /-- The order unit has norm exactly `1`. -/
 @[simp]
 lemma orderUnitNorm_one [Nontrivial E] : orderUnitNorm (1 : E) = 1 := by
   rw [← sSup_abs_apply_eq_orderUnitNorm]
-  obtain ⟨ω₀⟩ := (inferInstance : Nonempty (𝓢[ℝ, E]))
-  have hrange : (Set.range fun ω : 𝓢[ℝ, E] => |ω (1 : E)|) = {1} := by
-    ext y
-    constructor
-    · rintro ⟨ω, rfl⟩; simp
-    · rintro rfl; exact ⟨ω₀, by simp⟩
-  rw [hrange, csSup_singleton]
+  simp
 
 /-!
 

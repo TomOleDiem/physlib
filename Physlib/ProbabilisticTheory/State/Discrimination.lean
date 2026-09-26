@@ -7,6 +7,7 @@ module
 
 public import Physlib.ProbabilisticTheory.State.Metric
 public import Physlib.ProbabilisticTheory.Effect.Complement
+public import Mathlib.Algebra.Order.Group.CompleteLattice
 
 /-!
 # State discrimination
@@ -91,21 +92,7 @@ lemma optimalSuccessProb_eq (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) :
     optimalSuccessProb ω₀ ω₁ p = (1 - (p : ℝ)) + ⨆ e : Effect E, advantage ω₀ ω₁ p e := by
   have hbdd : BddAbove (Set.range (advantage ω₀ ω₁ p)) :=
     ⟨(p : ℝ), by rintro _ ⟨e, rfl⟩; exact advantage_le ω₀ ω₁ p e⟩
-  have hbdd' : BddAbove (Set.range (successProb ω₀ ω₁ p)) := ⟨1, by
-    rintro _ ⟨e, rfl⟩
-    rw [successProb_eq_add_advantage]
-    linarith [advantage_le ω₀ ω₁ p e, p.2.1, p.2.2]⟩
-  unfold optimalSuccessProb
-  apply le_antisymm
-  · exact ciSup_le fun e => by rw [successProb_eq_add_advantage]; linarith [le_ciSup hbdd e]
-  · have hle : (⨆ e : Effect E, advantage ω₀ ω₁ p e) ≤
-        (⨆ e : Effect E, successProb ω₀ ω₁ p e) - (1 - (p : ℝ)) := by
-      apply ciSup_le
-      intro e
-      have h1 := le_ciSup hbdd' e
-      rw [successProb_eq_add_advantage] at h1
-      linarith
-    linarith
+  simp_rw [optimalSuccessProb, successProb_eq_add_advantage, ← add_ciSup hbdd]
 
 end OrderUnitSpace
 
@@ -128,13 +115,9 @@ lemma sub_complement_eq_neg_sub (ω₀ ω₁ : 𝓢[ℝ, E]) (e : Effect E) :
 an effect flips the sign. -/
 lemma ciSup_sub_eq_ciSup_abs_sub (ω₀ ω₁ : 𝓢[ℝ, E]) :
     (⨆ e : Effect E, (ω₀ (e : E) - ω₁ (e : E))) = ⨆ e : Effect E, |ω₀ (e : E) - ω₁ (e : E)| := by
-  have hbound (e : Effect E) : |ω₀ (e : E) - ω₁ (e : E)| ≤ 1 := by
-    have h₀ : (0 : ℝ) ≤ ω₀ (e : E) := map_nonneg ω₀ e.2.1
-    have h₁ : ω₀ (e : E) ≤ 1 := (ω₀.monotone' e.2.2).trans_eq (map_one ω₀)
-    have h₂ : (0 : ℝ) ≤ ω₁ (e : E) := map_nonneg ω₁ e.2.1
-    have h₃ : ω₁ (e : E) ≤ 1 := (ω₁.monotone' e.2.2).trans_eq (map_one ω₁)
-    rw [abs_le]
-    constructor <;> linarith
+  have hbound (e : Effect E) : |ω₀ (e : E) - ω₁ (e : E)| ≤ 1 :=
+    abs_sub_le_of_nonneg_of_le (map_nonneg ω₀ e.2.1) ((ω₀.monotone' e.2.2).trans_eq (map_one ω₀))
+      (map_nonneg ω₁ e.2.1) ((ω₁.monotone' e.2.2).trans_eq (map_one ω₁))
   have hbdd' : BddAbove (Set.range fun e : Effect E => |ω₀ (e : E) - ω₁ (e : E)|) :=
     ⟨1, by rintro _ ⟨e, rfl⟩; exact hbound e⟩
   have hbdd : BddAbove (Set.range fun e : Effect E => ω₀ (e : E) - ω₁ (e : E)) :=
@@ -167,28 +150,19 @@ lemma dist_eq_ciSup_abs_sub (ω₀ ω₁ : 𝓢[ℝ, E]) :
 /-- The state distance is twice the largest state-value difference over all effects. -/
 lemma dist_eq_two_mul_ciSup_sub (ω₀ ω₁ : 𝓢[ℝ, E]) :
     dist ω₀ ω₁ = 2 * ⨆ e : Effect E, (ω₀ (e : E) - ω₁ (e : E)) := by
-  rw [ciSup_sub_eq_ciSup_abs_sub, dist_eq_ciSup_abs_sub]
-  simp_rw [apply_equivBall]
-  have hpt : ∀ e : Effect E, |2 * ω₀ (e : E) - 1 - (2 * ω₁ (e : E) - 1)|
-      = 2 * |ω₀ (e : E) - ω₁ (e : E)| := fun e => by
-    rw [show 2 * ω₀ (e : E) - 1 - (2 * ω₁ (e : E) - 1) = 2 * (ω₀ (e : E) - ω₁ (e : E)) from by ring,
-      abs_mul, show |(2 : ℝ)| = 2 from by norm_num]
-  simp_rw [hpt]
-  rw [show (⨆ e : Effect E, (2 : ℝ) * |ω₀ (e : E) - ω₁ (e : E)|)
-      = 2 * ⨆ e : Effect E, |ω₀ (e : E) - ω₁ (e : E)| from by
-    rw [← smul_eq_mul, Real.smul_iSup_of_nonneg (by norm_num : (0 : ℝ) ≤ 2)]; simp [smul_eq_mul]]
+  rw [ciSup_sub_eq_ciSup_abs_sub, dist_eq_ciSup_abs_sub, Real.mul_iSup_of_nonneg zero_le_two]
+  congr 1 with e
+  rw [apply_equivBall, apply_equivBall, ← abs_two, ← abs_mul]
+  ring_nf
 
 /-- For equal priors, the Helstrom bound is `1/2` plus a quarter of the state distance. -/
 lemma optimalSuccessProb_half_half_eq (ω₀ ω₁ : 𝓢[ℝ, E]) :
     optimalSuccessProb ω₀ ω₁ ⟨1 / 2, by norm_num, by norm_num⟩ = 1 / 2 + dist ω₀ ω₁ / 4 := by
   rw [optimalSuccessProb_eq, dist_eq_two_mul_ciSup_sub]
-  have hfun : (fun e : Effect E => advantage ω₀ ω₁ ⟨1 / 2, by norm_num, by norm_num⟩ e)
-      = fun e : Effect E => (1 / 2 : ℝ) • (ω₀ (e : E) - ω₁ (e : E)) := by
-    ext e
-    show (1 / 2 : ℝ) * ω₀ (e : E) - (1 - 1 / 2 : ℝ) * ω₁ (e : E) = _
-    simp only [smul_eq_mul]; ring
-  simp_rw [hfun]
-  rw [← Real.smul_iSup_of_nonneg (by norm_num : (0 : ℝ) ≤ 1 / 2), smul_eq_mul]
+  have hfun (e : Effect E) : advantage ω₀ ω₁ ⟨1 / 2, by norm_num, by norm_num⟩ e =
+      1 / 2 * (ω₀ (e : E) - ω₁ (e : E)) := by
+    simp only [advantage]; ring
+  simp_rw [hfun, ← Real.mul_iSup_of_nonneg (by norm_num : (0 : ℝ) ≤ 1 / 2)]
   ring
 
 end Archimedean
