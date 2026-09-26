@@ -211,38 +211,27 @@ lemma neg_smul_one_le_of_orderUnitNorm_lt {A : E} {ε : ℝ} (h : orderUnitNorm 
 /-- The order-unit norm is characterized exactly by its symmetric order interval. -/
 lemma orderUnitNorm_le_iff {A : E} {r : ℝ} :
     orderUnitNorm A ≤ r ↔ 0 ≤ r ∧ -(r • (1 : E)) ≤ A ∧ A ≤ r • (1 : E) := by
-  constructor
-  · intro h
-    refine ⟨(orderUnitNorm_nonneg A).trans h, ?_, ?_⟩
-    · exact (neg_le_neg (smul_one_mono h)).trans (neg_orderUnitNorm_smul_one_le A)
-    · exact (le_orderUnitNorm_smul_one A).trans (smul_one_mono h)
-  · exact orderUnitNorm_le
+  refine ⟨fun h ↦ ?_, orderUnitNorm_le⟩
+  refine ⟨(orderUnitNorm_nonneg A).trans h, ?_, ?_⟩
+  · exact (neg_le_neg (smul_one_mono h)).trans (neg_orderUnitNorm_smul_one_le A)
+  · exact (le_orderUnitNorm_smul_one A).trans (smul_one_mono h)
 
 /-- The order-unit norm is definite: `‖A‖₁ = 0` forces `A = 0`. -/
 lemma orderUnitNorm_eq_zero_iff {A : E} : orderUnitNorm A = 0 ↔ A = 0 := by
-  constructor
-  · intro hA
-    have h := orderUnitNorm_mem_orderUnitBounds A
-    have hu : A ≤ 0 := by simpa [hA] using h.2.2
-    have hl : 0 ≤ A := by simpa [hA] using h.2.1
-    exact le_antisymm hu hl
-  · rintro rfl
-    exact orderUnitNorm_zero
+  refine ⟨fun hA ↦ ?_, fun h ↦ h ▸ orderUnitNorm_zero⟩
+  apply le_antisymm
+  · simpa [hA] using (orderUnitNorm_mem_orderUnitBounds A).2.2
+  · simpa [hA] using (orderUnitNorm_mem_orderUnitBounds A).2.1
 
 /-- Nonnegative scalar multiplication scales the order-unit norm from above. -/
 lemma orderUnitNorm_smul_le {r : ℝ} (hr : 0 ≤ r) (A : E) :
     orderUnitNorm (r • A) ≤ r * orderUnitNorm A := by
   apply orderUnitNorm_le_iff.mpr
   refine ⟨mul_nonneg hr (orderUnitNorm_nonneg A), ?_, ?_⟩
-  · calc
-    -((r * orderUnitNorm A) • (1 : E)) = r • -(orderUnitNorm A • (1 : E)) := by
-      rw [smul_neg, smul_smul]
-    _ ≤ r • A :=
-      smul_le_smul_of_nonneg_left (neg_orderUnitNorm_smul_one_le A) hr
-  · calc
-    r • A ≤ r • (orderUnitNorm A • (1 : E)) :=
-      smul_le_smul_of_nonneg_left (le_orderUnitNorm_smul_one A) hr
-    _ = (r * orderUnitNorm A) • (1 : E) := by rw [smul_smul]
+  · rw [← smul_smul, ← smul_neg]
+    exact smul_le_smul_of_nonneg_left (neg_orderUnitNorm_smul_one_le A) hr
+  · rw [← smul_smul]
+    exact smul_le_smul_of_nonneg_left (le_orderUnitNorm_smul_one A) hr
 
 /-- Positive scalar multiplication scales the order-unit norm. -/
 lemma orderUnitNorm_smul_of_pos {r : ℝ} (hr : 0 < r) (A : E) :
