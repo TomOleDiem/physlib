@@ -60,7 +60,6 @@ lemma toMeasure_apply (ν : EffectValuedMeasure Ω ℝ) (s : Set Ω) (hs : Measu
     ν.toMeasure s = ENNReal.ofReal (ν s hs) :=
   Measure.ofMeasurable_apply _ hs
 
-/-- The certain event gets `1`, so a measurement on `ℝ` is a probability measure. -/
 instance isProbabilityMeasure_toMeasure (ν : EffectValuedMeasure Ω ℝ) :
     IsProbabilityMeasure ν.toMeasure :=
   ⟨by simp [toMeasure_apply _ _ .univ]⟩
@@ -73,8 +72,7 @@ noncomputable def toProbabilityMeasure (ν : EffectValuedMeasure Ω ℝ) : Proba
 
 variable [OrderUnitSpace E]
 
-/-- Scalarizing a measurement by a normal state: pushing it forward along the state, a channel
-into `ℝ`. -/
+/-- The measurement on `ℝ` obtained by pushing `μ` forward along the normal state `ω`. -/
 def scalarize (μ : EffectValuedMeasure Ω E) (ω : 𝓢[ℝ, E]) (hω : ω.IsNormal) :
     EffectValuedMeasure Ω ℝ :=
   μ.map ω hω

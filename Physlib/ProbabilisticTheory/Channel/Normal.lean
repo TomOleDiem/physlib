@@ -14,9 +14,8 @@ public import Mathlib.Algebra.Order.BigOperators.Group.Finset
 
 ## i. Overview
 
-A channel is normal when it preserves suprema of directed sets. Positivity alone only preserves
-finite sums; normality is what lets a channel respect countable ones too, which is exactly what is
-needed to push a measurement forward along it (`Measurement/Pushforward.lean`).
+A channel is normal when it preserves suprema of directed sets. Every channel preserves finite
+sums; a normal channel also preserves countable sums of positive elements.
 
 ## ii. Key results
 
@@ -33,27 +32,26 @@ needed to push a measurement forward along it (`Measurement/Pushforward.lean`).
 
 @[expose] public section
 
-variable {E₁ E₂ E₃ : Type*} [OrderUnitSpace E₁] [OrderUnitSpace E₂] [OrderUnitSpace E₃]
+variable {E F G : Type*} [OrderUnitSpace E] [OrderUnitSpace F] [OrderUnitSpace G]
 
 namespace PositiveLinearMap
 
 /-! ## A. Normal positive maps -/
 
 /-- A positive linear map is normal when it preserves suprema of directed sets. -/
-def IsNormal (φ : E₁ →ₚ[ℝ] E₂) : Prop :=
-  ∀ (D : Set E₁) (x : E₁), D.Nonempty → DirectedOn (· ≤ ·) D → IsLUB D x → IsLUB (φ '' D) (φ x)
+def IsNormal (φ : E →ₚ[ℝ] F) : Prop :=
+  ∀ (D : Set E) (x : E), D.Nonempty → DirectedOn (· ≤ ·) D → IsLUB D x → IsLUB (φ '' D) (φ x)
 
-lemma isNormal_id : (PositiveLinearMap.id ℝ E₁).IsNormal := fun _ _ _ _ h => by simpa using h
+lemma isNormal_id : (PositiveLinearMap.id ℝ E).IsNormal := fun _ _ _ _ h => by simpa using h
 
-lemma IsNormal.comp {φ : E₁ →ₚ[ℝ] E₂} {ψ : E₂ →ₚ[ℝ] E₃} (hφ : φ.IsNormal) (hψ : ψ.IsNormal) :
+lemma IsNormal.comp {φ : E →ₚ[ℝ] F} {ψ : F →ₚ[ℝ] G} (hφ : φ.IsNormal) (hψ : ψ.IsNormal) :
     (ψ.comp φ).IsNormal := fun D x hD hdir hlub => by
   simpa [Set.image_image] using
     hψ _ _ (hD.image φ) (hdir.mono_comp fun _ _ h => φ.monotone' h) (hφ D x hD hdir hlub)
 
-/-- A normal map preserves countable sums of positive elements: it carries the least upper bound
-of the partial sums to the least upper bound of the mapped partial sums. -/
-lemma IsNormal.isLUB_partialSums {φ : E₁ →ₚ[ℝ] E₂} (hφ : φ.IsNormal) {f : ℕ → E₁}
-    (hf : ∀ n, 0 ≤ f n) {x : E₁} (hx : IsLUB (Set.range fun N => ∑ n ∈ Finset.range N, f n) x) :
+/-- A normal map preserves countable sums of positive elements. -/
+lemma IsNormal.isLUB_partialSums {φ : E →ₚ[ℝ] F} (hφ : φ.IsNormal) {f : ℕ → E}
+    (hf : ∀ n, 0 ≤ f n) {x : E} (hx : IsLUB (Set.range fun N => ∑ n ∈ Finset.range N, f n) x) :
     IsLUB (Set.range fun N => ∑ n ∈ Finset.range N, φ (f n)) (φ x) := by
   simpa [← Set.range_comp, Function.comp_def, map_sum] using hφ _ x (Set.range_nonempty _)
     ((Finset.sum_mono_set_of_nonneg hf).comp Finset.range_mono).directed_le.directedOn_range hx
@@ -65,11 +63,11 @@ namespace UnitalPositiveLinearMap
 /-! ## B. Normal channels -/
 
 /-- A channel is normal when its underlying positive linear map is. -/
-abbrev IsNormal (φ : E₁ →ₚ₁[ℝ] E₂) : Prop := φ.toPositiveLinearMap.IsNormal
+abbrev IsNormal (φ : E →ₚ₁[ℝ] F) : Prop := φ.toPositiveLinearMap.IsNormal
 
-lemma isNormal_id : (UnitalPositiveLinearMap.id ℝ E₁).IsNormal := PositiveLinearMap.isNormal_id
+lemma isNormal_id : (UnitalPositiveLinearMap.id ℝ E).IsNormal := PositiveLinearMap.isNormal_id
 
-lemma IsNormal.comp {φ : E₁ →ₚ₁[ℝ] E₂} {ψ : E₂ →ₚ₁[ℝ] E₃} (hφ : φ.IsNormal) (hψ : ψ.IsNormal) :
+lemma IsNormal.comp {φ : E →ₚ₁[ℝ] F} {ψ : F →ₚ₁[ℝ] G} (hφ : φ.IsNormal) (hψ : ψ.IsNormal) :
     (ψ.comp φ).IsNormal :=
   PositiveLinearMap.IsNormal.comp hφ hψ
 

@@ -18,9 +18,6 @@ effect testing whether the outcome lands in it. The impossible event gets `0`, t
 gets `1`, and the effects of disjoint events add up, countably. This is the most general notion of
 measurement: for self-adjoint operators it is exactly a POVM.
 
-Since `Effect E` isn't closed under addition, sums are taken in `E`, and countable additivity says
-the partial sums have the effect of the union as their least upper bound.
-
 ## ii. Key results
 
 - `EffectValuedMeasure Ω E` : a measurement with outcomes in `Ω`.
