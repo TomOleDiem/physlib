@@ -23,6 +23,7 @@ event `s` probability `ω (μ s)`.
 
 ## ii. Key results
 
+- `EffectValuedMeasure.toProbabilityMeasure` : a measurement on `ℝ` is a probability measure.
 - `EffectValuedMeasure.probabilityLaw` : the outcome distribution of `μ` in the state `ω`.
 
 ## iii. Table of contents
@@ -64,14 +65,28 @@ instance isProbabilityMeasure_toMeasure (ν : EffectValuedMeasure Ω ℝ) :
     IsProbabilityMeasure ν.toMeasure :=
   ⟨by simp [toMeasure_apply _ _ .univ]⟩
 
+/-- A measurement on `ℝ` as a probability measure. -/
+noncomputable def toProbabilityMeasure (ν : EffectValuedMeasure Ω ℝ) : ProbabilityMeasure Ω :=
+  ⟨ν.toMeasure, inferInstance⟩
+
 /-! ## B. The Born rule -/
 
 variable [OrderUnitSpace E]
 
+/-- Scalarizing a measurement by a normal state: pushing it forward along the state, a channel
+into `ℝ`. -/
+def scalarize (μ : EffectValuedMeasure Ω E) (ω : 𝓢[ℝ, E]) (hω : ω.IsNormal) :
+    EffectValuedMeasure Ω ℝ :=
+  μ.map ω hω
+
+@[simp]
+lemma coe_scalarize_apply (μ : EffectValuedMeasure Ω E) (ω : 𝓢[ℝ, E]) (hω : ω.IsNormal)
+    (s : Set Ω) (hs : MeasurableSet s) : (μ.scalarize ω hω s hs : ℝ) = ω (μ s hs) := rfl
+
 /-- The outcome distribution of the measurement `μ` in the normal state `ω`. -/
 noncomputable def probabilityLaw (μ : EffectValuedMeasure Ω E) (ω : 𝓢[ℝ, E]) (hω : ω.IsNormal) :
     ProbabilityMeasure Ω :=
-  ⟨(μ.map ω hω).toMeasure, inferInstance⟩
+  (μ.scalarize ω hω).toProbabilityMeasure
 
 @[simp]
 lemma probabilityLaw_apply (μ : EffectValuedMeasure Ω E) (ω : 𝓢[ℝ, E]) (hω : ω.IsNormal)
