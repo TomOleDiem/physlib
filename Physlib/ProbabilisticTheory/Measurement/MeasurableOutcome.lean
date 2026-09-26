@@ -71,27 +71,24 @@ lemma mapToFun_univ (μ : EffectValuedMeasure Ω C) (φ : C →ₚ₁[ℝ] E) :
   show φ (μ Set.univ MeasurableSet.univ : C) = 1
   rw [μ.map_univ]; exact map_one φ
 
-lemma mapToFun_countably_additive (μ : EffectValuedMeasure Ω C) (φ : C →ₚ₁[ℝ] E)
-    (hφ : φ.IsNormal) (s : ℕ → Set Ω) (hsm : ∀ n, MeasurableSet (s n))
+/-- The pushed-forward assignment stays countably additive: `φ`'s normality carries the least
+upper bound in `C` through to the least upper bound of the pushed-forward partial sums in `E`. -/
+lemma mapToFun_isLUB (μ : EffectValuedMeasure Ω C) (φ : C →ₚ₁[ℝ] E) (hφ : φ.IsNormal)
+    (s : ℕ → Set Ω) (hsm : ∀ n, MeasurableSet (s n))
     (hs' : ∀ m n, m ≠ n → Disjoint (s m) (s n)) :
     IsLUB (Set.range fun N : ℕ => ∑ n ∈ Finset.range N, (mapToFun μ φ (s n) (hsm n) : E))
       (mapToFun μ φ (⋃ n, s n) (MeasurableSet.iUnion hsm) : E) := by
-  set D : Set C := Set.range fun N => ∑ n ∈ Finset.range N, (μ (s n) (hsm n) : C) with hD
-  have hmono : Monotone (fun N => ∑ n ∈ Finset.range N, (μ (s n) (hsm n) : C)) :=
-    monotone_partialSums fun n => (μ (s n) (hsm n)).2.1
-  have hdirected : DirectedOn (· ≤ ·) D := hmono.directed_le.directedOn_range
-  have hnonempty : D.Nonempty := ⟨_, ⟨0, rfl⟩⟩
+  set D : Set C := Set.range fun N => ∑ n ∈ Finset.range N, (μ (s n) (hsm n) : C)
   have hlub : IsLUB D (μ (⋃ n, s n) (MeasurableSet.iUnion hsm) : C) :=
     μ.countably_additive s hsm hs'
+  have hdirected : DirectedOn (· ≤ ·) D :=
+    (monotone_partialSums fun n => (μ (s n) (hsm n)).2.1).directed_le.directedOn_range
+  have hnonempty : D.Nonempty := ⟨_, 0, rfl⟩
   have hpush := hφ D _ hnonempty hdirected hlub
   change IsLUB (φ '' D) (φ (μ (⋃ n, s n) (MeasurableSet.iUnion hsm) : C)) at hpush
-  have himage : φ '' D =
-      Set.range fun N => ∑ n ∈ Finset.range N, φ (μ (s n) (hsm n) : C) := by
-    rw [hD, ← Set.range_comp]
-    congr 1
-    funext N
-    exact map_sum φ (fun n => (μ (s n) (hsm n) : C)) (Finset.range N)
-  rwa [himage] at hpush
+  rwa [show φ '' D = Set.range fun N => ∑ n ∈ Finset.range N, φ (μ (s n) (hsm n) : C) from
+    (Set.range_comp _ _).symm.trans (congrArg Set.range
+      (funext fun N => map_sum φ _ (Finset.range N)))] at hpush
 
 /-- Pushing an effect-valued measure forward along a normal channel: composing each assigned
 effect with the channel. -/
@@ -100,7 +97,7 @@ noncomputable def map (μ : EffectValuedMeasure Ω C) (φ : C →ₚ₁[ℝ] E) 
   toFun := mapToFun μ φ
   map_empty' := mapToFun_empty μ φ
   map_univ' := mapToFun_univ μ φ
-  countably_additive' := mapToFun_countably_additive μ φ hφ
+  countably_additive' := mapToFun_isLUB μ φ hφ
 
 @[simp]
 lemma coe_map_apply (μ : EffectValuedMeasure Ω C) (φ : C →ₚ₁[ℝ] E) (hφ : φ.IsNormal)
