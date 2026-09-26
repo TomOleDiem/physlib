@@ -14,14 +14,14 @@ public import Physlib.ProbabilisticTheory.State.Basic
 
 ## i. Overview
 
-An `EffectValuedMeasure Ω C` is already a measurable-outcome measurement with classical output
-`C`: countable additivity is the trace, on indicator functions, of the order-continuity a genuine
+An `EffectValuedMeasure Ω E` is already a measurable-outcome measurement with classical output
+`E`: countable additivity is the trace, on indicator functions, of the order-continuity a genuine
 channel out of bounded measurable functions on `Ω` would have. This file pushes such a measure
-forward along a further, genuinely normal channel `C →ₚ₁[ℝ] E`: it stays an effect-valued measure,
+forward along a further, genuinely normal channel `E →ₚ₁[ℝ] F`: it stays an effect-valued measure,
 because the channel is linear (so it commutes with finite partial sums) and normal (so it commutes
 with their supremum).
 
-Scalarizing by a normal state — the special case `E = ℝ` — turns the measure into an ordinary
+Scalarizing by a normal state — the special case `F = ℝ` — turns the measure into an ordinary
 real-valued one, the abstract Born rule applied event by event.
 
 ## ii. Key results
@@ -38,7 +38,7 @@ real-valued one, the abstract Born rule applied event by event.
 
 @[expose] public section
 
-variable {Ω C E : Type*} [MeasurableSpace Ω] [OrderUnitSpace C] [OrderUnitSpace E]
+variable {Ω E F : Type*} [MeasurableSpace Ω] [OrderUnitSpace E] [OrderUnitSpace F]
 
 namespace EffectValuedMeasure
 
@@ -46,75 +46,75 @@ namespace EffectValuedMeasure
 
 /-- Nonnegative partial sums are monotone in how many terms are included: adding more nonnegative
 terms never decreases the sum. -/
-lemma monotone_partialSums {f : ℕ → C} (hf : ∀ n, 0 ≤ f n) :
+lemma monotone_partialSums {f : ℕ → E} (hf : ∀ n, 0 ≤ f n) :
     Monotone (fun N => ∑ n ∈ Finset.range N, f n) := fun _ _ hNM =>
   Finset.sum_le_sum_of_subset_of_nonneg (Finset.range_subset_range.mpr hNM) fun i _ _ => hf i
 
 /-- The effect assigned to `s` by pushing `μ` forward along `φ`: `φ` composed with `μ`. -/
-def mapToFun (μ : EffectValuedMeasure Ω C) (φ : C →ₚ₁[ℝ] E) (s : Set Ω) (hs : MeasurableSet s) :
-    Effect E :=
-  ⟨φ (μ s hs : C), φ.map_nonneg (μ s hs).2.1, (φ.monotone' (μ s hs).2.2).trans_eq (map_one φ)⟩
+def mapToFun (μ : EffectValuedMeasure Ω E) (φ : E →ₚ₁[ℝ] F) (s : Set Ω) (hs : MeasurableSet s) :
+    Effect F :=
+  ⟨φ (μ s hs : E), φ.map_nonneg (μ s hs).2.1, (φ.monotone' (μ s hs).2.2).trans_eq (map_one φ)⟩
 
 @[simp]
-lemma coe_mapToFun (μ : EffectValuedMeasure Ω C) (φ : C →ₚ₁[ℝ] E) (s : Set Ω)
-    (hs : MeasurableSet s) : (mapToFun μ φ s hs : E) = φ (μ s hs : C) := rfl
+lemma coe_mapToFun (μ : EffectValuedMeasure Ω E) (φ : E →ₚ₁[ℝ] F) (s : Set Ω)
+    (hs : MeasurableSet s) : (mapToFun μ φ s hs : F) = φ (μ s hs : E) := rfl
 
-lemma mapToFun_empty (μ : EffectValuedMeasure Ω C) (φ : C →ₚ₁[ℝ] E) :
+lemma mapToFun_empty (μ : EffectValuedMeasure Ω E) (φ : E →ₚ₁[ℝ] F) :
     mapToFun μ φ ∅ MeasurableSet.empty = 0 := by
   refine Subtype.ext ?_
-  show φ (μ ∅ MeasurableSet.empty : C) = 0
+  show φ (μ ∅ MeasurableSet.empty : E) = 0
   rw [μ.map_empty]; exact map_zero φ
 
-lemma mapToFun_univ (μ : EffectValuedMeasure Ω C) (φ : C →ₚ₁[ℝ] E) :
+lemma mapToFun_univ (μ : EffectValuedMeasure Ω E) (φ : E →ₚ₁[ℝ] F) :
     mapToFun μ φ Set.univ MeasurableSet.univ = 1 := by
   refine Subtype.ext ?_
-  show φ (μ Set.univ MeasurableSet.univ : C) = 1
+  show φ (μ Set.univ MeasurableSet.univ : E) = 1
   rw [μ.map_univ]; exact map_one φ
 
 /-- The pushed-forward assignment stays countably additive: `φ`'s normality carries the least
-upper bound in `C` through to the least upper bound of the pushed-forward partial sums in `E`. -/
-lemma mapToFun_isLUB (μ : EffectValuedMeasure Ω C) (φ : C →ₚ₁[ℝ] E) (hφ : φ.IsNormal)
+upper bound in `E` through to the least upper bound of the pushed-forward partial sums in `F`. -/
+lemma mapToFun_isLUB (μ : EffectValuedMeasure Ω E) (φ : E →ₚ₁[ℝ] F) (hφ : φ.IsNormal)
     (s : ℕ → Set Ω) (hsm : ∀ n, MeasurableSet (s n))
     (hs' : ∀ m n, m ≠ n → Disjoint (s m) (s n)) :
-    IsLUB (Set.range fun N : ℕ => ∑ n ∈ Finset.range N, (mapToFun μ φ (s n) (hsm n) : E))
-      (mapToFun μ φ (⋃ n, s n) (MeasurableSet.iUnion hsm) : E) := by
-  set D : Set C := Set.range fun N => ∑ n ∈ Finset.range N, (μ (s n) (hsm n) : C)
-  have hlub : IsLUB D (μ (⋃ n, s n) (MeasurableSet.iUnion hsm) : C) :=
+    IsLUB (Set.range fun N : ℕ => ∑ n ∈ Finset.range N, (mapToFun μ φ (s n) (hsm n) : F))
+      (mapToFun μ φ (⋃ n, s n) (MeasurableSet.iUnion hsm) : F) := by
+  set D : Set E := Set.range fun N => ∑ n ∈ Finset.range N, (μ (s n) (hsm n) : E)
+  have hlub : IsLUB D (μ (⋃ n, s n) (MeasurableSet.iUnion hsm) : E) :=
     μ.countably_additive s hsm hs'
   have hdirected : DirectedOn (· ≤ ·) D :=
     (monotone_partialSums fun n => (μ (s n) (hsm n)).2.1).directed_le.directedOn_range
   have hnonempty : D.Nonempty := ⟨_, 0, rfl⟩
   have hpush := hφ D _ hnonempty hdirected hlub
-  change IsLUB (φ '' D) (φ (μ (⋃ n, s n) (MeasurableSet.iUnion hsm) : C)) at hpush
-  rwa [show φ '' D = Set.range fun N => ∑ n ∈ Finset.range N, φ (μ (s n) (hsm n) : C) from
+  change IsLUB (φ '' D) (φ (μ (⋃ n, s n) (MeasurableSet.iUnion hsm) : E)) at hpush
+  rwa [show φ '' D = Set.range fun N => ∑ n ∈ Finset.range N, φ (μ (s n) (hsm n) : E) from
     (Set.range_comp _ _).symm.trans (congrArg Set.range
       (funext fun N => map_sum φ _ (Finset.range N)))] at hpush
 
 /-- Pushing an effect-valued measure forward along a normal channel: composing each assigned
 effect with the channel. -/
-noncomputable def map (μ : EffectValuedMeasure Ω C) (φ : C →ₚ₁[ℝ] E) (hφ : φ.IsNormal) :
-    EffectValuedMeasure Ω E where
+noncomputable def map (μ : EffectValuedMeasure Ω E) (φ : E →ₚ₁[ℝ] F) (hφ : φ.IsNormal) :
+    EffectValuedMeasure Ω F where
   toFun := mapToFun μ φ
   map_empty' := mapToFun_empty μ φ
   map_univ' := mapToFun_univ μ φ
   countably_additive' := mapToFun_isLUB μ φ hφ
 
 @[simp]
-lemma coe_map_apply (μ : EffectValuedMeasure Ω C) (φ : C →ₚ₁[ℝ] E) (hφ : φ.IsNormal)
+lemma coe_map_apply (μ : EffectValuedMeasure Ω E) (φ : E →ₚ₁[ℝ] F) (hφ : φ.IsNormal)
     (s : Set Ω) (hs : MeasurableSet s) :
-    ((μ.map φ hφ) s hs : E) = φ (μ s hs : C) := rfl
+    ((μ.map φ hφ) s hs : F) = φ (μ s hs : E) := rfl
 
 /-! ## B. Scalarizing by a normal state -/
 
 /-- Scalarizing an effect-valued measure by a normal state gives its ordinary real-valued
 probability law, represented as an effect-valued measure in the classical order-unit space `ℝ`.
 For each measurable event this is precisely the abstract Born rule `ω(μ(s))`. -/
-noncomputable def scalarize (μ : EffectValuedMeasure Ω C) (ω : 𝓢[ℝ, C]) (hω : ω.IsNormal) :
+noncomputable def scalarize (μ : EffectValuedMeasure Ω E) (ω : 𝓢[ℝ, E]) (hω : ω.IsNormal) :
     EffectValuedMeasure Ω ℝ := μ.map ω hω
 
 @[simp]
-lemma coe_scalarize_apply (μ : EffectValuedMeasure Ω C) (ω : 𝓢[ℝ, C]) (hω : ω.IsNormal)
+lemma coe_scalarize_apply (μ : EffectValuedMeasure Ω E) (ω : 𝓢[ℝ, E]) (hω : ω.IsNormal)
     (s : Set Ω) (hs : MeasurableSet s) :
-    ((μ.scalarize ω hω) s hs : ℝ) = ω (μ s hs : C) := rfl
+    ((μ.scalarize ω hω) s hs : ℝ) = ω (μ s hs : E) := rfl
 
 end EffectValuedMeasure

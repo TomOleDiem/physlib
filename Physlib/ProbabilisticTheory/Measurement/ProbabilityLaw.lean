@@ -37,7 +37,7 @@ evaluated event by event rather than only outcome by outcome.
 
 open MeasureTheory
 
-variable {Ω C : Type*} [MeasurableSpace Ω]
+variable {Ω E : Type*} [MeasurableSpace Ω]
 
 namespace EffectValuedMeasure
 
@@ -91,17 +91,17 @@ noncomputable def toProbabilityMeasure (ν : EffectValuedMeasure Ω ℝ) : Proba
 
 /-! ## B. The probability law of a measurement in a state -/
 
-variable [OrderUnitSpace C]
+variable [OrderUnitSpace E]
 
 /-- The probability distribution obtained by measuring `μ` in the normal state `ω`. -/
-noncomputable def probabilityLaw (μ : EffectValuedMeasure Ω C) (ω : 𝓢[ℝ, C]) (hω : ω.IsNormal) :
+noncomputable def probabilityLaw (μ : EffectValuedMeasure Ω E) (ω : 𝓢[ℝ, E]) (hω : ω.IsNormal) :
     ProbabilityMeasure Ω := (μ.scalarize ω hω).toProbabilityMeasure
 
 @[simp]
-lemma probabilityLaw_apply (μ : EffectValuedMeasure Ω C) (ω : 𝓢[ℝ, C]) (hω : ω.IsNormal)
+lemma probabilityLaw_apply (μ : EffectValuedMeasure Ω E) (ω : 𝓢[ℝ, E]) (hω : ω.IsNormal)
     (s : Set Ω) (hs : MeasurableSet s) :
-    (μ.probabilityLaw ω hω : Measure Ω) s = ENNReal.ofReal (ω (μ s hs : C)) := by
-  change (μ.scalarize ω hω).toMeasure s = ENNReal.ofReal (ω (μ s hs : C))
+    (μ.probabilityLaw ω hω : Measure Ω) s = ENNReal.ofReal (ω (μ s hs : E)) := by
+  change (μ.scalarize ω hω).toMeasure s = ENNReal.ofReal (ω (μ s hs : E))
   rw [toMeasure_apply _ s hs, coe_scalarize_apply]
 
 end EffectValuedMeasure
