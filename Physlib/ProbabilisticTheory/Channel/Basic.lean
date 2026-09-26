@@ -127,8 +127,7 @@ protected def id : E →ₚ₁[R] E where
 @[simp]
 lemma id_apply (x : E) : UnitalPositiveLinearMap.id R E x = x := rfl
 
-/-- The composite of two channels is again a channel: doing nothing changes nothing, and running
-one channel after another is still positive and leaves the certain outcome certain. -/
+/-- The composite of two channels. -/
 def comp (g : F →ₚ₁[R] G) (f : E →ₚ₁[R] F) : E →ₚ₁[R] G where
   toPositiveLinearMap := g.toPositiveLinearMap.comp f.toPositiveLinearMap
   map_one' := (congrArg g f.map_one').trans g.map_one'
