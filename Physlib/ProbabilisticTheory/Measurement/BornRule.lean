@@ -5,21 +5,26 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.ProbabilisticTheory.Measurement.MeasurableOutcome
+public import Physlib.ProbabilisticTheory.Measurement.Pushforward
 public import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
 public import Mathlib.Topology.Algebra.InfiniteSum.ENNReal
 public import Mathlib.Topology.Order.MonotoneConvergence
 
 /-!
-# Probability laws of effect-valued measurements
+# The Born rule
 
 ## i. Overview
 
-A real-valued effect-valued measure is exactly a probability measure: its values lie in `[0, 1]`,
-and its order-theoretic countable additivity becomes `ENNReal` countable additivity after applying
-`ENNReal.ofReal`. Consequently, scalarizing a POVM by a normal state produces an ordinary
-probability law — the outcome distribution the abstract Born rule assigns to a measurement,
-evaluated event by event rather than only outcome by outcome.
+A measurement is an effect-valued measure `μ : EffectValuedMeasure Ω E`. A state is a channel
+`E →ₚ₁[ℝ] ℝ`. Composing the two — scalarizing `μ` by the state — gives an effect-valued measure
+into `ℝ`, and a real-valued effect-valued measure is exactly a probability measure: its values lie
+in `[0, 1]`, and its order-theoretic countable additivity becomes ordinary countable additivity
+once cast through `ENNReal.ofReal`.
+
+This is the operational content of a measurement: a state doesn't just assign a number to each
+individual effect, it gets carried by the measurement to a genuine probability distribution over
+the outcome space `Ω`. `probabilityLaw` is that distribution — the Born rule, stated at the level
+of an arbitrary measurement rather than only a fixed finite set of outcomes.
 
 ## ii. Key results
 
