@@ -5,8 +5,9 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.ProbabilisticTheory.Effect.Basic
+public import Mathlib.Analysis.Convex.Basic
 public import Mathlib.Topology.UnitInterval
+public import Physlib.ProbabilisticTheory.Effect.Basic
 
 /-!
 # Convexity and mixtures of effects
@@ -30,7 +31,7 @@ actually run is itself a legitimate measurement.
 
 @[expose] public section
 
-variable {E : Type*} [OrderedVectorSpace E] [One E]
+variable {E : Type*} [OrderUnitSpace E]
 
 namespace Effect
 

@@ -5,10 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.ProbabilisticTheory.OrderUnit.Basic
-public import Physlib.ProbabilisticTheory.Effect.Basic
 public import Physlib.ProbabilisticTheory.Effect.Convex
-public import Mathlib.Tactic.Module
 
 /-!
 # Complementary effects
@@ -36,9 +33,7 @@ Physically, a state's probability of "no" is always `1` minus its probability of
 
 namespace Effect
 
-section OrderedVectorSpace
-
-variable {E : Type*} [OrderedVectorSpace E] [One E]
+variable {E : Type*} [OrderUnitSpace E]
 
 /-!
 
@@ -51,9 +46,8 @@ def complement (e : Effect E) : Effect E :=
   ⟨1 - e.1, sub_nonneg.mpr e.2.2, sub_le_self 1 e.2.1⟩
 
 @[simp]
-lemma complement_complement (e : Effect E) : complement (complement e) = e := by
-  apply Subtype.ext
-  simp [complement]
+lemma complement_complement (e : Effect E) : complement (complement e) = e :=
+  Subtype.ext (by simp [complement])
 
 /-!
 
@@ -65,21 +59,11 @@ lemma complement_complement (e : Effect E) : complement (complement e) = e := by
 lemma complement_antitone : Antitone (complement (E := E)) :=
   fun _ _ h => sub_le_sub_left (show (_ : E) ≤ _ from h) 1
 
-end OrderedVectorSpace
-
-section OrderUnitSpace
-
-variable {E : Type*} [OrderUnitSpace E]
+@[simp]
+lemma complement_zero : complement (0 : Effect E) = 1 := Subtype.ext (by simp [complement])
 
 @[simp]
-lemma complement_zero : complement (0 : Effect E) = 1 := by
-  apply Subtype.ext
-  simp [complement]
-
-@[simp]
-lemma complement_one : complement (1 : Effect E) = 0 := by
-  apply Subtype.ext
-  simp [complement]
+lemma complement_one : complement (1 : Effect E) = 0 := Subtype.ext (by simp [complement])
 
 /-!
 
@@ -89,12 +73,8 @@ lemma complement_one : complement (1 : Effect E) = 0 := by
 
 /-- Mixing commutes with taking the complement. -/
 lemma complement_mix (e f : Effect E) (t : unitInterval) :
-    complement (mix e f t) = mix (complement e) (complement f) t := by
-  apply Subtype.ext
-  show (1 : E) - ((t : ℝ) • (e : E) + (1 - (t : ℝ)) • (f : E))
-      = (t : ℝ) • ((1 : E) - (e : E)) + (1 - (t : ℝ)) • ((1 : E) - (f : E))
-  module
-
-end OrderUnitSpace
+    complement (mix e f t) = mix (complement e) (complement f) t :=
+  Subtype.ext (show (1 : E) - ((t : ℝ) • (e : E) + (1 - (t : ℝ)) • (f : E))
+      = (t : ℝ) • ((1 : E) - (e : E)) + (1 - (t : ℝ)) • ((1 : E) - (f : E)) from by module)
 
 end Effect

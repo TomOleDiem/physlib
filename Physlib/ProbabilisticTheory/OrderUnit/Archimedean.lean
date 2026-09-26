@@ -177,13 +177,8 @@ lemma orderUnitNorm_add_le (A B : E) :
 /-- Scaling the unit by a larger nonnegative real gives a larger multiple: `r ↦ r • 1` is
 monotone. -/
 lemma smul_one_mono {r s : ℝ} (hrs : r ≤ s) :
-    r • (1 : E) ≤ s • (1 : E) := by
-  have h : 0 ≤ (s - r) • (1 : E) :=
-    smul_nonneg (sub_nonneg.mpr hrs) one_nonneg
-  calc
-    r • (1 : E) = s • (1 : E) - (s - r) • (1 : E) := by
-      rw [← sub_smul, sub_sub_cancel]
-    _ ≤ s • (1 : E) := sub_le_self _ h
+    r • (1 : E) ≤ s • (1 : E) :=
+  smul_le_smul_of_nonneg_right hrs one_nonneg
 
 /-- The infimum defining the order-unit norm is attained. This is where the Archimedean axiom
 is used, to pass from "bounded by `r + ε` for every `ε`" to "bounded by `r`". -/
@@ -259,30 +254,16 @@ lemma orderUnitNorm_smul_le {r : ℝ} (hr : 0 ≤ r) (A : E) :
 /-- Positive scalar multiplication scales the order-unit norm. -/
 lemma orderUnitNorm_smul_of_pos {r : ℝ} (hr : 0 < r) (A : E) :
     orderUnitNorm (r • A) = r * orderUnitNorm A := by
-  apply le_antisymm
-  · exact orderUnitNorm_smul_le hr.le A
-  · have h := orderUnitNorm_smul_le (inv_nonneg.mpr hr.le) (r • A)
-    have hA : orderUnitNorm A ≤ r⁻¹ * orderUnitNorm (r • A) := by
-      calc
-        orderUnitNorm A = orderUnitNorm (r⁻¹ • (r • A)) := by
-          rw [smul_smul, inv_mul_cancel₀ hr.ne', one_smul]
-      _ ≤ r⁻¹ * orderUnitNorm (r • A) := h
-    calc
-      r * orderUnitNorm A ≤ r * (r⁻¹ * orderUnitNorm (r • A)) :=
-        mul_le_mul_of_nonneg_left hA hr.le
-      _ = orderUnitNorm (r • A) := by
-        rw [← mul_assoc, mul_inv_cancel₀ hr.ne', one_mul]
+  refine le_antisymm (orderUnitNorm_smul_le hr.le A) ?_
+  have h := orderUnitNorm_smul_le (inv_nonneg.mpr hr.le) (r • A)
+  rwa [inv_smul_smul₀ hr.ne', le_inv_mul_iff₀ hr] at h
 
 /-- The order-unit norm is absolutely homogeneous. -/
 lemma orderUnitNorm_smul (r : ℝ) (A : E) :
     orderUnitNorm (r • A) = |r| * orderUnitNorm A := by
   rcases lt_trichotomy r 0 with hr | rfl | hr
-  · calc
-      orderUnitNorm (r • A) = orderUnitNorm ((-r) • (-A)) := by
-        rw [smul_neg, neg_smul, neg_neg]
-      _ = (-r) * orderUnitNorm (-A) := orderUnitNorm_smul_of_pos (neg_pos.mpr hr) (-A)
-      _ = (-r) * orderUnitNorm A := by rw [orderUnitNorm_neg]
-      _ = |r| * orderUnitNorm A := by rw [abs_of_neg hr]
+  · rw [← orderUnitNorm_neg, ← neg_smul, orderUnitNorm_smul_of_pos (neg_pos.mpr hr),
+      abs_of_neg hr]
   · simp
   · rw [orderUnitNorm_smul_of_pos hr, abs_of_pos hr]
 

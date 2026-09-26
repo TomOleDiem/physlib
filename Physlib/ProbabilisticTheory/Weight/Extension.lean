@@ -55,7 +55,7 @@ noncomputable def rawValue (w : Weight E) (A : E) (r : ℝ) (h : 0 ≤ r • (1 
 to the cone element are exactly cancelled by the extra `(s - r) * w 1` subtracted off. -/
 lemma rawValue_of_le (hw : w.IsFinite) (A : E) {r s : ℝ} (hr : 0 ≤ r • (1 : E) + A)
     (hs : 0 ≤ s • (1 : E) + A) (hrs : r ≤ s) : rawValue w A s hs = rawValue w A r hr := by
-  set t : ℝ≥0 := (s - r).toNNReal with ht_def
+  set t : ℝ≥0 := (s - r).toNNReal
   have ht : (t : ℝ) = s - r := Real.coe_toNNReal _ (by linarith)
   have hcone : (⟨s • (1 : E) + A, hs⟩ : PosCone E) =
       ⟨r • (1 : E) + A, hr⟩ + t • (1 : PosCone E) := by
@@ -69,10 +69,8 @@ lemma rawValue_of_le (hw : w.IsFinite) (A : E) {r s : ℝ} (hr : 0 ≤ r • (1 
 
 /-- The shifted value of a finite weight does not depend on the chosen shift. -/
 lemma rawValue_indep (hw : w.IsFinite) (A : E) {r s : ℝ} (hr : 0 ≤ r • (1 : E) + A)
-    (hs : 0 ≤ s • (1 : E) + A) : rawValue w A r hr = rawValue w A s hs := by
-  rcases le_total r s with hrs | hrs
-  · exact (rawValue_of_le hw A hr hs hrs).symm
-  · exact rawValue_of_le hw A hs hr hrs
+    (hs : 0 ≤ s • (1 : E) + A) : rawValue w A r hr = rawValue w A s hs :=
+  (le_total r s).elim (fun h => (rawValue_of_le hw A hr hs h).symm) (rawValue_of_le hw A hs hr)
 
 /-!
 
@@ -95,23 +93,20 @@ lemma toFun_eq (hw : w.IsFinite) (A : E) {r : ℝ} (h : 0 ≤ r • (1 : E) + A)
 @[simp]
 lemma toFun_of_nonneg (hw : w.IsFinite) (A : PosCone E) : toFun w (A : E) = (w A).toReal := by
   have h0 : (0 : E) ≤ (0 : ℝ) • (1 : E) + (A : E) := by
-    rw [zero_smul, zero_add]
-    exact (PointedCone.mem_positive (R := ℝ) (E := E)).mp A.2
+    rw [zero_smul, zero_add]; exact A.2
   rw [toFun_eq hw (A : E) h0, rawValue]
   simp
 
 /-- The extension of a finite weight sends `0` to `0`. -/
 lemma toFun_zero (hw : w.IsFinite) : toFun w (0 : E) = 0 := by
-  have h := toFun_of_nonneg hw (0 : PosCone E)
-  simpa using h
+  simpa using toFun_of_nonneg hw (0 : PosCone E)
 
 /-- The extension of a finite weight is additive. -/
 lemma toFun_add (hw : w.IsFinite) (A B : E) : toFun w (A + B) = toFun w A + toFun w B := by
   obtain ⟨r, hr⟩ := OrderUnitSpace.exists_real_shift_nonneg A
   obtain ⟨s, hs⟩ := OrderUnitSpace.exists_real_shift_nonneg B
   have hrs : (0 : E) ≤ (r + s) • (1 : E) + (A + B) := by
-    have heq : (r + s) • (1 : E) + (A + B) = (r • (1 : E) + A) + (s • (1 : E) + B) := by module
-    rw [heq]; exact add_nonneg hr hs
+    convert add_nonneg hr hs using 1; module
   rw [toFun_eq hw A hr, toFun_eq hw B hs, toFun_eq hw (A + B) hrs]
   have hcone : (⟨(r + s) • (1 : E) + (A + B), hrs⟩ : PosCone E) =
       ⟨r • (1 : E) + A, hr⟩ + ⟨s • (1 : E) + B, hs⟩ := by
@@ -133,8 +128,7 @@ lemma toFun_real_nonneg_smul (hw : w.IsFinite) {t : ℝ} (ht : 0 ≤ t) (A : E) 
     toFun w (t • A) = t * toFun w A := by
   obtain ⟨r, hr⟩ := OrderUnitSpace.exists_real_shift_nonneg A
   have hcr : (0 : E) ≤ (t * r) • (1 : E) + t • A := by
-    have heq : (t * r) • (1 : E) + t • A = t • (r • (1 : E) + A) := by module
-    rw [heq]; exact smul_nonneg ht hr
+    convert smul_nonneg ht hr using 1; module
   rw [toFun_eq hw A hr, toFun_eq hw (t • A) hcr]
   have hcone : (⟨(t * r) • (1 : E) + t • A, hcr⟩ : PosCone E) =
       t.toNNReal • (⟨r • (1 : E) + A, hr⟩ : PosCone E) := by
@@ -150,8 +144,7 @@ lemma toFun_real_nonneg_smul (hw : w.IsFinite) {t : ℝ} (ht : 0 ≤ t) (A : E) 
 lemma toFun_smul (hw : w.IsFinite) (t : ℝ) (A : E) : toFun w (t • A) = t * toFun w A := by
   rcases le_total (0 : ℝ) t with ht | ht
   · exact toFun_real_nonneg_smul hw ht A
-  · have h1 : t • A = -((-t) • A) := by rw [neg_smul, neg_neg]
-    rw [h1, toFun_neg hw, toFun_real_nonneg_smul hw (neg_nonneg.mpr ht) A]
+  · rw [← neg_neg t, neg_smul, toFun_neg hw, toFun_real_nonneg_smul hw (neg_nonneg.mpr ht)]
     ring
 
 /-- The `ℝ`-linear map extending a finite weight. -/
