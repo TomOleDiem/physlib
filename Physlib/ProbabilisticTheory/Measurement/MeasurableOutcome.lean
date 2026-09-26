@@ -10,19 +10,18 @@ public import Physlib.ProbabilisticTheory.Measurement.Basic
 public import Physlib.ProbabilisticTheory.State.Basic
 
 /-!
-# Measurable-outcome measurements, pushed forward along a normal channel
+# Pushing a measurement forward along a normal channel
 
 ## i. Overview
 
-An `EffectValuedMeasure Ω E` is already a measurable-outcome measurement with classical output
-`E`: countable additivity is the trace, on indicator functions, of the order-continuity a genuine
-channel out of bounded measurable functions on `Ω` would have. This file pushes such a measure
-forward along a further, genuinely normal channel `E →ₚ₁[ℝ] F`: it stays an effect-valued measure,
-because the channel is linear (so it commutes with finite partial sums) and normal (so it commutes
-with their supremum).
+A measurement doesn't have to stay put: composing each of its effects with a further channel
+gives another measurement, now valued in the channel's target space. That's `map` — pushing an
+`EffectValuedMeasure Ω E` forward along `E →ₚ₁[ℝ] F` — and it needs the channel to be normal, not
+just positive, so that countable additivity survives the composition.
 
-Scalarizing by a normal state — the special case `F = ℝ` — turns the measure into an ordinary
-real-valued one, the abstract Born rule applied event by event.
+The special case `F = ℝ`, scalarizing by a normal state, turns a measurement into the ordinary
+probability distribution a state assigns to its outcomes: the abstract Born rule, evaluated event
+by event rather than only outcome by outcome.
 
 ## ii. Key results
 
