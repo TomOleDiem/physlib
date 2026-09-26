@@ -28,9 +28,6 @@ functional of the order interval `[-1, 1]`: convexity of that interval gives the
 inequality, and its symmetry gives homogeneity, for free. The Archimedean condition is only needed
 afterwards, to upgrade this from a seminorm to a genuine norm.
 
-This file develops the norm as an explicit function. When a Mathlib result requires typeclass
-norms, the corresponding structures are available for local installation.
-
 ## ii. Key results
 
 - `ArchimedeanOrderUnitSpace.orderUnitNorm_eq_zero_iff` : the order-unit norm separates points.
@@ -96,7 +93,7 @@ def orderUnitBounds (A : E) : Set ℝ :=
 noncomputable def orderUnitNorm (A : E) : ℝ :=
   sInf (orderUnitBounds A)
 
-/-- The order-unit bounds are bounded below by `0`, so their infimum (the norm) is well-behaved. -/
+/-- The order-unit bounds are bounded below by `0`. -/
 lemma orderUnitBounds_bddBelow (A : E) : BddBelow (orderUnitBounds A) :=
   ⟨0, fun _ hr ↦ hr.1⟩
 
@@ -105,8 +102,7 @@ lemma orderUnitNorm_le {A : E} {r : ℝ} (hr : r ∈ orderUnitBounds A) :
     orderUnitNorm A ≤ r :=
   csInf_le (orderUnitBounds_bddBelow A) hr
 
-/-- Every element has some order-unit bound: this is just `OrderUnitSpace`'s two-sided bound,
-repackaged as a natural number in `orderUnitBounds`. -/
+/-- Every element has some order-unit bound. -/
 lemma orderUnitBounds_nonempty (A : E) : (orderUnitBounds A).Nonempty := by
   obtain ⟨n, hl, hu⟩ := exists_two_sided_bound A
   refine ⟨n, Nat.cast_nonneg n, ?_, ?_⟩
@@ -136,8 +132,7 @@ lemma orderUnitNorm_neg (A : E) : orderUnitNorm (-A) = orderUnitNorm A := by
   unfold orderUnitNorm
   rw [orderUnitBounds_neg]
 
-/-- Order-unit bounds add: a bound for `A` and a bound for `B` combine to a bound for `A + B`,
-which is what drives the triangle inequality for `orderUnitNorm`. -/
+/-- A bound for `A` and a bound for `B` add up to a bound for `A + B`. -/
 lemma add_mem_orderUnitBounds {A B : E} {r s : ℝ} (hr : r ∈ orderUnitBounds A)
     (hs : s ∈ orderUnitBounds B) : r + s ∈ orderUnitBounds (A + B) := by
   refine ⟨add_nonneg hr.1 hs.1, ?_, ?_⟩
@@ -150,8 +145,7 @@ end OrderUnitSpace
 
 variable {E : Type*} [ArchimedeanOrderUnitSpace E]
 
-/-- An infimum can always be approximated from above: there is an order-unit bound on `A` within
-`ε` of the norm itself. -/
+/-- There is an order-unit bound on `A` within `ε` of its norm. -/
 lemma exists_orderUnitBound_lt (A : E) {ε : ℝ} (hε : 0 < ε) :
     ∃ r ∈ orderUnitBounds A, r < orderUnitNorm A + ε :=
   exists_lt_of_csInf_lt (orderUnitBounds_nonempty A) (lt_add_of_pos_right _ hε)
@@ -180,8 +174,7 @@ lemma smul_one_mono {r s : ℝ} (hrs : r ≤ s) :
     r • (1 : E) ≤ s • (1 : E) :=
   smul_le_smul_of_nonneg_right hrs one_nonneg
 
-/-- The infimum defining the order-unit norm is attained. This is where the Archimedean axiom
-is used, to pass from "bounded by `r + ε` for every `ε`" to "bounded by `r`". -/
+/-- Every element is bounded above by its order-unit norm times `1`. -/
 lemma le_orderUnitNorm_smul_one (A : E) : A ≤ orderUnitNorm A • (1 : E) := by
   apply sub_nonpos.mp
   apply le_zero_of_forall_pos_smul_one_le
@@ -290,18 +283,11 @@ noncomputable def orderUnitAddGroupNorm : AddGroupNorm E where
   neg' := orderUnitNorm_neg
   eq_zero_of_map_eq_zero' _ hA := orderUnitNorm_eq_zero_iff.mp hA
 
-/-- The normed additive group induced by the Archimedean order unit.
-
-This is a `scoped instance`, not a plain one: registering it globally would put a second,
-non-defeq `NormedAddCommGroup` instance on every `ArchimedeanOrderUnitSpace` that already has a
-norm of its own (starting with `ℝ` itself), which is a textbook instance diamond. Opting in with
-`open scoped ArchimedeanOrderUnitSpace` keeps the convenience of instance search without poisoning
-unrelated files. -/
+/-- The normed additive group given by the order-unit norm. -/
 noncomputable scoped instance orderUnitNormedAddCommGroup : NormedAddCommGroup E :=
   orderUnitAddGroupNorm.toNormedAddCommGroup
 
-/-- The real normed-space structure induced by the Archimedean order unit. See
-`orderUnitNormedAddCommGroup` for why this is a `scoped instance`. -/
+/-- The real normed space given by the order-unit norm. -/
 noncomputable scoped instance orderUnitNormedSpace : NormedSpace ℝ E where
   norm_smul_le r A := le_of_eq (orderUnitNorm_smul r A)
 
@@ -311,7 +297,7 @@ noncomputable scoped instance orderUnitNormedSpace : NormedSpace ℝ E where
 
 -/
 
-/-- No sequence of elements that are all `≥ 0` can converge to something negative. -/
+/-- The positive cone is closed in the order-unit-norm topology. -/
 lemma isClosed_Ici_zero : IsClosed (Set.Ici (0 : E)) := by
   apply IsSeqClosed.isClosed
   intro x p hx hp
@@ -324,8 +310,7 @@ lemma isClosed_Ici_zero : IsClosed (Set.Ici (0 : E)) := by
   apply le_trans _ (le_smul_one_of_orderUnitNorm_lt hN)
   simpa using hx N
 
-/-- The same holds relative to any reference `a`, not just `0`. See `orderUnitNormedAddCommGroup`
-for why this is a `scoped instance`: its statement already pins down the scoped topology. -/
+/-- Every upper set `[a, ∞)` is closed in the order-unit-norm topology. -/
 scoped instance closedIciTopology : ClosedIciTopology E where
   isClosed_Ici a := by
     rw [← zero_add a, ← Set.preimage_sub_const_Ici]
