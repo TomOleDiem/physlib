@@ -43,33 +43,38 @@ namespace EffectValuedMeasure
 
 /-! ## A. Real-valued effect-valued measures are probability measures -/
 
+/-- The value a real-valued effect-valued measure assigns to a countable disjoint union is the
+`ENNReal`-sum of the values on the pieces: the order-theoretic least-upper-bound additivity of
+`ν` becomes ordinary countable additivity once cast through `ENNReal.ofReal`. -/
+lemma toMeasure_countably_additive (ν : EffectValuedMeasure Ω ℝ) ⦃s : ℕ → Set Ω⦄
+    (hsm : ∀ n, MeasurableSet (s n)) (hs : ∀ m n, m ≠ n → Disjoint (s m) (s n)) :
+    ENNReal.ofReal (ν (⋃ n, s n) (MeasurableSet.iUnion hsm) : ℝ) =
+      ∑' n, ENNReal.ofReal (ν (s n) (hsm n) : ℝ) := by
+  let a : ℕ → ℝ := fun n => (ν (s n) (hsm n) : ℝ)
+  let p : ℕ → ℝ := fun N => ∑ n ∈ Finset.range N, a n
+  have ha : ∀ n, 0 ≤ a n := fun n => (ν (s n) (hsm n)).2.1
+  have hpmono : Monotone p := fun _ _ hNM =>
+    Finset.sum_le_sum_of_subset_of_nonneg (Finset.range_subset_range.mpr hNM)
+      (fun i _ _ => ha i)
+  have hlub : IsLUB (Set.range p) (ν (⋃ n, s n) (MeasurableSet.iUnion hsm) : ℝ) := by
+    simpa [p, a] using ν.countably_additive s hsm hs
+  have hreal : Filter.Tendsto p Filter.atTop
+      (nhds (ν (⋃ n, s n) (MeasurableSet.iUnion hsm) : ℝ)) :=
+    tendsto_atTop_isLUB hpmono hlub
+  have henn : Filter.Tendsto (fun N => ENNReal.ofReal (p N)) Filter.atTop
+      (nhds (ENNReal.ofReal (ν (⋃ n, s n) (MeasurableSet.iUnion hsm) : ℝ))) :=
+    ENNReal.tendsto_ofReal hreal
+  have hpartial : (fun N => ENNReal.ofReal (p N)) =
+      fun N => ∑ n ∈ Finset.range N, ENNReal.ofReal (a n) := by
+    funext N
+    exact ENNReal.ofReal_sum_of_nonneg fun i _ => ha i
+  rw [hpartial] at henn
+  exact tendsto_nhds_unique henn (ENNReal.tendsto_nat_tsum fun n => ENNReal.ofReal (a n))
+
 /-- The ordinary measure represented by a real-valued effect-valued measure. -/
 noncomputable def toMeasure (ν : EffectValuedMeasure Ω ℝ) : Measure Ω :=
-  Measure.ofMeasurable
-    (fun s hs => ENNReal.ofReal (ν s hs : ℝ))
-    (by simp)
-    (by
-      intro s hsm hs
-      let a : ℕ → ℝ := fun n => (ν (s n) (hsm n) : ℝ)
-      let p : ℕ → ℝ := fun N => ∑ n ∈ Finset.range N, a n
-      have ha : ∀ n, 0 ≤ a n := fun n => (ν (s n) (hsm n)).2.1
-      have hpmono : Monotone p := fun _ _ hNM =>
-        Finset.sum_le_sum_of_subset_of_nonneg (Finset.range_subset_range.mpr hNM)
-          (fun i _ _ => ha i)
-      have hlub : IsLUB (Set.range p) (ν (⋃ n, s n) (MeasurableSet.iUnion hsm) : ℝ) := by
-        simpa [p, a] using ν.countably_additive s hsm hs
-      have hreal : Filter.Tendsto p Filter.atTop
-          (nhds (ν (⋃ n, s n) (MeasurableSet.iUnion hsm) : ℝ)) :=
-        tendsto_atTop_isLUB hpmono hlub
-      have henn : Filter.Tendsto (fun N => ENNReal.ofReal (p N)) Filter.atTop
-          (nhds (ENNReal.ofReal (ν (⋃ n, s n) (MeasurableSet.iUnion hsm) : ℝ))) :=
-        ENNReal.tendsto_ofReal hreal
-      have hpartial : (fun N => ENNReal.ofReal (p N)) =
-          fun N => ∑ n ∈ Finset.range N, ENNReal.ofReal (a n) := by
-        funext N
-        exact ENNReal.ofReal_sum_of_nonneg fun i _ => ha i
-      rw [hpartial] at henn
-      exact tendsto_nhds_unique henn (ENNReal.tendsto_nat_tsum fun n => ENNReal.ofReal (a n)))
+  Measure.ofMeasurable (fun s hs => ENNReal.ofReal (ν s hs : ℝ)) (by simp)
+    (fun _ hsm hs => toMeasure_countably_additive ν hsm hs)
 
 @[simp]
 lemma toMeasure_apply (ν : EffectValuedMeasure Ω ℝ) (s : Set Ω) (hs : MeasurableSet s) :

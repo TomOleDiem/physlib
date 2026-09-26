@@ -50,37 +50,57 @@ lemma monotone_partialSums {f : ℕ → C} (hf : ∀ n, 0 ≤ f n) :
     Monotone (fun N => ∑ n ∈ Finset.range N, f n) := fun _ _ hNM =>
   Finset.sum_le_sum_of_subset_of_nonneg (Finset.range_subset_range.mpr hNM) fun i _ _ => hf i
 
+/-- The effect assigned to `s` by pushing `μ` forward along `φ`: `φ` composed with `μ`. -/
+def mapToFun (μ : EffectValuedMeasure Ω C) (φ : C →ₚ₁[ℝ] E) (s : Set Ω) (hs : MeasurableSet s) :
+    Effect E :=
+  ⟨φ (μ s hs : C), φ.map_nonneg (μ s hs).2.1, (φ.monotone' (μ s hs).2.2).trans_eq (map_one φ)⟩
+
+@[simp]
+lemma coe_mapToFun (μ : EffectValuedMeasure Ω C) (φ : C →ₚ₁[ℝ] E) (s : Set Ω)
+    (hs : MeasurableSet s) : (mapToFun μ φ s hs : E) = φ (μ s hs : C) := rfl
+
+lemma mapToFun_empty (μ : EffectValuedMeasure Ω C) (φ : C →ₚ₁[ℝ] E) :
+    mapToFun μ φ ∅ MeasurableSet.empty = 0 := by
+  refine Subtype.ext ?_
+  show φ (μ ∅ MeasurableSet.empty : C) = 0
+  rw [μ.map_empty]; exact map_zero φ
+
+lemma mapToFun_univ (μ : EffectValuedMeasure Ω C) (φ : C →ₚ₁[ℝ] E) :
+    mapToFun μ φ Set.univ MeasurableSet.univ = 1 := by
+  refine Subtype.ext ?_
+  show φ (μ Set.univ MeasurableSet.univ : C) = 1
+  rw [μ.map_univ]; exact map_one φ
+
+lemma mapToFun_countably_additive (μ : EffectValuedMeasure Ω C) (φ : C →ₚ₁[ℝ] E)
+    (hφ : φ.IsNormal) (s : ℕ → Set Ω) (hsm : ∀ n, MeasurableSet (s n))
+    (hs' : ∀ m n, m ≠ n → Disjoint (s m) (s n)) :
+    IsLUB (Set.range fun N : ℕ => ∑ n ∈ Finset.range N, (mapToFun μ φ (s n) (hsm n) : E))
+      (mapToFun μ φ (⋃ n, s n) (MeasurableSet.iUnion hsm) : E) := by
+  set D : Set C := Set.range fun N => ∑ n ∈ Finset.range N, (μ (s n) (hsm n) : C) with hD
+  have hmono : Monotone (fun N => ∑ n ∈ Finset.range N, (μ (s n) (hsm n) : C)) :=
+    monotone_partialSums fun n => (μ (s n) (hsm n)).2.1
+  have hdirected : DirectedOn (· ≤ ·) D := hmono.directed_le.directedOn_range
+  have hnonempty : D.Nonempty := ⟨_, ⟨0, rfl⟩⟩
+  have hlub : IsLUB D (μ (⋃ n, s n) (MeasurableSet.iUnion hsm) : C) :=
+    μ.countably_additive s hsm hs'
+  have hpush := hφ D _ hnonempty hdirected hlub
+  change IsLUB (φ '' D) (φ (μ (⋃ n, s n) (MeasurableSet.iUnion hsm) : C)) at hpush
+  have himage : φ '' D =
+      Set.range fun N => ∑ n ∈ Finset.range N, φ (μ (s n) (hsm n) : C) := by
+    rw [hD, ← Set.range_comp]
+    congr 1
+    funext N
+    exact map_sum φ (fun n => (μ (s n) (hsm n) : C)) (Finset.range N)
+  rwa [himage] at hpush
+
 /-- Pushing an effect-valued measure forward along a normal channel: composing each assigned
 effect with the channel. -/
 noncomputable def map (μ : EffectValuedMeasure Ω C) (φ : C →ₚ₁[ℝ] E) (hφ : φ.IsNormal) :
     EffectValuedMeasure Ω E where
-  toFun s hs := ⟨φ (μ s hs : C), φ.map_nonneg (μ s hs).2.1,
-    (φ.monotone' (μ s hs).2.2).trans_eq (map_one φ)⟩
-  map_empty' := by
-    refine Subtype.ext ?_
-    show φ (μ ∅ MeasurableSet.empty : C) = 0
-    rw [μ.map_empty]; exact map_zero φ
-  map_univ' := by
-    refine Subtype.ext ?_
-    show φ (μ Set.univ MeasurableSet.univ : C) = 1
-    rw [μ.map_univ]; exact map_one φ
-  countably_additive' s hsm hs' := by
-    set D : Set C := Set.range fun N => ∑ n ∈ Finset.range N, (μ (s n) (hsm n) : C) with hD
-    have hmono : Monotone (fun N => ∑ n ∈ Finset.range N, (μ (s n) (hsm n) : C)) :=
-      monotone_partialSums fun n => (μ (s n) (hsm n)).2.1
-    have hdirected : DirectedOn (· ≤ ·) D := hmono.directed_le.directedOn_range
-    have hnonempty : D.Nonempty := ⟨_, ⟨0, rfl⟩⟩
-    have hlub : IsLUB D (μ (⋃ n, s n) (MeasurableSet.iUnion hsm) : C) :=
-      μ.countably_additive s hsm hs'
-    have hpush := hφ D _ hnonempty hdirected hlub
-    change IsLUB (φ '' D) (φ (μ (⋃ n, s n) (MeasurableSet.iUnion hsm) : C)) at hpush
-    have himage : φ '' D =
-        Set.range fun N => ∑ n ∈ Finset.range N, φ (μ (s n) (hsm n) : C) := by
-      rw [hD, ← Set.range_comp]
-      congr 1
-      funext N
-      exact map_sum φ (fun n => (μ (s n) (hsm n) : C)) (Finset.range N)
-    rwa [himage] at hpush
+  toFun := mapToFun μ φ
+  map_empty' := mapToFun_empty μ φ
+  map_univ' := mapToFun_univ μ φ
+  countably_additive' := mapToFun_countably_additive μ φ hφ
 
 @[simp]
 lemma coe_map_apply (μ : EffectValuedMeasure Ω C) (φ : C →ₚ₁[ℝ] E) (hφ : φ.IsNormal)
