@@ -13,74 +13,65 @@ public import Physlib.ProbabilisticTheory.Effect.Complement
 
 ## i. Overview
 
-The most general notion of measurement: an assignment of an effect to each measurable subset of
-an outcome space `Ω`, with the impossible event `∅` given no weight, the certain event `univ`
-given full weight, and countable additivity — the partial sums of a pairwise disjoint countable
-family of events have least upper bound the effect of their union. Sums are computed in `E`, since
-`Effect E` is not itself closed under addition.
+A measurement with outcomes in `Ω` assigns to each event — a measurable set of outcomes — the
+effect testing whether the outcome lands in it. The impossible event gets `0`, the certain event
+gets `1`, and the effects of disjoint events add up, countably. This is the most general notion of
+measurement: for self-adjoint operators it is exactly a POVM.
 
-Once `E` is the self-adjoint part of an operator algebra, this is exactly what the physics
-literature calls a POVM (positive operator-valued measure). Nothing here is an operator, though:
-all that's needed is `Effect E` on an order-unit space, which is why the name doesn't mention
-operators.
+Since `Effect E` isn't closed under addition, sums are taken in `E`, and countable additivity says
+the partial sums have the effect of the union as their least upper bound.
 
 ## ii. Key results
 
-- `EffectValuedMeasure Ω E` : an effect-valued measure on `Ω`.
+- `EffectValuedMeasure Ω E` : a measurement with outcomes in `Ω`.
 
 ## iii. Table of contents
 
 - A. Effect-valued measures
-- B. Basic API
 
 -/
 
 @[expose] public section
 
+open Function
+
 variable {Ω E : Type*} [MeasurableSpace Ω] [OrderUnitSpace E]
 
 /-! ## A. Effect-valued measures -/
 
-/-- An effect-valued measure: `∅ ↦ 0`, `univ ↦ 1`, countably additive up to least upper bound. -/
+/-- An effect-valued measure: `∅ ↦ 0`, `univ ↦ 1`, countably additive. -/
 structure EffectValuedMeasure (Ω : Type*) [MeasurableSpace Ω] (E : Type*) [OrderUnitSpace E] where
-  /-- The underlying assignment of outcomes to effects. -/
+  /-- The effect assigned to each event. -/
   toFun : ∀ s : Set Ω, MeasurableSet s → Effect E
-  /-- The impossible outcome gets no weight. -/
-  map_empty' : toFun ∅ MeasurableSet.empty = 0
-  /-- The certain outcome gets full weight. -/
-  map_univ' : toFun Set.univ MeasurableSet.univ = 1
-  /-- The partial sums of a pairwise disjoint countable family have least upper bound the effect
-  of their union. -/
-  countably_additive' : ∀ s : ℕ → Set Ω, ∀ hsm : ∀ n, MeasurableSet (s n),
-    ∀ _hs : ∀ m n, m ≠ n → Disjoint (s m) (s n),
-      IsLUB (Set.range fun N : ℕ => ∑ n ∈ Finset.range N, (toFun (s n) (hsm n) : E))
-        (toFun (⋃ n, s n) (MeasurableSet.iUnion hsm) : E)
+  /-- The impossible event gets `0`. -/
+  map_empty' : toFun ∅ .empty = 0
+  /-- The certain event gets `1`. -/
+  map_univ' : toFun .univ .univ = 1
+  /-- The effects of countably many disjoint events add up to the effect of their union. -/
+  countably_additive' : ∀ (s : ℕ → Set Ω) (hs : ∀ n, MeasurableSet (s n)),
+    Pairwise (Disjoint on s) →
+      IsLUB (Set.range fun N => ∑ n ∈ Finset.range N, (toFun (s n) (hs n) : E))
+        (toFun (⋃ n, s n) (.iUnion hs) : E)
 
 namespace EffectValuedMeasure
 
-/-! ## B. Basic API -/
-
 instance : CoeFun (EffectValuedMeasure Ω E) fun _ => ∀ s : Set Ω, MeasurableSet s → Effect E where
-  coe m := m.toFun
+  coe μ := μ.toFun
 
 @[ext]
 lemma ext {μ ν : EffectValuedMeasure Ω E} (h : ∀ s hs, μ s hs = ν s hs) : μ = ν := by
-  cases μ
-  cases ν
-  simp_all only [EffectValuedMeasure.mk.injEq]
-  funext s hs
-  exact h s hs
+  cases μ; cases ν; congr; exact funext fun s => funext (h s)
 
 @[simp]
-lemma map_empty (μ : EffectValuedMeasure Ω E) : μ ∅ MeasurableSet.empty = 0 := μ.map_empty'
+lemma map_empty (μ : EffectValuedMeasure Ω E) : μ ∅ .empty = 0 := μ.map_empty'
 
 @[simp]
-lemma map_univ (μ : EffectValuedMeasure Ω E) : μ Set.univ MeasurableSet.univ = 1 := μ.map_univ'
+lemma map_univ (μ : EffectValuedMeasure Ω E) : μ .univ .univ = 1 := μ.map_univ'
 
-lemma countably_additive (μ : EffectValuedMeasure Ω E) (s : ℕ → Set Ω)
-    (hsm : ∀ n, MeasurableSet (s n)) (hs : ∀ m n, m ≠ n → Disjoint (s m) (s n)) :
-    IsLUB (Set.range fun N : ℕ => ∑ n ∈ Finset.range N, (μ (s n) (hsm n) : E))
-      (μ (⋃ n, s n) (MeasurableSet.iUnion hsm) : E) :=
-  μ.countably_additive' s hsm hs
+lemma countably_additive (μ : EffectValuedMeasure Ω E) {s : ℕ → Set Ω}
+    (hs : ∀ n, MeasurableSet (s n)) (hd : Pairwise (Disjoint on s)) :
+    IsLUB (Set.range fun N => ∑ n ∈ Finset.range N, (μ (s n) (hs n) : E))
+      (μ (⋃ n, s n) (.iUnion hs) : E) :=
+  μ.countably_additive' s hs hd
 
 end EffectValuedMeasure

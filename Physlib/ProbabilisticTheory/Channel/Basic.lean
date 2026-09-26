@@ -131,7 +131,7 @@ lemma id_apply (x : E) : UnitalPositiveLinearMap.id R E x = x := rfl
 one channel after another is still positive and leaves the certain outcome certain. -/
 def comp (g : F →ₚ₁[R] G) (f : E →ₚ₁[R] F) : E →ₚ₁[R] G where
   toPositiveLinearMap := g.toPositiveLinearMap.comp f.toPositiveLinearMap
-  map_one' := by show g (f 1) = 1; rw [map_one f, map_one g]
+  map_one' := (congrArg g f.map_one').trans g.map_one'
 
 @[simp]
 lemma comp_apply (g : F →ₚ₁[R] G) (f : E →ₚ₁[R] F) (x : E) : g.comp f x = g (f x) := rfl
