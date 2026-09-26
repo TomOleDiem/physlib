@@ -94,9 +94,10 @@ lemma toReal_map_nnreal_smul (w : Weight E) (k : ℝ≥0) (A : PosCone E) :
     (w (k • A)).toReal = k * (w A).toReal := by
   rw [w.map_smul, ENNReal.smul_def, smul_eq_mul, ENNReal.toReal_mul, ENNReal.coe_toReal]
 
-/-- A weight preserves existing directed suprema in the positive cone. -/
-def IsNormal (w : Weight E) : Prop := ∀ (D : Set (PosCone E)) (A : PosCone E),
-  D.Nonempty → DirectedOn (· ≤ ·) D → IsLUB D A → IsLUB (w '' D) (w A)
+/-- A weight is normal when it preserves least upper bounds of increasing sequences in the
+positive cone. -/
+def IsNormal (w : Weight E) : Prop := ∀ (f : ℕ → PosCone E) (A : PosCone E),
+  Monotone f → IsLUB (Set.range f) A → IsLUB (Set.range (w ∘ f)) (w A)
 
 end OrderedVectorSpace
 
