@@ -89,8 +89,7 @@ lemma IsFinite.toReal_map_add {w : Weight E} (hw : w.IsFinite) (A B : PosCone E)
     (w (A + B)).toReal = (w A).toReal + (w B).toReal := by
   rw [w.map_add, ENNReal.toReal_add (hw A) (hw B)]
 
-/-- A weight's real value scales linearly under nonnegative real scaling, whether or not it's
-finite: on the infinite side, both sides read `0`. -/
+/-- A weight's real value scales linearly under nonnegative real scaling. -/
 lemma toReal_map_nnreal_smul (w : Weight E) (k : ℝ≥0) (A : PosCone E) :
     (w (k • A)).toReal = k * (w A).toReal := by
   rw [w.map_smul, ENNReal.smul_def, smul_eq_mul, ENNReal.toReal_mul, ENNReal.coe_toReal]
