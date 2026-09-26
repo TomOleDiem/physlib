@@ -109,28 +109,24 @@ instance instNonemptyState [Nontrivial E] : Nonempty (𝓢[ℝ, E]) := by
   obtain ⟨a, b, hab⟩ := exists_pair_ne E
   exact hab ((hz a).trans (hz b).symm)
 
+/-- If `A ≤ r • 1` fails, some state predicts more than `r` for `A`. -/
+lemma exists_state_apply_gt_of_not_le {A : E} {r : ℝ} (h : ¬ A ≤ r • (1 : E)) :
+    ∃ ω : 𝓢[ℝ, E], r < ω A := by
+  obtain ⟨ω, hω⟩ := exists_apply_neg_of_not_nonneg (A := r • 1 - A) (by rwa [sub_nonneg])
+  exact ⟨ω, by simpa [map_sub] using hω⟩
+
 /-- Any scalar below the order-unit norm of `A` is exceeded by `|ω A|` for some state `ω`. -/
 lemma exists_state_abs_apply_gt_of_lt_orderUnitNorm [Nontrivial E] (A : E) {r : ℝ}
     (hr : r < orderUnitNorm A) : ∃ ω : 𝓢[ℝ, E], r < |ω A| := by
-  by_cases hr0 : r < 0
+  rcases lt_or_ge r 0 with hr0 | hr0
   · obtain ⟨ω⟩ := (inferInstance : Nonempty (𝓢[ℝ, E]))
     exact ⟨ω, hr0.trans_le (abs_nonneg _)⟩
-  have hr_nonneg : 0 ≤ r := le_of_not_gt hr0
-  have hnot : r ∉ orderUnitBounds A := fun hr_mem =>
-    absurd (orderUnitNorm_le hr_mem) (not_le.mpr hr)
-  by_cases hu : A ≤ r • (1 : E)
-  · have hl : ¬ -(r • (1 : E)) ≤ A := fun hl => hnot ⟨hr_nonneg, hl, hu⟩
-    have hnonneg : ¬ 0 ≤ r • (1 : E) + A := by
-      simpa [neg_le_iff_add_nonneg, add_comm] using hl
-    obtain ⟨ω, hω⟩ := exists_apply_neg_of_not_nonneg hnonneg
-    refine ⟨ω, ?_⟩
-    rw [map_add, map_smul, smul_eq_mul, map_one, mul_one] at hω
-    exact lt_of_lt_of_le (by linarith) (neg_le_abs (ω A))
-  · have hnonneg : ¬ 0 ≤ r • (1 : E) - A := by simpa [sub_nonneg] using hu
-    obtain ⟨ω, hω⟩ := exists_apply_neg_of_not_nonneg hnonneg
-    refine ⟨ω, ?_⟩
-    rw [map_sub, map_smul, smul_eq_mul, map_one, mul_one] at hω
-    exact lt_of_lt_of_le (by linarith) (le_abs_self (ω A))
+  rcases not_and_or.1 fun h : -(r • (1 : E)) ≤ A ∧ A ≤ r • 1 =>
+    (orderUnitNorm_le ⟨hr0, h.1, h.2⟩).not_gt hr with h | h
+  · obtain ⟨ω, hω⟩ := exists_state_apply_gt_of_not_le (A := -A) (by rwa [neg_le] at h)
+    exact ⟨ω, hω.trans_le (by simpa using neg_le_abs (ω A))⟩
+  · obtain ⟨ω, hω⟩ := exists_state_apply_gt_of_not_le h
+    exact ⟨ω, hω.trans_le (le_abs_self _)⟩
 
 /-- The order-unit norm is the supremum of `|ω A|` over all states `ω`. -/
 lemma sSup_abs_apply_eq_orderUnitNorm [Nontrivial E] (A : E) :
