@@ -7,6 +7,7 @@ module
 
 public import Physlib.ProbabilisticTheory.Channel.Basic
 public import Physlib.ProbabilisticTheory.OrderUnit.Basic
+public import Mathlib.Algebra.Order.BigOperators.Group.Finset
 
 /-!
 # Normal channels
@@ -54,6 +55,25 @@ lemma IsNormal.comp {φ : E₁ →ₚ[ℝ] E₂} {ψ : E₂ →ₚ[ℝ] E₃} (h
   have himg := hψ (φ '' D) (φ x) hφDnonempty hdirectedφD hφD
   rw [Set.image_image] at himg
   exact himg
+
+/-- Nonnegative partial sums are monotone in how many terms are included: adding more nonnegative
+terms never decreases the sum. -/
+lemma monotone_partialSums {f : ℕ → E₁} (hf : ∀ n, 0 ≤ f n) :
+    Monotone (fun N => ∑ n ∈ Finset.range N, f n) := fun _ _ hNM =>
+  Finset.sum_le_sum_of_subset_of_nonneg (Finset.range_subset_range.mpr hNM) fun i _ _ => hf i
+
+/-- A normal positive linear map carries the least upper bound of nonnegative partial sums to the
+least upper bound of the pushed-forward partial sums: this is exactly the countable additivity a
+channel needs to preserve when pushing a measurement forward. -/
+lemma IsNormal.tsum_isLUB {f : ℕ → E₁} (hf : ∀ n, 0 ≤ f n) {φ : E₁ →ₚ[ℝ] E₂} (hφ : φ.IsNormal)
+    {x : E₁} (hlub : IsLUB (Set.range fun N => ∑ n ∈ Finset.range N, f n) x) :
+    IsLUB (Set.range fun N => ∑ n ∈ Finset.range N, φ (f n)) (φ x) := by
+  have hpush := hφ (Set.range fun N => ∑ n ∈ Finset.range N, f n) x ⟨_, 0, rfl⟩
+    (monotone_partialSums hf).directed_le.directedOn_range hlub
+  rwa [show φ '' Set.range (fun N => ∑ n ∈ Finset.range N, f n) =
+      Set.range fun N => ∑ n ∈ Finset.range N, φ (f n) from
+    (Set.range_comp _ _).symm.trans
+      (congrArg Set.range (funext fun N => map_sum φ f (Finset.range N)))] at hpush
 
 end PositiveLinearMap
 
