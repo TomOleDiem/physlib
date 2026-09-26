@@ -44,6 +44,8 @@ another.
 
 variable {E : Type*} [ArchimedeanOrderUnitSpace E]
 
+open scoped Effect
+
 namespace UnitalPositiveLinearMap
 
 /-!

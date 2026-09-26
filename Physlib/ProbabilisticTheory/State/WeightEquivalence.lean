@@ -88,7 +88,7 @@ lemma toWeight_apply (s : 𝓢[ℝ, E]) (A : PosCone E) : s.toWeight A = ENNReal
   rfl
 
 /-- The weight induced by a state agrees with the state itself on the positive cone. -/
-@[simp] lemma toReal_toWeight_apply (s : 𝓢[ℝ, E]) (A : PosCone E) :
+lemma toReal_toWeight_apply (s : 𝓢[ℝ, E]) (A : PosCone E) :
     (s.toWeight A).toReal = s (A : E) := by
   rw [toWeight_apply, ENNReal.toReal_ofReal (map_nonneg s A.2)]
 
