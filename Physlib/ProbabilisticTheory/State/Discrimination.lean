@@ -82,6 +82,14 @@ lemma advantage_le (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) (e : Effect E
   have h2 : 0 ≤ ω₁ (e : E) := map_nonneg ω₁ e.2.1
   nlinarith [p.2.1, p.2.2]
 
+lemma bddAbove_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) :
+    BddAbove (Set.range (advantage ω₀ ω₁ p)) :=
+  ⟨p, by rintro _ ⟨e, rfl⟩; exact advantage_le ω₀ ω₁ p e⟩
+
+lemma bddAbove_successProb (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) :
+    BddAbove (Set.range (successProb ω₀ ω₁ p)) :=
+  ⟨1, by rintro _ ⟨e, rfl⟩; rw [successProb_eq_add_advantage]; linarith [advantage_le ω₀ ω₁ p e]⟩
+
 /-- The best a single test can do. -/
 noncomputable def optimalSuccessProb (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) : ℝ :=
   ⨆ e : Effect E, successProb ω₀ ω₁ p e
@@ -90,9 +98,8 @@ noncomputable def optimalSuccessProb (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInter
 advantage any test can give. -/
 lemma optimalSuccessProb_eq (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) :
     optimalSuccessProb ω₀ ω₁ p = (1 - (p : ℝ)) + ⨆ e : Effect E, advantage ω₀ ω₁ p e := by
-  have hbdd : BddAbove (Set.range (advantage ω₀ ω₁ p)) :=
-    ⟨(p : ℝ), by rintro _ ⟨e, rfl⟩; exact advantage_le ω₀ ω₁ p e⟩
-  simp_rw [optimalSuccessProb, successProb_eq_add_advantage, ← add_ciSup hbdd]
+  simp_rw [optimalSuccessProb, successProb_eq_add_advantage,
+    ← add_ciSup (bddAbove_advantage ω₀ ω₁ p)]
 
 end OrderUnitSpace
 
@@ -111,17 +118,25 @@ lemma sub_complement_eq_neg_sub (ω₀ ω₁ : 𝓢[ℝ, E]) (e : Effect E) :
   show ω₀ (1 - (e : E)) - ω₁ (1 - (e : E)) = _
   simp only [map_sub, map_one]; ring
 
+lemma bddAbove_abs_sub (ω₀ ω₁ : 𝓢[ℝ, E]) :
+    BddAbove (Set.range fun e : Effect E => |ω₀ (e : E) - ω₁ (e : E)|) :=
+  ⟨1, by
+    rintro _ ⟨e, rfl⟩
+    exact abs_sub_le_of_nonneg_of_le (map_nonneg ω₀ e.2.1)
+      ((ω₀.monotone' e.2.2).trans_eq (map_one ω₀)) (map_nonneg ω₁ e.2.1)
+      ((ω₁.monotone' e.2.2).trans_eq (map_one ω₁))⟩
+
+lemma bddAbove_sub (ω₀ ω₁ : 𝓢[ℝ, E]) :
+    BddAbove (Set.range fun e : Effect E => ω₀ (e : E) - ω₁ (e : E)) :=
+  let ⟨b, hb⟩ := bddAbove_abs_sub ω₀ ω₁
+  ⟨b, by rintro _ ⟨e, rfl⟩; exact (le_abs_self _).trans (hb ⟨e, rfl⟩)⟩
+
 /-- The supremum of the state-value difference equals that of its absolute value: complementing
 an effect flips the sign. -/
 lemma ciSup_sub_eq_ciSup_abs_sub (ω₀ ω₁ : 𝓢[ℝ, E]) :
     (⨆ e : Effect E, (ω₀ (e : E) - ω₁ (e : E))) = ⨆ e : Effect E, |ω₀ (e : E) - ω₁ (e : E)| := by
-  have hbound (e : Effect E) : |ω₀ (e : E) - ω₁ (e : E)| ≤ 1 :=
-    abs_sub_le_of_nonneg_of_le (map_nonneg ω₀ e.2.1) ((ω₀.monotone' e.2.2).trans_eq (map_one ω₀))
-      (map_nonneg ω₁ e.2.1) ((ω₁.monotone' e.2.2).trans_eq (map_one ω₁))
-  have hbdd' : BddAbove (Set.range fun e : Effect E => |ω₀ (e : E) - ω₁ (e : E)|) :=
-    ⟨1, by rintro _ ⟨e, rfl⟩; exact hbound e⟩
-  have hbdd : BddAbove (Set.range fun e : Effect E => ω₀ (e : E) - ω₁ (e : E)) :=
-    ⟨1, by rintro _ ⟨e, rfl⟩; exact (le_abs_self _).trans (hbound e)⟩
+  have hbdd := bddAbove_sub ω₀ ω₁
+  have hbdd' := bddAbove_abs_sub ω₀ ω₁
   apply le_antisymm
   · exact ciSup_le fun e => (le_abs_self _).trans (le_ciSup hbdd' e)
   · apply ciSup_le
