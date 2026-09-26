@@ -103,12 +103,12 @@ lemma _root_.Effect.dist_eq_sSup_abs_apply [Nontrivial E] (e f : Effect E) :
   simp_rw [map_sub]
 
 /-- An effect is determined by its values under all states. -/
-lemma _root_.Effect.ext_of_forall_apply_eq [Nontrivial E] {e f : Effect E}
+lemma _root_.Effect.ext_of_forall_apply_eq {e f : Effect E}
     (h : ∀ ω : 𝓢[ℝ, E], ω (e : E) = ω (f : E)) : e = f :=
   Subtype.ext (UnitalPositiveLinearMap.ext_of_forall_apply_eq h)
 
 /-- Evaluation by states is injective on effects. -/
-lemma _root_.Effect.injective_apply_state [Nontrivial E] :
+lemma _root_.Effect.injective_apply_state :
     Function.Injective (fun (e : Effect E) (ω : 𝓢[ℝ, E]) => ω (e : E)) :=
   fun _ _ h => Effect.ext_of_forall_apply_eq (congrFun h)
 

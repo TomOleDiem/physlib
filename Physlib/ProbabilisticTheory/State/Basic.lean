@@ -6,7 +6,7 @@ Authors: Tom Ole Diem
 module
 
 public import Physlib.ProbabilisticTheory.Channel.Basic
-public import Mathlib.Data.Complex.Basic
+public import Mathlib.Basic.Complex.Basic
 
 /-!
 # States

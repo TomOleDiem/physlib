@@ -81,18 +81,6 @@ lemma advantage_le (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) (e : Effect E
   have h2 : 0 ≤ ω₁ (e : E) := map_nonneg ω₁ e.2.1
   nlinarith [p.2.1, p.2.2]
 
-lemma bddAbove_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) :
-    BddAbove (Set.range (advantage ω₀ ω₁ p)) :=
-  ⟨(p : ℝ), by rintro _ ⟨e, rfl⟩; exact advantage_le ω₀ ω₁ p e⟩
-
-lemma bddAbove_successProb (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) :
-    BddAbove (Set.range (successProb ω₀ ω₁ p)) := by
-  obtain ⟨b, hb⟩ := bddAbove_advantage ω₀ ω₁ p
-  exact ⟨(1 - (p : ℝ)) + b, by
-    rintro _ ⟨e, rfl⟩
-    rw [successProb_eq_add_advantage]
-    linarith [hb (Set.mem_range_self e)]⟩
-
 /-- The best a single test can do. -/
 noncomputable def optimalSuccessProb (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) : ℝ :=
   ⨆ e : Effect E, successProb ω₀ ω₁ p e
@@ -101,8 +89,12 @@ noncomputable def optimalSuccessProb (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInter
 advantage any test can give. -/
 lemma optimalSuccessProb_eq (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) :
     optimalSuccessProb ω₀ ω₁ p = (1 - (p : ℝ)) + ⨆ e : Effect E, advantage ω₀ ω₁ p e := by
-  have hbdd := bddAbove_advantage ω₀ ω₁ p
-  have hbdd' := bddAbove_successProb ω₀ ω₁ p
+  have hbdd : BddAbove (Set.range (advantage ω₀ ω₁ p)) :=
+    ⟨(p : ℝ), by rintro _ ⟨e, rfl⟩; exact advantage_le ω₀ ω₁ p e⟩
+  have hbdd' : BddAbove (Set.range (successProb ω₀ ω₁ p)) := ⟨1, by
+    rintro _ ⟨e, rfl⟩
+    rw [successProb_eq_add_advantage]
+    linarith [advantage_le ω₀ ω₁ p e, p.2.1, p.2.2]⟩
   unfold optimalSuccessProb
   apply le_antisymm
   · exact ciSup_le fun e => by rw [successProb_eq_add_advantage]; linarith [le_ciSup hbdd e]
@@ -132,29 +124,21 @@ lemma sub_complement_eq_neg_sub (ω₀ ω₁ : 𝓢[ℝ, E]) (e : Effect E) :
   show ω₀ (1 - (e : E)) - ω₁ (1 - (e : E)) = _
   simp only [map_sub, map_one]; ring
 
-lemma bddAbove_sub (ω₀ ω₁ : 𝓢[ℝ, E]) :
-    BddAbove (Set.range fun e : Effect E => ω₀ (e : E) - ω₁ (e : E)) :=
-  ⟨1, by
-    rintro _ ⟨e, rfl⟩
-    have h1 : ω₀ (e : E) ≤ 1 := (ω₀.monotone' e.2.2).trans_eq (map_one ω₀)
-    have h2 : (0 : ℝ) ≤ ω₁ (e : E) := map_nonneg ω₁ e.2.1
-    linarith⟩
-
-lemma bddAbove_abs_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) :
-    BddAbove (Set.range fun e : Effect E => |ω₀ (e : E) - ω₁ (e : E)|) :=
-  ⟨1, by
-    rintro _ ⟨e, rfl⟩
-    have h1 : ω₀ (e : E) ≤ 1 := (ω₀.monotone' e.2.2).trans_eq (map_one ω₀)
-    have h2 : (0 : ℝ) ≤ ω₁ (e : E) := map_nonneg ω₁ e.2.1
-    have h3 : ω₁ (e : E) ≤ 1 := (ω₁.monotone' e.2.2).trans_eq (map_one ω₁)
-    have h4 : (0 : ℝ) ≤ ω₀ (e : E) := map_nonneg ω₀ e.2.1
-    rw [abs_le]; constructor <;> linarith⟩
-
-/-- The best advantage equals its own absolute value: complementing an effect flips its sign. -/
-lemma ciSup_advantage_eq_ciSup_abs (ω₀ ω₁ : 𝓢[ℝ, E]) :
+/-- The supremum of the state-value difference equals that of its absolute value: complementing
+an effect flips the sign. -/
+lemma ciSup_sub_eq_ciSup_abs_sub (ω₀ ω₁ : 𝓢[ℝ, E]) :
     (⨆ e : Effect E, (ω₀ (e : E) - ω₁ (e : E))) = ⨆ e : Effect E, |ω₀ (e : E) - ω₁ (e : E)| := by
-  have hbdd := bddAbove_sub ω₀ ω₁
-  have hbdd' := bddAbove_abs_advantage ω₀ ω₁
+  have hbound (e : Effect E) : |ω₀ (e : E) - ω₁ (e : E)| ≤ 1 := by
+    have h₀ : (0 : ℝ) ≤ ω₀ (e : E) := map_nonneg ω₀ e.2.1
+    have h₁ : ω₀ (e : E) ≤ 1 := (ω₀.monotone' e.2.2).trans_eq (map_one ω₀)
+    have h₂ : (0 : ℝ) ≤ ω₁ (e : E) := map_nonneg ω₁ e.2.1
+    have h₃ : ω₁ (e : E) ≤ 1 := (ω₁.monotone' e.2.2).trans_eq (map_one ω₁)
+    rw [abs_le]
+    constructor <;> linarith
+  have hbdd' : BddAbove (Set.range fun e : Effect E => |ω₀ (e : E) - ω₁ (e : E)|) :=
+    ⟨1, by rintro _ ⟨e, rfl⟩; exact hbound e⟩
+  have hbdd : BddAbove (Set.range fun e : Effect E => ω₀ (e : E) - ω₁ (e : E)) :=
+    ⟨1, by rintro _ ⟨e, rfl⟩; exact (le_abs_self _).trans (hbound e)⟩
   apply le_antisymm
   · exact ciSup_le fun e => (le_abs_self _).trans (le_ciSup hbdd' e)
   · apply ciSup_le
@@ -166,7 +150,7 @@ lemma ciSup_advantage_eq_ciSup_abs (ω₀ ω₁ : 𝓢[ℝ, E]) :
 
 /-- The state distance is the largest `|ω₀ e - ω₁ e|` over unit-ball effects
 (`Effect.equivBall`). -/
-lemma dist_eq_ciSup_abs_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) :
+lemma dist_eq_ciSup_abs_sub (ω₀ ω₁ : 𝓢[ℝ, E]) :
     dist ω₀ ω₁ =
       ⨆ e : Effect E, |ω₀ ((Effect.equivBall e : E)) - ω₁ ((Effect.equivBall e : E))| := by
   have hbdd' : BddAbove (Set.range
@@ -180,10 +164,10 @@ lemma dist_eq_ciSup_abs_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) :
     exact le_ciSup hbdd' (Effect.equivBall.symm A)
   · exact ciSup_le fun e => le_ciSup (dist_bddAbove ω₀ ω₁) (Effect.equivBall e)
 
-/-- The state distance is exactly twice the largest advantage a single effect can give. -/
-lemma dist_eq_two_mul_ciSup_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) :
+/-- The state distance is twice the largest state-value difference over all effects. -/
+lemma dist_eq_two_mul_ciSup_sub (ω₀ ω₁ : 𝓢[ℝ, E]) :
     dist ω₀ ω₁ = 2 * ⨆ e : Effect E, (ω₀ (e : E) - ω₁ (e : E)) := by
-  rw [ciSup_advantage_eq_ciSup_abs, dist_eq_ciSup_abs_advantage]
+  rw [ciSup_sub_eq_ciSup_abs_sub, dist_eq_ciSup_abs_sub]
   simp_rw [apply_equivBall]
   have hpt : ∀ e : Effect E, |2 * ω₀ (e : E) - 1 - (2 * ω₁ (e : E) - 1)|
       = 2 * |ω₀ (e : E) - ω₁ (e : E)| := fun e => by
@@ -197,7 +181,7 @@ lemma dist_eq_two_mul_ciSup_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) :
 /-- For equal priors, the Helstrom bound is `1/2` plus a quarter of the state distance. -/
 lemma optimalSuccessProb_half_half_eq (ω₀ ω₁ : 𝓢[ℝ, E]) :
     optimalSuccessProb ω₀ ω₁ ⟨1 / 2, by norm_num, by norm_num⟩ = 1 / 2 + dist ω₀ ω₁ / 4 := by
-  rw [optimalSuccessProb_eq, dist_eq_two_mul_ciSup_advantage]
+  rw [optimalSuccessProb_eq, dist_eq_two_mul_ciSup_sub]
   have hfun : (fun e : Effect E => advantage ω₀ ω₁ ⟨1 / 2, by norm_num, by norm_num⟩ e)
       = fun e : Effect E => (1 / 2 : ℝ) • (ω₀ (e : E) - ω₁ (e : E)) := by
     ext e

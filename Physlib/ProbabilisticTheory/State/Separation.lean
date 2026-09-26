@@ -192,18 +192,8 @@ lemma orderUnitNorm_one [Nontrivial E] : orderUnitNorm (1 : E) = 1 := by
 -/
 
 /-- States separate points: if `ω A = ω B` for every state `ω`, then `A = B`. -/
-lemma ext_of_forall_apply_eq [Nontrivial E] {A B : E} (h : ∀ ω : 𝓢[ℝ, E], ω A = ω B) : A = B := by
-  have h0 : orderUnitNorm (A - B) = 0 := by
-    rw [← sSup_abs_apply_eq_orderUnitNorm]
-    have hrange : (Set.range fun ω : 𝓢[ℝ, E] => |ω (A - B)|) = {0} := by
-      ext y
-      simp only [Set.mem_range, Set.mem_singleton_iff]
-      constructor
-      · rintro ⟨ω, rfl⟩; rw [map_sub, h ω, sub_self, abs_zero]
-      · rintro rfl
-        obtain ⟨ω⟩ := (inferInstance : Nonempty (𝓢[ℝ, E]))
-        exact ⟨ω, by rw [map_sub, h ω, sub_self, abs_zero]⟩
-    rw [hrange, csSup_singleton]
-  exact sub_eq_zero.mp (orderUnitNorm_eq_zero_iff.mp h0)
+lemma ext_of_forall_apply_eq {A B : E} (h : ∀ ω : 𝓢[ℝ, E], ω A = ω B) : A = B := by
+  apply le_antisymm <;> rw [← sub_nonneg, nonneg_iff_forall_state_nonneg] <;>
+    intro ω <;> rw [map_sub, h ω, sub_self]
 
 end UnitalPositiveLinearMap
