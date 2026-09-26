@@ -71,14 +71,6 @@ section OrderUnitSpace
 
 variable {E : Type*} [OrderUnitSpace E]
 
-instance : Zero (Effect E) := ⟨0, le_refl 0, OrderUnitSpace.one_nonneg⟩
-instance : One (Effect E) := ⟨1, OrderUnitSpace.one_nonneg, le_refl 1⟩
-instance : Nonempty (Effect E) := ⟨0⟩
-
-@[simp] lemma coe_zero : ((0 : Effect E) : E) = 0 := rfl
-
-@[simp] lemma coe_one : ((1 : Effect E) : E) = 1 := rfl
-
 @[simp]
 lemma complement_zero : complement (0 : Effect E) = 1 := by
   apply Subtype.ext

@@ -12,11 +12,12 @@ public import Mathlib.Algebra.Order.Module.PositiveLinearMap
 
 ## i. Overview
 
-A channel is the most general physical transformation the theory allows: time evolution, noise,
-or a measurement whose outcome is never recorded. Whatever it does, it must send observables to
-observables without turning a possible outcome negative, and it must leave the certain outcome
-certain. In the Heisenberg picture, where a channel acts on observables rather than states,
-that's exactly a positive linear map preserving the distinguished unit.
+In the order-unit-space model used here, a channel is a positive unital transformation: it sends
+observables to observables without turning a possible outcome negative, and it leaves the certain
+outcome certain. This covers time evolution, noise, and measurements whose outcomes are discarded
+at the level of a general probabilistic theory. For quantum systems with a specified composite
+structure, physical channels normally require the stronger condition of complete positivity,
+which is not expressible using the order-unit structure alone.
 
 ## ii. Key results
 
