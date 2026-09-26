@@ -6,8 +6,8 @@ Authors: Tom Ole Diem
 module
 
 public import Mathlib.Geometry.Convex.Cone.Pointed
-public import Mathlib.Data.Real.Basic
-public import Mathlib.Data.NNReal.Defs
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Basic.NNReal.Defs
 public import Physlib.ProbabilisticTheory.OrderUnit.Archimedean
 
 /-!
