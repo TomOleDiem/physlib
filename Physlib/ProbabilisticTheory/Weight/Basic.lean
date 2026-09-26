@@ -138,7 +138,7 @@ noncomputable def normalize (w : Weight E) : Weight E where
     simp only [map_smul, ENNReal.smul_def, smul_eq_mul, RingHom.id_apply]
     ring
 
-lemma normalize_apply (w : Weight E) (A : PosCone E) :
+@[simp] lemma normalize_apply (w : Weight E) (A : PosCone E) :
     normalize w A = (w 1)⁻¹ * w A := rfl
 
 /-- Normalizing a finite weight that's nonzero at the order unit keeps it finite. -/
