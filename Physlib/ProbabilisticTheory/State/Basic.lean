@@ -6,7 +6,6 @@ Authors: Tom Ole Diem
 module
 
 public import Physlib.ProbabilisticTheory.Channel.Basic
-public import Mathlib.Basic.Complex.Basic
 
 /-!
 # States
@@ -40,6 +39,3 @@ notation " 𝓟[" 𝕜 ", " A "] " => A →ₚ[𝕜] 𝕜
 
 /-- States on an ordered `𝕜`-vector space with a distinguished unit. -/
 notation " 𝓢[" 𝕜 ", " A "] " => A →ₚ₁[𝕜] 𝕜
-
-/-- States on an ordered complex vector space with a distinguished unit. -/
-notation " 𝓢[" A "] " => A →ₚ₁[ℂ] ℂ

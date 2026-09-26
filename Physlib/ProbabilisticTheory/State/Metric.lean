@@ -19,21 +19,21 @@ automatically bounded: `|ω A| ≤ ‖A‖`. Physically, a state can never predi
 an expectation value bigger than what the observable itself can read.
 
 That bound induces a genuine operator-norm distance between states, `dist`, making `𝓢[ℝ, E]` a
-`MetricSpace`. That in turn gives a notion of how mixed a state is: `distToPure`, its distance to
-the nearest pure state.
+`MetricSpace`. That in turn gives a notion of how mixed a state is: `distToPure`, its infimum
+distance to the set of pure states.
 
 ## ii. Key results
 
 - `UnitalPositiveLinearMap.abs_apply_le_orderUnitNorm` : a state's values are bounded by the
   order-unit norm.
 - `UnitalPositiveLinearMap.dist` : the operator-norm distance between states.
-- `UnitalPositiveLinearMap.distToPure` : a state's distance to the nearest pure state.
+- `UnitalPositiveLinearMap.distToPure` : a state's infimum distance to the set of pure states.
 
 ## iii. Table of contents
 
 - A. States are bounded by the order-unit norm
 - B. The state metric
-- C. Distance to the nearest pure state
+- C. Distance to pure states
 
 -/
 
@@ -152,11 +152,11 @@ noncomputable instance : MetricSpace (𝓢[ℝ, E]) where
 
 /-!
 
-## C. Distance to the nearest pure state
+## C. Distance to pure states
 
 -/
 
-/-- How mixed a state is: its distance to the nearest pure state. -/
+/-- How mixed a state is: its infimum distance to the set of pure states. -/
 noncomputable def distToPure (ω : 𝓢[ℝ, E]) : ℝ :=
   Metric.infDist ω {φ : 𝓢[ℝ, E] | IsPure φ}
 

@@ -20,8 +20,8 @@ is the probability that guess is right.
 
 Always guessing `ω₁`, without even looking at the system, is already right with probability
 `1 - p` — that's our baseline. Running a test can only add to it: its `advantage` is how much
-extra success probability it buys over that baseline. The best possible test maximizes this
-advantage, giving the classic Helstrom bound (`optimalSuccessProb_eq`).
+extra success probability it buys over that baseline. Taking the supremum over all tests gives the
+classic Helstrom bound (`optimalSuccessProb_eq`), without assuming an optimizing test exists.
 
 For equal priors (`p = 1/2`) the bound simplifies to `1/2 + dist ω₀ ω₁ / 4`.
 Two equally likely states are easier to tell apart exactly when they sit farther apart.
