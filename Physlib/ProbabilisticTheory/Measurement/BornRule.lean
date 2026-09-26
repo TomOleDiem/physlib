@@ -17,9 +17,7 @@ public import Mathlib.Topology.Order.MonotoneConvergence
 
 A measurement is an effect-valued measure `μ : EffectValuedMeasure Ω E`. A state is a channel
 `E →ₚ₁[ℝ] ℝ`. Composing the two — scalarizing `μ` by the state — gives an effect-valued measure
-into `ℝ`, and a real-valued effect-valued measure is exactly a probability measure: its values lie
-in `[0, 1]`, and its order-theoretic countable additivity becomes ordinary countable additivity
-once cast through `ENNReal.ofReal`.
+into `ℝ`, and a real-valued effect-valued measure is exactly an ordinary probability measure.
 
 This is the operational content of a measurement: a state doesn't just assign a number to each
 individual effect, it gets carried by the measurement to a genuine probability distribution over
