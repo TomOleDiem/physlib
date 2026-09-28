@@ -253,6 +253,9 @@ public import Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Yukawa
 public import Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.ZMod
 public import Physlib.Particles.SuperSymmetry.SU5.FieldLabels
 public import Physlib.Particles.SuperSymmetry.SU5.Potential
+public import Physlib.ProbabilisticTheory.OrderUnit.Archimedean
+public import Physlib.ProbabilisticTheory.OrderUnit.Basic
+public import Physlib.ProbabilisticTheory.OrderUnit.Cone
 public import Physlib.QFT.AnomalyCancellation.Basic
 public import Physlib.QFT.AnomalyCancellation.GroupActions
 public import Physlib.QFT.PerturbationTheory.CreateAnnihilate
@@ -354,6 +357,7 @@ public import Physlib.QuantumMechanics.HilbertSpaces.SpaceD.SobolevSubmodule
 public import Physlib.QuantumMechanics.HilbertSpaces.TensorProducts.CompleteTensorProduct
 public import Physlib.QuantumMechanics.Hydrogen.Basic
 public import Physlib.QuantumMechanics.Hydrogen.LaplaceRungeLenzVector
+public import Physlib.QuantumMechanics.Hydrogen.Rydberg
 public import Physlib.QuantumMechanics.InfiniteSquareWell.Basic
 public import Physlib.QuantumMechanics.Operators.AngularMomentum
 public import Physlib.QuantumMechanics.Operators.Commutation
@@ -385,6 +389,7 @@ public import Physlib.Relativity.Bispinors.Basic
 public import Physlib.Relativity.CliffordAlgebra
 public import Physlib.Relativity.Fermions.Dirac.Basic
 public import Physlib.Relativity.Fermions.Dirac.GammaMatrices
+public import Physlib.Relativity.Fermions.Dirac.Slash
 public import Physlib.Relativity.Fermions.Weyl.Contraction
 public import Physlib.Relativity.Fermions.Weyl.DualLeftHanded
 public import Physlib.Relativity.Fermions.Weyl.DualRightHanded
