@@ -85,7 +85,7 @@ lemma dist_bddAbove (ω φ : 𝓢[ℝ, E]) :
     BddAbove (Set.range fun A : {A : E // orderUnitNorm A ≤ 1} => |ω A - φ A|) :=
   ⟨2, by rintro _ ⟨A, rfl⟩; exact abs_apply_sub_apply_le_two ω φ A.2⟩
 
-instance : Nonempty {A : E // orderUnitNorm A ≤ 1} := ⟨0, by simp⟩
+instance instNonemptyOrderUnitBall : Nonempty {A : E // orderUnitNorm A ≤ 1} := ⟨0, by simp⟩
 
 /-- The operator-norm distance between two states: how far apart their predictions can get on an
 observable of order-unit norm at most `1`. -/
@@ -124,15 +124,16 @@ lemma eq_of_dist_eq_zero {ω φ : 𝓢[ℝ, E]} (h : dist ω φ = 0) : ω = φ :
     have hB : |ω B - φ B| ≤ 0 := (le_ciSup (dist_bddAbove ω φ) ⟨B, hB1⟩).trans h.le
     rw [← hAB, map_smul, map_smul, sub_eq_zero.mp (abs_nonpos_iff.mp hB)]
 
-/-- A state's value at a doubled, re-centered effect (`Effect.equivBall`) is twice its value at
+/-- A state's value at a doubled, re-centered effect (`Effect.effectEquiv`) is twice its value at
 the effect, minus one. -/
-lemma apply_equivBall (ψ : 𝓢[ℝ, E]) (e : Effect E) :
-    ψ ((Effect.equivBall e : E)) = 2 * ψ (e : E) - 1 := by
-  show ψ ((2 : ℝ) • (e : E) - 1) = _
-  rw [map_sub, map_smul, map_one, smul_eq_mul]
+lemma apply_effectEquiv (ψ : 𝓢[ℝ, E]) (e : Effect E) :
+    ψ (Effect.effectEquiv e) = 2 * ψ e - 1 := by
+  show ψ (2 • (e : E) - 1) = _
+  rw [map_sub, map_nsmul, map_one, two_nsmul]
+  ring
 
 /-- States, metrized by the operator norm induced by the order-unit norm on `E`. -/
-noncomputable instance : MetricSpace (𝓢[ℝ, E]) where
+noncomputable instance instMetricSpace : MetricSpace (𝓢[ℝ, E]) where
   dist := dist
   dist_self := dist_self
   dist_comm := dist_comm
