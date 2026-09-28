@@ -43,6 +43,7 @@ separation fact.
 @[expose] public section
 
 open ArchimedeanOrderUnitSpace
+open OrderUnitSpace
 
 variable {E : Type*} [ArchimedeanOrderUnitSpace E]
 
@@ -58,8 +59,8 @@ namespace UnitalPositiveLinearMap
 lemma apply_eq_zero_of_apply_one_eq_zero {p : E →ₚ[ℝ] ℝ}
     (h1 : p (1 : E) = 0) (A : E) :
     p A = 0 := by
-  obtain ⟨n, hn⟩ := OrderUnitSpace.exists_nsmul_one_le A
-  obtain ⟨m, hm⟩ := OrderUnitSpace.exists_nsmul_one_le (-A)
+  obtain ⟨n, hn⟩ := exists_nsmul_one_le A
+  obtain ⟨m, hm⟩ := exists_nsmul_one_le (-A)
   exact le_antisymm (by simpa [h1] using p.monotone' hn) (by simpa [h1] using p.monotone' hm)
 
 /-- Every element outside the positive cone is strictly separated from it by a state. -/
@@ -73,7 +74,7 @@ lemma exists_apply_neg_of_not_nonneg {A : E} (hA : ¬ 0 ≤ A) : ∃ ω : 𝓢[�
       (smul_nonneg (div_nonneg_of_nonpos (by linarith) hfB.le) hB)
     rw [map_smul, smul_eq_mul, div_mul_cancel₀ _ hfB.ne] at hsep
     linarith
-  have hf_one_pos : 0 < f (1 : E) := (hf_nonneg 1 OrderUnitSpace.one_nonneg).lt_of_ne fun h1 => by
+  have hf_one_pos : 0 < f (1 : E) := (hf_nonneg 1 one_nonneg).lt_of_ne fun h1 => by
     have : f A = 0 := apply_eq_zero_of_apply_one_eq_zero (p := .mk₀ _ hf_nonneg) h1.symm A
     linarith [hfA.trans hu]
   exact ⟨ofLinearMap ((f (1 : E))⁻¹ • f.toLinearMap)
@@ -102,9 +103,9 @@ lemma nonneg_iff_forall_state_nonneg (A : E) : 0 ≤ A ↔ ∀ ω : 𝓢[ℝ, E]
 /-- Every nontrivial Archimedean order-unit space has a state. -/
 instance instNonemptyState [Nontrivial E] : Nonempty (𝓢[ℝ, E]) := by
   refine (exists_apply_neg_of_not_nonneg (A := -1) fun h => ?_).nonempty
-  have h1 : (1 : E) = 0 := le_antisymm (neg_nonneg.mp h) OrderUnitSpace.one_nonneg
+  have h1 : (1 : E) = 0 := le_antisymm (neg_nonneg.mp h) one_nonneg
   have hz (B : E) : B = 0 := by
-    obtain ⟨n, hl, hu⟩ := OrderUnitSpace.exists_two_sided_bound B
+    obtain ⟨n, hl, hu⟩ := exists_two_sided_bound B
     exact le_antisymm (by simpa [h1] using hu) (by simpa [h1] using hl)
   obtain ⟨a, b, hab⟩ := exists_pair_ne E
   exact hab ((hz a).trans (hz b).symm)
