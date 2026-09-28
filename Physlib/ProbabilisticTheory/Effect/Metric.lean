@@ -63,7 +63,7 @@ lemma dist_eq_orderUnitNorm (e f : Effect E) : dist e f = orderUnitNorm ((e : E)
 
 /-- Doubling and re-centering an effect at the order unit lands in the order-unit-norm ball. -/
 lemma orderUnitNorm_two_smul_sub_one_le_one (e : Effect E) :
-    orderUnitNorm ((2 : ℝ) • (e : E) - 1) ≤ 1 := by
+    orderUnitNorm (2 • (e : E) - 1) ≤ 1 := by
   rw [orderUnitNorm_le_iff]
   refine ⟨by norm_num, ?_, ?_⟩
   · rw [one_smul, ← sub_nonneg,
