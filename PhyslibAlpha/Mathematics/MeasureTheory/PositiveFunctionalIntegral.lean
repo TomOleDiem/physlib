@@ -34,7 +34,8 @@ first extends `φ` positively to all continuous functions.
 
 ## iii. Table of contents
 
-- A. Positive functionals are integrals
+- A. Scaling continuous functions preserves their order
+- B. Positive functionals are integrals
 
 -/
 

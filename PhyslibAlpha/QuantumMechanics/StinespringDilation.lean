@@ -38,8 +38,8 @@ lemma krausApply.posSemidef {R : Type*} [Ring R] [PartialOrder R] [StarRing R]
     (krausApply K ρ).PosSemidef :=
   posSemidef_sum _ fun _ _ => hρ.mul_mul_conjTranspose_same _
 
-/-- Quantum channel. -/
-def QuantumChannel {R : Type*} [Mul R] [One R] [Star R] [AddCommMonoid R]
+/-- A Kraus family defines a quantum channel: its Kraus operators satisfy `∑ Kᵢᴴ Kᵢ = 1`. -/
+def IsKrausChannel {R : Type*} [Mul R] [One R] [Star R] [AddCommMonoid R]
     {q r : Type*} [Fintype q] [Fintype r] [DecidableEq q]
     (K : r → Matrix q q R) :=
   ∑ i, (K i)ᴴ * K i = 1
@@ -794,11 +794,11 @@ lemma trace_tr₂ {R : Type*} [RCLike R] {m n : ℕ}
 operations to channels. -/
 def krausCompletionChannelMap {R : Type*} [RCLike R] {q r : ℕ}
     {K : Fin r → Matrix (Fin q) (Fin q) R} (hK : QuantumOperation K) :
-    {K : Fin (r+1) → Matrix (Fin q) (Fin q) R | QuantumChannel K} := by
+    {K : Fin (r+1) → Matrix (Fin q) (Fin q) R | IsKrausChannel K} := by
   constructor
   swap
   · exact fun i x => krausCompletion K (x, i)
-  · unfold QuantumChannel
+  · unfold IsKrausChannel
     rw [← krausCompletion_isometry_of_TNI hK]
     ext x y
     rw [mul_apply, Fintype.sum_prod_type, Finset.sum_comm, Matrix.sum_apply]
@@ -811,7 +811,7 @@ lemma CPTP_of_CPTNI {R : Type*} [RCLike R]
     {K : Fin r → Matrix (Fin q) (Fin q) R}
     (hq : QuantumOperation K) :
     ∃ K' : Fin (r+1) → Matrix (Fin q) (Fin q) R,
-    QuantumChannel K' ∧
+    IsKrausChannel K' ∧
     ∀ i, ∀ H : i ≠ Fin.last r, K' i = K ⟨i.1, Fin.val_lt_last H⟩ := by
   use (fun i x => krausCompletion K (x, i))
   constructor
