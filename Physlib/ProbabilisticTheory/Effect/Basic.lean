@@ -56,7 +56,7 @@ variable {E : Type*} [OrderedVectorSpace E] [One E]
 
 /-- An effect is a positive element whose complement from the order unit is positive. -/
 lemma mem_iff_mem_posCone_and_one_sub_mem_posCone {A : E} :
-    A ∈ (Effect E : Set E) ↔ A ∈ PosCone E ∧ 1 - A ∈ PosCone E := by
+    A ∈ Effect E ↔ A ∈ PosCone E ∧ 1 - A ∈ PosCone E := by
   simp only [Set.mem_Icc, PointedCone.mem_positive, sub_nonneg]
 
 end OrderedVectorSpace
@@ -78,7 +78,7 @@ instance instNonempty : Nonempty (Effect E) := ⟨0⟩
 /-- Every nonnegative observable becomes an effect after scaling it down by a large enough
 positive real: the effect interval reaches in every direction the positive cone does. -/
 lemma exists_pos_smul_mem {B : E} (hB : 0 ≤ B) :
-    ∃ r : ℝ, 0 < r ∧ r • B ∈ (Effect E : Set E) := by
+    ∃ r : ℝ, 0 < r ∧ r • B ∈ Effect E := by
   obtain ⟨n, hn⟩ := exists_nsmul_one_le B
   rw [← Nat.cast_smul_eq_nsmul ℝ] at hn
   refine ⟨((n : ℝ) + 1)⁻¹, by positivity, smul_nonneg (by positivity) hB, ?_⟩
