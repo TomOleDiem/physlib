@@ -74,7 +74,7 @@ lemma orderUnitNorm_two_smul_sub_one_le_one (e : Effect E) :
     exact smul_nonneg (by norm_num) (sub_nonneg.mpr e.2.2)
 
 /-- Undoing the re-centering on a point of the order-unit-norm ball gives back an effect. -/
-lemma mem_effect_two_inv_smul_one_add (A : {A : E // orderUnitNorm A ≤ 1}) :
+lemma mem_effect_two_inv_smul_one_add {A : E} (hA : orderUnitNorm A ≤ 1) :
     (2 : ℝ)⁻¹ • (1 + (A : E)) ∈ (Effect E : Set E) := by
   obtain ⟨-, hAl, hAu⟩ := orderUnitNorm_le_iff.mp A.2
   rw [one_smul] at hAl hAu
