@@ -58,17 +58,17 @@ variable {E : Type*} [OrderUnitSpace E]
 /-- Probability of guessing right between `ω₀` (prior `p`) and `ω₁` (prior `1 - p`) using test
 `e`: guess `ω₀` on a click, `ω₁` otherwise. -/
 def successProb (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) (e : Effect E) : ℝ :=
-  (p : ℝ) * ω₀ (e : E) + (1 - (p : ℝ)) * ω₁ ((Effect.complement e : E))
+  p * ω₀ e + (1 - p) * ω₁ (Effect.complement e)
 
 /-- How much test `e` improves on the baseline of always guessing `ω₁`. -/
 def advantage (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) (e : Effect E) : ℝ :=
-  (p : ℝ) * ω₀ (e : E) - (1 - (p : ℝ)) * ω₁ (e : E)
+  p * ω₀ e - (1 - p) * ω₁ e
 
 /-- Success probability equals the baseline `1 - p` plus the advantage of test `e`. -/
 lemma successProb_eq_add_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) (e : Effect E) :
-    successProb ω₀ ω₁ p e = (1 - (p : ℝ)) + advantage ω₀ ω₁ p e := by
-  show (p : ℝ) * ω₀ (e : E) + (1 - (p : ℝ)) * ω₁ (1 - (e : E))
-      = (1 - (p : ℝ)) + ((p : ℝ) * ω₀ (e : E) - (1 - (p : ℝ)) * ω₁ (e : E))
+    successProb ω₀ ω₁ p e = (1 - p) + advantage ω₀ ω₁ p e := by
+  show p * ω₀ e + (1 - p) * ω₁ (1 - (e : E)) =
+      (1 - p) + (p * ω₀ e - (1 - p) * ω₁ e)
   rw [map_sub, map_one]
   ring
 
@@ -76,10 +76,10 @@ lemma successProb_eq_add_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterva
 
 /-- No test's advantage beats the prior weight `p` of the state it favors. -/
 lemma advantage_le (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) (e : Effect E) :
-    advantage ω₀ ω₁ p e ≤ (p : ℝ) := by
-  show (p : ℝ) * ω₀ (e : E) - (1 - (p : ℝ)) * ω₁ (e : E) ≤ (p : ℝ)
-  have h1 : ω₀ (e : E) ≤ 1 := (ω₀.monotone' e.2.2).trans_eq (map_one ω₀)
-  have h2 : 0 ≤ ω₁ (e : E) := map_nonneg ω₁ e.2.1
+    advantage ω₀ ω₁ p e ≤ p := by
+  show p * ω₀ e - (1 - p) * ω₁ e ≤ p
+  have h1 : ω₀ e ≤ 1 := (ω₀.monotone' e.2.2).trans_eq (map_one ω₀)
+  have h2 : 0 ≤ ω₁ e := map_nonneg ω₁ e.2.1
   nlinarith [p.2.1, p.2.2]
 
 lemma bddAbove_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) :
@@ -97,7 +97,7 @@ noncomputable def optimalSuccessProb (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInter
 /-- The Helstrom bound: optimal success probability is the baseline `1 - p` plus the best
 advantage any test can give. -/
 lemma optimalSuccessProb_eq (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) :
-    optimalSuccessProb ω₀ ω₁ p = (1 - (p : ℝ)) + ⨆ e : Effect E, advantage ω₀ ω₁ p e := by
+    optimalSuccessProb ω₀ ω₁ p = (1 - p) + ⨆ e : Effect E, advantage ω₀ ω₁ p e := by
   simp_rw [optimalSuccessProb, successProb_eq_add_advantage,
     ← add_ciSup (bddAbove_advantage ω₀ ω₁ p)]
 
@@ -113,13 +113,12 @@ open ArchimedeanOrderUnitSpace
 
 /-- Complementing an effect negates `ω₀ e - ω₁ e`. -/
 lemma sub_complement_eq_neg_sub (ω₀ ω₁ : 𝓢[ℝ, E]) (e : Effect E) :
-    ω₀ ((Effect.complement e : E)) - ω₁ ((Effect.complement e : E))
-      = -(ω₀ (e : E) - ω₁ (e : E)) := by
+    ω₀ (Effect.complement e) - ω₁ (Effect.complement e) = -(ω₀ e - ω₁ e) := by
   show ω₀ (1 - (e : E)) - ω₁ (1 - (e : E)) = _
   simp only [map_sub, map_one]; ring
 
 lemma bddAbove_abs_sub (ω₀ ω₁ : 𝓢[ℝ, E]) :
-    BddAbove (Set.range fun e : Effect E => |ω₀ (e : E) - ω₁ (e : E)|) :=
+    BddAbove (Set.range fun e : Effect E => |ω₀ e - ω₁ e|) :=
   ⟨1, by
     rintro _ ⟨e, rfl⟩
     exact abs_sub_le_of_nonneg_of_le (map_nonneg ω₀ e.2.1)
@@ -127,14 +126,14 @@ lemma bddAbove_abs_sub (ω₀ ω₁ : 𝓢[ℝ, E]) :
       ((ω₁.monotone' e.2.2).trans_eq (map_one ω₁))⟩
 
 lemma bddAbove_sub (ω₀ ω₁ : 𝓢[ℝ, E]) :
-    BddAbove (Set.range fun e : Effect E => ω₀ (e : E) - ω₁ (e : E)) :=
+    BddAbove (Set.range fun e : Effect E => ω₀ e - ω₁ e) :=
   let ⟨b, hb⟩ := bddAbove_abs_sub ω₀ ω₁
   ⟨b, by rintro _ ⟨e, rfl⟩; exact (le_abs_self _).trans (hb ⟨e, rfl⟩)⟩
 
 /-- The supremum of the state-value difference equals that of its absolute value: complementing
 an effect flips the sign. -/
 lemma ciSup_sub_eq_ciSup_abs_sub (ω₀ ω₁ : 𝓢[ℝ, E]) :
-    (⨆ e : Effect E, (ω₀ (e : E) - ω₁ (e : E))) = ⨆ e : Effect E, |ω₀ (e : E) - ω₁ (e : E)| := by
+    (⨆ e : Effect E, (ω₀ e - ω₁ e)) = ⨆ e : Effect E, |ω₀ e - ω₁ e| := by
   have hbdd := bddAbove_sub ω₀ ω₁
   have hbdd' := bddAbove_abs_sub ω₀ ω₁
   apply le_antisymm
@@ -147,27 +146,27 @@ lemma ciSup_sub_eq_ciSup_abs_sub (ω₀ ω₁ : 𝓢[ℝ, E]) :
     exact abs_le.mpr ⟨by linarith, h1⟩
 
 /-- The state distance is the largest `|ω₀ e - ω₁ e|` over unit-ball effects
-(`Effect.equivBall`). -/
+(`Effect.effectEquiv`). -/
 lemma dist_eq_ciSup_abs_sub (ω₀ ω₁ : 𝓢[ℝ, E]) :
     dist ω₀ ω₁ =
-      ⨆ e : Effect E, |ω₀ ((Effect.equivBall e : E)) - ω₁ ((Effect.equivBall e : E))| := by
+      ⨆ e : Effect E, |ω₀ (Effect.effectEquiv e) - ω₁ (Effect.effectEquiv e)| := by
   have hbdd' : BddAbove (Set.range
-      fun e : Effect E => |ω₀ ((Effect.equivBall e : E)) - ω₁ ((Effect.equivBall e : E))|) := by
+      fun e : Effect E => |ω₀ (Effect.effectEquiv e) - ω₁ (Effect.effectEquiv e)|) := by
     obtain ⟨b, hb⟩ := dist_bddAbove ω₀ ω₁
-    exact ⟨b, by rintro _ ⟨e, rfl⟩; exact hb (Set.mem_range_self (Effect.equivBall e))⟩
+    exact ⟨b, by rintro _ ⟨e, rfl⟩; exact hb (Set.mem_range_self (Effect.effectEquiv e))⟩
   apply le_antisymm
   · apply ciSup_le
     intro A
-    rw [← Effect.equivBall.apply_symm_apply A]
-    exact le_ciSup hbdd' (Effect.equivBall.symm A)
-  · exact ciSup_le fun e => le_ciSup (dist_bddAbove ω₀ ω₁) (Effect.equivBall e)
+    rw [← Effect.effectEquiv.apply_symm_apply A]
+    exact le_ciSup hbdd' (Effect.effectEquiv.symm A)
+  · exact ciSup_le fun e => le_ciSup (dist_bddAbove ω₀ ω₁) (Effect.effectEquiv e)
 
 /-- The state distance is twice the largest state-value difference over all effects. -/
 lemma dist_eq_two_mul_ciSup_sub (ω₀ ω₁ : 𝓢[ℝ, E]) :
-    dist ω₀ ω₁ = 2 * ⨆ e : Effect E, (ω₀ (e : E) - ω₁ (e : E)) := by
+    dist ω₀ ω₁ = 2 * ⨆ e : Effect E, (ω₀ e - ω₁ e) := by
   rw [ciSup_sub_eq_ciSup_abs_sub, dist_eq_ciSup_abs_sub, Real.mul_iSup_of_nonneg zero_le_two]
   congr 1 with e
-  rw [apply_equivBall, apply_equivBall, ← abs_two, ← abs_mul]
+  rw [apply_effectEquiv, apply_effectEquiv, ← abs_two, ← abs_mul]
   ring_nf
 
 /-- For equal priors, the Helstrom bound is `1/2` plus a quarter of the state distance. -/
@@ -175,7 +174,7 @@ lemma optimalSuccessProb_half_half_eq (ω₀ ω₁ : 𝓢[ℝ, E]) :
     optimalSuccessProb ω₀ ω₁ ⟨1 / 2, by norm_num, by norm_num⟩ = 1 / 2 + dist ω₀ ω₁ / 4 := by
   rw [optimalSuccessProb_eq, dist_eq_two_mul_ciSup_sub]
   have hfun (e : Effect E) : advantage ω₀ ω₁ ⟨1 / 2, by norm_num, by norm_num⟩ e =
-      1 / 2 * (ω₀ (e : E) - ω₁ (e : E)) := by
+      1 / 2 * (ω₀ e - ω₁ e) := by
     simp only [advantage]; ring
   simp_rw [hfun, ← Real.mul_iSup_of_nonneg (by norm_num : (0 : ℝ) ≤ 1 / 2)]
   ring
