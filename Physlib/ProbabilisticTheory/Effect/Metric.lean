@@ -89,7 +89,7 @@ lemma two_inv_smul_one_add_two_smul_sub_one (e : Effect E) :
     (2 : ℝ)⁻¹ • (1 + ((2 : ℝ) • (e : E) - 1)) = (e : E) := by module
 
 /-- Undoing the re-centering, then redoing it, returns the original ball point. -/
-lemma two_smul_two_inv_smul_one_add_sub_one (A : {A : E // orderUnitNorm A ≤ 1}) :
+lemma two_smul_two_inv_smul_one_add_sub_one (A : E) :
     (2 : ℝ) • ((2 : ℝ)⁻¹ • (1 + (A : E))) - 1 = (A : E) := by
   rw [smul_smul, mul_inv_cancel₀ (two_ne_zero), one_smul]
   module
