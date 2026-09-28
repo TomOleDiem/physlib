@@ -447,10 +447,10 @@ end AffineSymplecticAction
 
 ## F. The plane: translations and a non-trivial cohomology class
 
-The standard symplectic form of `ℝ × ℝ` and the translations `Z_E(x) = x + Z`: their cocycle is
-`σ(Z, Z')` itself, which is not a coboundary (the Lie algebra is abelian, so every coboundary
-vanishes). This is the simplest instance of (11.20)-(11.21): no invariant potential exists, and no
-moment of the translations is equivariant.
+The standard symplectic form of `ℝ × ℝ` and the translations `x ↦ x + Z`, whose vector fields are
+constant, `Z_E(x) = Z`: their cocycle is `σ(Z, Z')` itself, which is not a coboundary (the Lie
+algebra is abelian, so every coboundary vanishes). This is the simplest instance of (11.20)-(11.21):
+no invariant potential exists, and no moment of the translations is equivariant.
 
 -/
 
@@ -468,7 +468,7 @@ def planeForm : LinearMap.BilinForm ℝ (ℝ × ℝ) :=
     (by intros; simp only [Prod.fst_add, Prod.snd_add]; ring)
     (by intros; simp only [Prod.smul_fst, Prod.smul_snd, smul_eq_mul]; ring)
 
-/-- The translations of the plane: `A = 0`, `b = id`, `Z_E(x) = x + Z`. -/
+/-- The translations `x ↦ x + Z` of the plane: `A = 0`, `b = id`, so `Z_E(x) = Z`. -/
 def planeTranslations : AffineSymplecticAction planeForm (ℝ × ℝ) where
   A := 0
   b := LinearMap.id

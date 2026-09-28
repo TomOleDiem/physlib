@@ -27,8 +27,10 @@ public import PhyslibAlpha.SpaceAndTime.Space.Surfaces.SphericalCylinder
 public import PhyslibAlpha.SpaceAndTime.Space.Surfaces.SolidCylinder
 public import PhyslibAlpha.SpaceAndTime.Space.Surfaces.SolidSphere
 public import PhyslibAlpha.SpaceAndTime.Space.Surfaces.SphericalShell
-public import PhyslibAlpha.ClassicalMechanics.MomentMap
-public import PhyslibAlpha.ClassicalMechanics.MomentMapCohomology
+public import PhyslibAlpha.ClassicalMechanics.MomentMap.Basic
+public import PhyslibAlpha.ClassicalMechanics.MomentMap.Cohomology
+public import PhyslibAlpha.ClassicalMechanics.MomentMap.GalileanMass
+public import PhyslibAlpha.ClassicalMechanics.MomentMap.GalileanMassCocycle
 public import PhyslibAlpha.ClassicalMechanics.NortonDome.Basic
 public import PhyslibAlpha.ClassicalMechanics.NortonDome.Determinism
 public import PhyslibAlpha.ClassicalMechanics.NortonDome.NewtonianSystem
@@ -49,6 +51,7 @@ public import PhyslibAlpha.Mathematics.LadderSystem.Irreducibility
 public import PhyslibAlpha.Mathematics.LadderSystem.OccupationBasis
 public import PhyslibAlpha.Mathematics.LadderSystem.SymmetricPower
 public import PhyslibAlpha.ClassicalMechanics.CoupledSpringPotential
+public import PhyslibAlpha.CondensedMatter.TightBindingChain.OpenBoundary
 public import PhyslibAlpha.Particles.BeyondTheStandardModel.TwoHDM.ChargeBalance
 public import PhyslibAlpha.Particles.BeyondTheStandardModel.TwoHDM.EffectivePotential
 public import PhyslibAlpha.Particles.BeyondTheStandardModel.TwoHDM.GaugeSlice

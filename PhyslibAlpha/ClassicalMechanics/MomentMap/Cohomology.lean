@@ -5,7 +5,7 @@ Authors: Philippe Kevorkian
 -/
 module
 
-public import PhyslibAlpha.ClassicalMechanics.MomentMap
+public import PhyslibAlpha.ClassicalMechanics.MomentMap.Basic
 public import Mathlib.RepresentationTheory.Homological.GroupCohomology.LowDegree
 /-!
 
@@ -25,7 +25,7 @@ group `Sp(E) ⋉ E` of a real symplectic vector space `E`, acting by `x ↦ B x 
 `moment` of (11.7): the defect `θ(a)` does not depend on `x` and equals `μ(C)` (a computation here,
 not a consequence of connectedness), `θ` is a 1-cocycle of the coadjoint action, its derivative
 at the identity along a curve is the Lie algebra cocycle of
-`PhyslibAlpha.ClassicalMechanics.MomentMap`, and its cohomology class is not zero. It does NOT
+`PhyslibAlpha.ClassicalMechanics.MomentMap.Basic`, and its cohomology class is not zero. It does NOT
 prove (11.18), (11.20) or (11.21): by (11.21) the non-zero class means that no potential of `σ` is
 invariant under this group, but that implication is Souriau's and is not formalised here.
 
