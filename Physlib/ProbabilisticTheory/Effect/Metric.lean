@@ -96,7 +96,7 @@ lemma two_smul_two_inv_smul_one_add_sub_one (A : {A : E // orderUnitNorm A ≤ 1
 
 /-- Effects correspond to points of the order-unit-norm ball by doubling and re-centering at the
 order unit: `e ↦ 2 • e - 1`, with inverse `A ↦ (1 + A) / 2`. -/
-noncomputable def equivBall : Effect E ≃ {A : E // orderUnitNorm A ≤ 1} where
+noncomputable def effectEquiv : Effect E ≃ {A : E // orderUnitNorm A ≤ 1} where
   toFun e := ⟨(2 : ℝ) • (e : E) - 1, orderUnitNorm_two_smul_sub_one_le_one e⟩
   invFun A := ⟨(2 : ℝ)⁻¹ • (1 + (A : E)), mem_effect_two_inv_smul_one_add A⟩
   left_inv e := Subtype.ext (two_inv_smul_one_add_two_smul_sub_one e)
