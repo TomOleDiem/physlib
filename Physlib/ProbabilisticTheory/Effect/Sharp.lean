@@ -42,7 +42,7 @@ variable {E : Type*} [OrderUnitSpace E]
 
 /-- An effect is sharp when it is an extreme point of the effect interval: it cannot be written as
 a nontrivial mixture of two distinct effects. -/
-def IsSharp (e : Effect E) : Prop := (e : E) ∈ Set.extremePoints ℝ (Effect E : Set E)
+def IsSharp (e : Effect E) : Prop := (e : E) ∈ Set.extremePoints ℝ (Effect E)
 
 /-- The impossible outcome 0 is sharp. -/
 lemma isSharp_zero : IsSharp (0 : Effect E) := by
