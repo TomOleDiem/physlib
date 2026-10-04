@@ -123,8 +123,7 @@ lemma isPure_iff_forall_mix_eq {ω : 𝓢[ℝ, E]} :
     refine ⟨⟨ω, rfl⟩, ?_⟩
     rintro x₁ ⟨φ, rfl⟩ x₂ ⟨ψ, rfl⟩ hseg
     obtain ⟨t, ht0, ht1, hmix⟩ := (mem_openSegment_iff_exists_mix ω φ ψ).1 hseg
-    exact (h φ ψ t ht0 ht1 hmix).imp
-      (congrArg fun x : 𝓢[ℝ, E] => x.toLinearMap) (congrArg fun x : 𝓢[ℝ, E] => x.toLinearMap)
+    simpa only [toLinearMap_injective.eq_iff] using h φ ψ t ht0 ht1 hmix
 
 /-- A genuine mixture equal to a pure state can only repeat that state at both endpoints. -/
 lemma IsPure.eq_of_mix {ω φ ψ : 𝓢[ℝ, E]} (hω : ω.IsPure) (t : unitInterval)
