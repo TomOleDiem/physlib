@@ -40,6 +40,8 @@ and normalized.
 
 @[expose] public section
 
+open ProbabilisticTheory
+
 open scoped ENNReal NNReal
 
 /-!
