@@ -31,6 +31,7 @@ to a positive linear functional.
 
 @[expose] public section
 
+open ProbabilisticTheory
 open scoped NNReal
 
 /-!

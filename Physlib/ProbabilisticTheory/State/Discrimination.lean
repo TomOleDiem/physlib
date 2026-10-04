@@ -47,6 +47,8 @@ Two equally likely states are easier to tell apart exactly when they sit farther
 
 @[expose] public section
 
+open ProbabilisticTheory
+
 namespace UnitalPositiveLinearMap
 
 section OrderUnitSpace

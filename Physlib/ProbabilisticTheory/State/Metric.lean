@@ -39,6 +39,7 @@ distance to the set of pure states.
 
 @[expose] public section
 
+open ProbabilisticTheory
 open ArchimedeanOrderUnitSpace
 
 variable {E : Type*} [ArchimedeanOrderUnitSpace E]

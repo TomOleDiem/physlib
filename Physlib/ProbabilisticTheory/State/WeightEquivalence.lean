@@ -31,6 +31,7 @@ the correspondence between them is a genuine theorem.
 
 @[expose] public section
 
+open ProbabilisticTheory
 open scoped ENNReal
 
 variable {E : Type*} [OrderUnitSpace E]

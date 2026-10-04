@@ -42,6 +42,7 @@ separation fact.
 
 @[expose] public section
 
+open ProbabilisticTheory
 open ArchimedeanOrderUnitSpace
 open OrderUnitSpace
 

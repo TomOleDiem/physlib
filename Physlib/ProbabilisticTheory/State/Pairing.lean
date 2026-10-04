@@ -42,6 +42,8 @@ another.
 
 @[expose] public section
 
+open ProbabilisticTheory
+
 variable {E : Type*} [ArchimedeanOrderUnitSpace E]
 
 open scoped Effect

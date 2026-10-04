@@ -36,6 +36,8 @@ two others, an extreme point of that convex set. A mixed state is one that is a 
 
 @[expose] public section
 
+open ProbabilisticTheory
+
 namespace UnitalPositiveLinearMap
 
 variable {E : Type*} [OrderUnitSpace E]
