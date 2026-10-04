@@ -50,11 +50,9 @@ lemma coe_nnreal_smul (t : ℝ≥0) (P : PosCone E) : ((t • P : PosCone E) : E
 /-- `P - Q ↦ f P - f Q` does not depend on how an element is written as a difference. -/
 lemma map_sub_eq_map_sub {P Q P' Q' : PosCone E} (h : (P : E) - Q = P' - Q') :
     f P - f Q = f P' - f Q' := by
-  have h' : P + Q' = P' + Q := Subtype.ext (by
-    simp only [Submodule.coe_add]; linear_combination (norm := module) h)
-  have := congrArg f h'
-  rw [map_add, map_add] at this
-  linarith
+  apply sub_eq_sub_iff_add_eq_add.mpr
+  simpa only [map_add] using congrArg f (Subtype.ext (by
+    simp only [Submodule.coe_add]; linear_combination (norm := module) h) : P + Q' = P' + Q)
 
 variable (hE : ∀ A : E, ∃ P Q : PosCone E, (P : E) - Q = A)
 
