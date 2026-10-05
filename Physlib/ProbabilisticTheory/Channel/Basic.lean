@@ -61,11 +61,7 @@ variable {R E F : Type*} [Semiring R]
 
 instance : FunLike (E →ₚ₁[R] F) E F where
   coe f := f.toFun
-  coe_injective f g h := by
-    cases f
-    cases g
-    congr
-    exact DFunLike.coe_injective h
+  coe_injective _ _ h := UnitalPositiveLinearMap.ext h
 
 instance : LinearMapClass (E →ₚ₁[R] F) R E F where
   map_add f := map_add f.toLinearMap
