@@ -32,6 +32,8 @@ two others, an extreme point of that convex set. A mixed state is one that is a 
 - B. The state space
 - C. Pure and mixed states
 
+## iv. References
+
 -/
 
 @[expose] public section
@@ -126,11 +128,6 @@ lemma isPure_iff_forall_mix_eq {ω : 𝓢[ℝ, E]} :
     rintro x₁ ⟨φ, rfl⟩ x₂ ⟨ψ, rfl⟩ hseg
     obtain ⟨t, ht0, ht1, hmix⟩ := (mem_openSegment_iff_exists_mix ω φ ψ).1 hseg
     simpa only [toLinearMap_injective.eq_iff] using h φ ψ t ht0 ht1 hmix
-
-/-- A genuine mixture equal to a pure state can only repeat that state at both endpoints. -/
-lemma IsPure.eq_of_mix {ω φ ψ : 𝓢[ℝ, E]} (hω : ω.IsPure) (t : unitInterval)
-    (ht0 : t ≠ 0) (ht1 : t ≠ 1) (hmix : mix φ ψ t = ω) : φ = ω ∧ ψ = ω :=
-  isPure_iff_forall_mix_eq.mp hω φ ψ t ht0 ht1 hmix
 
 /-- Purity transported along an injective map sending mixtures to convex combinations: a state
 is pure exactly when its image is an extreme point of the image of the state space. -/

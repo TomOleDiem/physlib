@@ -30,6 +30,8 @@ which is not expressible using the order-unit structure alone.
 - A. Unital positive linear maps
 - B. Constructing unital positive linear maps
 
+## iv. References
+
 -/
 
 @[expose] public section
@@ -41,11 +43,12 @@ which is not expressible using the order-unit structure alone.
 -/
 
 /-- A positive linear map preserving `1`. -/
+@[ext]
 structure UnitalPositiveLinearMap (R E F : Type*) [Semiring R]
     [AddCommMonoid E] [PartialOrder E] [AddCommMonoid F] [PartialOrder F]
-    [Module R E] [Module R F] [One E] [One F] extends E →ₚ[R] F where
-  /-- A unital positive linear map preserves the order unit. -/
-  map_one' : toPositiveLinearMap 1 = 1
+    [Module R E] [Module R F] [One E] [One F] extends E →ₚ[R] F, OneHom E F
+
+attribute [nolint docBlame] UnitalPositiveLinearMap.toOneHom
 
 /-- Notation for positive unital linear maps. -/
 notation:25 E " →ₚ₁[" R:25 "] " F:0 => UnitalPositiveLinearMap R E F
@@ -66,7 +69,7 @@ instance : FunLike (E →ₚ₁[R] F) E F where
 
 instance : LinearMapClass (E →ₚ₁[R] F) R E F where
   map_add f := map_add f.toLinearMap
-  map_smulₛₗ f := f.toLinearMap.map_smul'
+  map_smulₛₗ f := map_smul f.toLinearMap
 
 instance : OrderHomClass (E →ₚ₁[R] F) E F where
   map_rel f {_ _} h := f.monotone' h
@@ -74,13 +77,15 @@ instance : OrderHomClass (E →ₚ₁[R] F) E F where
 instance : OneHomClass (E →ₚ₁[R] F) E F where
   map_one f := f.map_one'
 
-@[ext]
-lemma ext {f g : E →ₚ₁[R] F} (h : ∀ x, f x = g x) : f = g :=
-  DFunLike.ext f g h
+/-- Unital positive linear maps are determined by their underlying positive linear map. -/
+lemma toPositiveLinearMap_injective :
+    Function.Injective (toPositiveLinearMap (R := R) (E := E) (F := F)) :=
+  fun _ _ h ↦ by ext x; congrm($h x)
 
 /-- Unital positive linear maps are determined by their underlying linear map. -/
 lemma toLinearMap_injective : Function.Injective (fun f : E →ₚ₁[R] F => f.toLinearMap) :=
-  fun _ _ h => ext (LinearMap.congr_fun h)
+  fun _ _ h ↦ toPositiveLinearMap_injective
+    (PositiveLinearMap.toLinearMap_injective h)
 
 end UnitalPositiveLinearMap
 

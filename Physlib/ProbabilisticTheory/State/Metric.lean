@@ -35,6 +35,8 @@ distance to the set of pure states.
 - B. The state metric
 - C. Distance to pure states
 
+## iv. References
+
 -/
 
 @[expose] public section
@@ -52,6 +54,11 @@ namespace UnitalPositiveLinearMap
 ## A. States are bounded by the order-unit norm
 
 -/
+
+/-- A state takes values at most `1` on observables bounded by the unit. -/
+lemma apply_le_one {F : Type*} [OrderUnitSpace F] (ω : 𝓢[ℝ, F]) {A : F} (hA : A ≤ 1) :
+    ω A ≤ 1 :=
+  (ω.monotone' hA).trans_eq (map_one ω)
 
 /-- A state never overshoots the order-unit norm. -/
 lemma apply_le_orderUnitNorm (ω : 𝓢[ℝ, E]) (A : E) : ω A ≤ orderUnitNorm A := by
@@ -94,6 +101,7 @@ observable of order-unit norm at most `1`. -/
 noncomputable def dist (ω φ : 𝓢[ℝ, E]) : ℝ :=
   ⨆ A : {A : E // orderUnitNorm A ≤ 1}, |ω A - φ A|
 
+/-- Distances between states are nonnegative. -/
 lemma dist_nonneg (ω φ : 𝓢[ℝ, E]) : 0 ≤ dist ω φ :=
   le_trans (abs_nonneg _) (le_ciSup (dist_bddAbove ω φ) ⟨0, by simp⟩)
 
@@ -105,10 +113,12 @@ lemma dist_le_two (ω φ : 𝓢[ℝ, E]) : dist ω φ ≤ 2 :=
 lemma dist_self (ω : 𝓢[ℝ, E]) : dist ω ω = 0 := by
   simp [dist]
 
+/-- The state distance is symmetric. -/
 lemma dist_comm (ω φ : 𝓢[ℝ, E]) : dist ω φ = dist φ ω := by
   unfold dist
   simp_rw [abs_sub_comm]
 
+/-- The state distance satisfies the triangle inequality. -/
 lemma dist_triangle (ω φ ψ : 𝓢[ℝ, E]) : dist ω ψ ≤ dist ω φ + dist φ ψ := by
   apply ciSup_le
   intro A
@@ -118,8 +128,7 @@ lemma dist_triangle (ω φ ψ : 𝓢[ℝ, E]) : dist ω ψ ≤ dist ω φ + dist
 
 /-- `dist` separates states: two states at distance `0` are equal. -/
 lemma eq_of_dist_eq_zero {ω φ : 𝓢[ℝ, E]} (h : dist ω φ = 0) : ω = φ := by
-  apply ext
-  intro A
+  refine DFunLike.ext _ _ fun A => ?_
   rcases eq_or_ne (orderUnitNorm A) 0 with hr | hr
   · simp [orderUnitNorm_eq_zero_iff.mp hr]
   · obtain ⟨B, hB1, hAB⟩ := exists_orderUnitNorm_le_one_smul_eq hr
@@ -151,6 +160,7 @@ noncomputable instance instMetricSpace : MetricSpace (𝓢[ℝ, E]) where
 noncomputable def distToPure (ω : 𝓢[ℝ, E]) : ℝ :=
   Metric.infDist ω {φ : 𝓢[ℝ, E] | IsPure φ}
 
+/-- The distance to the set of pure states is nonnegative. -/
 lemma distToPure_nonneg (ω : 𝓢[ℝ, E]) : 0 ≤ distToPure ω :=
   Metric.infDist_nonneg
 

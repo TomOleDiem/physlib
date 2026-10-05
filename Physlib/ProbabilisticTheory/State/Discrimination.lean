@@ -80,17 +80,14 @@ lemma successProb_eq_add_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterva
 lemma advantage_le (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) (e : Effect E) :
     advantage ω₀ ω₁ p e ≤ p := by
   show p * ω₀ e - (1 - p) * ω₁ e ≤ p
-  have h1 : ω₀ e ≤ 1 := (ω₀.monotone' e.2.2).trans_eq (map_one ω₀)
+  have h1 : ω₀ e ≤ 1 := ω₀.apply_le_one e.2.2
   have h2 : 0 ≤ ω₁ e := map_nonneg ω₁ e.2.1
   nlinarith [p.2.1, p.2.2]
 
+/-- Advantages of tests are bounded above. -/
 lemma bddAbove_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) :
     BddAbove (Set.range (advantage ω₀ ω₁ p)) :=
   ⟨p, by rintro _ ⟨e, rfl⟩; exact advantage_le ω₀ ω₁ p e⟩
-
-lemma bddAbove_successProb (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) :
-    BddAbove (Set.range (successProb ω₀ ω₁ p)) :=
-  ⟨1, by rintro _ ⟨e, rfl⟩; rw [successProb_eq_add_advantage]; linarith [advantage_le ω₀ ω₁ p e]⟩
 
 /-- The best a single test can do. -/
 noncomputable def optimalSuccessProb (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) : ℝ :=
@@ -119,14 +116,15 @@ lemma sub_complement_eq_neg_sub (ω₀ ω₁ : 𝓢[ℝ, E]) (e : Effect E) :
   show ω₀ (1 - (e : E)) - ω₁ (1 - (e : E)) = _
   simp only [map_sub, map_one]; ring
 
+/-- The differences `|ω₀ e - ω₁ e|` over effects are bounded above. -/
 lemma bddAbove_abs_sub (ω₀ ω₁ : 𝓢[ℝ, E]) :
     BddAbove (Set.range fun e : Effect E => |ω₀ e - ω₁ e|) :=
   ⟨1, by
     rintro _ ⟨e, rfl⟩
-    exact abs_sub_le_of_nonneg_of_le (map_nonneg ω₀ e.2.1)
-      ((ω₀.monotone' e.2.2).trans_eq (map_one ω₀)) (map_nonneg ω₁ e.2.1)
-      ((ω₁.monotone' e.2.2).trans_eq (map_one ω₁))⟩
+    exact abs_sub_le_of_nonneg_of_le (map_nonneg ω₀ e.2.1) (ω₀.apply_le_one e.2.2)
+      (map_nonneg ω₁ e.2.1) (ω₁.apply_le_one e.2.2)⟩
 
+/-- The differences `ω₀ e - ω₁ e` over effects are bounded above. -/
 lemma bddAbove_sub (ω₀ ω₁ : 𝓢[ℝ, E]) :
     BddAbove (Set.range fun e : Effect E => ω₀ e - ω₁ e) :=
   let ⟨b, hb⟩ := bddAbove_abs_sub ω₀ ω₁
