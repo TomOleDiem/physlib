@@ -65,7 +65,7 @@ lemma apply_mem_Icc (ω : 𝓢[ℝ, E]) (e : Effect E) : ω e ∈ Set.Icc 0 1 :=
 /-- Evaluation is affine in the effect argument. -/
 lemma apply_mix (ω : 𝓢[ℝ, E]) (e f : Effect E) (t : unitInterval) :
     ω (Effect.mix e f t) = (t : ℝ) * ω e + (1 - (t : ℝ)) * ω f := by
-  rw [Effect.coe_mix, map_add, map_smul, map_smul, smul_eq_mul, smul_eq_mul]
+  simp [Effect.coe_mix]
 
 /-!
 
