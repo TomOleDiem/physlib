@@ -21,7 +21,7 @@ and normalized.
 
 ## ii. Key results
 
-- `Weight.mono` : weights are monotone on the positive cone.
+- `Weight.monotone` : weights are monotone on the positive cone.
 - `Weight.IsFinite.isSemifinite` : a finite weight is automatically semifinite.
 - `Weight.IsFinite.normalize_isState` : rescaling a finite weight that's nonzero at the order unit
   turns it into a state.
@@ -59,10 +59,6 @@ section OrderedVectorSpace
 
 variable {E : Type*} [OrderedVectorSpace E]
 
-@[ext]
-lemma ext {w₁ w₂ : Weight E} (h : ∀ A, w₁ A = w₂ A) : w₁ = w₂ :=
-  LinearMap.ext h
-
 /-- Only the zero positive element has weight zero. -/
 def IsFaithful (w : Weight E) : Prop := ∀ A : PosCone E, w A = 0 → A = 0
 
@@ -74,17 +70,16 @@ def IsSemifinite (w : Weight E) : Prop := ∀ A : PosCone E,
   w A = ⨆ B : {B : PosCone E // B ≤ A ∧ w B ≠ ⊤}, w B
 
 /-- Weights are monotone on the positive cone. -/
-lemma mono (w : Weight E) : Monotone (w : PosCone E → ℝ≥0∞) := by
+lemma monotone (w : Weight E) : Monotone w := by
   intro A B hAB
-  have hC : (0 : E) ≤ (B : E) - (A : E) := sub_nonneg.mpr hAB
-  have hAC : A + (⟨(B : E) - (A : E), hC⟩ : PosCone E) = B :=
-    Subtype.ext (show (A : E) + ((B : E) - (A : E)) = B from by abel)
+  have hAC : A + ⟨(B : E) - (A : E), sub_nonneg.mpr hAB⟩ = B := by
+    ext; rw [Submodule.coe_add, add_sub_cancel]
   rw [← hAC, map_add]
   exact le_self_add
 
 /-- A finite weight is semifinite. -/
 lemma IsFinite.isSemifinite {w : Weight E} (hw : w.IsFinite) : w.IsSemifinite := fun A =>
-  le_antisymm (le_iSup_of_le ⟨A, le_rfl, hw A⟩ le_rfl) (iSup_le fun B => w.mono B.2.1)
+  le_antisymm (le_iSup_of_le ⟨A, le_rfl, hw A⟩ le_rfl) (iSup_le fun B => w.monotone B.2.1)
 
 /-- A finite weight's real value is additive. -/
 lemma IsFinite.toReal_map_add {w : Weight E} (hw : w.IsFinite) (A B : PosCone E) :
@@ -133,8 +128,8 @@ noncomputable def normalize (w : Weight E) : Weight E where
 
 /-- Normalizing a finite weight that's nonzero at the order unit keeps it finite. -/
 lemma IsFinite.normalize_isFinite {w : Weight E} (hw : w.IsFinite) (h : w 1 ≠ 0) :
-    (normalize w).IsFinite := fun A =>
-  ENNReal.mul_ne_top (ENNReal.inv_ne_top.mpr h) (hw A)
+    (normalize w).IsFinite :=
+  fun A => ENNReal.mul_ne_top (ENNReal.inv_ne_top.mpr h) (hw A)
 
 /-- Normalizing a finite weight that's nonzero at the order unit makes it a state: the order unit
 is scaled to weight exactly `1`. -/

@@ -43,7 +43,7 @@ open scoped NNReal
 
 namespace PosCone
 
-variable {E : Type*} [OrderedVectorSpace E] (f : PosCone E →ₗ[ℝ≥0] ℝ)
+variable {E : Type*} [OrderUnitSpace E] (f : PosCone E →ₗ[ℝ≥0] ℝ)
 
 @[simp]
 lemma coe_nnreal_smul (t : ℝ≥0) (P : PosCone E) : ((t • P : PosCone E) : E) = (t : ℝ) • (P : E) :=
@@ -52,49 +52,52 @@ lemma coe_nnreal_smul (t : ℝ≥0) (P : PosCone E) : ((t • P : PosCone E) : E
 /-- `P - Q ↦ f P - f Q` does not depend on how an element is written as a difference. -/
 lemma map_sub_eq_map_sub {P Q P' Q' : PosCone E} (h : (P : E) - Q = P' - Q') :
     f P - f Q = f P' - f Q' := by
-  apply sub_eq_sub_iff_add_eq_add.mpr
-  simpa only [map_add] using congrArg f (Subtype.ext (by
-    simp only [Submodule.coe_add]; linear_combination (norm := module) h) : P + Q' = P' + Q)
+  rw [sub_eq_sub_iff_add_eq_add] at *
+  rw [← Submodule.coe_add, ← Submodule.coe_add, Subtype.val_inj] at h
+  simpa using congrArg f h
 
-variable (hE : ∀ A : E, ∃ P Q : PosCone E, (P : E) - Q = A)
+/-- In an order unit space, every element is a difference of positive elements. -/
+lemma exists_sub (A : E) : ∃ P Q : PosCone E, (P : E) - Q = A := by
+  obtain ⟨P, Q, hP, hQ, rfl⟩ := OrderUnitSpace.exists_eq_sub_nonneg A
+  exact ⟨⟨P, hP⟩, ⟨Q, hQ⟩, rfl⟩
 
 /-- The value of the extension, computed from a chosen decomposition `A = P - Q`. -/
 noncomputable def extendFun (A : E) : ℝ :=
-  f (hE A).choose - f (hE A).choose_spec.choose
+  f (exists_sub A).choose - f (exists_sub A).choose_spec.choose
 
 lemma extendFun_eq {A : E} {P Q : PosCone E} (h : (P : E) - Q = A) :
-    extendFun f hE A = f P - f Q :=
-  map_sub_eq_map_sub f ((hE A).choose_spec.choose_spec.trans h.symm)
+    extendFun f A = f P - f Q :=
+  map_sub_eq_map_sub f ((exists_sub A).choose_spec.choose_spec.trans h.symm)
 
-/-- The `ℝ`-linear extension of an `ℝ≥0`-linear map on a positive cone that spans the space. -/
+/-- The `ℝ`-linear extension of an `ℝ≥0`-linear map on an order unit space's positive cone. -/
 noncomputable def extend : E →ₗ[ℝ] ℝ where
-  toFun := extendFun f hE
+  toFun := extendFun f
   map_add' A B := by
-    obtain ⟨P, Q, rfl⟩ := hE A
-    obtain ⟨P', Q', rfl⟩ := hE B
-    rw [extendFun_eq f hE rfl, extendFun_eq f hE rfl,
-      extendFun_eq f hE (P := P + P') (Q := Q + Q') (by simp only [Submodule.coe_add]; abel),
+    obtain ⟨P, Q, rfl⟩ := exists_sub A
+    obtain ⟨P', Q', rfl⟩ := exists_sub B
+    rw [extendFun_eq f rfl, extendFun_eq f rfl,
+      extendFun_eq f (P := P + P') (Q := Q + Q') (by simp only [Submodule.coe_add]; abel),
       map_add, map_add]
     ring
   map_smul' t A := by
-    obtain ⟨P, Q, rfl⟩ := hE A
-    rw [extendFun_eq f hE rfl, RingHom.id_apply, smul_eq_mul]
+    obtain ⟨P, Q, rfl⟩ := exists_sub A
+    rw [extendFun_eq f rfl, RingHom.id_apply, smul_eq_mul]
     rcases le_total 0 t with ht | ht
     · lift t to ℝ≥0 using ht
-      rw [extendFun_eq f hE (P := t • P) (Q := t • Q) (by simp [smul_sub]), map_smul, map_smul]
+      rw [extendFun_eq f (P := t • P) (Q := t • Q) (by simp [smul_sub]), map_smul, map_smul]
       simp [NNReal.smul_def, mul_sub]
     · lift -t to ℝ≥0 using neg_nonneg.mpr ht with s hs
-      rw [extendFun_eq f hE (P := s • Q) (Q := s • P) (by simp only [coe_nnreal_smul, hs]; module),
+      rw [extendFun_eq f (P := s • Q) (Q := s • P) (by simp only [coe_nnreal_smul, hs]; module),
         map_smul, map_smul, NNReal.smul_def, NNReal.smul_def, smul_eq_mul, smul_eq_mul, hs]
       ring
 
 @[simp]
-lemma extend_apply {P Q : PosCone E} : extend f hE ((P : E) - Q) = f P - f Q :=
-  extendFun_eq f hE rfl
+lemma extend_apply {P Q : PosCone E} : extend f ((P : E) - Q) = f P - f Q :=
+  extendFun_eq f rfl
 
 @[simp]
-lemma extend_coe (P : PosCone E) : extend f hE (P : E) = f P := by
-  simpa using extend_apply f hE (P := P) (Q := 0)
+lemma extend_coe (P : PosCone E) : extend f (P : E) = f P := by
+  simpa using extend_apply f (P := P) (Q := 0)
 
 end PosCone
 
@@ -125,13 +128,9 @@ section OrderUnitSpace
 
 variable {E : Type*} [OrderUnitSpace E] {w : Weight E}
 
-lemma _root_.OrderUnitSpace.exists_posCone_sub (A : E) : ∃ P Q : PosCone E, (P : E) - Q = A := by
-  obtain ⟨P, Q, hP, hQ, rfl⟩ := OrderUnitSpace.exists_eq_sub_nonneg A
-  exact ⟨⟨P, hP⟩, ⟨Q, hQ⟩, rfl⟩
-
 /-- The `ℝ`-linear map extending a finite weight. -/
 noncomputable def IsFinite.toLinearMap (hw : w.IsFinite) : E →ₗ[ℝ] ℝ :=
-  PosCone.extend hw.toReal OrderUnitSpace.exists_posCone_sub
+  PosCone.extend hw.toReal
 
 @[simp]
 lemma IsFinite.toLinearMap_coe (hw : w.IsFinite) (A : PosCone E) :
