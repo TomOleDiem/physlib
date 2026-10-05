@@ -89,7 +89,7 @@ lemma IsFinite.toReal_map_add {w : Weight E} (hw : w.IsFinite) (A B : PosCone E)
 /-- A weight's real value scales linearly under nonnegative real scaling. -/
 lemma toReal_map_nnreal_smul (w : Weight E) (k : ℝ≥0) (A : PosCone E) :
     (w (k • A)).toReal = k * (w A).toReal := by
-  rw [w.map_smul, ENNReal.smul_def, smul_eq_mul, ENNReal.toReal_mul, ENNReal.coe_toReal]
+  simp [ENNReal.smul_def]
 
 /-- A weight is normal when it preserves least upper bounds of increasing sequences in the
 positive cone. -/
@@ -119,9 +119,7 @@ structure IsState (w : Weight E) : Prop where
 noncomputable def normalize (w : Weight E) : Weight E where
   toFun A := (w 1)⁻¹ * w A
   map_add' A B := by rw [map_add, mul_add]
-  map_smul' c A := by
-    simp only [map_smul, ENNReal.smul_def, smul_eq_mul, RingHom.id_apply]
-    ring
+  map_smul' c A := by simp
 
 @[simp] lemma normalize_apply (w : Weight E) (A : PosCone E) :
     normalize w A = (w 1)⁻¹ * w A := rfl

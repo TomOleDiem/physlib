@@ -139,8 +139,7 @@ lemma eq_of_dist_eq_zero {ω φ : 𝓢[ℝ, E]} (h : dist ω φ = 0) : ω = φ :
 the effect, minus one. -/
 lemma apply_effectEquiv (ψ : 𝓢[ℝ, E]) (e : Effect E) :
     ψ (Effect.effectEquiv e) = 2 * ψ e - 1 := by
-  show ψ (2 • (e : E) - 1) = _
-  rw [map_sub, map_nsmul, map_one, nsmul_eq_mul, Nat.cast_ofNat]
+  simp [Effect.effectEquiv]
 
 /-- States, metrized by the operator norm induced by the order-unit norm on `E`. -/
 noncomputable instance instMetricSpace : MetricSpace (𝓢[ℝ, E]) where
