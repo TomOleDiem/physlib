@@ -69,9 +69,7 @@ def advantage (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) (e : Effect E) : �
 /-- Success probability equals the baseline `1 - p` plus the advantage of test `e`. -/
 lemma successProb_eq_add_advantage (ω₀ ω₁ : 𝓢[ℝ, E]) (p : unitInterval) (e : Effect E) :
     successProb ω₀ ω₁ p e = (1 - p) + advantage ω₀ ω₁ p e := by
-  show p * ω₀ e + (1 - p) * ω₁ (1 - (e : E)) =
-      (1 - p) + (p * ω₀ e - (1 - p) * ω₁ e)
-  rw [map_sub, map_one]
+  simp [successProb, advantage, Effect.complement]
   ring
 
 /-! ## B. The Helstrom bound -/
@@ -113,8 +111,7 @@ open ArchimedeanOrderUnitSpace
 /-- Complementing an effect negates `ω₀ e - ω₁ e`. -/
 lemma sub_complement_eq_neg_sub (ω₀ ω₁ : 𝓢[ℝ, E]) (e : Effect E) :
     ω₀ (Effect.complement e) - ω₁ (Effect.complement e) = -(ω₀ e - ω₁ e) := by
-  show ω₀ (1 - (e : E)) - ω₁ (1 - (e : E)) = _
-  simp only [map_sub, map_one]; ring
+  simp [Effect.complement]
 
 /-- The differences `|ω₀ e - ω₁ e|` over effects are bounded above. -/
 lemma bddAbove_abs_sub (ω₀ ω₁ : 𝓢[ℝ, E]) :
