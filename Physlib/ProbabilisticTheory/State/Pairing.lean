@@ -38,6 +38,8 @@ another.
 - B. Effects separate states
 - C. States separate effects
 
+## iv. References
+
 -/
 
 @[expose] public section
@@ -58,7 +60,7 @@ namespace UnitalPositiveLinearMap
 
 /-- State–effect evaluation takes values in `[0, 1]`. -/
 lemma apply_mem_Icc (ω : 𝓢[ℝ, E]) (e : Effect E) : ω e ∈ Set.Icc 0 1 :=
-  ⟨map_nonneg ω e.2.1, (ω.monotone' e.2.2).trans_eq (map_one ω)⟩
+  ⟨map_nonneg ω e.2.1, ω.apply_le_one e.2.2⟩
 
 /-- Evaluation is affine in the effect argument. -/
 lemma apply_mix (ω : 𝓢[ℝ, E]) (e f : Effect E) (t : unitInterval) :
@@ -80,7 +82,7 @@ lemma ext_of_effect_eq_of_nonneg {ω φ : 𝓢[ℝ, E]}
 /-- A state is determined by its values on effects. -/
 lemma ext_of_effect_eq {ω φ : 𝓢[ℝ, E]}
     (h : ∀ e : Effect E, ω e = φ e) : ω = φ := by
-  ext A
+  refine DFunLike.ext _ _ fun A => ?_
   obtain ⟨Ap, An, hAp, hAn, rfl⟩ := OrderUnitSpace.exists_eq_sub_nonneg A
   rw [map_sub, map_sub, ext_of_effect_eq_of_nonneg h hAp, ext_of_effect_eq_of_nonneg h hAn]
 

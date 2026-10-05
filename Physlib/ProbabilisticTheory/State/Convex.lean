@@ -32,6 +32,8 @@ two others, an extreme point of that convex set. A mixed state is one that is a 
 - B. The state space
 - C. Pure and mixed states
 
+## iv. References
+
 -/
 
 @[expose] public section
@@ -115,24 +117,17 @@ components already equal it. -/
 lemma isPure_iff_forall_mix_eq {ω : 𝓢[ℝ, E]} :
     ω.IsPure ↔ ∀ (φ ψ : 𝓢[ℝ, E]) (t : unitInterval), t ≠ 0 → t ≠ 1 →
       mix φ ψ t = ω → φ = ω ∧ ψ = ω := by
-  simp only [IsPure, Set.extremePoints, Set.mem_ofPred_eq]
+  rw [IsPure, mem_extremePoints]
   constructor
   · rintro ⟨-, hext⟩ φ ψ t ht0 ht1 hmix
     have hseg := (mem_openSegment_iff_exists_mix ω φ ψ).2 ⟨t, ht0, ht1, hmix⟩
-    have hseg' : ω.toLinearMap ∈ openSegment ℝ ψ.toLinearMap φ.toLinearMap := by
-      rwa [openSegment_symm]
-    exact ⟨toLinearMap_injective (hext ⟨φ, rfl⟩ ⟨ψ, rfl⟩ hseg),
-      toLinearMap_injective (hext ⟨ψ, rfl⟩ ⟨φ, rfl⟩ hseg')⟩
+    exact (hext φ.toLinearMap ⟨φ, rfl⟩ ψ.toLinearMap ⟨ψ, rfl⟩ hseg).imp
+      (fun h => toLinearMap_injective h) (fun h => toLinearMap_injective h)
   · intro h
     refine ⟨⟨ω, rfl⟩, ?_⟩
     rintro x₁ ⟨φ, rfl⟩ x₂ ⟨ψ, rfl⟩ hseg
     obtain ⟨t, ht0, ht1, hmix⟩ := (mem_openSegment_iff_exists_mix ω φ ψ).1 hseg
-    exact congrArg (·.toLinearMap) (h φ ψ t ht0 ht1 hmix).1
-
-/-- A genuine mixture equal to a pure state can only repeat that state at both endpoints. -/
-lemma IsPure.eq_of_mix {ω φ ψ : 𝓢[ℝ, E]} (hω : ω.IsPure) (t : unitInterval)
-    (ht0 : t ≠ 0) (ht1 : t ≠ 1) (hmix : mix φ ψ t = ω) : φ = ω ∧ ψ = ω :=
-  isPure_iff_forall_mix_eq.mp hω φ ψ t ht0 ht1 hmix
+    simpa only [toLinearMap_injective.eq_iff] using h φ ψ t ht0 ht1 hmix
 
 /-- Purity transported along an injective map sending mixtures to convex combinations: a state
 is pure exactly when its image is an extreme point of the image of the state space. -/

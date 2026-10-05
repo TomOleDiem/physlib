@@ -38,6 +38,8 @@ separation fact.
 - C. The order-unit norm
 - D. Separation of points
 
+## iv. References
+
 -/
 
 @[expose] public section

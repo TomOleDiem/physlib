@@ -24,6 +24,8 @@ A state assigns each observable its expectation value: a positive linear functio
 
 - A. Notation for positive functionals and states
 
+## iv. References
+
 -/
 
 @[expose] public section

@@ -27,6 +27,8 @@ the correspondence between them is a genuine theorem.
 - B. From a state to a weight
 - C. The equivalence
 
+## iv. References
+
 -/
 
 @[expose] public section
@@ -107,12 +109,12 @@ noncomputable def stateEquiv : {w : Weight E // w.IsState} ≃ 𝓢[ℝ, E] wher
   invFun s := ⟨s.toWeight, s.toWeight_isState⟩
   left_inv := by
     rintro ⟨w, hw⟩
-    refine Subtype.ext (Weight.ext fun A => ?_)
+    refine Subtype.ext (LinearMap.ext fun A => ?_)
     change ENNReal.ofReal (hw.finite.toLinearMap (A : E)) = w A
     rw [IsFinite.toLinearMap_coe, ENNReal.ofReal_toReal (hw.finite A)]
   right_inv s := by
-    ext A
-    obtain ⟨P, Q, rfl⟩ := OrderUnitSpace.exists_posCone_sub A
+    refine DFunLike.ext _ _ fun A => ?_
+    obtain ⟨P, Q, rfl⟩ := PosCone.exists_sub A
     change s.toWeight_isState.finite.toLinearMap ((P : E) - Q) = s ((P : E) - Q)
     rw [map_sub, map_sub, IsFinite.toLinearMap_coe, IsFinite.toLinearMap_coe,
       UnitalPositiveLinearMap.toReal_toWeight_apply, UnitalPositiveLinearMap.toReal_toWeight_apply]
