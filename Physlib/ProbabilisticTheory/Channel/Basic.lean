@@ -30,6 +30,8 @@ which is not expressible using the order-unit structure alone.
 - A. Unital positive linear maps
 - B. Constructing unital positive linear maps
 
+## iv. References
+
 -/
 
 @[expose] public section
@@ -45,6 +47,8 @@ which is not expressible using the order-unit structure alone.
 structure UnitalPositiveLinearMap (R E F : Type*) [Semiring R]
     [AddCommMonoid E] [PartialOrder E] [AddCommMonoid F] [PartialOrder F]
     [Module R E] [Module R F] [One E] [One F] extends E →ₚ[R] F, OneHom E F
+
+attribute [nolint docBlame] UnitalPositiveLinearMap.toOneHom
 
 /-- Notation for positive unital linear maps. -/
 notation:25 E " →ₚ₁[" R:25 "] " F:0 => UnitalPositiveLinearMap R E F

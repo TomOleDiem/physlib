@@ -27,6 +27,8 @@ to a positive linear functional.
 - A. Extension from the positive cone
 - B. Extending finite weights
 
+## iv. References
+
 -/
 
 @[expose] public section
