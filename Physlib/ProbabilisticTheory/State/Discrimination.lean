@@ -115,17 +115,19 @@ lemma sub_complement_eq_neg_sub (ω₀ ω₁ : 𝓢[ℝ, E]) (e : Effect E) :
 
 /-- The differences `|ω₀ e - ω₁ e|` over effects are bounded above. -/
 lemma bddAbove_abs_sub (ω₀ ω₁ : 𝓢[ℝ, E]) :
-    BddAbove (Set.range fun e : Effect E => |ω₀ e - ω₁ e|) :=
-  ⟨1, by
-    rintro _ ⟨e, rfl⟩
-    exact abs_sub_le_of_nonneg_of_le (map_nonneg ω₀ e.2.1) (ω₀.apply_le_one e.2.2)
-      (map_nonneg ω₁ e.2.1) (ω₁.apply_le_one e.2.2)⟩
+    BddAbove (Set.range fun e : Effect E => |ω₀ e - ω₁ e|) := by
+  use 1
+  rintro _ ⟨e, rfl⟩
+  exact abs_sub_le_of_nonneg_of_le (map_nonneg ω₀ e.2.1) (ω₀.apply_le_one e.2.2)
+    (map_nonneg ω₁ e.2.1) (ω₁.apply_le_one e.2.2)⟩
 
 /-- The differences `ω₀ e - ω₁ e` over effects are bounded above. -/
 lemma bddAbove_sub (ω₀ ω₁ : 𝓢[ℝ, E]) :
-    BddAbove (Set.range fun e : Effect E => ω₀ e - ω₁ e) :=
-  let ⟨b, hb⟩ := bddAbove_abs_sub ω₀ ω₁
-  ⟨b, by rintro _ ⟨e, rfl⟩; exact (le_abs_self _).trans (hb ⟨e, rfl⟩)⟩
+    BddAbove (Set.range fun e : Effect E => ω₀ e - ω₁ e) := by
+  obtain ⟨b, hb⟩ := bddAbove_abs_sub ω₀ ω₁
+  use b
+  · rintro _ ⟨e, rfl⟩
+  · exact (le_abs_self _).trans (hb ⟨e, rfl⟩)⟩
 
 /-- The supremum of the state-value difference equals that of its absolute value: complementing
 an effect flips the sign. -/

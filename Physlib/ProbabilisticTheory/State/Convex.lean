@@ -100,12 +100,10 @@ lemma mem_openSegment_iff_exists_mix (ω φ ψ : 𝓢[ℝ, E]) :
   · rintro ⟨t, s, ht, hs, hts, heq⟩
     have ht1 : t < 1 := by linarith
     let u : unitInterval := ⟨t, ht.le, ht1.le⟩
-    refine ⟨u, ?_, ?_, ?_⟩
-    · exact ne_of_gt (by exact_mod_cast ht)
-    · exact ne_of_lt (by exact_mod_cast ht1)
-    · apply toLinearMap_injective
-      change t • φ.toLinearMap + (1 - t) • ψ.toLinearMap = ω.toLinearMap
-      rwa [show 1 - t = s from by linarith]
+    refine ⟨u, ne_of_gt (by exact_mod_cast ht), ne_of_lt (by exact_mod_cast ht1), ?_⟩
+    apply toLinearMap_injective
+    change t • φ.toLinearMap + (1 - t) • ψ.toLinearMap = ω.toLinearMap
+    rwa [show 1 - t = s from by linarith]
   · rintro ⟨t, ht0, ht1, rfl⟩
     refine ⟨(t : ℝ), 1 - (t : ℝ), ?_, ?_, by ring, ?_⟩
     · exact_mod_cast unitInterval.pos_iff_ne_zero.mpr ht0
