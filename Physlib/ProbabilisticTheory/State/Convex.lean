@@ -90,8 +90,7 @@ def stateSpace : Set (E →ₗ[ℝ] ℝ) :=
 lemma stateSpace_convex : Convex ℝ (stateSpace (E := E)) := by
   rw [convex_iff_segment_subset]
   rintro _ ⟨ω, rfl⟩ _ ⟨φ, rfl⟩ x hx
-  rw [segment_symm, segment_eq_image ℝ φ.toLinearMap ω.toLinearMap] at hx
-  obtain ⟨t, ht, rfl⟩ := hx
+  obtain ⟨t, ht, rfl⟩ := (by rwa [segment_symm, segment_eq_image] at hx)
   exact ⟨mix ω φ ⟨t, ht⟩, by simpa only [add_comm] using toLinearMap_mix ω φ ⟨t, ht⟩⟩
 
 /-!
@@ -117,62 +116,6 @@ lemma isPure_iff_forall_mem_openSegment {ω : 𝓢[ℝ, E]} :
 lemma isMixed_iff_exists_mem_openSegment {ω : 𝓢[ℝ, E]} :
     ω.IsMixed ↔ ∃ φ ψ : 𝓢[ℝ, E],
       ω.toLinearMap ∈ openSegment ℝ φ.toLinearMap ψ.toLinearMap ∧ (φ ≠ ω ∨ ψ ≠ ω) := by
-  rw [IsMixed, isPure_iff_forall_mem_openSegment]
-  push Not
-  simp only [imp_iff_not_or]
-
-/-- Open segments between states consist exactly of their genuine mixtures. -/
-lemma mem_openSegment_iff_exists_mix (ω φ ψ : 𝓢[ℝ, E]) :
-    ω.toLinearMap ∈ openSegment ℝ φ.toLinearMap ψ.toLinearMap ↔
-      ∃ t : unitInterval, 0 < t ∧ t < 1 ∧ mix φ ψ t = ω := by
-  rw [openSegment_symm, openSegment_eq_image]
-  constructor
-  · rintro ⟨t, ⟨ht0, ht1⟩, heq⟩
-    refine ⟨⟨t, ht0.le, ht1.le⟩, ?_, ?_, ?_⟩
-    · exact_mod_cast ht0
-    · exact_mod_cast ht1
-    · apply toLinearMap_injective
-      simpa only [toLinearMap_mix, add_comm] using heq
-  · rintro ⟨t, ht0, ht1, rfl⟩
-    refine ⟨t, ⟨by exact_mod_cast ht0, by exact_mod_cast ht1⟩, ?_⟩
-    simpa only [add_comm] using (toLinearMap_mix φ ψ t).symm
-
-/-- A state is pure exactly when every genuine binary mixture producing it is trivial. -/
-lemma isPure_iff_forall_mix_eq {ω : 𝓢[ℝ, E]} :
-    ω.IsPure ↔ ∀ φ ψ t, 0 < t → t < 1 → mix φ ψ t = ω → φ = ω ∧ ψ = ω := by
-  simp only [isPure_iff_forall_mem_openSegment, mem_openSegment_iff_exists_mix,
-    forall_exists_index, and_imp]
-
-/-- A state is mixed exactly when it has a genuine nontrivial binary decomposition. -/
-lemma isMixed_iff_exists_mix_ne {ω : 𝓢[ℝ, E]} :
-    ω.IsMixed ↔ ∃ φ ψ t, 0 < t ∧ t < 1 ∧ mix φ ψ t = ω ∧ (φ ≠ ω ∨ ψ ≠ ω) := by
-  rw [IsMixed, isPure_iff_forall_mix_eq]
-  push Not
-  simp only [imp_iff_not_or]
-
-/-- Purity transported along an injective map sending mixtures to convex combinations: a state
-is pure exactly when its image is an extreme point of the image of the state space. -/
-lemma isPure_iff_mem_extremePoints {X : Type*} [AddCommGroup X] [Module ℝ X]
-    {F : 𝓢[ℝ, E] → X} (hF : Function.Injective F)
-    (hmix : ∀ φ ψ t, F (mix φ ψ t) = (t : ℝ) • F φ + (1 - (t : ℝ)) • F ψ) (ω : 𝓢[ℝ, E]) :
-    ω.IsPure ↔ F ω ∈ (Set.range F).extremePoints ℝ := by
-  rw [isPure_iff_forall_mix_eq, mem_extremePoints]
-  refine ⟨fun h => ⟨⟨ω, rfl⟩, ?_⟩, fun h φ ψ t ht0 ht1 hω => ?_⟩
-  · rintro _ ⟨φ, rfl⟩ _ ⟨ψ, rfl⟩ hseg
-    rw [openSegment_symm, openSegment_eq_image] at hseg
-    obtain ⟨t, ⟨ht0, ht1⟩, heq⟩ := hseg
-    obtain ⟨rfl, rfl⟩ := h φ ψ ⟨t, ht0.le, ht1.le⟩ (by exact_mod_cast ht0)
-      (by exact_mod_cast ht1) (hF ((hmix _ _ _).trans (by simpa only [add_comm] using heq)))
-    exact ⟨rfl, rfl⟩
-  · have hseg : F ω ∈ openSegment ℝ (F φ) (F ψ) := by
-      rw [openSegment_symm, openSegment_eq_image]
-      refine ⟨t, ⟨by exact_mod_cast ht0, by exact_mod_cast ht1⟩, ?_⟩
-      simpa only [add_comm, hω] using (hmix φ ψ t).symm
-    exact (h.2 _ ⟨φ, rfl⟩ _ ⟨ψ, rfl⟩ hseg).imp (fun h => hF h) (fun h => hF h)
-
-/-- A state is pure exactly when it is an extreme point of the state space in the algebraic
-dual. -/
-lemma isPure_iff_mem_extremePoints_stateSpace (ω : 𝓢[ℝ, E]) :
-    ω.IsPure ↔ ω.toLinearMap ∈ stateSpace.extremePoints ℝ := Iff.rfl
+  simp [IsMixed, isPure_iff_forall_mem_openSegment, imp_iff_not_or]
 
 end UnitalPositiveLinearMap
