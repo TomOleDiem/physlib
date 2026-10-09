@@ -145,7 +145,6 @@ instance : SMul NNReal (E →ₚ[R] F) where
     simpa using smul_le_smul_of_nonneg_left (OrderHomClass.mono f h) zero_le
 
 @[simp]
-lemma nnreal_smul_apply (c : NNReal) (f : E →ₚ[R] F) (x : E) : (c • f) x = c • f x :=
-  rfl
+lemma nnreal_smul_apply (c : NNReal) (f : E →ₚ[R] F) (x : E) : (c • f) x = c • f x := rfl
 
 end PositiveLinearMap
