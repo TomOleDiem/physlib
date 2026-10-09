@@ -33,6 +33,11 @@ public import PhyslibAlpha.ClassicalMechanics.NortonDome.PhysicalSpace
 public import PhyslibAlpha.ClassicalMechanics.NortonDome.PosPartPow
 public import PhyslibAlpha.ClassicalMechanics.NortonDome.Solution
 public import PhyslibAlpha.ClassicalMechanics.NortonDome.Sqrt
+public import PhyslibAlpha.CondensedMatter.IsingModel.Basic
+public import PhyslibAlpha.CondensedMatter.IsingModel.ClassicalExamples
+public import PhyslibAlpha.CondensedMatter.IsingModel.ClassicalGibbs
+public import PhyslibAlpha.CondensedMatter.SpinLattice.ClassicalSpins
+public import PhyslibAlpha.CondensedMatter.SpinLattice.ProductStates
 public import PhyslibAlpha.CondensedMatter.TightBindingChain.Cube
 public import PhyslibAlpha.CondensedMatter.TightBindingChain.Current
 public import PhyslibAlpha.CondensedMatter.TightBindingChain.CurrentEigenstates
@@ -242,12 +247,14 @@ public import PhyslibAlpha.ProbabilisticTheory.JordanOrderUnit.Quadratic.Triple
 public import PhyslibAlpha.ProbabilisticTheory.JordanOrderUnit.StructureAlgebra
 public import PhyslibAlpha.ProbabilisticTheory.LocalNet.GlobalRealization
 public import PhyslibAlpha.ProbabilisticTheory.LocalNet.GlobalSymmetry
+public import PhyslibAlpha.ProbabilisticTheory.LocalNet.Lattice
 public import PhyslibAlpha.ProbabilisticTheory.LocalNet.Maps
 public import PhyslibAlpha.ProbabilisticTheory.LocalNet.Net
 public import PhyslibAlpha.ProbabilisticTheory.LocalNet.Region
 public import PhyslibAlpha.ProbabilisticTheory.LocalNet.Representation
 public import PhyslibAlpha.ProbabilisticTheory.LocalNet.State
 public import PhyslibAlpha.ProbabilisticTheory.LocalNet.Symmetry
+public import PhyslibAlpha.ProbabilisticTheory.LocalNet.Thermodynamic
 public import PhyslibAlpha.ProbabilisticTheory.LocalNet.Transport
 public import PhyslibAlpha.ProbabilisticTheory.Measurement.Basic
 public import PhyslibAlpha.ProbabilisticTheory.Measurement.Binary
