@@ -12,6 +12,8 @@ public import Mathlib.Topology.MetricSpace.HausdorffDistance
 /-!
 # The metric space of states
 
+The operator-norm distance between states and their distance to the set of pure states.
+
 ## i. Overview
 
 A state is just a positive linear functional — no continuity is assumed. It turns out to be
@@ -19,8 +21,7 @@ automatically bounded: `|ω A| ≤ ‖A‖`. Physically, a state can never predi
 an expectation value bigger than what the observable itself can read.
 
 That bound induces a genuine operator-norm distance between states, `dist`, making `𝓢[ℝ, E]` a
-`MetricSpace`. That in turn gives a notion of how mixed a state is: `distToPure`, its infimum
-distance to the set of pure states.
+`MetricSpace`. It also defines `distToPure`, the infimum distance to the set of pure states.
 
 ## ii. Key results
 
@@ -43,7 +44,7 @@ distance to the set of pure states.
 
 open ProbabilisticTheory
 
-open ArchimedeanOrderUnitSpace
+open ArchimedeanOrderUnitSpace Effect
 
 variable {E : Type*} [ArchimedeanOrderUnitSpace E]
 
@@ -62,19 +63,12 @@ lemma apply_le_one {F : Type*} [OrderUnitSpace F] (ω : 𝓢[ℝ, F]) {A : F} (h
 
 /-- A state never overshoots the order-unit norm. -/
 lemma apply_le_orderUnitNorm (ω : 𝓢[ℝ, E]) (A : E) : ω A ≤ orderUnitNorm A := by
-  apply le_of_forall_pos_le_add
-  intro ε hε
-  obtain ⟨r, hr, hrε⟩ := exists_orderUnitBound_lt A hε
-  have hpos : 0 ≤ ω (r • (1 : E) - A) := map_nonneg ω (sub_nonneg.mpr hr.2.2)
-  simp only [map_sub, map_smul, smul_eq_mul, map_one, mul_one] at hpos
-  linarith
+  simpa using ω.monotone' (le_orderUnitNorm_smul_one A)
 
 /-- A state's values are bounded by the order-unit norm in both directions. -/
 lemma abs_apply_le_orderUnitNorm (ω : 𝓢[ℝ, E]) (A : E) : |ω A| ≤ orderUnitNorm A := by
-  have h1 : ω A ≤ orderUnitNorm A := apply_le_orderUnitNorm ω A
-  have h2 : ω (-A) ≤ orderUnitNorm (-A) := apply_le_orderUnitNorm ω (-A)
-  rw [_root_.map_neg, orderUnitNorm_neg] at h2
-  exact abs_le.mpr ⟨by linarith, h1⟩
+  exact abs_le.mpr ⟨neg_le.mp (by simpa using apply_le_orderUnitNorm ω (-A)),
+    apply_le_orderUnitNorm ω A⟩
 
 /-- Two states' predictions on any observable of order-unit norm at most `1` never differ by more
 than `2`. -/
@@ -115,16 +109,12 @@ lemma dist_self (ω : 𝓢[ℝ, E]) : dist ω ω = 0 := by
 
 /-- The state distance is symmetric. -/
 lemma dist_comm (ω φ : 𝓢[ℝ, E]) : dist ω φ = dist φ ω := by
-  unfold dist
-  simp_rw [abs_sub_comm]
+  simp only [dist, abs_sub_comm]
 
 /-- The state distance satisfies the triangle inequality. -/
-lemma dist_triangle (ω φ ψ : 𝓢[ℝ, E]) : dist ω ψ ≤ dist ω φ + dist φ ψ := by
-  apply ciSup_le
-  intro A
-  calc |ω A - ψ A| ≤ |ω A - φ A| + |φ A - ψ A| := abs_sub_le _ _ _
-    _ ≤ dist ω φ + dist φ ψ :=
-      add_le_add (le_ciSup (dist_bddAbove ω φ) A) (le_ciSup (dist_bddAbove φ ψ) A)
+lemma dist_triangle (ω φ ψ : 𝓢[ℝ, E]) : dist ω ψ ≤ dist ω φ + dist φ ψ :=
+  ciSup_le fun A => (abs_sub_le _ _ _).trans
+    (add_le_add (le_ciSup (dist_bddAbove ω φ) A) (le_ciSup (dist_bddAbove φ ψ) A))
 
 /-- `dist` separates states: two states at distance `0` are equal. -/
 lemma eq_of_dist_eq_zero {ω φ : 𝓢[ℝ, E]} (h : dist ω φ = 0) : ω = φ := by
@@ -135,11 +125,11 @@ lemma eq_of_dist_eq_zero {ω φ : 𝓢[ℝ, E]} (h : dist ω φ = 0) : ω = φ :
     have hB : |ω B - φ B| ≤ 0 := (le_ciSup (dist_bddAbove ω φ) ⟨B, hB1⟩).trans h.le
     rw [← hAB, map_smul, map_smul, sub_eq_zero.mp (abs_nonpos_iff.mp hB)]
 
-/-- A state's value at a doubled, re-centered effect (`Effect.effectEquiv`) is twice its value at
+/-- A state's value at a doubled, re-centered effect (`effectEquiv`) is twice its value at
 the effect, minus one. -/
 lemma apply_effectEquiv (ψ : 𝓢[ℝ, E]) (e : Effect E) :
-    ψ (Effect.effectEquiv e) = 2 * ψ e - 1 := by
-  simp [Effect.effectEquiv]
+    ψ (effectEquiv e) = 2 * ψ e - 1 := by
+  simp [effectEquiv]
 
 /-- States, metrized by the operator norm induced by the order-unit norm on `E`. -/
 noncomputable instance instMetricSpace : MetricSpace (𝓢[ℝ, E]) where
@@ -155,7 +145,7 @@ noncomputable instance instMetricSpace : MetricSpace (𝓢[ℝ, E]) where
 
 -/
 
-/-- How mixed a state is: its infimum distance to the set of pure states. -/
+/-- The infimum distance to the set of pure states, using `Metric.infDist`. -/
 noncomputable def distToPure (ω : 𝓢[ℝ, E]) : ℝ :=
   Metric.infDist ω {φ : 𝓢[ℝ, E] | IsPure φ}
 
@@ -166,9 +156,5 @@ lemma distToPure_nonneg (ω : 𝓢[ℝ, E]) : 0 ≤ distToPure ω :=
 /-- A pure state is at distance `0` from the set of pure states. -/
 lemma distToPure_eq_zero_of_isPure {ω : 𝓢[ℝ, E]} (h : IsPure ω) : distToPure ω = 0 :=
   Metric.infDist_zero_of_mem h
-
-/-- `distToPure` is `1`-Lipschitz: states close in `dist` are similarly mixed. -/
-lemma lipschitzWith_distToPure : LipschitzWith 1 (distToPure (E := E)) :=
-  Metric.lipschitz_infDist_pt {φ : 𝓢[ℝ, E] | IsPure φ}
 
 end UnitalPositiveLinearMap
