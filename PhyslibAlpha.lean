@@ -38,10 +38,14 @@ public import PhyslibAlpha.CondensedMatter.Crystal.MomentumSectors
 public import PhyslibAlpha.CondensedMatter.IsingModel.Basic
 public import PhyslibAlpha.CondensedMatter.IsingModel.ClassicalExamples
 public import PhyslibAlpha.CondensedMatter.IsingModel.ClassicalGibbs
+public import PhyslibAlpha.CondensedMatter.IsingModel.GibbsStates
+public import PhyslibAlpha.CondensedMatter.IsingModel.KMS
 public import PhyslibAlpha.CondensedMatter.SpinLattice.ClassicalSpins
 public import PhyslibAlpha.CondensedMatter.SpinLattice.PeriodicWaves
 public import PhyslibAlpha.CondensedMatter.SpinLattice.ProductStates
+public import PhyslibAlpha.CondensedMatter.SpinLattice.QuantumSpins
 public import PhyslibAlpha.CondensedMatter.SpinLattice.SpinWaves
+public import PhyslibAlpha.CondensedMatter.SpinLattice.ThermalLimit
 public import PhyslibAlpha.CondensedMatter.TightBindingChain.Cube
 public import PhyslibAlpha.CondensedMatter.TightBindingChain.Current
 public import PhyslibAlpha.CondensedMatter.TightBindingChain.CurrentEigenstates
@@ -284,6 +288,7 @@ public import PhyslibAlpha.ProbabilisticTheory.Representation.Covariance.Basic
 public import PhyslibAlpha.ProbabilisticTheory.Representation.Covariance.Outcome
 public import PhyslibAlpha.ProbabilisticTheory.Representation.PVM
 public import PhyslibAlpha.ProbabilisticTheory.Representation.Schur
+public import PhyslibAlpha.ProbabilisticTheory.StarAlgebra.ComplexExtension
 public import PhyslibAlpha.ProbabilisticTheory.StarAlgebra.Jordan
 public import PhyslibAlpha.ProbabilisticTheory.StarAlgebra.Lie
 public import PhyslibAlpha.ProbabilisticTheory.StarAlgebra.Observable
