@@ -240,6 +240,9 @@ public import PhyslibAlpha.ProbabilisticTheory.JordanOrderUnit.Quadratic.Order
 public import PhyslibAlpha.ProbabilisticTheory.JordanOrderUnit.Quadratic.Projection
 public import PhyslibAlpha.ProbabilisticTheory.JordanOrderUnit.Quadratic.Triple
 public import PhyslibAlpha.ProbabilisticTheory.JordanOrderUnit.StructureAlgebra
+public import PhyslibAlpha.ProbabilisticTheory.LocalNet.Maps
+public import PhyslibAlpha.ProbabilisticTheory.LocalNet.Net
+public import PhyslibAlpha.ProbabilisticTheory.LocalNet.Region
 public import PhyslibAlpha.ProbabilisticTheory.Measurement.Basic
 public import PhyslibAlpha.ProbabilisticTheory.Measurement.Binary
 public import PhyslibAlpha.ProbabilisticTheory.Measurement.BornRule
