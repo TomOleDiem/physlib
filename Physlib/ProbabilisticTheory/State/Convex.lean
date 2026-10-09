@@ -26,6 +26,8 @@ two others, an extreme point of that convex set. A mixed state is one that is a 
 - `UnitalPositiveLinearMap.mix` : randomize between two states with a given probability.
 - `UnitalPositiveLinearMap.stateSpace_convex` : the state space is convex in the algebraic dual.
 - `UnitalPositiveLinearMap.IsPure` : pure states are extreme points of the state space.
+- `UnitalPositiveLinearMap.isPure_iff_forall_mix_eq` : a pure state admits only trivial
+  genuine mixtures.
 - `UnitalPositiveLinearMap.isMixed_iff_exists_mem_openSegment` : mixed states lie between
   two other states.
 
@@ -117,5 +119,20 @@ lemma isMixed_iff_exists_mem_openSegment {ω : 𝓢[ℝ, E]} :
     ω.IsMixed ↔ ∃ φ ψ : 𝓢[ℝ, E],
       ω.toLinearMap ∈ openSegment ℝ φ.toLinearMap ψ.toLinearMap ∧ (φ ≠ ω ∨ ψ ≠ ω) := by
   simp [IsMixed, isPure_iff_forall_mem_openSegment, imp_iff_not_or]
+
+/-- Open segments between states consist exactly of their genuine mixtures. -/
+lemma mem_openSegment_iff_exists_mix (ω φ ψ : 𝓢[ℝ, E]) :
+    ω.toLinearMap ∈ openSegment ℝ φ.toLinearMap ψ.toLinearMap ↔
+      ∃ t : unitInterval, 0 < t ∧ t < 1 ∧ mix φ ψ t = ω := by
+  rw [openSegment_symm, openSegment_eq_image]
+  simp only [Set.mem_image, Set.mem_Ioo, Subtype.exists,
+    ← toLinearMap_injective.eq_iff, toLinearMap_mix, add_comm]
+  aesop (add safe forward le_of_lt)
+
+/-- A state is pure exactly when every genuine binary mixture producing it is trivial. -/
+lemma isPure_iff_forall_mix_eq {ω : 𝓢[ℝ, E]} :
+    ω.IsPure ↔ ∀ φ ψ t, 0 < t → t < 1 → mix φ ψ t = ω → φ = ω ∧ ψ = ω := by
+  simp only [isPure_iff_forall_mem_openSegment, mem_openSegment_iff_exists_mix,
+    forall_exists_index, and_imp]
 
 end UnitalPositiveLinearMap
