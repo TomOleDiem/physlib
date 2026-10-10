@@ -15,9 +15,9 @@ Finite normalized weights correspond exactly to positive unital linear functiona
 
 ## i. Overview
 
-A state is, on its own terms, a normalized positive linear functional — `𝓢[ℝ, E]`, already fully
-built in `State/Basic.lean`. It is not *defined* as a weight; the two are independent notions, and
-the correspondence between them is a genuine theorem.
+Restricting a state to the positive cone and applying `ENNReal.ofReal` gives a finite normalized
+weight. Conversely, extending such a weight gives a state. `Weight.stateEquiv` packages these
+constructions as an equivalence.
 
 ## ii. Key results
 
@@ -58,6 +58,11 @@ noncomputable def toState (hw : w.IsState) : 𝓢[ℝ, E] :=
     (fun A hA => (hw.finite.toLinearMap_coe ⟨A, hA⟩).symm ▸ ENNReal.toReal_nonneg)
     ((hw.finite.toLinearMap_coe 1).trans (by simp [hw.normalized]))
 
+/-- The extended state agrees with the weight on positive observables. -/
+@[simp]
+lemma toState_apply (hw : w.IsState) (A : PosCone E) : hw.toState A = (w A).toReal :=
+  hw.finite.toLinearMap_coe A
+
 end IsState
 
 end Weight
@@ -74,8 +79,8 @@ namespace UnitalPositiveLinearMap
 cone, where they are automatically nonnegative. -/
 noncomputable def toWeight (s : 𝓢[ℝ, E]) : Weight E where
   toFun A := ENNReal.ofReal (s (A : E))
-  map_add' A B := (congrArg ENNReal.ofReal (map_add s (A : E) B)).trans
-    (ENNReal.ofReal_add (map_nonneg s A.2) (map_nonneg s B.2))
+  map_add' A B := by
+    simp [ENNReal.ofReal_add (map_nonneg s A.2) (map_nonneg s B.2)]
   map_smul' c A := by
     show ENNReal.ofReal (s ((c : ℝ) • (A : E))) = c • ENNReal.ofReal (s (A : E))
     simp [ENNReal.smul_def, ENNReal.ofReal_mul c.coe_nonneg]
@@ -110,14 +115,9 @@ noncomputable def stateEquiv : {w : Weight E // w.IsState} ≃ 𝓢[ℝ, E] wher
   invFun s := ⟨s.toWeight, s.toWeight_isState⟩
   left_inv := by
     rintro ⟨w, hw⟩
-    refine Subtype.ext (LinearMap.ext fun A => ?_)
-    change ENNReal.ofReal (hw.finite.toLinearMap (A : E)) = w A
-    rw [IsFinite.toLinearMap_coe, ENNReal.ofReal_toReal (hw.finite A)]
-  right_inv s := by
-    refine DFunLike.ext _ _ fun A => ?_
+    exact Subtype.ext (LinearMap.ext fun A => by simp [hw.finite A])
+  right_inv s := DFunLike.ext _ _ fun A => by
     obtain ⟨P, Q, rfl⟩ := PosCone.exists_sub A
-    change s.toWeight_isState.finite.toLinearMap ((P : E) - Q) = s ((P : E) - Q)
-    simp only [map_sub, IsFinite.toLinearMap_coe,
-      UnitalPositiveLinearMap.toReal_toWeight_apply]
+    simp only [map_sub, IsState.toState_apply, UnitalPositiveLinearMap.toReal_toWeight_apply]
 
 end Weight

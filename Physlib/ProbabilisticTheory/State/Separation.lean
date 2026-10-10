@@ -30,6 +30,8 @@ separation fact.
 - `UnitalPositiveLinearMap.exists_apply_neg_of_not_nonneg` : every element outside the positive
   cone is separated from it by a state.
 - `UnitalPositiveLinearMap.nonneg_iff_forall_state_nonneg` : states determine the positive cone.
+- `UnitalPositiveLinearMap.orderUnitNorm_le_iff_forall_abs_apply_le` : states characterize
+  bounds on the order-unit norm.
 - `UnitalPositiveLinearMap.sSup_abs_apply_eq_orderUnitNorm` : states determine the order-unit norm.
 - `UnitalPositiveLinearMap.ext_of_forall_apply_eq` : states separate points.
 
@@ -106,31 +108,22 @@ instance instNonemptyState [Nontrivial E] : Nonempty (𝓢[ℝ, E]) := by
       (fun hn => hA (le_antisymm (neg_nonneg.mp hn) h))).nonempty
   · exact (exists_apply_neg_of_not_nonneg h).nonempty
 
-/-- If `A ≤ r • 1` fails, some state predicts more than `r` for `A`. -/
-lemma exists_state_apply_gt_of_not_le {A : E} {r : ℝ} (h : ¬ A ≤ r • (1 : E)) :
-    ∃ ω : 𝓢[ℝ, E], r < ω A := by
-  obtain ⟨ω, hω⟩ := exists_apply_neg_of_not_nonneg (A := r • 1 - A) (by rwa [sub_nonneg])
-  exact ⟨ω, by simpa [map_sub] using hω⟩
-
-/-- Any scalar below the order-unit norm of `A` is exceeded by `|ω A|` for some state `ω`. -/
-lemma exists_state_abs_apply_gt_of_lt_orderUnitNorm [Nontrivial E] (A : E) {r : ℝ}
-    (hr : r < orderUnitNorm A) : ∃ ω : 𝓢[ℝ, E], r < |ω A| := by
-  rcases lt_or_ge r 0 with hr0 | hr0
-  · obtain ⟨ω⟩ := (inferInstance : Nonempty (𝓢[ℝ, E]))
-    exact ⟨ω, hr0.trans_le (abs_nonneg _)⟩
-  rcases not_and_or.1 fun h : -(r • (1 : E)) ≤ A ∧ A ≤ r • 1 =>
-    (orderUnitNorm_le ⟨hr0, h.1, h.2⟩).not_gt hr with h | h
-  · obtain ⟨ω, hω⟩ := exists_state_apply_gt_of_not_le (A := -A) (by rwa [neg_le] at h)
-    exact ⟨ω, hω.trans_le (by simpa using neg_le_abs (ω A))⟩
-  · obtain ⟨ω, hω⟩ := exists_state_apply_gt_of_not_le h
-    exact ⟨ω, hω.trans_le (le_abs_self _)⟩
+/-- The order-unit norm is at most `r` iff every state predicts an absolute value at most `r`. -/
+lemma orderUnitNorm_le_iff_forall_abs_apply_le [Nontrivial E] (A : E) (r : ℝ) :
+    orderUnitNorm A ≤ r ↔ ∀ ω : 𝓢[ℝ, E], |ω A| ≤ r := by
+  refine ⟨fun h ω => (abs_apply_le_orderUnitNorm ω A).trans h, fun h => ?_⟩
+  refine orderUnitNorm_le ⟨(abs_nonneg _).trans (h Classical.ofNonempty), ?_, ?_⟩
+  · rw [neg_le_iff_add_nonneg', nonneg_iff_forall_state_nonneg]
+    exact fun ω => by simpa [neg_le_iff_add_nonneg'] using (abs_le.mp (h ω)).1
+  · rw [← sub_nonneg, nonneg_iff_forall_state_nonneg]
+    exact fun ω => by simpa [sub_nonneg] using (abs_le.mp (h ω)).2
 
 /-- The order-unit norm is the supremum of `|ω A|` over all states `ω`. -/
 lemma sSup_abs_apply_eq_orderUnitNorm [Nontrivial E] (A : E) :
     sSup (Set.range fun ω : 𝓢[ℝ, E] => |ω A|) = orderUnitNorm A := by
-  exact ciSup_eq_of_forall_le_of_forall_lt_exists_gt
-    (fun ω => abs_apply_le_orderUnitNorm ω A)
-    (fun _ => exists_state_abs_apply_gt_of_lt_orderUnitNorm A)
+  exact eq_of_forall_ge_iff fun r => (ciSup_le_iff ⟨orderUnitNorm A,
+    Set.forall_mem_range.mpr (fun ω => abs_apply_le_orderUnitNorm ω A)⟩).trans
+    (orderUnitNorm_le_iff_forall_abs_apply_le A r).symm
 
 /-- The order unit has norm exactly `1`. -/
 @[simp]
