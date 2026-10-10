@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Local nets · PhyslibAlpha PR scope</title>
+  <style>
+    :root { color-scheme: light; --ink:#20352f; --muted:#586961; --paper:#faf8f1; --line:#d8dfd4; --green:#276b55; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:17px/1.65 system-ui,sans-serif; }
+    main { max-width:1000px; margin:auto; padding:64px 28px; }
+    .eyebrow { color:var(--green); text-transform:uppercase; letter-spacing:.14em; font-size:12px; font-weight:750; }
+    h1 { font:600 clamp(34px,5vw,58px)/1.12 Georgia,serif; max-width:800px; margin:18px 0 24px; }
+    h2 { font:600 29px/1.25 Georgia,serif; margin:0 0 16px; }
+    h3 { font-size:18px; margin:0 0 8px; }
+    p { margin:0 0 18px; }
+    .lead { font-size:21px; max-width:830px; }
+    section { margin-top:44px; }
+    .flow { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:28px 0 0; }
+    .step { border:1px solid var(--line); border-radius:12px; padding:20px; background:white; }
+    .step span { display:block; color:var(--green); font-size:12px; font-weight:750; margin-bottom:6px; }
+    .step p { font-size:15px; color:var(--muted); margin:0; }
+    .branches { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px; }
+    .branch { padding:22px; background:#e8efe5; border-radius:12px; }
+    .branch p { margin:0; }
+    .example { display:grid; grid-template-columns:210px 1fr; gap:22px; padding:22px 0; border-top:1px solid var(--line); }
+    .example p { margin:0; }
+    .tag { display:block; color:var(--green); font-size:13px; margin-top:6px; }
+    .formula { font-family:Georgia,serif; font-size:21px; white-space:normal; }
+    .callout { padding:26px; border-left:4px solid #bb7754; background:#f2e9dc; border-radius:0 12px 12px 0; }
+    .callout p:last-child { margin-bottom:0; }
+    ul { padding-left:22px; margin:0; }
+    li { margin:8px 0; }
+    .scope { display:grid; grid-template-columns:1fr 1fr; gap:28px; }
+    .scope > div { border-top:2px solid var(--green); padding-top:18px; }
+    .scope > div:last-child { border-color:#bb7754; }
+    details { margin-top:28px; border:1px solid var(--line); border-radius:10px; padding:16px 20px; }
+    summary { cursor:pointer; font-weight:650; }
+    details p { margin:14px 0 0; }
+    footer { margin-top:42px; padding-top:22px; border-top:1px solid var(--line); color:var(--muted); font-size:14px; }
+    a { color:var(--green); text-underline-offset:3px; }
+    @media(max-width:650px) { main { padding:36px 20px; } .flow,.branches,.scope,.example { grid-template-columns:1fr; } .example { gap:8px; } }
+    @media print { main { padding:0; } body { font-size:12px; background:white; } section { margin-top:24px; } .step,.branch,.callout,.example { break-inside:avoid; } }
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">PhyslibAlpha · one proposed PR · scope for discussion</div>
+  <h1>From local measurements to infinite periodic systems</h1>
+  <p class="lead">The common starting point is a net: each finite region has observables and states, and including one region in another tells us how to compare measurements.</p>
+  <p>This lets us build the infinite system from its local pieces. Periodicity then organizes its observable sectors by momentum; equilibrium comes from taking limits of finite-volume Gibbs states. The examples below use the same framework.</p>
+
+  <div class="flow" aria-label="Local-to-global construction">
+    <div class="step"><span>01 · LOCAL REGIONS</span><h3>Measurements in a box</h3><p>Observables, positive expectations, and inclusions between regions.</p></div>
+    <div class="step"><span>02 · COMPATIBILITY</span><h3>Agreement on overlaps</h3><p>Restricting a larger state gives the same expectations on a smaller region.</p></div>
+    <div class="step"><span>03 · GLOBAL SYSTEM</span><h3>Glue the local pieces</h3><p>Compatible local states are exactly states of the algebraic global system.</p></div>
+  </div>
+  <div class="branches">
+    <div class="branch"><h3>Periodic systems → Bloch reduction</h3><p>Translations act on the net. A translation-equivariant linear operator descends to momentum fibers once a unit cell is specified.</p></div>
+    <div class="branch"><h3>Growing volumes → thermal limits</h3><p>Finite-volume states produce compatible limiting expectations. Under additional evolution assumptions, thermal identities survive the limit.</p></div>
+  </div>
+
+  <section>
+    <h2>What the examples actually show</h2>
+    <div class="example">
+      <div><h3>Independent classical spins</h3><span class="tag">Product states, explicitly</span></div>
+      <p>With no coupling and a uniform field, Gibbs probabilities factor into one-site probabilities. Their marginals agree exactly, so the infinite-volume state is the explicit product state. This instantiates a general product-state construction for any finite spin alphabet.</p>
+    </div>
+    <div class="example">
+      <div><h3>Classical Ising chain</h3><span class="tag">An interacting equilibrium example</span></div>
+      <p>Nearest-neighbor couplings are translation invariant. An exhausting family of Gibbs states has a thermodynamic limit that gives a global state through the general net construction. We have not proved uniqueness, a transfer-matrix solution, or translation invariance of the chosen interacting limit.</p>
+    </div>
+    <div class="example">
+      <div><h3>Two-component periodic waves</h3><span class="tag">A simple band picture</span></div>
+      <p>A sector of actual spin observables is grouped into cells with two components. A translation-equivariant restoring-force operator has branches <span class="formula">λ<sub>b</sub>(k) = m<sub>b</sub> + κ(2 − 2 cos k)</span>. These are squared wave frequencies. The example instantiates general unit-cell and Bloch constructions; the two components are uncoupled.</p>
+    </div>
+    <div class="example">
+      <div><h3>Quantum longitudinal Ising</h3><span class="tag">Thermal identities in the limit</span></div>
+      <p>The observables are full matrix algebras; the interaction terms commute. Complex-time evolution of a local observable stabilizes within a finite neighborhood. This instantiates a reusable theorem that passes finite-volume thermal identities to every thermodynamic limit state satisfying the limit hypothesis.</p>
+    </div>
+  </section>
+
+  <section class="callout">
+    <h2>How powerful is the KMS result?</h2>
+    <p>For local observables A and B, we construct an entire correlation function F with the thermal boundary relation: F(t) gives ⟨A α<sub>t</sub>(B)⟩ and F(t + iβ) gives ⟨α<sub>t</sub>(B) A⟩. The limit theorem is independent of the particular Ising couplings and exhausting family, provided its exact local analytic evolution assumptions hold.</p>
+    <p>To reach the standard KMS theorem on a completed observable algebra, we still need norm completion, bounded-strip control, and extension beyond local observables. General noncommuting interactions also require a broader dynamics construction and propagation estimates. A transverse field is outside this exact-support example. Classical Gibbs equilibrium needs its own DLR formulation.</p>
+  </section>
+
+  <section>
+    <h2>What lands in this one PR</h2>
+    <div class="scope">
+      <div><h3>Include</h3><ul>
+        <li>The net, states, symmetries, and algebraic local-to-global construction.</li>
+        <li>Thermodynamic limits and their general compatibility results.</li>
+        <li>Momentum sectors, unit cells, and Bloch reduction.</li>
+        <li>The four examples above, plus the general local thermal-limit theorem.</li>
+        <li>Physics-focused documentation, imports, and references.</li>
+      </ul></div>
+      <div><h3>Leave for later</h3><ul>
+        <li>General causal dynamics, no-signalling, and composition of systems.</li>
+        <li>Spacetime nets, time-slice/additivity applications, and Minkowski diamonds.</li>
+        <li>A full spectral decomposition and coupled band examples.</li>
+        <li>Completed-algebra KMS and general noncommuting dynamics.</li>
+      </ul></div>
+    </div>
+    <p style="margin-top:22px">Locality here means observables organized by support and consistent inclusions. The PR does not claim a universal dynamical-locality theorem. Likewise, an ultrafilter thermodynamic limit does not by itself prove convergence of the whole volume family.</p>
+    <details><summary>Where the implementation lives</summary>
+      <p><strong>LocalNet</strong> carries the framework; <strong>Crystal</strong> carries momentum/Bloch results; <strong>SpinLattice</strong> supplies classical and quantum nets, products, waves, and the thermal-limit theorem; <strong>IsingModel</strong> supplies Gibbs states and concrete applications. A small complex-extension utility supports the quantum expectations.</p>
+    </details>
+  </section>
+  <footer>Proposed cumulative scope: 27 new Lean files plus documentation and references. Builds and Alpha checks pass. The full repository lint run reports pre-existing redundant imports in untouched files. No PR has been opened or pushed.</footer>
+</main>
+</body>
+</html>
