@@ -97,9 +97,9 @@ lemma injective_apply_effect :
 
 end UnitalPositiveLinearMap
 
-namespace ProbabilisticTheory.Effect
+namespace Effect
 
-open UnitalPositiveLinearMap
+open ProbabilisticTheory.Effect UnitalPositiveLinearMap
 
 variable [ArchimedeanOrderUnitSpace E]
 
@@ -126,4 +126,4 @@ lemma injective_apply_state :
     Function.Injective (fun (e : Effect E) (ω : 𝓢[ℝ, E]) => ω e) :=
   fun _ _ h => ext_of_forall_apply_eq (congrFun h)
 
-end ProbabilisticTheory.Effect
+end Effect

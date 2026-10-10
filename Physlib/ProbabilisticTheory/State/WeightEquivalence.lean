@@ -15,9 +15,9 @@ Finite normalized weights correspond exactly to positive unital linear functiona
 
 ## i. Overview
 
-Restricting a state to the positive cone and applying `ENNReal.ofReal` gives a finite normalized
-weight. Conversely, extending such a weight gives a state. `Weight.stateEquiv` packages these
-constructions as an equivalence.
+A state is, on its own terms, a normalized positive linear functional — `𝓢[ℝ, E]`, already fully
+built in `State/Basic.lean`. It is not *defined* as a weight; the two are independent notions, and
+the correspondence between them is a genuine theorem.
 
 ## ii. Key results
 

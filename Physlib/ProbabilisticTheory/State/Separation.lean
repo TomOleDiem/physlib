@@ -30,8 +30,6 @@ separation fact.
 - `UnitalPositiveLinearMap.exists_apply_neg_of_not_nonneg` : every element outside the positive
   cone is separated from it by a state.
 - `UnitalPositiveLinearMap.nonneg_iff_forall_state_nonneg` : states determine the positive cone.
-- `UnitalPositiveLinearMap.orderUnitNorm_le_iff_forall_abs_apply_le` : states characterize
-  bounds on the order-unit norm.
 - `UnitalPositiveLinearMap.sSup_abs_apply_eq_orderUnitNorm` : states determine the order-unit norm.
 - `UnitalPositiveLinearMap.ext_of_forall_apply_eq` : states separate points.
 
