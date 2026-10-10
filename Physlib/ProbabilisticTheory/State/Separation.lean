@@ -6,11 +6,13 @@ Authors: Tom Ole Diem
 module
 
 public import Physlib.ProbabilisticTheory.State.Metric
-public import Mathlib.Analysis.LocallyConvex.Separation
+public import Mathlib.Analysis.Convex.Cone.Dual
 public import Mathlib.Analysis.LocallyConvex.WithSeminorms
 
 /-!
 # Separation by states
+
+States determine positivity, the order-unit norm, and equality of observables.
 
 ## i. Overview
 
@@ -48,7 +50,7 @@ open ProbabilisticTheory
 open ArchimedeanOrderUnitSpace
 open OrderUnitSpace
 
-variable {E : Type*} [ArchimedeanOrderUnitSpace E]
+variable {E : Type*}
 
 namespace UnitalPositiveLinearMap
 
@@ -59,30 +61,23 @@ namespace UnitalPositiveLinearMap
 -/
 
 /-- A positive functional vanishing at the order unit vanishes everywhere. -/
-lemma apply_eq_zero_of_apply_one_eq_zero {p : E →ₚ[ℝ] ℝ}
-    (h1 : p (1 : E) = 0) (A : E) :
-    p A = 0 := by
-  obtain ⟨n, hn⟩ := exists_nsmul_one_le A
-  obtain ⟨m, hm⟩ := exists_nsmul_one_le (-A)
-  exact le_antisymm (by simpa [h1] using p.monotone' hn) (by simpa [h1] using p.monotone' hm)
+lemma apply_eq_zero_of_apply_one_eq_zero [OrderUnitSpace E] {p : E →ₚ[ℝ] ℝ}
+    (h1 : p (1 : E) = 0) (A : E) : p A = 0 := by
+  obtain ⟨n, hl, hu⟩ := exists_two_sided_bound A
+  exact le_antisymm (by simpa [h1] using p.monotone' hu)
+    (by simpa [h1] using p.monotone' hl)
+
+variable [ArchimedeanOrderUnitSpace E]
 
 /-- Every element outside the positive cone is strictly separated from it by a state. -/
 lemma exists_apply_neg_of_not_nonneg {A : E} (hA : ¬ 0 ≤ A) : ∃ ω : 𝓢[ℝ, E], ω A < 0 := by
-  obtain ⟨f, u, hfA, hcone⟩ := geometric_hahn_banach_point_closed
-    (convex_Ici (0 : E)) isClosed_Ici_zero hA
-  have hu : u < 0 := by simpa using hcone 0 le_rfl
-  have hf_nonneg : ∀ B : E, 0 ≤ B → 0 ≤ f B := fun B hB => by
-    by_contra! hfB
-    have hsep := hcone (((u - 1) / f B) • B)
-      (smul_nonneg (div_nonneg_of_nonpos (by linarith) hfB.le) hB)
-    rw [map_smul, smul_eq_mul, div_mul_cancel₀ _ hfB.ne] at hsep
-    linarith
-  have hf_one_pos : 0 < f (1 : E) := (hf_nonneg 1 one_nonneg).lt_of_ne fun h1 => by
-    have : f A = 0 := apply_eq_zero_of_apply_one_eq_zero (p := .mk₀ _ hf_nonneg) h1.symm A
-    linarith [hfA.trans hu]
+  obtain ⟨f, hf_nonneg, hfA⟩ := ProperCone.hyperplane_separation_point
+    ⟨PointedCone.positive ℝ E, isClosed_Ici_zero⟩ hA
+  have hf_one_pos : 0 < f (1 : E) := (hf_nonneg 1 one_nonneg).lt_of_ne fun h1 =>
+    hfA.ne (apply_eq_zero_of_apply_one_eq_zero (p := .mk₀ _ hf_nonneg) h1.symm A)
   exact ⟨ofLinearMap ((f (1 : E))⁻¹ • f.toLinearMap)
     (fun B hB => mul_nonneg (inv_nonneg.mpr hf_one_pos.le) (hf_nonneg B hB))
-    (by simp [hf_one_pos.ne']), mul_neg_of_pos_of_neg (inv_pos.mpr hf_one_pos) (hfA.trans hu)⟩
+    (by simp [hf_one_pos.ne']), mul_neg_of_pos_of_neg (inv_pos.mpr hf_one_pos) hfA⟩
 
 /-!
 
@@ -105,13 +100,11 @@ lemma nonneg_iff_forall_state_nonneg (A : E) : 0 ≤ A ↔ ∀ ω : 𝓢[ℝ, E]
 
 /-- Every nontrivial Archimedean order-unit space has a state. -/
 instance instNonemptyState [Nontrivial E] : Nonempty (𝓢[ℝ, E]) := by
-  refine (exists_apply_neg_of_not_nonneg (A := -1) fun h => ?_).nonempty
-  have h1 : (1 : E) = 0 := le_antisymm (neg_nonneg.mp h) one_nonneg
-  have hz (B : E) : B = 0 := by
-    obtain ⟨n, hl, hu⟩ := exists_two_sided_bound B
-    exact le_antisymm (by simpa [h1] using hu) (by simpa [h1] using hl)
-  obtain ⟨a, b, hab⟩ := exists_pair_ne E
-  exact hab ((hz a).trans (hz b).symm)
+  obtain ⟨A, hA⟩ := exists_ne (0 : E)
+  by_cases h : 0 ≤ A
+  · exact (exists_apply_neg_of_not_nonneg (A := -A)
+      (fun hn => hA (le_antisymm (neg_nonneg.mp hn) h))).nonempty
+  · exact (exists_apply_neg_of_not_nonneg h).nonempty
 
 /-- If `A ≤ r • 1` fails, some state predicts more than `r` for `A`. -/
 lemma exists_state_apply_gt_of_not_le {A : E} {r : ℝ} (h : ¬ A ≤ r • (1 : E)) :
@@ -135,16 +128,14 @@ lemma exists_state_abs_apply_gt_of_lt_orderUnitNorm [Nontrivial E] (A : E) {r : 
 /-- The order-unit norm is the supremum of `|ω A|` over all states `ω`. -/
 lemma sSup_abs_apply_eq_orderUnitNorm [Nontrivial E] (A : E) :
     sSup (Set.range fun ω : 𝓢[ℝ, E] => |ω A|) = orderUnitNorm A := by
-  refine csSup_eq_of_forall_le_of_forall_lt_exists_gt (Set.range_nonempty _)
-    (by rintro _ ⟨ω, rfl⟩; exact abs_apply_le_orderUnitNorm ω A) fun r hr => ?_
-  obtain ⟨ω, hω⟩ := exists_state_abs_apply_gt_of_lt_orderUnitNorm A hr
-  exact ⟨_, ⟨ω, rfl⟩, hω⟩
+  exact ciSup_eq_of_forall_le_of_forall_lt_exists_gt
+    (fun ω => abs_apply_le_orderUnitNorm ω A)
+    (fun _ => exists_state_abs_apply_gt_of_lt_orderUnitNorm A)
 
 /-- The order unit has norm exactly `1`. -/
 @[simp]
 lemma orderUnitNorm_one [Nontrivial E] : orderUnitNorm (1 : E) = 1 := by
-  rw [← sSup_abs_apply_eq_orderUnitNorm]
-  simp
+  simpa using (sSup_abs_apply_eq_orderUnitNorm (1 : E)).symm
 
 /-!
 

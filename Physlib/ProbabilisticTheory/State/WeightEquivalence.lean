@@ -11,6 +11,8 @@ public import Physlib.ProbabilisticTheory.State.Basic
 /-!
 # Equivalence between states and finite normalized weights
 
+Finite normalized weights correspond exactly to positive unital linear functionals.
+
 ## i. Overview
 
 A state is, on its own terms, a normalized positive linear functional — `𝓢[ℝ, E]`, already fully
@@ -76,8 +78,7 @@ noncomputable def toWeight (s : 𝓢[ℝ, E]) : Weight E where
     (ENNReal.ofReal_add (map_nonneg s A.2) (map_nonneg s B.2))
   map_smul' c A := by
     show ENNReal.ofReal (s ((c : ℝ) • (A : E))) = c • ENNReal.ofReal (s (A : E))
-    rw [map_smul, smul_eq_mul, ENNReal.ofReal_mul c.coe_nonneg, ENNReal.ofReal_coe_nnreal,
-      ENNReal.smul_def, smul_eq_mul]
+    simp [ENNReal.smul_def, ENNReal.ofReal_mul c.coe_nonneg]
 
 @[simp]
 lemma toWeight_apply (s : 𝓢[ℝ, E]) (A : PosCone E) : s.toWeight A = ENNReal.ofReal (s (A : E)) :=
@@ -116,7 +117,7 @@ noncomputable def stateEquiv : {w : Weight E // w.IsState} ≃ 𝓢[ℝ, E] wher
     refine DFunLike.ext _ _ fun A => ?_
     obtain ⟨P, Q, rfl⟩ := PosCone.exists_sub A
     change s.toWeight_isState.finite.toLinearMap ((P : E) - Q) = s ((P : E) - Q)
-    rw [map_sub, map_sub, IsFinite.toLinearMap_coe, IsFinite.toLinearMap_coe,
-      UnitalPositiveLinearMap.toReal_toWeight_apply, UnitalPositiveLinearMap.toReal_toWeight_apply]
+    simp only [map_sub, IsFinite.toLinearMap_coe,
+      UnitalPositiveLinearMap.toReal_toWeight_apply]
 
 end Weight
