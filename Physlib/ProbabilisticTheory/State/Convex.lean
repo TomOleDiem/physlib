@@ -13,6 +13,8 @@ public import Mathlib.Topology.UnitInterval
 /-!
 # Convex state spaces
 
+Convexity of the state space and its pure and mixed states.
+
 ## i. Overview
 
 States mix: a probabilistic combination of two states is again a state, and the state space
@@ -23,8 +25,11 @@ two others, an extreme point of that convex set. A mixed state is one that is a 
 
 - `UnitalPositiveLinearMap.mix` : randomize between two states with a given probability.
 - `UnitalPositiveLinearMap.stateSpace_convex` : the state space is convex in the algebraic dual.
-- `UnitalPositiveLinearMap.isPure_iff_forall_mix_eq` : a state is pure iff every genuine mixture
-  producing it is trivial.
+- `UnitalPositiveLinearMap.IsPure` : pure states are extreme points of the state space.
+- `UnitalPositiveLinearMap.isPure_iff_forall_mix_eq` : a pure state admits only trivial
+  genuine mixtures.
+- `UnitalPositiveLinearMap.isMixed_iff_exists_mem_openSegment` : mixed states lie between
+  two other states.
 
 ## iii. Table of contents
 
@@ -38,7 +43,7 @@ two others, an extreme point of that convex set. A mixed state is one that is a 
 
 @[expose] public section
 
-open ProbabilisticTheory
+open ProbabilisticTheory unitInterval
 
 namespace UnitalPositiveLinearMap
 
@@ -50,17 +55,28 @@ variable {E : Type*} [OrderUnitSpace E]
 
 -/
 
-/-- Randomize between two states with probability `t` of choosing the first. -/
+/-- Randomize between two states with probability `t` of choosing the first, so
+`t • ω + σ t • φ` with `σ t = 1 - t`. -/
 def mix (ω φ : 𝓢[ℝ, E]) (t : unitInterval) : 𝓢[ℝ, E] :=
-  ofLinearMap ((t : ℝ) • ω.toLinearMap + (1 - (t : ℝ)) • φ.toLinearMap)
-    (fun _ hA => add_nonneg (mul_nonneg t.2.1 (map_nonneg ω hA))
-      (mul_nonneg (sub_nonneg.mpr t.2.2) (map_nonneg φ hA)))
-    (show (t : ℝ) * ω 1 + (1 - (t : ℝ)) * φ 1 = 1 by simp)
+  .ofPositiveLinearMap (toNNReal t • ω + toNNReal (σ t) • φ)
+    (by simp [NNReal.smul_def])
 
 /-- Evaluation of a mixture is the pointwise convex combination. -/
 @[simp]
 lemma mix_apply (ω φ : 𝓢[ℝ, E]) (t : unitInterval) (A : E) :
-    mix ω φ t A = (t : ℝ) * ω A + (1 - (t : ℝ)) * φ A := rfl
+    mix ω φ t A = (t : ℝ) * ω A + (1 - (t : ℝ)) * φ A := by
+  simp [mix, NNReal.smul_def]
+
+/-- The underlying linear map of a mixture is the corresponding combination of linear maps. -/
+lemma toLinearMap_mix (ω φ : 𝓢[ℝ, E]) (t : unitInterval) :
+    (mix ω φ t).toLinearMap = (t : ℝ) • ω.toLinearMap + (1 - (t : ℝ)) • φ.toLinearMap := by
+  ext A
+  simp
+
+/-- Swapping the two states swaps the weights: `σ` is the symmetry of the interval. -/
+lemma mix_symm (ω φ : 𝓢[ℝ, E]) (t : unitInterval) : mix ω φ t = mix φ ω (σ t) := by
+  ext A
+  simp [mix_apply, add_comm]
 
 /-!
 
@@ -74,10 +90,10 @@ def stateSpace : Set (E →ₗ[ℝ] ℝ) :=
 
 /-- The state space is convex in the algebraic dual. -/
 lemma stateSpace_convex : Convex ℝ (stateSpace (E := E)) := by
-  rintro x ⟨ω, rfl⟩ y ⟨φ, rfl⟩ t s ht hs hts
-  have hst : s = 1 - t := by linarith
-  subst hst
-  exact ⟨mix ω φ ⟨t, ht, by linarith⟩, rfl⟩
+  rw [convex_iff_segment_subset]
+  rintro _ ⟨ω, rfl⟩ _ ⟨φ, rfl⟩ x hx
+  obtain ⟨t, ht, rfl⟩ := (by rwa [segment_symm, segment_eq_image] at hx)
+  exact ⟨mix ω φ ⟨t, ht⟩, by simpa only [add_comm] using toLinearMap_mix ω φ ⟨t, ht⟩⟩
 
 /-!
 
@@ -91,68 +107,32 @@ def IsPure (ω : 𝓢[ℝ, E]) : Prop := ω.toLinearMap ∈ stateSpace.extremePo
 /-- A state is mixed when it isn't pure. -/
 def IsMixed (ω : 𝓢[ℝ, E]) : Prop := ¬ ω.IsPure
 
-/-- A state lies in the open segment between two states exactly when it is a genuine (`t ≠ 0, 1`)
-mixture of them. -/
+/-- A state is pure exactly when any open segment containing it has both endpoints equal to it. -/
+lemma isPure_iff_forall_mem_openSegment {ω : 𝓢[ℝ, E]} :
+    ω.IsPure ↔ ∀ φ ψ : 𝓢[ℝ, E],
+      ω.toLinearMap ∈ openSegment ℝ φ.toLinearMap ψ.toLinearMap → φ = ω ∧ ψ = ω := by
+  simp only [IsPure, mem_extremePoints, stateSpace, Set.forall_mem_range,
+    toLinearMap_injective.eq_iff, Set.mem_range_self, true_and]
+
+/-- A state is mixed exactly when it lies in an open segment with a different endpoint. -/
+lemma isMixed_iff_exists_mem_openSegment {ω : 𝓢[ℝ, E]} :
+    ω.IsMixed ↔ ∃ φ ψ : 𝓢[ℝ, E],
+      ω.toLinearMap ∈ openSegment ℝ φ.toLinearMap ψ.toLinearMap ∧ (φ ≠ ω ∨ ψ ≠ ω) := by
+  simp [IsMixed, isPure_iff_forall_mem_openSegment, imp_iff_not_or]
+
+/-- Open segments between states consist exactly of their genuine mixtures. -/
 lemma mem_openSegment_iff_exists_mix (ω φ ψ : 𝓢[ℝ, E]) :
     ω.toLinearMap ∈ openSegment ℝ φ.toLinearMap ψ.toLinearMap ↔
-      ∃ t : unitInterval, t ≠ 0 ∧ t ≠ 1 ∧ mix φ ψ t = ω := by
-  constructor
-  · rintro ⟨t, s, ht, hs, hts, heq⟩
-    have ht1 : t < 1 := by linarith
-    let u : unitInterval := ⟨t, ht.le, ht1.le⟩
-    refine ⟨u, ?_, ?_, ?_⟩
-    · exact ne_of_gt (by exact_mod_cast ht)
-    · exact ne_of_lt (by exact_mod_cast ht1)
-    · apply toLinearMap_injective
-      change t • φ.toLinearMap + (1 - t) • ψ.toLinearMap = ω.toLinearMap
-      rwa [show 1 - t = s from by linarith]
-  · rintro ⟨t, ht0, ht1, rfl⟩
-    refine ⟨(t : ℝ), 1 - (t : ℝ), ?_, ?_, by ring, ?_⟩
-    · exact_mod_cast unitInterval.pos_iff_ne_zero.mpr ht0
-    · exact sub_pos.mpr (by exact_mod_cast unitInterval.lt_one_iff_ne_one.mpr ht1)
-    · rfl
+      ∃ t : unitInterval, 0 < t ∧ t < 1 ∧ mix φ ψ t = ω := by
+  rw [openSegment_symm, openSegment_eq_image]
+  simp only [Set.mem_image, Set.mem_Ioo, Subtype.exists,
+    ← toLinearMap_injective.eq_iff, toLinearMap_mix, add_comm]
+  aesop (add safe forward le_of_lt)
 
-/-- A state is pure exactly when every genuine (`t ≠ 0, 1`) binary decomposition is trivial: both
-components already equal it. -/
+/-- A state is pure exactly when every genuine binary mixture producing it is trivial. -/
 lemma isPure_iff_forall_mix_eq {ω : 𝓢[ℝ, E]} :
-    ω.IsPure ↔ ∀ (φ ψ : 𝓢[ℝ, E]) (t : unitInterval), t ≠ 0 → t ≠ 1 →
-      mix φ ψ t = ω → φ = ω ∧ ψ = ω := by
-  rw [IsPure, mem_extremePoints]
-  constructor
-  · rintro ⟨-, hext⟩ φ ψ t ht0 ht1 hmix
-    have hseg := (mem_openSegment_iff_exists_mix ω φ ψ).2 ⟨t, ht0, ht1, hmix⟩
-    exact (hext φ.toLinearMap ⟨φ, rfl⟩ ψ.toLinearMap ⟨ψ, rfl⟩ hseg).imp
-      (fun h => toLinearMap_injective h) (fun h => toLinearMap_injective h)
-  · intro h
-    refine ⟨⟨ω, rfl⟩, ?_⟩
-    rintro x₁ ⟨φ, rfl⟩ x₂ ⟨ψ, rfl⟩ hseg
-    obtain ⟨t, ht0, ht1, hmix⟩ := (mem_openSegment_iff_exists_mix ω φ ψ).1 hseg
-    simpa only [toLinearMap_injective.eq_iff] using h φ ψ t ht0 ht1 hmix
-
-/-- Purity transported along an injective map sending mixtures to convex combinations: a state
-is pure exactly when its image is an extreme point of the image of the state space. -/
-lemma isPure_iff_mem_extremePoints {X : Type*} [AddCommGroup X] [Module ℝ X]
-    {F : 𝓢[ℝ, E] → X} (hF : Function.Injective F)
-    (hmix : ∀ φ ψ t, F (mix φ ψ t) = (t : ℝ) • F φ + (1 - (t : ℝ)) • F ψ) (ω : 𝓢[ℝ, E]) :
-    ω.IsPure ↔ F ω ∈ (Set.range F).extremePoints ℝ := by
-  rw [isPure_iff_forall_mix_eq, mem_extremePoints]
-  refine ⟨fun h => ⟨⟨ω, rfl⟩, ?_⟩, fun h φ ψ t ht0 ht1 hω => ?_⟩
-  · rintro _ ⟨φ, rfl⟩ _ ⟨ψ, rfl⟩ ⟨t, s, ht, hs, hts, heq⟩
-    obtain rfl : s = 1 - t := by linarith
-    obtain ⟨rfl, rfl⟩ := h φ ψ ⟨t, ht.le, by linarith⟩ (fun h => ht.ne' (congrArg Subtype.val h))
-      (fun h => hs.ne' (by have : t = 1 := congrArg Subtype.val h; linarith))
-      (hF ((hmix _ _ _).trans heq))
-    exact ⟨rfl, rfl⟩
-  · obtain ⟨h1, h2⟩ := h.2 _ ⟨φ, rfl⟩ _ ⟨ψ, rfl⟩ ⟨t, 1 - t, unitInterval.pos_iff_ne_zero.2 ht0,
-      sub_pos.2 (unitInterval.lt_one_iff_ne_one.2 ht1), by ring, by rw [← hmix, hω]⟩
-    exact ⟨hF h1, hF h2⟩
-
-/-- A state is mixed exactly when it has a genuine nontrivial binary decomposition. -/
-lemma isMixed_iff_exists_mix_ne {ω : 𝓢[ℝ, E]} :
-    ω.IsMixed ↔ ∃ (φ ψ : 𝓢[ℝ, E]) (t : unitInterval), t ≠ 0 ∧ t ≠ 1 ∧
-      mix φ ψ t = ω ∧ (φ ≠ ω ∨ ψ ≠ ω) := by
-  rw [IsMixed, isPure_iff_forall_mix_eq]
-  push Not
-  simp only [imp_iff_not_or]
+    ω.IsPure ↔ ∀ φ ψ t, 0 < t → t < 1 → mix φ ψ t = ω → φ = ω ∧ ψ = ω := by
+  simp only [isPure_iff_forall_mem_openSegment, mem_openSegment_iff_exists_mix,
+    forall_exists_index, and_imp]
 
 end UnitalPositiveLinearMap

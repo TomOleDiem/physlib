@@ -7,7 +7,8 @@ public import Physlib.ClassicalMechanics.DampedHarmonicOscillator.Solution
 public import Physlib.ClassicalMechanics.EulerLagrange
 public import Physlib.ClassicalMechanics.Force
 public import Physlib.ClassicalMechanics.FreeParticle.Basic
-public import Physlib.ClassicalMechanics.HamiltonsEquations
+public import Physlib.ClassicalMechanics.HamiltonianMechanics.HamiltonsEquations
+public import Physlib.ClassicalMechanics.HamiltonianMechanics.PoissonBracket
 public import Physlib.ClassicalMechanics.HarmonicOscillator.Basic
 public import Physlib.ClassicalMechanics.HarmonicOscillator.Geometric.Basic
 public import Physlib.ClassicalMechanics.HarmonicOscillator.Geometric.KineticEnergy
@@ -121,6 +122,7 @@ public import Physlib.Mathematics.Calculus.Wirtinger.Basic
 public import Physlib.Mathematics.Calculus.Wirtinger.Coordinate
 public import Physlib.Mathematics.Distribution.Basic
 public import Physlib.Mathematics.Distribution.PowMul
+public import Physlib.Mathematics.ForMathlib.ComplexLinear
 public import Physlib.Mathematics.ForMathlib.DataStructures.Matrix.LieTrace
 public import Physlib.Mathematics.ForMathlib.FDerivCurry
 public import Physlib.Mathematics.ForMathlib.Fin
@@ -138,6 +140,9 @@ public import Physlib.Mathematics.ForMathlib.SchurTriangulation
 public import Physlib.Mathematics.ForMathlib.Trigonometry.SinSq
 public import Physlib.Mathematics.ForMathlib.Trigonometry.Tanh
 public import Physlib.Mathematics.Groups.SO3.Basic
+public import Physlib.Mathematics.Groups.SpecialUnitary.LieAlgebra.Adjoint
+public import Physlib.Mathematics.Groups.SpecialUnitary.LieAlgebra.Basic
+public import Physlib.Mathematics.Groups.SpecialUnitary.LieAlgebra.KillingForm
 public import Physlib.Mathematics.InnerProductSpace.Adjoint
 public import Physlib.Mathematics.InnerProductSpace.Basic
 public import Physlib.Mathematics.InnerProductSpace.Calculus
@@ -369,6 +374,7 @@ public import Physlib.QuantumMechanics.Hydrogen.LaplaceRungeLenzVector
 public import Physlib.QuantumMechanics.Hydrogen.Rydberg
 public import Physlib.QuantumMechanics.InfiniteSquareWell.Basic
 public import Physlib.QuantumMechanics.Operators.AngularMomentum
+public import Physlib.QuantumMechanics.Operators.AngularMomentum.DimThree
 public import Physlib.QuantumMechanics.Operators.Commutation
 public import Physlib.QuantumMechanics.Operators.Covariance
 public import Physlib.QuantumMechanics.Operators.Examples
@@ -451,6 +457,7 @@ public import Physlib.Relativity.Tensors.ComplexTensor.Vector.Pre.Contraction
 public import Physlib.Relativity.Tensors.ComplexTensor.Vector.Pre.Modules
 public import Physlib.Relativity.Tensors.ComponentIdx.Basic
 public import Physlib.Relativity.Tensors.ComponentIdx.Contraction
+public import Physlib.Relativity.Tensors.ComponentIdx.Pair
 public import Physlib.Relativity.Tensors.ComponentIdx.Product
 public import Physlib.Relativity.Tensors.ComponentIdx.Single
 public import Physlib.Relativity.Tensors.Conjugation.Basic
@@ -538,6 +545,7 @@ public import Physlib.SpaceAndTime.SpaceTime.Boosts
 public import Physlib.SpaceAndTime.SpaceTime.Derivatives
 public import Physlib.SpaceAndTime.SpaceTime.LorentzAction
 public import Physlib.SpaceAndTime.SpaceTime.SpaceTimeAlgebra.Basic
+public import Physlib.SpaceAndTime.SpaceTime.SpaceTimeAlgebra.Star
 public import Physlib.SpaceAndTime.SpaceTime.SpaceTimeAlgebra.TaylorSeries
 public import Physlib.SpaceAndTime.SpaceTime.TimeSlice
 public import Physlib.SpaceAndTime.Time.Basic
