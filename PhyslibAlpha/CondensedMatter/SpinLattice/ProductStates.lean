@@ -39,7 +39,7 @@ states already form a state of the net. This construction applies to any finite 
 ## iv. References
 
 * O. Bratteli & D. Robinson, Operator Algebras and Quantum Statistical Mechanics 1,
-  Chapter 2. [ref: bratteli_robinson_1]
+  Chapter 2.
 
 -/
 

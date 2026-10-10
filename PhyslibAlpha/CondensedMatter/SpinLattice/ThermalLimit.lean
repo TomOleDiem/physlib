@@ -44,7 +44,7 @@ strip bounds and extension to the completed observables; neither is claimed here
 ## iv. References
 
 * O. Bratteli & D. Robinson, Operator Algebras and Quantum Statistical Mechanics 2,
-  Section 5.3. [ref: bratteli_robinson_2]
+  Section 5.3.
 
 -/
 

@@ -44,7 +44,7 @@ general periodic-system framework.
 
 ## iv. References
 
-* N. Ashcroft & N. D. Mermin, Solid State Physics, Chapters 4 and 8. [ref: ashcroft_mermin_1976]
+* N. Ashcroft & N. D. Mermin, Solid State Physics, Chapters 4 and 8.
 
 -/
 

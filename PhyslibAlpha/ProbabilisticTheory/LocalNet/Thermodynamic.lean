@@ -50,9 +50,9 @@ classical and quantum systems alike.
 ## iv. References
 
 * O. Bratteli & D. Robinson, Operator Algebras and Quantum Statistical Mechanics 1, 2nd ed.,
-  Chapter 2. [ref: bratteli_robinson_1]
+  Chapter 2.
 * O. Bratteli & D. Robinson, Operator Algebras and Quantum Statistical Mechanics 2, 2nd ed.,
-  Chapter 5. [ref: bratteli_robinson_2]
+  Chapter 5.
 
 -/
 

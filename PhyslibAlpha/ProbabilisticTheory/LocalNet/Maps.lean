@@ -53,8 +53,8 @@ do not have one.
 ## iv. References
 
 * O. Bratteli & D. Robinson, Operator Algebras and Quantum Statistical Mechanics 1, 2nd ed.,
-  Chapter 2. [ref: bratteli_robinson_1]
-* R. Haag, Local Quantum Physics, 2nd ed., Chapter III. [ref: haag_local_quantum_physics]
+  Chapter 2.
+* R. Haag, Local Quantum Physics, 2nd ed., Chapter III.
 
 -/
 

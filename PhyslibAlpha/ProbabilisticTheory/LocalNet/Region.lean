@@ -48,9 +48,8 @@ distance `r` of it: a disturbance travelling at speed at most `v` for a time `t`
 
 ## iv. References
 
-* R. Haag, Local Quantum Physics, 2nd ed., Chapter III. [ref: haag_local_quantum_physics]
-* E. Lieb & D. Robinson, The finite group velocity of quantum spin systems. [ref:
-  lieb_robinson_1972]
+* R. Haag, Local Quantum Physics, 2nd ed., Chapter III.
+* E. Lieb & D. Robinson, The finite group velocity of quantum spin systems.
 
 -/
 

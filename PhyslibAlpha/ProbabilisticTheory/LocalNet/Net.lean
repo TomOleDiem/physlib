@@ -56,9 +56,9 @@ restriction, the state of every subregion: the marginal.
 
 ## iv. References
 
-* R. Haag, Local Quantum Physics, 2nd ed., Chapter III. [ref: haag_local_quantum_physics]
+* R. Haag, Local Quantum Physics, 2nd ed., Chapter III.
 * O. Bratteli & D. Robinson, Operator Algebras and Quantum Statistical Mechanics 1, 2nd ed.,
-  Chapter 2. [ref: bratteli_robinson_1]
+  Chapter 2.
 
 -/
 

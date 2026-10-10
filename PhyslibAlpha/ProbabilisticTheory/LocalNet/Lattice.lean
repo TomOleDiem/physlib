@@ -44,9 +44,8 @@ constructions with different physics. Only the first is treated in this file.
 
 ## iv. References
 
-* N. Ashcroft & N. D. Mermin, Solid State Physics, Chapters 4 and 8. [ref: ashcroft_mermin_1976]
-* E. Lieb & D. Robinson, The finite group velocity of quantum spin systems. [ref:
-  lieb_robinson_1972]
+* N. Ashcroft & N. D. Mermin, Solid State Physics, Chapters 4 and 8.
+* E. Lieb & D. Robinson, The finite group velocity of quantum spin systems.
 
 -/
 

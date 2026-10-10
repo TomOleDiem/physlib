@@ -37,9 +37,9 @@ the general compactness theorem. Both models use the same classical observable n
 
 ## iv. References
 
-* E. Ising, Beitrag zur Theorie des Ferromagnetismus. [ref: ising_1925]
+* E. Ising, Beitrag zur Theorie des Ferromagnetismus.
 * O. Bratteli & D. Robinson, Operator Algebras and Quantum Statistical Mechanics 2,
-  Section 6.2. [ref: bratteli_robinson_2]
+  Section 6.2.
 
 -/
 

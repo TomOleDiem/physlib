@@ -58,9 +58,9 @@ This makes the time evolution of an observable localized in `X` well defined in 
 
 ## iv. References
 
-* E. Ising, Beitrag zur Theorie des Ferromagnetismus, Z. Phys. 31 (1925). [ref: ising_1925]
+* E. Ising, Beitrag zur Theorie des Ferromagnetismus, Z. Phys. 31 (1925).
 * O. Bratteli & D. Robinson, Operator Algebras and Quantum Statistical Mechanics 2, 2nd ed.,
-  Section 6.2. [ref: bratteli_robinson_2]
+  Section 6.2.
 -/
 
 @[expose] public section

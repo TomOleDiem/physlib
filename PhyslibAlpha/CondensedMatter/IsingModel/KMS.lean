@@ -63,12 +63,12 @@ in `SpinLattice.ThermalLimit`; uniqueness and a completed-algebra KMS result are
 
 ## iv. References
 
-* R. Kubo, Statistical-mechanical theory of irreversible processes I. [ref: kubo_1957]
-* P. C. Martin & J. Schwinger, Theory of many-particle systems I. [ref: martin_schwinger_1959]
+* R. Kubo, Statistical-mechanical theory of irreversible processes I.
+* P. C. Martin & J. Schwinger, Theory of many-particle systems I.
 * R. Haag, N. M. Hugenholtz & M. Winnink, On the equilibrium states in quantum statistical
-  mechanics. [ref: haag_hugenholtz_winnink_1967]
+  mechanics.
 * O. Bratteli & D. Robinson, Operator Algebras and Quantum Statistical Mechanics 2, 2nd ed.,
-  Section 5.3. [ref: bratteli_robinson_2]
+  Section 5.3.
 -/
 
 @[expose] public section

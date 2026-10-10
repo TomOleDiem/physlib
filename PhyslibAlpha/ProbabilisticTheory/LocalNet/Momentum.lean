@@ -38,9 +38,8 @@ is a linear action on the big system, and everything of `CondensedMatter.Momentu
 
 ## iv. References
 
-* N. Ashcroft & N. D. Mermin, Solid State Physics, Chapters 4 and 8. [ref: ashcroft_mermin_1976]
-* F. Bloch, Über die Quantenmechanik der Elektronen in Kristallgittern, Z. Phys. 52 (1929). [ref:
-  bloch_1929]
+* N. Ashcroft & N. D. Mermin, Solid State Physics, Chapters 4 and 8.
+* F. Bloch, Über die Quantenmechanik der Elektronen in Kristallgittern, Z. Phys. 52 (1929).
 
 -/
 

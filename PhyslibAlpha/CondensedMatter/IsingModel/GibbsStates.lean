@@ -57,7 +57,7 @@ along all finite regions, translation invariance, or the occurrence of a phase t
 ## iv. References
 
 * O. Bratteli & D. Robinson, Operator Algebras and Quantum Statistical Mechanics 2, 2nd ed.,
-  Section 6.2. [ref: bratteli_robinson_2]
+  Section 6.2.
 * L. D. Landau & E. M. Lifshitz, Statistical Physics, Part 1, Chapter 14. [ref: landau_statphys1]
 -/
 

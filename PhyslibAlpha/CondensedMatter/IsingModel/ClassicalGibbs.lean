@@ -37,7 +37,7 @@ exhausting ultrafilter. This file uses only classical observables.
 ## iv. References
 
 * O. Bratteli & D. Robinson, Operator Algebras and Quantum Statistical Mechanics 2,
-  Section 6.2. [ref: bratteli_robinson_2]
+  Section 6.2.
 
 -/
 

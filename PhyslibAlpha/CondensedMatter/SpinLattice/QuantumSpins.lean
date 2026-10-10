@@ -50,9 +50,9 @@ matrices, the observables that are functions of the `σ^z` only.
 
 ## iv. References
 
-* R. Haag, Local Quantum Physics, 2nd ed., Chapter III. [ref: haag_local_quantum_physics]
+* R. Haag, Local Quantum Physics, 2nd ed., Chapter III.
 * O. Bratteli & D. Robinson, Operator Algebras and Quantum Statistical Mechanics 2, 2nd ed.,
-  Chapter 6. [ref: bratteli_robinson_2]
+  Chapter 6.
 -/
 
 @[expose] public section

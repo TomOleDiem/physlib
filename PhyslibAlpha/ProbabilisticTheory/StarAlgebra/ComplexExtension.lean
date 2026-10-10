@@ -39,7 +39,7 @@ of the state that is compatible with taking adjoints, `⟨a*⟩ = conj ⟨a⟩`.
 ## iv. References
 
 * O. Bratteli & D. Robinson, Operator Algebras and Quantum Statistical Mechanics 1, 2nd ed.,
-  Chapter 2. [ref: bratteli_robinson_1]
+  Chapter 2.
 -/
 
 @[expose] public section
