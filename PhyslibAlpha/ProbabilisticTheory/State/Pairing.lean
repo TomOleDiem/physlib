@@ -29,10 +29,11 @@ another.
 - `UnitalPositiveLinearMap.apply_mem_Icc` : state–effect evaluation takes values in `[0, 1]`.
 - `UnitalPositiveLinearMap.apply_mix` : evaluation is affine in the effect argument.
 - `UnitalPositiveLinearMap.ext_of_effect_eq` : effects separate states.
-- `Effect.dist_eq_sSup_abs_apply` : effect distance is determined by state evaluations.
-- `Effect.ext_of_forall_apply_eq` : states separate effects.
+- `UnitalPositiveLinearMap.dist_eq_sSup_abs_apply` : effect distance is determined by state
+  evaluations.
+- `UnitalPositiveLinearMap.effect_ext_of_forall_apply_eq` : states separate effects.
 - `UnitalPositiveLinearMap.injective_apply_effect` : states embed into functions on effects.
-- `Effect.injective_apply_state` : effects embed into functions on states.
+- `UnitalPositiveLinearMap.injective_apply_state` : effects embed into functions on states.
 
 ## iii. Table of contents
 
@@ -103,20 +104,20 @@ lemma injective_apply_effect :
 
 /-- The distance between two effects is the supremum of the difference in their evaluations over
 all states. -/
-lemma _root_.ProbabilisticTheory.Effect.dist_eq_sSup_abs_apply [Nontrivial E] (e f : Effect E) :
+lemma dist_eq_sSup_abs_apply [Nontrivial E] (e f : Effect E) :
     Dist.dist e f = sSup (Set.range fun ω : 𝓢[ℝ, E] => |ω (e : E) - ω (f : E)|) := by
   rw [Effect.dist_eq_orderUnitNorm, ← sSup_abs_apply_eq_orderUnitNorm]
   simp_rw [map_sub]
 
 /-- An effect is determined by its values under all states. -/
-lemma _root_.ProbabilisticTheory.Effect.ext_of_forall_apply_eq {e f : Effect E}
+lemma effect_ext_of_forall_apply_eq {e f : Effect E}
     (h : ∀ ω : 𝓢[ℝ, E], ω (e : E) = ω (f : E)) : e = f :=
   Subtype.ext (UnitalPositiveLinearMap.ext_of_forall_apply_eq h)
 
 /-- Evaluation by states is injective on effects. -/
-lemma _root_.ProbabilisticTheory.Effect.injective_apply_state :
+lemma injective_apply_state :
     Function.Injective (fun (e : Effect E) (ω : 𝓢[ℝ, E]) => ω (e : E)) :=
-  fun _ _ h => Effect.ext_of_forall_apply_eq (congrFun h)
+  fun _ _ h => effect_ext_of_forall_apply_eq (congrFun h)
 
 end UnitalPositiveLinearMap
 

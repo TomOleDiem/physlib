@@ -97,7 +97,9 @@ lemma injective_apply_effect :
 
 end UnitalPositiveLinearMap
 
-namespace Effect
+namespace ProbabilisticTheory.Effect
+
+open UnitalPositiveLinearMap
 
 variable [ArchimedeanOrderUnitSpace E]
 
@@ -111,7 +113,7 @@ variable [ArchimedeanOrderUnitSpace E]
 all states. -/
 lemma dist_eq_sSup_abs_apply [Nontrivial E] (e f : Effect E) :
     Dist.dist e f = sSup (Set.range fun ω : 𝓢[ℝ, E] => |ω e - ω f|) := by
-  rw [Effect.dist_eq_orderUnitNorm, ← UnitalPositiveLinearMap.sSup_abs_apply_eq_orderUnitNorm]
+  rw [dist_eq_orderUnitNorm, ← sSup_abs_apply_eq_orderUnitNorm]
   simp_rw [map_sub]
 
 /-- An effect is determined by its values under all states. -/
@@ -124,4 +126,4 @@ lemma injective_apply_state :
     Function.Injective (fun (e : Effect E) (ω : 𝓢[ℝ, E]) => ω e) :=
   fun _ _ h => ext_of_forall_apply_eq (congrFun h)
 
-end Effect
+end ProbabilisticTheory.Effect
