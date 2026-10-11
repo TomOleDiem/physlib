@@ -348,10 +348,10 @@ lemma projection_singleton_eq_self_of_mem_sector (χ : PontryaginDual (Multiplic
   have hpp : projection π {χ} (projection π {χ} v) = projection π {χ} v := by
     have := congrArg (fun A : H →L[ℂ] H => A v) hp.isIdempotentElem.eq
     simpa using this
-  have hsa : IsSelfAdjoint (projection π {χ}) := hp.isSelfAdjoint
+  have hadj : IsSelfAdjoint (projection π {χ}) := hp.isSelfAdjoint
   have hre : (⟪v, projection π {χ} v⟫_ℂ).re = ‖projection π {χ} v‖ ^ 2 := by
     have h1 : ⟪projection π {χ} v, projection π {χ} v⟫_ℂ = ⟪v, projection π {χ} v⟫_ℂ := by
-      have := hsa.isSymmetric v (projection π {χ} v)
+      have := hadj.isSymmetric v (projection π {χ} v)
       simpa [hpp] using this
     rw [← h1, inner_self_eq_norm_sq_to_K]
     have h2 : ((((‖projection π {χ} v‖ : ℝ) : ℂ)) ^ 2).re = ‖projection π {χ} v‖ ^ 2 := by
