@@ -91,7 +91,7 @@ lemma isPositiveDefiniteSub_correlation (hpos : ∀ b : B, 0 ≤ ω (star b * b)
           rw [map_mul]; rfl
         rw [this, ← ofAdd_add]
         congr 2
-        abel
+        abel_nf
       rw [map_mul, map_star, hcomp]
     rw [h1, hinv]
     rfl
