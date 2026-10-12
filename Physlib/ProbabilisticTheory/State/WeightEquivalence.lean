@@ -54,7 +54,7 @@ namespace IsState
 
 /-- A finite normalized weight extends to a state. -/
 noncomputable def toState (hw : w.IsState) : 𝓢[ℝ, E] :=
-  UnitalPositiveLinearMap.ofLinearMap hw.finite.toLinearMap
+  .ofLinearMap hw.finite.toLinearMap
     (fun A hA => (hw.finite.toLinearMap_coe ⟨A, hA⟩).symm ▸ ENNReal.toReal_nonneg)
     ((hw.finite.toLinearMap_coe 1).trans (by simp [hw.normalized]))
 
@@ -82,7 +82,6 @@ noncomputable def toWeight (s : 𝓢[ℝ, E]) : Weight E where
   map_add' A B := by
     simp [ENNReal.ofReal_add (map_nonneg s A.2) (map_nonneg s B.2)]
   map_smul' c A := by
-    show ENNReal.ofReal (s ((c : ℝ) • (A : E))) = c • ENNReal.ofReal (s (A : E))
     simp [ENNReal.smul_def, ENNReal.ofReal_mul c.coe_nonneg]
 
 @[simp]
@@ -113,9 +112,9 @@ namespace Weight
 noncomputable def stateEquiv : {w : Weight E // w.IsState} ≃ 𝓢[ℝ, E] where
   toFun w := w.2.toState
   invFun s := ⟨s.toWeight, s.toWeight_isState⟩
-  left_inv := by
-    rintro ⟨w, hw⟩
-    exact Subtype.ext (LinearMap.ext fun A => by simp [hw.finite A])
+  left_inv w := by
+    ext A
+    simp [w.2.finite A]
   right_inv s := DFunLike.ext _ _ fun A => by
     obtain ⟨P, Q, rfl⟩ := PosCone.exists_sub A
     simp only [map_sub, IsState.toState_apply, UnitalPositiveLinearMap.toReal_toWeight_apply]
