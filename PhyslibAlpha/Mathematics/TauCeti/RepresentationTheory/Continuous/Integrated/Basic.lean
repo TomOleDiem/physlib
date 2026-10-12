@@ -21,6 +21,12 @@ import PhyslibAlpha.Mathematics.TauCeti.MeasureTheory.Function.StronglyMeasurabl
 
 Let `π` be a representation of an additive topological group `G` (written multiplicatively, as a
 `ContRepresentation` of `Multiplicative G`) on a normed space `E`, which is **strongly continuous**
+(every orbit `g ↦ π g v` is continuous) and uniformly bounded, and let `μ` be a measure on `G`.
+
+## i. Overview
+
+Let `π` be a representation of an additive topological group `G` (written multiplicatively, as a
+`ContRepresentation` of `Multiplicative G`) on a normed space `E`, which is **strongly continuous**
 (every orbit `g ↦ π g v` is continuous) and uniformly bounded, and let `μ` be a measure on `G`. An
 integrable weight `f` then acts on `E` by the **integrated form**
 
@@ -41,12 +47,29 @@ a continuous positive-definite function on a locally compact abelian group, the 
 algebra of operators `π(f)` is the standard source of the representing measure in Bochner's
 theorem (Folland, Chapter 4).
 
-## Main definitions
+**Implementation notes.** The definition integrates the orbits `g ↦ f g • π g v` pointwise in `v`
+and only then bundles the
+result into an operator. The operator-valued map `g ↦ π g` need not be strongly measurable for the
+operator norm: for the regular representation of `ℝ` on `L²(ℝ)`, distinct translations are at
+operator distance `2`, so the map is not almost everywhere separably valued, and `π(f)` cannot be
+written as a Bochner integral in `E →L E`. This is also why
+`TauCeti.ContRepresentation.integratedOperator`, which averages a *norm*-continuous representation
+of a compact group against a continuous weight, does not apply here. The strong continuity and the
+uniform bound are hypotheses of the definition: they are exactly what makes the integrand
+integrable, and they hold for the unitary representations that are the main application.
+Measurability of the integrands `g ↦ f g • π g v` is read off from the continuity of the orbits and
+the inner regularity of `μ` for compact sets
+(`MeasureTheory.AEFinStronglyMeasurable.aestronglyMeasurable_smul`): an integrable weight lives on a
+σ-finite set, which up to a null set is a countable union of compact sets with separable images.
+The Haar measure `MeasureTheory.Measure.addHaar` of a locally compact group is regular, hence has
+this property, so no second countability of `G` or separability of `E` is needed. Only the
+convolution identity, which integrates over `G × G`, still asks for
+`SecondCountableTopologyEither G E`.
+
+## ii. Key results
 
 * `ContRepresentation.integratedOperatorL1`: the integrated form `f ↦ π(f)`, as a bounded linear
   map from `L¹(G, μ)` to the bounded operators on `E`.
-
-## Main statements
 
 * `ContRepresentation.integratedOperatorL1_apply`, `ContRepresentation.integratedOperatorL1_toL1`:
   the pointwise formula `π(f) v = ∫ g, f g • π g v ∂μ`.
@@ -69,32 +92,18 @@ theorem (Folland, Chapter 4).
 * `ContRepresentation.mem_closure_range_integratedOperatorL1_apply`: the integrated form is
   nondegenerate, every `v` being a limit of vectors `π(f) v`.
 
-## Implementation notes
+## iii. Table of contents
 
-The definition integrates the orbits `g ↦ f g • π g v` pointwise in `v` and only then bundles the
-result into an operator. The operator-valued map `g ↦ π g` need not be strongly measurable for the
-operator norm: for the regular representation of `ℝ` on `L²(ℝ)`, distinct translations are at
-operator distance `2`, so the map is not almost everywhere separably valued, and `π(f)` cannot be
-written as a Bochner integral in `E →L E`. This is also why
-`TauCeti.ContRepresentation.integratedOperator`, which averages a *norm*-continuous representation
-of a compact group against a continuous weight, does not apply here. The strong continuity and the
-uniform bound are hypotheses of the definition: they are exactly what makes the integrand
-integrable, and they hold for the unitary representations that are the main application.
-Measurability of the integrands `g ↦ f g • π g v` is read off from the continuity of the orbits and
-the inner regularity of `μ` for compact sets
-(`MeasureTheory.AEFinStronglyMeasurable.aestronglyMeasurable_smul`): an integrable weight lives on a
-σ-finite set, which up to a null set is a countable union of compact sets with separable images.
-The Haar measure `MeasureTheory.Measure.addHaar` of a locally compact group is regular, hence has
-this property, so no second countability of `G` or separability of `E` is needed. Only the
-convolution identity, which integrates over `G × G`, still asks for
-`SecondCountableTopologyEither G E`.
+- A. Development
 
-## References
+## iv. References
 
 * G. B. Folland, *A Course in Abstract Harmonic Analysis*, 2nd ed., CRC Press (2016), §3.2.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 open Filter MeasureTheory
 open scoped InnerProductSpace Topology

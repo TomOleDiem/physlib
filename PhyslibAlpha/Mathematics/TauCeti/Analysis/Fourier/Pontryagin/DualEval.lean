@@ -11,12 +11,30 @@ public import Mathlib.MeasureTheory.Integral.Bochner.Basic
 /-!
 # Evaluation of Pontryagin characters
 
+Evaluation at a fixed monoid element is continuous on the Pontryagin dual.
+
+## i. Overview
+
 Evaluation at a fixed monoid element is continuous on the Pontryagin dual. Its complex-valued
 form is integrable against every finite measure. These lemmas supply the integrands for
 Fourier–Stieltjes transforms, and apply to arbitrary monoids with a topology.
+
+## ii. Key results
+
+This file proves the statement described in the overview.
+
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
+
+* Standard material; the statements and proofs are original to this formalization.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 open MeasureTheory
 

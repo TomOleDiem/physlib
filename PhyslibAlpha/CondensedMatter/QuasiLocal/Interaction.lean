@@ -47,7 +47,7 @@ canonical states of a box are the Gibbs states of `H_Λ` and `H_Λ - μ N_Λ` at
 ## iv. References
 
 * O. Bratteli & D. Robinson, Operator Algebras and Quantum Statistical Mechanics 2,
-  Section 6.2. [ref: bratteli_robinson_2]
+  Section 6.2.
 
 -/
 

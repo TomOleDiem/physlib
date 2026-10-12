@@ -49,9 +49,9 @@ Gibbs ensemble.
 
 ## iv. References
 
-* F. Greenleaf, Invariant Means on Topological Groups. [ref: greenleaf_1]
+* F. Greenleaf, Invariant Means on Topological Groups.
 * O. Bratteli & D. Robinson, Operator Algebras and Quantum Statistical Mechanics 1,
-  Section 4.3. [ref: bratteli_robinson_1]
+  Section 4.3.
 
 -/
 

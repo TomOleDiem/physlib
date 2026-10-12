@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import PhyslibAlpha.ProbabilisticTheory.HilbertSpace.Unbounded.StarHomSpectral.SpectralMeasure
+public import PhyslibAlpha.ProbabilisticTheory.HilbertSpace.Unbounded.StarHomSpec.SpectralMeasure
 public import PhyslibAlpha.ProbabilisticTheory.HilbertSpace.Unbounded.SpectralIntegral.Construction
 public import PhyslibAlpha.ProbabilisticTheory.HilbertSpace.Unbounded.BoundedIntegralAlgebra
 

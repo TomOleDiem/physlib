@@ -11,15 +11,34 @@ public import Mathlib.Topology.UniformSpace.UniformConvergence
 /-!
 # Extending bounded-operator convergence from dense subsets
 
+This file records two standard density arguments for uniformly bounded families of continuous linear
+maps between seminormed spaces.
+
+## i. Overview
+
 This file records two standard density arguments for uniformly bounded families of continuous
 linear maps between seminormed spaces. Pointwise convergence on a dense subset extends to
 pointwise convergence everywhere, and uniform Cauchy convergence on a parameter set does likewise.
 Both rest on the same estimate
 `ContinuousLinearMap.norm_sub_apply_le_of_norm_le`, which moves the point at which a
 difference of two uniformly bounded operators is evaluated to a nearby point of the dense subset.
+
+## ii. Key results
+
+This file proves the statement described in the overview.
+
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
+
+* Standard material; the statements and proofs are original to this formalization.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 namespace ContinuousLinearMap
 

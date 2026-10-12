@@ -10,6 +10,12 @@ public import PhyslibAlpha.Mathematics.TauCeti.Analysis.PositiveDefinite.Basic
 /-!
 # Normalizing positive-definite functions
 
+This file records the standard normalization step for positive-definite functions: if `F : M → ℂ` is
+positive definite and `F 0 ≠ 0`, then multiplying by the reciprocal of the nonnegative real number
+`(F 0).re` gives a positive-definite function whose value at the origin is `1`.
+
+## i. Overview
+
 This file records the standard normalization step for positive-definite functions: if
 `F : M → ℂ` is positive definite and `F 0 ≠ 0`, then multiplying by the reciprocal of the
 nonnegative real number `(F 0).re` gives a positive-definite function whose value at the origin
@@ -24,7 +30,7 @@ the familiar `‖F a‖ ≤ 1`.
 The file deliberately keeps the hypotheses unbundled. It proves lemmas about the explicit
 normalized function rather than introducing a new bundled predicate.
 
-## Main declarations
+## ii. Key results
 
 * `TauCeti.IsPositiveDefinite.normalize`: multiplying by `((F 0).re)⁻¹` preserves
   positive-definiteness.
@@ -34,13 +40,19 @@ normalized function rather than introducing a new bundled predicate.
   `TauCeti.IsPositiveDefinite.norm_normalize_apply_le_one_of_star_eq_neg`: normalized functions
   are bounded by `1` on the usual group-like points.
 
-## References
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
 
 * C. Berg, J. P. R. Christensen, P. Ressel, *Harmonic Analysis on Semigroups* (GTM 100, 1984),
   Chapter 3.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 open scoped ComplexOrder
 

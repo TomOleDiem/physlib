@@ -10,6 +10,11 @@ public import PhyslibAlpha.Mathematics.TauCeti.Analysis.PositiveDefinite.Basic
 /-!
 # Weighted closure for positive-definite functions
 
+This file adds the weighted finite-mixture and Schur-power API for `TauCeti.IsPositiveDefinite`, the
+positive-definite-function predicate on an involutive additive monoid.
+
+## i. Overview
+
 This file adds the weighted finite-mixture and Schur-power API for
 `TauCeti.IsPositiveDefinite`, the positive-definite-function predicate on an involutive additive
 monoid. The basic file already proves binary sums, nonnegative complex scalar multiples, pointwise
@@ -21,7 +26,7 @@ This advances `TauCetiRoadmap/OneParameterSemigroups/README.md`, Part C, the pos
 functions API asking for closure under sums and products before the Bochner and BCR representation
 milestones. No external formalization is vendored.
 
-## Main declarations
+## ii. Key results
 
 * `TauCeti.IsPositiveDefinite.real_smul`: nonnegative real scalar multiplication.
 * `TauCeti.IsPositiveDefinite.sum_smul`: finite nonnegative weighted sums.
@@ -30,13 +35,19 @@ milestones. No external formalization is vendored.
 * `TauCeti.IsPositiveDefinite.sum_smul_apply_zero_of_apply_zero_eq_one`: normalized finite
   mixtures evaluate at the origin as the sum of their weights.
 
-## References
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
 
 * C. Berg, J. P. R. Christensen, P. Ressel, *Harmonic Analysis on Semigroups* (GTM 100, 1984),
   Chapter 3.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 open scoped ComplexOrder
 

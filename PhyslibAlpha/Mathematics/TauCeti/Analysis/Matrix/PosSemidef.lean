@@ -10,6 +10,13 @@ public import PhyslibAlpha.Mathematics.TauCeti.LinearAlgebra.Matrix.PosSemidef
 /-!
 # Analytic bounds for positive-semidefinite matrices
 
+This file supplements the foundational API in `TauCeti.LinearAlgebra.Matrix.PosSemidef` with scalar
+Cauchy--Schwarz and vanishing bounds for `RCLike`-valued positive-semidefinite matrices, together
+with the resulting estimate for *Hankel* matrices: a sequence bounded above whose Hankel matrix `(m,
+n) ↦ a (m + n)` is positive semidefinite cannot increase at the first step.
+
+## i. Overview
+
 This file supplements the foundational API in `TauCeti.LinearAlgebra.Matrix.PosSemidef` with
 scalar Cauchy--Schwarz and vanishing bounds for `RCLike`-valued positive-semidefinite matrices,
 together with the resulting estimate for *Hankel* matrices: a sequence bounded above whose Hankel
@@ -22,7 +29,7 @@ They supply the matrix prerequisites for Part C of the `OneParameterSemigroups` 
 the positive-definite-function/kernel correspondence and the GNS/Kolmogorov decomposition. No
 Mathlib code is vendored.
 
-## Main declarations
+## ii. Key results
 
 * `Matrix.PosSemidef.normSq_le`: scalar Cauchy--Schwarz.
 * `Matrix.PosSemidef.eq_zero_of_apply_self_eq_zero_left` and
@@ -32,13 +39,20 @@ Mathlib code is vendored.
 * `TauCeti.sub_nonneg_of_posSemidef_hankel`: a positive-semidefinite Hankel sequence bounded above
   does not increase at the first step.
 
-## References
+## iii. Table of contents
+
+- A. Development
+- B. Bounded positive-semidefinite Hankel sequences
+
+## iv. References
 
 * C. Berg, J. P. R. Christensen, P. Ressel, *Harmonic Analysis on Semigroups* (GTM 100, 1984),
   Chapter 3.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 open Matrix
 open scoped ComplexConjugate ComplexOrder
@@ -130,7 +144,7 @@ namespace TauCeti
 
 variable {𝕜 : Type*} [RCLike 𝕜]
 
-/-! ## Bounded positive-semidefinite Hankel sequences -/
+/-! ## B. Bounded positive-semidefinite Hankel sequences -/
 
 /-- The numerical core of the Hankel estimate: a bounded sequence of reals with `0 ≤ b 0` whose
 squares satisfy the Cauchy--Schwarz inequality `b n ^ 2 ≤ b 0 * b (n + n)` cannot increase at the

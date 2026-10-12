@@ -39,7 +39,7 @@ the input to the reduction of the many-body problem to momentum sectors.
 ## iv. References
 
 * O. Bratteli & D. Robinson, Operator Algebras and Quantum Statistical Mechanics 1,
-  Section 4.3. [ref: bratteli_robinson_1]
+  Section 4.3.
 
 -/
 

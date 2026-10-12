@@ -52,7 +52,7 @@ coexistence appears.
 ## iv. References
 
 * O. Bratteli & D. Robinson, Operator Algebras and Quantum Statistical Mechanics 2,
-  Section 6.2.3 (existence of limit Gibbs states by weak-⋆ compactness). [ref: bratteli_robinson_2]
+  Section 6.2.3 (existence of limit Gibbs states by weak-⋆ compactness).
 
 -/
 

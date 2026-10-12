@@ -44,7 +44,7 @@ preserving symmetry of a periodic graph is among the cell symmetries.
 ## iv. References
 
 * O. Bratteli & D. Robinson, Operator Algebras and Quantum Statistical Mechanics 2,
-  Section 6.1. [ref: bratteli_robinson_2]
+  Section 6.1.
 
 -/
 

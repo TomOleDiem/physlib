@@ -11,9 +11,27 @@ public import Mathlib.LinearAlgebra.FiniteDimensional.Lemmas
 # Intersections of submodules by dimension
 
 A dimension-counting criterion for nontrivial submodule intersection.
+
+## i. Overview
+
+A dimension-counting criterion for nontrivial submodule intersection.
+
+## ii. Key results
+
+This file proves the statement described in the overview.
+
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
+
+* Standard material; the statements and proofs are original to this formalization.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 open Module (finrank)
 

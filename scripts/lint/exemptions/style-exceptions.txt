@@ -1,3 +1,0 @@
-PhyslibAlpha/ProbabilisticTheory/HilbertSpace/Unbounded/StarHomSpectral/Functional.lean : line 8 : ERR_LIN : Line has more than 100 characters
-PhyslibAlpha/ProbabilisticTheory/HilbertSpace/Unbounded/StarHomSpectral/Commutant.lean : line 8 : ERR_LIN : Line has more than 100 characters
-PhyslibAlpha/ProbabilisticTheory/HilbertSpace/Unbounded/StarHomSpectral/SpectralMeasure.lean : line 8 : ERR_LIN : Line has more than 100 characters

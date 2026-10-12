@@ -12,6 +12,13 @@ public import PhyslibAlpha.Mathematics.TauCeti.Analysis.Matrix.PosSemidef
 /-!
 # Positive-definite functions on an involutive additive monoid
 
+A complex-valued function `F` on an additive monoid `M` equipped with an involution `star` (an
+`AddMonoid` with a `StarAddMonoid` structure) is **positive definite** when, for every finite family
+`(cᵢ, aᵢ)` of scalars `cᵢ : ℂ` and points `aᵢ : M`, the Hermitian form `∑_{i,j} cᵢ · conj(cⱼ) · F(aᵢ
++ aⱼ⋆)` is a nonnegative real number.
+
+## i. Overview
+
 A complex-valued function `F` on an additive monoid `M` equipped with an involution `star`
 (an `AddMonoid` with a `StarAddMonoid` structure) is **positive definite** when, for every
 finite family `(cᵢ, aᵢ)` of scalars `cᵢ : ℂ` and points `aᵢ : M`, the Hermitian form
@@ -33,7 +40,7 @@ related APIs for positive-semidefinite matrices, bilinear and linear maps, and R
 not for positive-definite functions on an involutive monoid, so the predicate and its API are built
 here. The continuity theory and Bochner's representation theorem are later milestones.
 
-## Main declarations
+## ii. Key results
 
 * `TauCeti.IsPositiveDefinite`: the positive-definiteness predicate for `F : M → ℂ`.
 * `TauCeti.IsPositiveDefinite.sum_nonneg`: nonnegativity for arbitrary finite families.
@@ -61,13 +68,19 @@ here. The continuity theory and Bochner's representation theorem are later miles
   `TauCeti.IsPositiveDefinite.prod`, `TauCeti.isPositiveDefinite_const`: closure properties and
   examples.
 
-## References
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
 
 * C. Berg, J. P. R. Christensen, P. Ressel, *Harmonic Analysis on Semigroups* (GTM 100, 1984),
   Chapter 3.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 open ComplexConjugate
 open scoped ComplexOrder

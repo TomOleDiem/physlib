@@ -11,10 +11,15 @@ public import Mathlib.Analysis.InnerProductSpace.Projection.FiniteDimensional
 /-!
 # Spans of orthonormal subfamilies
 
+For a finite-index orthonormal basis and a set of indices, `spanIndices` is the subspace spanned by
+the corresponding basis vectors.
+
+## i. Overview
+
 For a finite-index orthonormal basis and a set of indices, `spanIndices` is the
 subspace spanned by the corresponding basis vectors.
 
-## Main results
+## ii. Key results
 
 * `OrthonormalBasis.spanIndices_eq_span`: the explicit span characterization.
 * `OrthonormalBasis.spanIndices_mono`: monotonicity under index-set inclusion.
@@ -25,15 +30,21 @@ subspace spanned by the corresponding basis vectors.
 * `OrthonormalBasis.finrank_spanIndices_set`: dimension as set cardinality.
 * `OrthonormalBasis.orthogonal_spanIndices`: orthogonal complement by index complement.
 
-## Source
+## iii. Table of contents
 
-Adapted from `ForTauCeti/Analysis/InnerProductSpace/BasisSpan.lean` in the
+- A. Development
+
+## iv. References
+
+Source: Adapted from `ForTauCeti/Analysis/InnerProductSpace/BasisSpan.lean` in the
 [AIQ-Kitware DKPS formalization](https://github.com/AIQ-Kitware/aiq-dkps-formalization)
 (Kitware, Inc.; Apache-2.0). The selected-span construction originates in the
 Courant--Fischer development.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 namespace OrthonormalBasis
 

@@ -11,13 +11,32 @@ public import Mathlib.LinearAlgebra.Finsupp.LinearCombination
 /-!
 # Comparing linear combinations by their Gram kernels
 
+Two families with the same pairwise inner products give linear combinations of the same norm when
+supplied with the same finitely supported coefficients.
+
+## i. Overview
+
 Two families with the same pairwise inner products give linear combinations of the same norm
 when supplied with the same finitely supported coefficients. This comparison applies in
 seminormed inner product spaces and is useful for comparing realizations of a positive-definite
 kernel before constructing an isometry between their closed spans.
+
+## ii. Key results
+
+This file proves the statement described in the overview.
+
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
+
+* Standard material; the statements and proofs are original to this formalization.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 open InnerProductSpace
 

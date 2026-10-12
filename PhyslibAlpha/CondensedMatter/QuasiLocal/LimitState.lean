@@ -41,7 +41,7 @@ a state of the infinite crystal, not a number attached to it.
 ## iv. References
 
 * O. Bratteli & D. Robinson, Operator Algebras and Quantum Statistical Mechanics 2,
-  Section 6.2.3. [ref: bratteli_robinson_2]
+  Section 6.2.3.
 
 -/
 

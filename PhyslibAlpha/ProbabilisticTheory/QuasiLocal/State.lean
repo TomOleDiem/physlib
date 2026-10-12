@@ -37,7 +37,7 @@ Hermitian and positive. Every element of the quasi-local algebra is local, and p
 ## iv. References
 
 * O. Bratteli & D. Robinson, Operator Algebras and Quantum Statistical Mechanics 1,
-  Section 2.6. [ref: bratteli_robinson_1]
+  Section 2.6.
 
 -/
 

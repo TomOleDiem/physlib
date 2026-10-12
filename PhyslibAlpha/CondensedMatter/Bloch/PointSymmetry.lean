@@ -68,7 +68,7 @@ dimension of an invariant subspace: the degeneracies forced by symmetry.
 
 ## iv. References
 
-* N. Ashcroft & N. D. Mermin, Solid State Physics, Chapter 7. [ref: ashcroft_mermin_1976]
+* N. Ashcroft & N. D. Mermin, Solid State Physics, Chapter 7.
 
 -/
 

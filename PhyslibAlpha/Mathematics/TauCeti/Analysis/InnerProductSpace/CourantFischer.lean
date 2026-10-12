@@ -14,12 +14,17 @@ public import PhyslibAlpha.Mathematics.TauCeti.LinearAlgebra.Dimension.Submodule
 /-!
 # Courant–Fischer min–max theorem and Weyl's inequality
 
+For a finite-dimensional inner-product space over `ℝ` or `ℂ`, the min–max theorem characterizes the
+decreasingly sorted eigenvalues of a symmetric endomorphism through its Rayleigh form.
+
+## i. Overview
+
 For a finite-dimensional inner-product space over `ℝ` or `ℂ`, the min–max theorem
 characterizes the decreasingly sorted eigenvalues of a symmetric endomorphism
 through its Rayleigh form.  The same argument gives monotonicity under quadratic-
 form domination and Weyl's perturbation bound.
 
-## Main results
+## ii. Key results
 
 * `LinearMap.IsSymmetric.re_inner_apply_self_eq_sum_eigenvalues_mul_sq`:
   diagonal expansion of the Rayleigh form in an eigenbasis.
@@ -34,15 +39,22 @@ form domination and Weyl's perturbation bound.
   `LinearMap.IsSymmetric.abs_eigenvalue_sub_eigenvalue_le_norm`:
   Weyl's perturbation inequality.
 
-## References
+## iii. Table of contents
+
+- A. Development
+  - A.1. The quadratic form in the eigenbasis
+  - A.2. Discrete Courant–Fischer directional bounds
+  - A.3. The Courant–Fischer min-max equality
+  - A.4. Sorted-eigenvalue uniqueness and Loewner monotonicity
+  - A.5. Weyl's inequality
+
+## iv. References
 
 * R. A. Horn and C. R. Johnson, *Matrix Analysis*, 2nd ed.,
   Theorems 4.2.6 and 4.3.1.
 * R. Bhatia, *Matrix Analysis*, Corollary III.2.6.
 
-## Provenance
-
-Ported and adapted from
+Provenance: Ported and adapted from
 [`ForTauCeti/Analysis/InnerProductSpace/CourantFischer.lean`](https://github.com/AIQ-Kitware/aiq-dkps-formalization/blob/main/ForTauCeti/Analysis/InnerProductSpace/CourantFischer.lean)
 in Kitware's DKPS formalization (Apache-2.0).  The original proof development
 was by Claude Fable 5, with polishing by Claude Opus 4.8 and oversight by
@@ -50,6 +62,8 @@ Jon Crall.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 open Module (finrank)
 open scoped InnerProductSpace
@@ -124,7 +138,7 @@ theorem re_inner_le_of_eigenbasis
   · rw [w.repr_eq_zero_of_mem_spanIndices hx hp]; simp
 
 
-/-! ### The quadratic form in the eigenbasis -/
+/-! ### A.1. The quadratic form in the eigenbasis -/
 
 /-- The quadratic form `re ⟪T x, x⟫` of a symmetric operator `T` expressed in
 its eigenbasis: it is the eigenvalue-weighted sum of the squared norms of the
@@ -161,7 +175,7 @@ theorem le_re_inner_apply_self_of_mem_spanIndices
   exact hT.le_re_inner_of_eigenbasis
     (hT.eigenvectorBasis hn) (hT.apply_eigenvectorBasis hn) hc hx
 
-/-! ### Discrete Courant–Fischer directional bounds -/
+/-! ### A.2. Discrete Courant–Fischer directional bounds -/
 
 /-- **Courant–Fischer, upper direction.** On any subspace `V` of dimension
 `k + 1` there is a unit vector `x` with `re ⟪T x, x⟫ ≤ λₖ(T)`, where `λ` is the
@@ -221,7 +235,7 @@ theorem exists_submodule_forall_unit_eigenvalue_le_re_inner
           hT.le_re_inner_apply_self_of_mem_spanIndices hn
             (fun _ hik => hT.eigenvalues_antitone hn (by simpa using hik)) hxV
 
-/-! ### The Courant–Fischer min-max equality -/
+/-! ### A.3. The Courant–Fischer min-max equality -/
 
 /-- **Courant–Fischer min-max equality.** The `k`-th (decreasingly sorted)
 eigenvalue of a symmetric operator on a finite-dimensional inner product space
@@ -293,7 +307,7 @@ theorem eigenvalues_eq_iSup_iInf_re_inner
     ⟨hT.eigenvalues hn k, by rintro _ ⟨V, rfl⟩; exact hupper V⟩
   exact hlow.trans (le_ciSup hbddA ⟨V₀, hV₀dim⟩)
 
-/-! ### Sorted-eigenvalue uniqueness and Loewner monotonicity
+/-! ### A.4. Sorted-eigenvalue uniqueness and Loewner monotonicity
 
 Courant–Fischer consequences needed by the Ky Fan / unitarily-invariant-norm
 development: an antitone list diagonalizing a symmetric operator in *some*
@@ -372,7 +386,7 @@ theorem map_mem_spanIndices (hT : T.IsSymmetric) (hn : finrank 𝕜 E = n)
 
 end LinearMap.IsSymmetric
 
-/-! ### Weyl's inequality -/
+/-! ### A.5. Weyl's inequality -/
 
 namespace LinearMap.IsSymmetric
 

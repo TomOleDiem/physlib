@@ -13,6 +13,12 @@ public import PhyslibAlpha.Mathematics.TauCeti.RepresentationTheory.Continuous.P
 Let `π` be a strongly continuous unitary representation of an abelian topological group equipped
 with a regular invariant measure, and let `A` be a complete star subalgebra containing all
 integrated operators.
+
+## i. Overview
+
+Let `π` be a strongly continuous unitary representation of an abelian topological group equipped
+with a regular invariant measure, and let `A` be a complete star subalgebra containing all
+integrated operators.
 A character of `A` that is nonzero on some integrated operator determines a continuous group
 character by `ContRepresentation.existsUnique_pontryaginDual_of_integratedOperatorL1`.
 
@@ -28,7 +34,7 @@ of a Banach algebra.  The denominator remains nonzero in a neighbourhood of `ω`
 quotient proves the required local continuity.  This continuity is the input needed to push a
 character-space spectral measure to the Pontryagin dual.
 
-## Main declarations
+## ii. Key results
 
 * `ContRepresentation.integratedCharacterSet`: algebra characters that do not annihilate every
   integrated operator.
@@ -37,7 +43,11 @@ character-space spectral measure to the Pontryagin dual.
 * `ContRepresentation.continuous_integratedCharacterToPontryaginDual`: continuity of this
   assignment.
 
-## References
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
 
 * G. B. Folland, *A Course in Abstract Harmonic Analysis*, second edition, §§3.2 and 4.4.
 * The local-quotient continuity proof generalizes Tau Ceti's earlier formalization in
@@ -47,6 +57,8 @@ character-space spectral measure to the Pontryagin dual.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 noncomputable section
 

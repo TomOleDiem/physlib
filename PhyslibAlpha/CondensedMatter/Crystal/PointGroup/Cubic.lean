@@ -35,7 +35,7 @@ group, the symmetry group of the cube with reflections.
 
 ## iv. References
 
-* N. Ashcroft & N. D. Mermin, Solid State Physics, Chapter 7. [ref: ashcroft_mermin_1976]
+* N. Ashcroft & N. D. Mermin, Solid State Physics, Chapter 7.
 
 -/
 

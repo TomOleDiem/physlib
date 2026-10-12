@@ -11,6 +11,12 @@ public import PhyslibAlpha.Mathematics.TauCeti.Analysis.PositiveDefinite.Basic
 # The positive-definite function ↔ positive-definite kernel correspondence
 
 A positive-definite function `F : M → ℂ` on an involutive additive monoid and a positive-definite
+kernel `K : M → M → ℂ` are two views of the same data, linked by the assignment `K(a, b) = F(a +
+b⋆)`.
+
+## i. Overview
+
+A positive-definite function `F : M → ℂ` on an involutive additive monoid and a positive-definite
 kernel `K : M → M → ℂ` are two views of the same data, linked by the assignment
 `K(a, b) = F(a + b⋆)`. This file records the forward and reverse correspondence, packages them
 as an iff, and records the translation-invariant group specialization.
@@ -32,7 +38,7 @@ The function-side predicate `IsPositiveDefinite` lives in Tau Ceti, while the ke
 Mathlib's `Matrix.PosSemidef`; this file connects them and records the group form. No Mathlib code
 is vendored.
 
-## Main declarations
+## ii. Key results
 
 * `TauCeti.isPositiveDefinite_iff_posSemidef`: the equivalence of the two predicates,
   packaging the two halves.
@@ -40,13 +46,19 @@ is vendored.
   `TauCeti.isPositiveDefinite_iff_posSemidef_sub`: the subtraction form
   `K(a, b) = F(a - b)` under the negation involution `star a = -a`.
 
-## References
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
 
 * C. Berg, J. P. R. Christensen, P. Ressel, *Harmonic Analysis on Semigroups* (GTM 100, 1984),
   Chapter 3.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 open ComplexConjugate
 open scoped ComplexOrder

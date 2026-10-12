@@ -11,13 +11,17 @@ public import Mathlib.Analysis.Matrix.Order
 # Positive-semidefinite matrix algebra
 
 This file supplements Mathlib's `Matrix.PosSemidef` API for matrices indexed by arbitrary types.
+
+## i. Overview
+
+This file supplements Mathlib's `Matrix.PosSemidef` API for matrices indexed by arbitrary types.
 It provides rank-one and constant matrices, finite Schur products, Schur powers,
 products of weights over unions of finite sets, and the quadratic-form characterization.
 
 The results apply in particular to positive-definite kernels, represented directly as matrices,
 but do not depend on Tau Ceti's positive-definite-function theory.
 
-## Main declarations
+## ii. Key results
 
 * `TauCeti.posSemidef_rankOne`: rank-one positive-semidefinite matrices.
 * `TauCeti.posSemidef_const_one` and `TauCeti.posSemidef_const_of_nonneg`: constant matrices.
@@ -27,13 +31,19 @@ but do not depend on Tau Ceti's positive-definite-function theory.
 * `TauCeti.posSemidef_prod_union`: the matrix `(i, j) ↦ ∏_{a ∈ L i ∪ L j} w a` for weights in
   `[0, 1]`.
 
-## References
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
 
 * C. Berg, J. P. R. Christensen, P. Ressel, *Harmonic Analysis on Semigroups* (GTM 100, 1984),
   Chapter 3.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 open Matrix
 open scoped ComplexConjugate ComplexOrder

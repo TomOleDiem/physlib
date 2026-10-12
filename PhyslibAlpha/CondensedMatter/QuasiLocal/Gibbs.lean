@@ -55,7 +55,7 @@ is the Boltzmann factor `e^{-E(c)}` of each configuration `c`.
 ## iv. References
 
 * O. Bratteli & D. Robinson, Operator Algebras and Quantum Statistical Mechanics 2,
-  Section 5.3. [ref: bratteli_robinson_2]
+  Section 5.3.
 
 -/
 

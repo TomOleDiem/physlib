@@ -11,12 +11,31 @@ public import Mathlib.MeasureTheory.Measure.Regular
 # Inner regularity under almost everywhere continuous maps
 
 A measurable map that is continuous on a measurable set of full measure sends an inner regular
+measure to an inner regular measure.
+
+## i. Overview
+
+A measurable map that is continuous on a measurable set of full measure sends an inner regular
 measure to an inner regular measure. Global continuity is unnecessary: compact approximation
 can be performed inside the set where the map is continuous. This applies, for example, to
 spectral character assignments whose exceptional set has measure zero.
+
+## ii. Key results
+
+This file proves the statement described in the overview.
+
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
+
+* Standard material; the statements and proofs are original to this formalization.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 open MeasureTheory Set
 

@@ -12,6 +12,10 @@ public import Mathlib.Topology.Algebra.PontryaginDual
 /-!
 # Characters from unitary multipliers
 
+A unitary representation need not be continuous in the norm of a C⋆-algebra.
+
+## i. Overview
+
 A unitary representation need not be continuous in the norm of a C⋆-algebra. Nevertheless,
 a character of a subalgebra detects a continuous circle-valued character whenever it is nonzero
 on an operator whose translates are norm continuous and belong to the subalgebra. The resulting
@@ -21,12 +25,22 @@ the operator used to detect it.
 This is the character-identification step in the spectral representation of a strongly
 continuous unitary representation, applied to a nonzero integrated operator.
 
-## References
+## ii. Key results
+
+This file proves the statement described in the overview.
+
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
 
 * G. B. Folland, *A Course in Abstract Harmonic Analysis*, second edition, §4.4.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 open WeakDual
 

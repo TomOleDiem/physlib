@@ -47,7 +47,7 @@ irreducible Brillouin zone: a band structure of a symmetric crystal is a functio
 
 ## iv. References
 
-* N. Ashcroft & N. D. Mermin, Solid State Physics, Chapter 7. [ref: ashcroft_mermin_1976]
+* N. Ashcroft & N. D. Mermin, Solid State Physics, Chapter 7.
 
 -/
 

@@ -12,6 +12,12 @@ public import Mathlib.MeasureTheory.Measure.Tight
 /-!
 # Finite measures are determined by separating test functions
 
+Two finite Borel measures on a Polish space are equal once their integrals agree on a family of real
+bounded continuous functions that separates points, contains the constant `1` and is closed under
+multiplication.
+
+## i. Overview
+
 Two finite Borel measures on a Polish space are equal once their integrals agree on a family of
 real bounded continuous functions that separates points, contains the constant `1` and is closed
 under multiplication.
@@ -27,7 +33,15 @@ Hausdorff space. On a locally compact Hausdorff space it therefore determines fi
 compact space can integrate every continuous function like a point mass. This is the form needed
 on the Pontryagin dual of a locally compact abelian group that is not second countable.
 
-## Main results
+**Implementation notes.** The tight case adapts the proofs of Jakob Stiefel's
+`dist_integral_mulExpNegMulSq_comp_le` and
+`ext_of_forall_mem_subalgebra_integral_eq_of_pseudoEMetric_complete_countable` in Mathlib, which
+get their compact sets of almost full measure from complete separable metrizability. Here the
+compact sets come from tightness instead, and Hausdorffness makes them measurable. The passage to
+measures is Mathlib's uniqueness theorem `Measure.ext_of_integral_eq_on_compactlySupported` for
+regular measures.
+
+## ii. Key results
 
 * `TauCeti.MeasureTheory.ext_of_forall_mem_submonoid_integral_eq_of_polish` — two finite Borel
   measures on a Polish space with the same integrals on a point-separating submonoid of
@@ -42,17 +56,18 @@ on the Pontryagin dual of a locally compact abelian group that is not second cou
   compact Hausdorff space, two finite inner regular measures with the same integrals on such a
   subalgebra are equal.
 
-## Implementation notes
+## iii. Table of contents
 
-The tight case adapts the proofs of Jakob Stiefel's `dist_integral_mulExpNegMulSq_comp_le` and
-`ext_of_forall_mem_subalgebra_integral_eq_of_pseudoEMetric_complete_countable` in Mathlib, which
-get their compact sets of almost full measure from complete separable metrizability. Here the
-compact sets come from tightness instead, and Hausdorffness makes them measurable. The passage to
-measures is Mathlib's uniqueness theorem `Measure.ext_of_integral_eq_on_compactlySupported` for
-regular measures.
+- A. Development
+
+## iv. References
+
+* Standard material; the statements and proofs are original to this formalization.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 noncomputable section
 

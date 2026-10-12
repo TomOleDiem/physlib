@@ -12,6 +12,11 @@ import PhyslibAlpha.Mathematics.TauCeti.Analysis.InnerProductSpace.LinearCombina
 /-!
 # Kolmogorov decomposition of a positive-definite kernel
 
+This file constructs the canonical Hilbert-space realization of a scalar-valued positive-definite
+kernel.
+
+## i. Overview
+
 This file constructs the canonical Hilbert-space realization of a scalar-valued
 positive-definite kernel.  A kernel `K : α → α → 𝕜` is first regarded as the operator-valued
 kernel whose `(a, b)` entry is multiplication by `K a b` on the one-dimensional Hilbert space
@@ -27,7 +32,7 @@ other realization, and a linear isometric equivalence when that realization is a
 The completion and reproducing-kernel construction are Mathlib's `RKHS.OfKernel`; this file
 supplies the scalar-kernel bridge and its characteristic API.
 
-## Main declarations
+## ii. Key results
 
 * `TauCeti.positiveDefiniteKernelOperator`: regard a scalar kernel as an operator-valued kernel.
 * `TauCeti.posSemidef_positiveDefiniteKernelOperator`: positivity of that
@@ -40,13 +45,19 @@ supplies the scalar-kernel bridge and its characteristic API.
 * `Matrix.PosSemidef.kolmogorovEquiv`: equivalence with any other minimal
   realization.
 
-## References
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
 
 * C. Berg, J. P. R. Christensen, P. Ressel, *Harmonic Analysis on Semigroups*,
   Springer GTM 100 (1984), Chapter 3.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 open ComplexConjugate ContinuousLinearMap InnerProductSpace
 open scoped ComplexOrder

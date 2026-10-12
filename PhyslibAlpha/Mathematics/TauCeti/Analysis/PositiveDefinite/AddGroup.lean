@@ -14,6 +14,12 @@ public import PhyslibAlpha.Mathematics.TauCeti.Analysis.PositiveDefinite.Normali
 /-!
 # Positive-definite functions on an additive commutative group
 
+On an additive commutative group `G` the classical positive-definiteness condition for `F : G → ℂ`
+reads `∑_{i,j} cᵢ · conj(cⱼ) · F(aᵢ - aⱼ) ≥ 0`: the involution is negation, so the kernel is the
+translation-invariant `K(a, b) = F(a - b)`.
+
+## i. Overview
+
 On an additive commutative group `G` the classical positive-definiteness condition for
 `F : G → ℂ` reads `∑_{i,j} cᵢ · conj(cⱼ) · F(aᵢ - aⱼ) ≥ 0`: the involution is negation, so the
 kernel is the translation-invariant `K(a, b) = F(a - b)`. Mathlib's `star` on a real vector space
@@ -37,7 +43,7 @@ PD-function ↔ PD-kernel equivalence `F(a - b)`, and normalization) at that ins
 the predicate in which Bochner's theorem is stated, in
 `TauCeti/Analysis/Bochner/BochnerTheorem.lean`.
 
-## Main declarations
+## ii. Key results
 
 * `TauCeti.WithNegStar`: the type synonym carrying the negation involution.
 * `TauCeti.IsPositiveDefiniteSub`: the subtraction-form positive-definiteness predicate.
@@ -57,7 +63,19 @@ the predicate in which Bochner's theorem is stated, in
 * `TauCeti.IsPositiveDefiniteSub.uniformContinuous_of_continuousAt_zero`: continuity at `0`
   implies uniform continuity.
 
-## References
+## iii. Table of contents
+
+- A. Development
+  - A.1. The negation involution
+  - A.2. The subtraction-form predicate
+  - A.3. Values at and around the origin
+  - A.4. Closure properties
+  - A.5. Pullbacks
+  - A.6. Limits
+  - A.7. Normalization
+  - A.8. Continuity
+
+## iv. References
 
 * C. Berg, J. P. R. Christensen, P. Ressel, *Harmonic Analysis on Semigroups* (GTM 100, 1984),
   Chapter 3.
@@ -66,12 +84,14 @@ the predicate in which Bochner's theorem is stated, in
 
 public section
 
+/-! ## A. Development -/
+
 open ComplexConjugate Filter
 open scoped ComplexOrder Topology
 
 namespace TauCeti
 
-/-! ### The negation involution -/
+/-! ### A.1. The negation involution -/
 
 /-- `WithNegStar G` is a type synonym for an additive commutative group `G`, carrying the negation
 involution `star a = -a`.
@@ -125,7 +145,7 @@ end Seminormed
 
 end WithNegStar
 
-/-! ### The subtraction-form predicate -/
+/-! ### A.2. The subtraction-form predicate -/
 
 variable {G : Type*} [AddCommGroup G] {F H : G → ℂ}
 
@@ -216,7 +236,7 @@ theorem isPositiveDefinite_iff_isPositiveDefiniteSub [StarAddMonoid G]
     (hstar : ∀ a : G, star a = -a) : IsPositiveDefinite F ↔ IsPositiveDefiniteSub F :=
   (isPositiveDefinite_iff_posSemidef_sub hstar).trans isPositiveDefiniteSub_iff_posSemidef.symm
 
-/-! ### Values at and around the origin -/
+/-! ### A.3. Values at and around the origin -/
 
 namespace IsPositiveDefiniteSub
 
@@ -274,7 +294,7 @@ theorem apply_eq_zero_of_map_zero_re_eq_zero (hF : IsPositiveDefiniteSub F) (h0 
   simpa using hF.isPositiveDefinite.apply_eq_zero_of_map_zero_re_eq_zero (by simpa using h0)
     (WithNegStar.toNegStar a)
 
-/-! ### Closure properties -/
+/-! ### A.4. Closure properties -/
 
 /-- Positive-definite functions are closed under addition. -/
 theorem add (hF : IsPositiveDefiniteSub F) (hH : IsPositiveDefiniteSub H) :
@@ -313,7 +333,7 @@ theorem prod {ι : Type*} {s : Finset ι} {F : ι → G → ℂ}
   isPositiveDefiniteSub_iff_isPositiveDefinite.mpr
     (IsPositiveDefinite.prod fun i hi => (hF i hi).isPositiveDefinite)
 
-/-! ### Pullbacks -/
+/-! ### A.5. Pullbacks -/
 
 /-- Positive definiteness is preserved by precomposition with an additive homomorphism; no
 compatibility with an involution is needed, since an additive homomorphism automatically
@@ -334,7 +354,7 @@ theorem comp_neg (hF : IsPositiveDefiniteSub F) : IsPositiveDefiniteSub fun x =>
   intro n c v
   simpa [neg_sub, sub_eq_neg_add, add_comm] using hF n c fun i => -v i
 
-/-! ### Limits -/
+/-! ### A.6. Limits -/
 
 /-- Positive definiteness is preserved under pointwise limits along a nontrivial filter. -/
 theorem of_tendsto {ι : Type*} {l : Filter ι} [NeBot l] {F : ι → G → ℂ} {H : G → ℂ}
@@ -345,7 +365,7 @@ theorem of_tendsto {ι : Type*} {l : Filter ι} [NeBot l] {F : ι → G → ℂ}
     (IsPositiveDefinite.of_tendsto (hF.mono fun _ hi => hi.isPositiveDefinite)
       fun a => hlim (WithNegStar.ofNegStar a))
 
-/-! ### Normalization -/
+/-! ### A.7. Normalization -/
 
 /-- Multiplying a positive-definite function by the reciprocal of its real value at the origin
 preserves positive definiteness. -/
@@ -371,7 +391,7 @@ theorem norm_normalize_apply_le_one (hF : IsPositiveDefiniteSub F) (a : G) :
 
 end IsPositiveDefiniteSub
 
-/-! ### Continuity -/
+/-! ### A.8. Continuity -/
 
 namespace IsPositiveDefiniteSub
 

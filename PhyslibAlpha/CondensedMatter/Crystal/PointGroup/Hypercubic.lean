@@ -44,7 +44,7 @@ sign choices and `d !` permutations. For `d = 2` it is the dihedral group of ord
 
 ## iv. References
 
-* N. Ashcroft & N. D. Mermin, Solid State Physics, Chapter 7. [ref: ashcroft_mermin_1976]
+* N. Ashcroft & N. D. Mermin, Solid State Physics, Chapter 7.
 
 -/
 

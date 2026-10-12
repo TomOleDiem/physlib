@@ -15,6 +15,12 @@ import PhyslibAlpha.Mathematics.TauCeti.Analysis.PositiveDefinite.Function.GNS
 /-!
 # Bochner's theorem on locally compact abelian groups
 
+A positive-definite function `φ` on a locally compact abelian group `G` that is continuous at `0` is
+the Fourier–Stieltjes transform `φ(g) = ∫ χ(g) dμ(χ)` of a finite inner regular positive measure `μ`
+on the Pontryagin dual of `G`.
+
+## i. Overview
+
 A positive-definite function `φ` on a locally compact abelian group `G` that is continuous at `0`
 is the Fourier–Stieltjes transform `φ(g) = ∫ χ(g) dμ(χ)` of a finite inner regular positive
 measure `μ` on the Pontryagin dual of `G`.
@@ -36,7 +42,7 @@ The existence theorem assumes no second countability of `G`, and the GNS space n
 separable: the integrated form behind the spectral theorem is defined through the inner
 regularity of the Haar measure.
 
-## Main declarations
+## ii. Key results
 
 * `TauCeti.IsPositiveDefiniteSub.exists_pontryaginMeasureTransform_eq_of_continuousAt`: a
   positive-definite function, continuous at `0`, on a locally compact abelian group is the
@@ -47,13 +53,19 @@ regularity of the Haar measure.
   the full Bochner characterization by unique finite measures on a locally compact abelian
   group with Polish dual.
 
-## References
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
 
 * G. B. Folland, *A Course in Abstract Harmonic Analysis*, 2nd ed., CRC Press (2016),
   Theorem 4.18.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 open MeasureTheory
 

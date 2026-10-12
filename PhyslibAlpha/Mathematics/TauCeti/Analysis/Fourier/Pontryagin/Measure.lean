@@ -11,12 +11,31 @@ public import Mathlib.MeasureTheory.Measure.FiniteMeasure
 /-!
 # Fourier–Stieltjes transform of measures on a Pontryagin dual
 
+Integrating character evaluations against a finite positive measure on the Pontryagin dual defines a
+complex-valued function on the original additive group.
+
+## i. Overview
+
 Integrating character evaluations against a finite positive measure on the Pontryagin dual
 defines a complex-valued function on the original additive group. The transform records the
 measure's mass at the identity and respects addition, scaling, and point masses.
+
+## ii. Key results
+
+This file proves the statement described in the overview.
+
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
+
+* Standard material; the statements and proofs are original to this formalization.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 open MeasureTheory
 

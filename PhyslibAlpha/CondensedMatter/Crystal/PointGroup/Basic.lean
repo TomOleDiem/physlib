@@ -46,7 +46,7 @@ square and a rectangular lattice with the same bonds have the same point group a
 
 ## iv. References
 
-* N. Ashcroft & N. D. Mermin, Solid State Physics, Chapter 7. [ref: ashcroft_mermin_1976]
+* N. Ashcroft & N. D. Mermin, Solid State Physics, Chapter 7.
 
 -/
 

@@ -5,8 +5,8 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import PhyslibAlpha.ProbabilisticTheory.HilbertSpace.Unbounded.StarHomSpectral.Functional
-public import PhyslibAlpha.ProbabilisticTheory.HilbertSpace.Unbounded.StarHomSpectral.Commutant
+public import PhyslibAlpha.ProbabilisticTheory.HilbertSpace.Unbounded.StarHomSpec.Functional
+public import PhyslibAlpha.ProbabilisticTheory.HilbertSpace.Unbounded.StarHomSpec.Commutant
 public import Mathlib.Analysis.CStarAlgebra.GelfandDuality
 public import Mathlib.Topology.Algebra.StarSubalgebra
 

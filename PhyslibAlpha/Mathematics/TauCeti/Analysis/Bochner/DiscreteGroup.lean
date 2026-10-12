@@ -11,6 +11,12 @@ import PhyslibAlpha.Mathematics.TauCeti.Analysis.Bochner.LocallyCompactGroup
 /-!
 # Bochner's theorem on discrete abelian groups
 
+A function `φ` on a discrete abelian group `G` is positive definite, `∑ᵢ ∑ⱼ cᵢ conj(cⱼ) φ(gᵢ - gⱼ) ≥
+0` for every finite family, if and only if it is the Fourier–Stieltjes transform `φ(g) = ∫ χ(g)
+dμ(χ)` of a finite inner regular positive measure `μ` on the Pontryagin dual of `G`.
+
+## i. Overview
+
 A function `φ` on a discrete abelian group `G` is positive definite,
 `∑ᵢ ∑ⱼ cᵢ conj(cⱼ) φ(gᵢ - gⱼ) ≥ 0` for every finite family, if and only if it is the
 Fourier–Stieltjes transform `φ(g) = ∫ χ(g) dμ(χ)` of a finite inner regular positive measure `μ`
@@ -24,12 +30,16 @@ continuity hypothesis is automatic on a discrete group.
 For `G = ℤ` this recovers Herglotz's theorem, proved separately by Fejér means in
 `TauCeti.Analysis.Bochner.Herglotz`.
 
-## Main declarations
+## ii. Key results
 
 * `TauCeti.isPositiveDefiniteSub_iff_exists_pontryaginMeasureTransform_eq`: **Bochner's theorem**
   for discrete abelian groups.
 
-## References
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
 
 * W. Rudin, *Fourier Analysis on Groups*, Interscience (1962), §1.4.
 * G. B. Folland, *A Course in Abstract Harmonic Analysis*, 2nd ed., CRC Press (2016), §3.3
@@ -37,6 +47,8 @@ For `G = ℤ` this recovers Herglotz's theorem, proved separately by Fejér mean
 -/
 
 public section
+
+/-! ## A. Development -/
 
 open MeasureTheory
 

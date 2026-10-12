@@ -13,6 +13,12 @@ public import Mathlib.MeasureTheory.Measure.Regular
 
 Mathlib's `ContinuousOn.aestronglyMeasurable` and `Continuous.aestronglyMeasurable` read almost
 everywhere strong measurability of a continuous function off second countability of its source or
+target.
+
+## i. Overview
+
+Mathlib's `ContinuousOn.aestronglyMeasurable` and `Continuous.aestronglyMeasurable` read almost
+everywhere strong measurability of a continuous function off second countability of its source or
 target. This file gives the alternative source of separability: inner regularity of the measure.
 If `μ` is inner regular with respect to compact sets on measurable sets of finite measure
 (`MeasureTheory.Measure.InnerRegularCompactLTTop`), as every regular measure is (for instance the
@@ -26,7 +32,7 @@ representation. On a locally compact group that is not σ-compact a Haar measure
 and a continuous function need not be a.e. strongly measurable on the whole group; but an
 integrable `f` lives on a σ-finite set, and there the inner regular case applies.
 
-## Main statements
+## ii. Key results
 
 * `ContinuousOn.aestronglyMeasurable_of_measure_ne_top`: a function continuous on a measurable set
   of finite measure is a.e. strongly measurable for the restriction of `μ` to that set.
@@ -35,9 +41,19 @@ integrable `f` lives on a σ-finite set, and there the inner regular case applie
 * `MeasureTheory.AEFinStronglyMeasurable.aestronglyMeasurable_smul`: the product `f • g` of an
   a.e. finitely strongly measurable `f` (for instance an integrable one) and a continuous `g` is
   a.e. strongly measurable.
+
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
+
+* Standard material; the statements and proofs are original to this formalization.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 open MeasureTheory Set TopologicalSpace
 open scoped ENNReal

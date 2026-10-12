@@ -13,12 +13,31 @@ import Mathlib.Topology.Metrizable.ContinuousMap
 /-!
 # Polish spaces of continuous homomorphisms
 
+The compact-open space of continuous homomorphisms from a second-countable locally compact monoid to
+a Polish topological monoid is Polish.
+
+## i. Overview
+
 The compact-open space of continuous homomorphisms from a second-countable locally compact
 monoid to a Polish topological monoid is Polish. In particular, this supplies the regularity
 of spaces of characters needed for uniqueness of Fourier–Stieltjes measures.
+
+## ii. Key results
+
+This file proves the statement described in the overview.
+
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
+
+* Standard material; the statements and proofs are original to this formalization.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 namespace TauCeti
 

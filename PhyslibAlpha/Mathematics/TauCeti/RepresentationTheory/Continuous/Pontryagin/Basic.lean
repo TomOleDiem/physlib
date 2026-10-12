@@ -13,6 +13,11 @@ public import Mathlib.Analysis.CStarAlgebra.ContinuousLinearMap
 # Group characters detected by integrated operators
 
 Let `π` be a strongly continuous unitary representation of an abelian group and let `A` be a
+complete star subalgebra containing its integrated operators.
+
+## i. Overview
+
+Let `π` be a strongly continuous unitary representation of an abelian group and let `A` be a
 complete star subalgebra containing its integrated operators. Each character of `A` that is
 nonzero on some integrated operator determines a unique continuous group character `χ`, with
 
@@ -25,12 +30,22 @@ It applies to all integrable weights, independently of the weight witnessing non
 The hypothesis on `A` is simply containment of the integrated form's range; translation
 invariance and norm continuity follow from the integrated form's existing translation API.
 
-## References
+## ii. Key results
+
+This file proves the statement described in the overview.
+
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
 
 * G. B. Folland, *A Course in Abstract Harmonic Analysis*, second edition, §§3.2 and 4.4.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 open MeasureTheory WeakDual
 

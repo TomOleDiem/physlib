@@ -14,6 +14,12 @@ public import Mathlib.MeasureTheory.Measure.OpenPos
 
 Let `f i` be a net of `L¹` classes of unit integral, `∫ f i = 1`, with uniformly bounded `L¹` norms,
 which concentrate at a point `x₀`: for every neighbourhood `U` of `x₀`, eventually each `f i`
+vanishes almost everywhere outside `U`.
+
+## i. Overview
+
+Let `f i` be a net of `L¹` classes of unit integral, `∫ f i = 1`, with uniformly bounded `L¹` norms,
+which concentrate at a point `x₀`: for every neighbourhood `U` of `x₀`, eventually each `f i`
 vanishes almost everywhere outside `U`. Then `∫ x, f i x • φ x ∂μ` tends to `a` for every `φ`
 with limit `a` at `x₀` whose products `f i • φ` with the weights are almost everywhere strongly
 measurable. This is the approximate-identity argument in its pointwise form: since `∫ f i = 1`,
@@ -40,7 +46,7 @@ Similarly, `tendsto_integral_smul_of_tendsto_average_norm_sub` asks for pointwis
 `|g i| ≤ K / μ (a i)` on the weights. Here, instead, `φ` only has to be bounded near `x₀`, which
 its limit at `x₀` provides.
 
-## Main statements
+## ii. Key results
 
 * `TauCeti.norm_integral_smul_sub_le`: the approximate-identity estimate
   `‖∫ x, f x • φ x ∂μ - y‖ ≤ ε * ‖f‖` when `∫ f = 1`, `f` vanishes off `U`, and `φ` stays within `ε`
@@ -50,12 +56,18 @@ its limit at `x₀` provides.
 * `TauCeti.exists_integral_eq_one_norm_eq_one`: peak functions of unit integral and unit
   `L¹` norm exist inside every neighbourhood of a point.
 
-## References
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
 
 * G. B. Folland, *A Course in Abstract Harmonic Analysis*, 2nd ed., CRC Press (2016), §2.5.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 open Filter MeasureTheory Metric Set
 open scoped Topology

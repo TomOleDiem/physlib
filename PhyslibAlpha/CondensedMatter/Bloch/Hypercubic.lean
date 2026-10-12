@@ -48,7 +48,7 @@ spectrum of the hopping is therefore the set of values of the band on this simpl
 
 ## iv. References
 
-* N. Ashcroft & N. D. Mermin, Solid State Physics, Chapter 8. [ref: ashcroft_mermin_1976]
+* N. Ashcroft & N. D. Mermin, Solid State Physics, Chapter 8.
 
 -/
 

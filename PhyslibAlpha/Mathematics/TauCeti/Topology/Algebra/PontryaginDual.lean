@@ -11,6 +11,10 @@ public import PhyslibAlpha.Mathematics.TauCeti.Topology.Algebra.ContinuousMonoid
 /-!
 # Topology of Pontryagin duals
 
+The Pontryagin dual of a second-countable locally compact monoid is Polish.
+
+## i. Overview
+
 The Pontryagin dual of a second-countable locally compact monoid is Polish. For locally compact
 abelian groups this ensures that finite Borel measures on the dual are tight and determined by
 their Fourier–Stieltjes transforms.
@@ -21,17 +25,23 @@ topological groups between the unit circle and the Pontryagin dual of `ℤ`. It 
 about the dual of `ℤ`, such as Fourier–Stieltjes transforms of measures on it, be read on the
 concrete unit circle, where a character becomes the monomial `z ↦ zⁿ`.
 
-## Main definitions
+## ii. Key results
 
 * `TauCeti.circleEquivPontryaginDualInt`: the point `z` of the unit circle corresponds to the
   character `n ↦ zⁿ` of `ℤ`.
 
-## References
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
 
 * W. Rudin, *Fourier Analysis on Groups*, Interscience (1962), §1.2 (the dual group).
 -/
 
 public section
+
+/-! ## A. Development -/
 
 noncomputable section
 

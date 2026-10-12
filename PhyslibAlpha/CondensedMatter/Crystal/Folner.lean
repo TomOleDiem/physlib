@@ -41,7 +41,7 @@ averages of a state over the translations by the elements of `B_n` invariant in 
 
 ## iv. References
 
-* F. Greenleaf, Invariant Means on Topological Groups. [ref: greenleaf_1]
+* F. Greenleaf, Invariant Means on Topological Groups.
 
 -/
 

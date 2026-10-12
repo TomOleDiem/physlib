@@ -16,6 +16,11 @@ import Mathlib.MeasureTheory.Measure.Haar.Unique
 /-!
 # Matrix coefficients of strongly continuous unitary representations
 
+Let `π` be a strongly continuous unitary representation of a locally compact abelian group `G` on a
+complex Hilbert space `H`, and let `ξ ∈ H`.
+
+## i. Overview
+
 Let `π` be a strongly continuous unitary representation of a locally compact abelian group `G`
 on a complex Hilbert space `H`, and let `ξ ∈ H`. The
 diagonal matrix coefficient `g ↦ ⟪ξ, π(g) ξ⟫` is the Fourier–Stieltjes transform of a finite
@@ -37,19 +42,25 @@ pushforward measure is inner regular.
 No second countability of `G` and no separability of `H` is needed: the integrated form is defined
 for the Haar measure through its inner regularity for compact sets.
 
-## Main declarations
+## ii. Key results
 
 * `ContRepresentation.exists_pontryaginMeasureTransform_eq_inner`: a diagonal matrix coefficient
   of a strongly continuous unitary representation of a locally compact abelian group is the
   Fourier–Stieltjes transform of a finite inner regular measure on the dual group.
 
-## References
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
 
 * G. B. Folland, *A Course in Abstract Harmonic Analysis*, 2nd ed., CRC Press (2016), §§3.2,
   4.4 and Theorem 4.44.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 noncomputable section
 

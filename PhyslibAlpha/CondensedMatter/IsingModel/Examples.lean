@@ -51,7 +51,7 @@ The square lattice (`z̄ = 4`) and the honeycomb lattice (`z̄ = 3`) are instanc
 
 ## iv. References
 
-* E. Ising, Beitrag zur Theorie des Ferromagnetismus. [ref: ising_1925]
+* E. Ising, Beitrag zur Theorie des Ferromagnetismus.
 
 -/
 

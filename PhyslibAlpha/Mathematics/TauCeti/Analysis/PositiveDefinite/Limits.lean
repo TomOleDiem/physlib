@@ -14,6 +14,12 @@ import Mathlib.Topology.Order.OrderClosed
 /-!
 # Limits of positive-definite functions
 
+This file derives pointwise- and locally-uniform-limit closure for `TauCeti.IsPositiveDefinite`, the
+positive-definite function predicate on an involutive additive monoid, from Mathlib's closedness
+theorem for the cone of positive-semidefinite matrices.
+
+## i. Overview
+
 This file derives pointwise- and locally-uniform-limit closure for
 `TauCeti.IsPositiveDefinite`, the positive-definite function predicate on an involutive additive
 monoid, from Mathlib's closedness theorem for the cone of positive-semidefinite matrices.
@@ -24,7 +30,7 @@ additional hypothesis. Mathlib's `TendstoLocallyUniformly.continuous` provides c
 locally uniform limit when the approximating functions are frequently continuous, while this file
 provides the positive-definiteness conclusion.
 
-## Main declarations
+## ii. Key results
 
 * `TauCeti.IsPositiveDefinite.of_tendsto`: filter-level pointwise-limit closure for
   positive-definite functions.
@@ -34,13 +40,19 @@ provides the positive-definiteness conclusion.
 * `TauCeti.IsPositiveDefinite.of_tendstoLocallyUniformly`: locally uniform limits of eventually
   positive-definite functions are positive definite.
 
-## References
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
 
 * C. Berg, J. P. R. Christensen, P. Ressel, *Harmonic Analysis on Semigroups* (GTM 100, 1984),
   Chapter 3.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 open Filter
 open ComplexConjugate

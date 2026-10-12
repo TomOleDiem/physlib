@@ -61,7 +61,7 @@ No analysis, finite dimensionality or positivity is used. The analytic counterpa
 
 * F. Bloch, Über die Quantenmechanik der Elektronen in Kristallgittern, Z. Phys. 52 (1929). [ref:
   bloch_1929]
-* N. Ashcroft & N. D. Mermin, Solid State Physics, Chapters 4 and 8. [ref: ashcroft_mermin_1976]
+* N. Ashcroft & N. D. Mermin, Solid State Physics, Chapters 4 and 8.
 
 -/
 

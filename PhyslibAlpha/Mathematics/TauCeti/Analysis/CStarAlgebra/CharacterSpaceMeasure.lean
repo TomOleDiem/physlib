@@ -17,6 +17,10 @@ import Mathlib.Topology.ContinuousMap.Lattice
 /-!
 # Positive functionals on commutative C⋆-algebras are measures on the character space
 
+Let `A` be a unital commutative C⋆-algebra, with character space `Δ = characterSpace ℂ A`.
+
+## i. Overview
+
 Let `A` be a unital commutative C⋆-algebra, with character space `Δ = characterSpace ℂ A`. A
 linear functional `f : A → ℂ` that is nonnegative on every `star a * a` is integration against a
 finite inner regular positive measure on `Δ`:
@@ -31,7 +35,7 @@ This is the commutative case of the passage from positive functionals to spectra
 a cyclic commuting family of operators, such as a unitary representation of an abelian group,
 into a measure on the joint spectrum.
 
-## Main declarations
+## ii. Key results
 
 * `LinearMap.exists_isFiniteMeasure_integral_characterSpace_eq`: a functional nonnegative on
   `star a * a` is integration against a finite inner regular measure on the character space.
@@ -44,13 +48,19 @@ into a measure on the joint spectrum.
 * `StarSubalgebra.integral_norm_sq_eq_norm_apply_sq`: a measure representing such a functional
   computes `‖a ξ‖²` as the squared `L²` norm of `ω ↦ ω a`.
 
-## References
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
 
 * W. Rudin, *Functional Analysis*, 2nd ed., McGraw–Hill (1991), Theorem 11.18 and §12.
 * G. J. Murphy, *C⋆-Algebras and Operator Theory*, Academic Press (1990), §2.1.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 noncomputable section
 

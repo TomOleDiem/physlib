@@ -11,19 +11,34 @@ public import Mathlib.Topology.Algebra.PontryaginDual
 /-!
 # Pontryagin characters are positive-definite atoms
 
+A continuous character of a topological abelian group becomes a continuous function on the additive
+group after transporting `G` to `Multiplicative G`.
+
+## i. Overview
+
 A continuous character of a topological abelian group becomes a continuous function on the
 additive group after transporting `G` to `Multiplicative G`. This file proves that every such
 character is a continuous subtraction-positive-definite function. The character-level fact is
 an atomic input for Fourier analysis on locally compact abelian groups; it does not assert a
 measure-representation or Pontryagin-duality theorem.
 
-## Main declarations
+## ii. Key results
 
 * `PontryaginDual.isPositiveDefiniteSub`: a continuous Pontryagin character is a
   continuous positive-definite function in the additive subtraction form.
+
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
+
+* Standard material; the statements and proofs are original to this formalization.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 open ComplexConjugate
 open scoped ComplexOrder

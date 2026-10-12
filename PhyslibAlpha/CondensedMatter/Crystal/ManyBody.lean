@@ -48,7 +48,7 @@ uses nothing but the symmetry.
 ## iv. References
 
 * O. Bratteli & D. Robinson, Operator Algebras and Quantum Statistical Mechanics 1,
-  Section 2.3. [ref: bratteli_robinson_1]
+  Section 2.3.
 
 -/
 

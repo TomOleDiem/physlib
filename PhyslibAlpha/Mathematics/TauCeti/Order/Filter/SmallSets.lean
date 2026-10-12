@@ -12,11 +12,31 @@ public import Mathlib.Order.Filter.SmallSets
 
 A family indexed by the members of a filter `l` — a net of the shape `k : {s : Set α // s ∈ l} → β`
 — is naturally taken along `Filter.comap Subtype.val l.smallSets`, for which `∀ᶠ s in _, p s` says
+that `p` holds for every small enough member of `l`.
+
+## i. Overview
+
+A family indexed by the members of a filter `l` — a net of the shape `k : {s : Set α // s ∈ l} → β`
+— is naturally taken along `Filter.comap Subtype.val l.smallSets`, for which `∀ᶠ s in _, p s` says
 that `p` holds for every small enough member of `l`. This file records that this index filter is
 never the bottom filter, so that convergence along it has content.
+
+## ii. Key results
+
+This file proves the statement described in the overview.
+
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
+
+* Standard material; the statements and proofs are original to this formalization.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 open Filter
 

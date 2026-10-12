@@ -12,6 +12,10 @@ public import PhyslibAlpha.Mathematics.TauCeti.RepresentationTheory.Continuous.S
 /-!
 # Unitary continuous representations
 
+This file defines when a continuous representation preserves a real or complex inner product.
+
+## i. Overview
+
 This file defines when a continuous representation preserves a real or complex inner product. It
 characterizes unitarity through norm preservation, isometries, and Mathlib's `unitary` submonoid of
 continuous linear operators, and records the basic inner-product identities, the coefficient bound,
@@ -20,9 +24,23 @@ and that unitarity passes to restrictions.
 The operator characterizations reuse Mathlib's adjoint and unitary-operator theory.
 
 The mathematical development follows Daniel Bump, *Lie Groups*, second edition, Chapters 2–4.
+
+## ii. Key results
+
+This file proves the statement described in the overview.
+
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
+
+* Standard material; the statements and proofs are original to this formalization.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 open scoped InnerProductSpace
 

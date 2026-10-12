@@ -58,7 +58,7 @@ crystal translations supply an additional symmetry.
 
 ## iv. References
 
-* E. Ising, Beitrag zur Theorie des Ferromagnetismus. [ref: ising_1925]
+* E. Ising, Beitrag zur Theorie des Ferromagnetismus.
 
 -/
 

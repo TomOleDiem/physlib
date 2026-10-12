@@ -11,12 +11,31 @@ public import PhyslibAlpha.Mathematics.TauCeti.Analysis.Fourier.Pontryagin.Measu
 /-!
 # Positive-definite transforms of measures on a Pontryagin dual
 
+Integration of characters against a finite positive measure gives a positive-definite function on an
+additive topological group.
+
+## i. Overview
+
 Integration of characters against a finite positive measure gives a
 positive-definite function on an additive topological group. This is the positivity part
 of the measure-to-function direction of Bochner representation on locally compact abelian groups.
+
+## ii. Key results
+
+This file proves the statement described in the overview.
+
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
+
+* Standard material; the statements and proofs are original to this formalization.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 open MeasureTheory ComplexConjugate
 open scoped ComplexOrder

@@ -12,12 +12,18 @@ public import Mathlib.Topology.Algebra.Module.Spaces.ContinuousLinearMap
 /-!
 # Restricting a continuous representation to an invariant submodule
 
+This file restricts a continuous representation of a monoid to a submodule preserved by every action
+operator, the continuous counterpart of Mathlib's `Representation.subrepresentation`, and descends
+it to the quotient by such a submodule, the continuous counterpart of `Representation.quotient`.
+
+## i. Overview
+
 This file restricts a continuous representation of a monoid to a submodule preserved by every
 action operator, the continuous counterpart of Mathlib's `Representation.subrepresentation`, and
 descends it to the quotient by such a submodule, the continuous counterpart of
 `Representation.quotient`.
 
-## Main definitions
+## ii. Key results
 
 * `ContRepresentation.subrepresentation`: the restriction of a continuous representation to
   an invariant submodule.
@@ -25,8 +31,6 @@ descends it to the quotient by such a submodule, the continuous counterpart of
   subrepresentation into its ambient representation.
 * `ContRepresentation.quotient`: a continuous representation descended to the quotient by an
   invariant submodule, the continuous counterpart of `Representation.quotient`.
-
-## Main results
 
 * `ContRepresentation.mem_invariants_subrepresentation`: a vector of the submodule is
   invariant for the restricted representation exactly when it is invariant for the ambient one.
@@ -38,9 +42,19 @@ descends it to the quotient by such a submodule, the continuous counterpart of
   continuous representation is the descended underlying representation.
 * `ContRepresentation.continuous_subrepresentation`: the restriction of a continuous
   representation to an invariant submodule is again continuous.
+
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
+
+* Standard material; the statements and proofs are original to this formalization.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 namespace ContRepresentation
 

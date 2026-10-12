@@ -13,6 +13,11 @@ import Mathlib.MeasureTheory.Integral.Bochner.Set
 # Continuity of the Fourier–Stieltjes transform on a Pontryagin dual
 
 The Fourier–Stieltjes transform of a tight finite positive measure on the Pontryagin dual is
+continuous on the original locally compact group.
+
+## i. Overview
+
+The Fourier–Stieltjes transform of a tight finite positive measure on the Pontryagin dual is
 continuous on the original locally compact group. Together with its positive-definiteness,
 this supplies the measure-to-function direction of Bochner representation on locally compact
 abelian groups for regular measures. A compact set carries almost all of the measure; character
@@ -21,9 +26,23 @@ contributes at most its small mass.
 
 This is the standard compact truncation argument for Fourier–Stieltjes transforms; see
 G. B. Folland, *A Course in Abstract Harmonic Analysis*, Chapter 4.
+
+## ii. Key results
+
+This file proves the statement described in the overview.
+
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
+
+* Standard material; the statements and proofs are original to this formalization.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 open MeasureTheory
 

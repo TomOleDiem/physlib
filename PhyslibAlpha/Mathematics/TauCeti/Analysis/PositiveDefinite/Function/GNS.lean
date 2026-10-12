@@ -13,6 +13,11 @@ import PhyslibAlpha.Mathematics.TauCeti.Analysis.Normed.Operator.Dense
 # The GNS translation representation of a positive-definite function
 
 A positive-definite function on an additive commutative group has a canonical Hilbert space,
+obtained from its translation-invariant positive-definite kernel.
+
+## i. Overview
+
+A positive-definite function on an additive commutative group has a canonical Hilbert space,
 obtained from its translation-invariant positive-definite kernel. Translation of the kernel
 vectors extends uniquely to a unitary operator. These operators form a group representation,
 and the original function is a matrix coefficient of its vector at zero.
@@ -20,12 +25,22 @@ and the original function is a matrix coefficient of its vector at zero.
 The translation action is part of the GNS/Kolmogorov decomposition of a positive-definite
 function. Its later use in LCA Bochner theory requires spectral measures and Pontryagin duality.
 
-## References
+## ii. Key results
+
+This file proves the statement described in the overview.
+
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
 
 * W. Rudin, *Fourier Analysis on Groups* (1962), Chapter 1.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 noncomputable section
 

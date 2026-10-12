@@ -13,6 +13,11 @@ public import Mathlib.Analysis.Normed.Group.Basic
 # Continuity of positive-definite functions
 
 This file records the standard continuity upgrade for positive-definite functions on a seminormed
+additive group with the negation involution.
+
+## i. Overview
+
+This file records the standard continuity upgrade for positive-definite functions on a seminormed
 additive group with the negation involution. A positive-definite function that is continuous at
 the origin is uniformly continuous. The file also records the local estimates
 `‖F x - F y‖² ≤ 2 F(0).re ((F 0).re - (F (x + star y)).re)` and
@@ -23,7 +28,7 @@ whose involution is negation.
 This advances Part C of the `OneParameterSemigroups` roadmap, whose positive-definite-function
 API asks for the basic fact "continuity at `0` ⇒ uniform continuity" before Bochner's theorem.
 
-## Main declarations
+## ii. Key results
 
 In the namespace `TauCeti.IsPositiveDefinite`:
 
@@ -41,13 +46,19 @@ In the namespace `TauCeti.IsPositiveDefinite`:
 * `uniformContinuous_of_continuousAt_zero_of_forall_star_eq_neg`:
   continuity at `0` implies uniform continuity.
 
-## References
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
 
 * C. Berg, J. P. R. Christensen, P. Ressel, *Harmonic Analysis on Semigroups* (GTM 100, 1984),
   Chapter 3.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 open ComplexConjugate
 open scoped ComplexOrder

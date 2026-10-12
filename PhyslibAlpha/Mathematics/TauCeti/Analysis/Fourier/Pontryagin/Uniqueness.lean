@@ -13,6 +13,11 @@ import Mathlib.Algebra.MonoidAlgebra.Basic
 # Uniqueness of Fourier--Stieltjes measures on a Pontryagin dual
 
 On a Polish Pontryagin dual, a finite measure is determined by the integrals of the evaluation
+characters.
+
+## i. Overview
+
+On a Polish Pontryagin dual, a finite measure is determined by the integrals of the evaluation
 characters.  Equivalently, the Fourier--Stieltjes transform of a finite measure on the dual is
 injective.  On the dual of an arbitrary locally compact abelian group, where the dual need be
 neither metrizable nor second countable, the same holds for finite inner regular measures.  These
@@ -32,7 +37,7 @@ The construction of `evalMonoidHom`, `evalAlgHom` and `evalPoly`, together with 
 `separatesPoints_charPoly` in `Mathlib.Analysis.Fourier.BoundedContinuousFunctionChar`, which
 treats characters of the form `v ↦ e (L v w)` on a real vector space.
 
-## Main declarations
+## ii. Key results
 
 * `PontryaginDual.evalBoundedContinuous`: evaluation at a group element, bundled as a
   bounded continuous function on the dual.
@@ -44,13 +49,19 @@ treats characters of the form `v ↦ e (L v w)` on a real vector space.
   finite inner regular measures on the dual of a locally compact abelian group with the same
   Fourier--Stieltjes transform are equal.
 
-## References
+## iii. Table of contents
+
+- A. Development
+
+## iv. References
 
 * W. Rudin, *Fourier Analysis on Groups*, Chapter 1.
 * J. Stiefel, `Mathlib.Analysis.Fourier.BoundedContinuousFunctionChar`, Mathlib.
 -/
 
 public section
+
+/-! ## A. Development -/
 
 noncomputable section
 

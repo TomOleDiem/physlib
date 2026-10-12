@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import PhyslibAlpha.ProbabilisticTheory.HilbertSpace.Unbounded.StarHomSpectral.SesquilinearForm
+public import PhyslibAlpha.ProbabilisticTheory.HilbertSpace.Unbounded.StarHomSpec.SesquilinearForm
 public import PhyslibAlpha.ProbabilisticTheory.HilbertSpace.Unbounded.UnitaryInfra.SpectralMeasure
 public import Mathlib.Analysis.CStarAlgebra.ContinuousFunctionalCalculus.Commute
 public import Mathlib.Algebra.Star.Unitary
