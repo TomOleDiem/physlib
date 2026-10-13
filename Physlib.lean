@@ -288,6 +288,7 @@ public import Physlib.ProbabilisticTheory.OrderUnit.Cone
 public import Physlib.ProbabilisticTheory.State.Basic
 public import Physlib.ProbabilisticTheory.State.Convex
 public import Physlib.ProbabilisticTheory.State.Discrimination
+public import Physlib.ProbabilisticTheory.State.Local
 public import Physlib.ProbabilisticTheory.State.Metric
 public import Physlib.ProbabilisticTheory.State.Pairing
 public import Physlib.ProbabilisticTheory.State.Separation
