@@ -23,7 +23,6 @@ Physlib/ClassicalMechanics/Vibrations/LinearTriatomic.lean
 Physlib/ClassicalMechanics/WaveEquation/HarmonicWave.lean
 Physlib/CondensedMatter/BandTheory/Basic.lean
 Physlib/CondensedMatter/Basic.lean
-Physlib/CondensedMatter/Crystal/Basic.lean
 Physlib/CondensedMatter/LatticeModels/Basic.lean
 Physlib/CondensedMatter/ManyBody/Basic.lean
 Physlib/CondensedMatter/Response/Basic.lean
