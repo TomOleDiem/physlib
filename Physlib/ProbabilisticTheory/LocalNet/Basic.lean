@@ -17,21 +17,14 @@ Observables of subsystems and their inclusion into larger subsystems.
 ## i. Overview
 
 Let `R` index subsystems, with `X ≤ Y` meaning that `X` is contained in `Y`. The observables of
-`X` form an order-unit space `A X`. A local net assigns to `X ≤ Y` a channel
-`N.incl h : Channel (A X) (A Y)`, which regards an observable of `X` as one of `Y`. Here a channel
-means a positive linear map that preserves the order unit `1`.
+`X` form an order-unit space `A X`. A local net assigns to `X ≤ Y` a channel,
+which regards an observable of `X` as one of `Y`.
 
 For a tensor product system with `H_Y ≃ H_X ⊗ H_rest`, take `A X` to be the Hermitian operators
-on `H_X`. Then `N.incl h` is the familiar map `M ↦ M ⊗ 1`: the observable acts as `M` on `X` and
-as the identity on the remaining factors. The net laws say that including into the same
-subsystem does nothing and that successive inclusions agree with direct inclusion.
+on `H_X`. Then the inclusion is the familiar map `M ↦ M ⊗ 1`: the observable acts as `M` on `X` and
+as the identity on the remaining factors.
 
-The class `N.IsOrderEmbedding` requires these maps to reflect inequalities. Thus two observables
-of `X` have the same order relation whether compared in `X` or in a larger subsystem `Y`.
-
-The local observables can also be viewed in one space, `N.Global`, which identifies an observable
-with its image in any larger subsystem. For a directed family of subsystems, two local observables
-represent the same global observable exactly when they agree in a common larger subsystem.
+The local observables can also be viewed in one space, `N.Global`.
 
 ## ii. Key results
 
