@@ -13,12 +13,11 @@ public import Mathlib.Basic.NNReal.Defs
 
 ## i. Overview
 
-In the order-unit-space model used here, a channel is a positive unital transformation: it sends
-observables to observables without turning a possible outcome negative, and it leaves the certain
-outcome certain. This covers time evolution, noise, and measurements whose outcomes are discarded
-at the level of a general probabilistic theory. For quantum systems with a specified composite
-structure, physical channels normally require the stronger condition of complete positivity,
-which is not expressible using the order-unit structure alone.
+A channel is a map between the observables of two systems that keeps nonnegative observables
+nonnegative and the certain outcome certain. Time evolution, noise, and measurements whose outcomes
+are discarded are channels. In quantum theory a physical channel must also be completely positive,
+a condition that needs the composite structure of the system and cannot be stated with the
+order-unit structure alone.
 
 ## ii. Key results
 
@@ -28,12 +27,14 @@ which is not expressible using the order-unit structure alone.
   unitality.
 - `UnitalPositiveLinearMap.ofPositiveLinearMap` : bundle a positive linear map after checking
   unitality.
+- `UnitalPositiveLinearMap.comp` : composition of positive unital maps.
 
 ## iii. Table of contents
 
 - A. Unital positive linear maps
 - B. Constructing unital positive linear maps
 - C. Scaling positive linear maps
+- D. Composition of positive unital maps
 
 ## iv. References
 
@@ -148,3 +149,41 @@ instance : SMul NNReal (E →ₚ[R] F) where
 lemma nnreal_smul_apply (c : NNReal) (f : E →ₚ[R] F) (x : E) : (c • f) x = c • f x := rfl
 
 end PositiveLinearMap
+
+namespace UnitalPositiveLinearMap
+
+variable {R E F G : Type*} [Semiring R]
+  [AddCommMonoid E] [PartialOrder E] [AddCommMonoid F] [PartialOrder F]
+  [AddCommMonoid G] [PartialOrder G] [Module R E] [Module R F] [Module R G]
+  [One E] [One F] [One G]
+
+/-! ## D. Composition of positive unital maps -/
+
+variable (R E) in
+/-- The identity transformation of an observable system. -/
+protected def id : E →ₚ₁[R] E where
+  toPositiveLinearMap := .id R E
+  map_one' := rfl
+
+@[simp]
+lemma id_apply (x : E) : UnitalPositiveLinearMap.id R E x = x := rfl
+
+/-- Compose two positive unital transformations. -/
+def comp (g : F →ₚ₁[R] G) (f : E →ₚ₁[R] F) : E →ₚ₁[R] G where
+  toPositiveLinearMap := g.toPositiveLinearMap.comp f.toPositiveLinearMap
+  map_one' := (congrArg g f.map_one').trans g.map_one'
+
+@[simp]
+lemma comp_apply (g : F →ₚ₁[R] G) (f : E →ₚ₁[R] F) (x : E) : g.comp f x = g (f x) := rfl
+
+@[simp]
+lemma comp_id (f : E →ₚ₁[R] F) : f.comp (.id R E) = f := rfl
+
+@[simp]
+lemma id_comp (f : E →ₚ₁[R] F) : (UnitalPositiveLinearMap.id R F).comp f = f := rfl
+
+lemma comp_assoc {H : Type*} [AddCommMonoid H] [PartialOrder H] [Module R H] [One H]
+    (h : G →ₚ₁[R] H) (g : F →ₚ₁[R] G) (f : E →ₚ₁[R] F) :
+    h.comp (g.comp f) = (h.comp g).comp f := rfl
+
+end UnitalPositiveLinearMap
