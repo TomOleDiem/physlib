@@ -47,6 +47,7 @@ public import Physlib.ClassicalMechanics.WaveEquation.HarmonicWave
 public import Physlib.CondensedMatter.BandTheory.Basic
 public import Physlib.CondensedMatter.Basic
 public import Physlib.CondensedMatter.Crystal.Basic
+public import Physlib.CondensedMatter.Crystal.Bonds
 public import Physlib.CondensedMatter.LatticeModels.Basic
 public import Physlib.CondensedMatter.ManyBody.Basic
 public import Physlib.CondensedMatter.Response.Basic
