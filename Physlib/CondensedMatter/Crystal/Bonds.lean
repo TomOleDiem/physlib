@@ -50,7 +50,8 @@ many neighbors comes from finitely many bonds.
 
 ## iv. References
 
-* T. Sunada, Topological Crystallography, Springer (2013), Chapter 1.
+* F. Göhmann, *Introduction to Solid State Physics*, lecture L3, Section 3.1, for the standard
+  description of a crystal. [ref: goehmann_solid_state_2021]
 
 -/
 
