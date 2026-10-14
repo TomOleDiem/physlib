@@ -24,26 +24,28 @@ For a tensor product system with `H_Y ≃ H_X ⊗ H_rest`, take `A X` to be the 
 on `H_X`. Then the inclusion is the familiar map `M ↦ M ⊗ 1`: the observable acts as `M` on `X` and
 as the identity on the remaining factors.
 
-The local observables can also be viewed in one space, `N.Global`.
+The local observables can also be viewed in one space, `N.Quasilocal`.
 
 ## ii. Key results
 
 - `LocalNet`: subsystem observables with channels into larger subsystems.
 - `LocalNet.IsOrderEmbedding`: the inclusion maps reflect order.
-- `LocalNet.incl_le_incl_iff`: inclusion preserves and reflects inequalities.
+- `LocalNet.map_le_map_iff`: inclusion preserves and reflects inequalities.
 - `LocalNet.incl_injective`: order-embedding inclusion maps are injective.
-- `LocalNet.Global`: the algebraic direct limit of the local observable spaces.
-- `LocalNet.Global.of`: regard an observable of one subsystem as a global observable.
-- `LocalNet.Global.of_eq_iff`: equality of global observables can be checked in a common larger
-  subsystem.
-- `LocalNet.Global.of_injective`: order-embedding inclusions keep local observables distinct.
+- `LocalNet.Quasilocal`: the algebraic direct limit of the local observable spaces.
+- `LocalNet.Quasilocal.toQuasilocal`: regard an observable of one subsystem as a quasilocal
+  observable.
+- `LocalNet.Quasilocal.toQuasilocal_eq_iff`: equality of quasilocal observables can be checked in a
+  common larger subsystem.
+- `LocalNet.Quasilocal.toQuasilocal_injective`: order-embedding inclusions keep local observables
+  distinct.
 
 ## iii. Table of contents
 
 - A. Subsystems and inclusions
 - B. Order-embedding inclusions
-- C. The global observable space
-- D. Local observables in the global space
+- C. The quasilocal observable space
+- D. Embedding the local observables
 
 ## iv. References
 
@@ -87,14 +89,14 @@ section OrderEmbedding
 variable [N.IsOrderEmbedding]
 
 /-- Inclusion in an order-embedding net preserves and reflects inequalities. -/
-lemma incl_le_incl_iff (h : X ≤ Y) {a b : A X} :
+lemma map_le_map_iff (h : X ≤ Y) {a b : A X} :
     N.incl h a ≤ N.incl h b ↔ a ≤ b := by
   rw [← sub_nonneg, ← map_sub, ← sub_nonneg (a := b) (b := a)]
   exact ⟨IsOrderEmbedding.nonneg_of_incl_nonneg h, map_nonneg _⟩
 
 /-- The inclusion maps of an order-embedding net are injective. -/
 lemma incl_injective (h : X ≤ Y) : Function.Injective (N.incl h) :=
-  (OrderEmbedding.ofMapLEIff (N.incl h) fun _ _ => N.incl_le_incl_iff h).injective
+  (OrderEmbedding.ofMapLEIff (N.incl h) fun _ _ => N.map_le_map_iff h).injective
 
 end OrderEmbedding
 
@@ -102,7 +104,7 @@ variable [DecidableEq R]
 
 /-!
 
-## C. The global observable space
+## C. The quasilocal observable space
 
 For a directed family of subsystems, observables from different subsystems can be included in a
 common larger one and combined there. The direct limit identifies all such local descriptions
@@ -110,7 +112,8 @@ consistently and supplies the resulting real vector space.
 
 -/
 
-/-- The inclusions as linear maps: the transition maps of the direct limit defining `N.Global`. -/
+/-- The inclusions as linear maps: the transition maps of the direct limit defining
+`N.Quasilocal`. -/
 abbrev inclLin (N : LocalNet R A) ⦃X Y : R⦄ (h : X ≤ Y) : A X →ₗ[ℝ] A Y :=
   (N.incl h).toLinearMap
 
@@ -121,72 +124,77 @@ instance directedSystem (N : LocalNet R A) : DirectedSystem A fun _ _ h => N.inc
   map_map _ _ _ hij hjk x := (N.incl_trans hij hjk x).symm
 
 /-- The algebraic direct limit of the local observable spaces. -/
-def Global (N : LocalNet R A) : Type _ :=
+def Quasilocal (N : LocalNet R A) : Type _ :=
   Module.DirectLimit A N.inclLin
 
-namespace Global
+namespace Quasilocal
 
 variable {N : LocalNet R A}
 
-/-- Global observables add, as elements of a direct limit of vector spaces. -/
-noncomputable instance : AddCommGroup N.Global :=
+/-- Quasilocal observables add, as elements of a direct limit of vector spaces. -/
+noncomputable instance : AddCommGroup N.Quasilocal :=
   inferInstanceAs (AddCommGroup (Module.DirectLimit A N.inclLin))
 
-/-- Global observables can be scaled by real numbers. -/
-noncomputable instance : Module ℝ N.Global :=
+/-- Quasilocal observables can be scaled by real numbers. -/
+noncomputable instance : Module ℝ N.Quasilocal :=
   inferInstanceAs (Module ℝ (Module.DirectLimit A N.inclLin))
 
 /-!
 
-## D. Local observables in the global space
+## D. Embedding the local observables
 
-The map `of N i` takes an observable of subsystem `i` to the global observable it represents.
+The map `toQuasilocal N i` takes an observable of subsystem `i` to the quasilocal observable it
+represents.
 -/
 
 variable (N) in
-/-- Regard an observable of subsystem `i` as a global observable. -/
-noncomputable def of (i : R) : A i →ₗ[ℝ] N.Global :=
+/-- Regard an observable of subsystem `i` as a quasilocal observable. -/
+noncomputable def toQuasilocal (i : R) : A i →ₗ[ℝ] N.Quasilocal :=
   Module.DirectLimit.of ℝ R A N.inclLin i
 
-/-- Including an observable in a larger subsystem does not change its global representation. -/
-lemma of_incl {i j : R} (h : i ≤ j) (a : A i) : of N j (N.incl h a) = of N i a :=
+/-- Including an observable in a larger subsystem does not change its quasilocal representation. -/
+lemma toQuasilocal_incl {i j : R} (h : i ≤ j) (a : A i) :
+    toQuasilocal N j (N.incl h a) = toQuasilocal N i a :=
   Module.DirectLimit.of_f (hij := h) (x := a)
 
 section Directed
 
 variable [IsDirectedOrder R]
 
-/-- Two local observables represent the same global observable exactly when they agree in a
+/-- Two local observables represent the same quasilocal observable exactly when they agree in a
 common larger subsystem. -/
-lemma of_eq_iff {i j : R} (a : A i) (b : A j) :
-    of N i a = of N j b ↔ ∃ k, ∃ (hik : i ≤ k) (hjk : j ≤ k), N.incl hik a = N.incl hjk b := by
-  refine ⟨fun h => ?_, fun ⟨k, hik, hjk, h⟩ => by rw [← of_incl hik, ← of_incl hjk, h]⟩
+lemma toQuasilocal_eq_iff {i j : R} (a : A i) (b : A j) :
+    toQuasilocal N i a = toQuasilocal N j b ↔
+      ∃ k, ∃ (hik : i ≤ k) (hjk : j ≤ k), N.incl hik a = N.incl hjk b := by
+  refine ⟨fun h => ?_, fun ⟨k, hik, hjk, h⟩ => by
+    rw [← toQuasilocal_incl hik, ← toQuasilocal_incl hjk, h]⟩
   obtain ⟨k, hik, hjk⟩ := exists_ge_ge i j
   obtain ⟨l, hkl, hl⟩ := Module.DirectLimit.exists_eq_of_of_eq
     (G := A) (f := N.inclLin)
-    (show of N k (N.incl hik a) = of N k (N.incl hjk b) by rw [of_incl, of_incl, h])
+    (show toQuasilocal N k (N.incl hik a) = toQuasilocal N k (N.incl hjk b) by
+      rw [toQuasilocal_incl, toQuasilocal_incl, h])
   exact ⟨l, hik.trans hkl, hjk.trans hkl,
     (N.incl_trans hik hkl a).trans (hl.trans (N.incl_trans hjk hkl b).symm)⟩
 
 variable [N.IsOrderEmbedding] in
-/-- Order-embedding inclusions keep distinct local observables distinct in the global space. -/
-lemma of_injective (i : R) : Function.Injective (of N i) :=
-  fun _ _ h => let ⟨_, hik, _, h⟩ := (of_eq_iff _ _).1 h; N.incl_injective hik h
+/-- Order-embedding inclusions keep distinct local observables distinct in the quasilocal space. -/
+lemma toQuasilocal_injective (i : R) : Function.Injective (toQuasilocal N i) :=
+  fun _ _ h => let ⟨_, hik, _, h⟩ := (toQuasilocal_eq_iff _ _).1 h; N.incl_injective hik h
 
 variable [Nonempty R]
 
-/-- Every global observable has a representative in some subsystem. -/
-lemma exists_local (x : N.Global) : ∃ (i : R) (a : A i), of N i a = x :=
+/-- Every quasilocal observable has a representative in some subsystem. -/
+lemma exists_local (x : N.Quasilocal) : ∃ (i : R) (a : A i), toQuasilocal N i a = x :=
   Module.DirectLimit.exists_of x
 
-/-- Any two global observables have representatives in a common subsystem. -/
-lemma exists_local₂ (x y : N.Global) :
-    ∃ (i : R) (a b : A i), of N i a = x ∧ of N i b = y :=
+/-- Any two quasilocal observables have representatives in a common subsystem. -/
+lemma exists_local₂ (x y : N.Quasilocal) :
+    ∃ (i : R) (a b : A i), toQuasilocal N i a = x ∧ toQuasilocal N i b = y :=
   Module.DirectLimit.exists_of₂ x y
 
 end Directed
 
-end Global
+end Quasilocal
 
 end LocalNet
 
