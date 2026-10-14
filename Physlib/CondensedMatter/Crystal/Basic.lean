@@ -43,9 +43,9 @@ description and is added in other files.
 ## iii. Table of contents
 
 - A. The unit cell
-- B. Sites and their finiteness
-- C. Translation symmetry
-- D. Constructing a crystal from a unit cell
+- B. Constructing a crystal from a unit cell
+- C. Sites and their finiteness
+- D. Translation symmetry
 
 ## iv. References
 
@@ -78,7 +78,15 @@ namespace Crystal
 
 variable {G : Type*} [AddCommGroup G] [AddGroup.FG G]
 
-/-! ## B. Sites and their finiteness -/
+/-! ## B. Constructing a crystal from a unit cell -/
+
+/-- Construct a crystal by repeating a unit cell with labels `F`.
+The group `G` indexes translated cells; `⟨n, i⟩` is the site with label `i` in cell `n`. -/
+abbrev ofUnitCell (G : Type u) (F : Type v) [AddCommGroup G] [AddGroup.FG G]
+    [Finite F] [Nonempty F] : Crystal G where
+  UnitCell := F
+
+/-! ## C. Sites and their finiteness -/
 
 /-- A site of `C`, with label `i` in cell `n`. -/
 @[ext] structure Site (C : Crystal G) where
@@ -106,7 +114,12 @@ instance (C : Crystal G) [Fintype G] [Fintype C.UnitCell] : Fintype C.Site :=
 instance (C : Crystal G) [Finite G] : Finite C.Site :=
   Finite.of_equiv _ (siteEquiv C).symm
 
-/-! ## C. Translation symmetry -/
+/-- Every crystal has a site in its reference cell. -/
+instance (C : Crystal G) : Nonempty C.Site :=
+  let ⟨i⟩ := C.nonemptyUnitCell
+  ⟨⟨0, i⟩⟩
+
+/-! ## D. Translation symmetry -/
 
 /-- Translate a site to another cell, preserving its unit-cell label. -/
 instance (C : Crystal G) : AddAction G C.Site where
@@ -141,19 +154,6 @@ lemma Site.mem_orbit_iff_label_eq {C : Crystal G} (x y : C.Site) :
     rfl
   · intro h
     exact ⟨y.cell - x.cell, Site.ext (by simp) (by simpa using h)⟩
-
-/-! ## D. Constructing a crystal from a unit cell -/
-
-/-- Construct a crystal by repeating a unit cell with labels `F`.
-The group `G` indexes translated cells; `⟨n, i⟩` is the site with label `i` in cell `n`. -/
-abbrev ofUnitCell (G : Type u) (F : Type v) [AddCommGroup G] [AddGroup.FG G]
-    [Finite F] [Nonempty F] : Crystal G where
-  UnitCell := F
-
-/-- Every crystal has a site in its reference cell. -/
-instance (C : Crystal G) : Nonempty C.Site :=
-  let ⟨i⟩ := C.nonemptyUnitCell
-  ⟨⟨0, i⟩⟩
 
 end Crystal
 end Physlib.CondensedMatter
