@@ -58,15 +58,13 @@ description and is added in other files.
 
 namespace Physlib.CondensedMatter
 
-universe u v
-
 /-! ## A. The unit cell -/
 
 /-- A crystal with finitely generated abelian translation group `G` and a finite, nonempty unit
 cell. The sites are one copy of each unit-cell label in every translated cell. -/
-structure Crystal (G : Type u) [AddCommGroup G] [AddGroup.FG G] where
+structure Crystal (G : Type*) [AddCommGroup G] [AddGroup.FG G] where
   /-- The labels of the things in one unit cell, such as atoms, spins or orbitals. -/
-  UnitCell : Type v
+  UnitCell : Type*
   /-- The unit cell has finitely many labels. -/
   [finiteUnitCell : Finite UnitCell]
   /-- The unit cell has at least one label. -/
@@ -76,16 +74,15 @@ attribute [instance] Crystal.finiteUnitCell Crystal.nonemptyUnitCell
 
 namespace Crystal
 
-variable (G : Type u) [AddCommGroup G] [AddGroup.FG G]
-
 /-! ## B. Constructing a crystal from a unit cell -/
 
 /-- Construct a crystal by repeating a unit cell with labels `F`.
 The group `G` indexes translated cells; `⟨n, i⟩` is the site with label `i` in cell `n`. -/
-abbrev ofUnitCell (F : Type v) [Finite F] [Nonempty F] : Crystal G where
+abbrev ofUnitCell (G : Type*) (F : Type*) [AddCommGroup G] [AddGroup.FG G]
+    [Finite F] [Nonempty F] : Crystal G where
   UnitCell := F
 
-variable {G}
+variable {G : Type*} [AddCommGroup G] [AddGroup.FG G]
 
 /-! ## C. Sites and their finiteness -/
 
