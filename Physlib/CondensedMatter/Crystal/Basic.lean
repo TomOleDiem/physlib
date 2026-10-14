@@ -76,15 +76,16 @@ attribute [instance] Crystal.finiteUnitCell Crystal.nonemptyUnitCell
 
 namespace Crystal
 
-variable {G : Type*} [AddCommGroup G] [AddGroup.FG G]
+variable (G : Type u) [AddCommGroup G] [AddGroup.FG G]
 
 /-! ## B. Constructing a crystal from a unit cell -/
 
 /-- Construct a crystal by repeating a unit cell with labels `F`.
 The group `G` indexes translated cells; `⟨n, i⟩` is the site with label `i` in cell `n`. -/
-abbrev ofUnitCell (G : Type u) (F : Type v) [AddCommGroup G] [AddGroup.FG G]
-    [Finite F] [Nonempty F] : Crystal G where
+abbrev ofUnitCell (F : Type v) [Finite F] [Nonempty F] : Crystal G where
   UnitCell := F
+
+variable {G}
 
 /-! ## C. Sites and their finiteness -/
 
