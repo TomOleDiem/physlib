@@ -16,7 +16,8 @@ A crystal is a finite unit cell repeated periodically.
 
 ## i. Overview
 
-The goal is to construct crystals such as the square, hexagonal, fcc, bcc and hcp lattices. We
+The goal is to construct crystals such as the square, hexagonal, fcc, bcc and hcp lattices. The
+standard starting point is a unit cell repeated by translations; see the reference below. We
 start combinatorially, with a unit cell that repeats many times over. This periodicity is modeled
 by a finitely generated abelian group `G`, written additively, with `ℤᵈ` as the prototypical
 example. Each unit cell consists of finitely many things, such as atoms, spins or orbitals, which
@@ -41,12 +42,15 @@ description and is added in other files.
 
 ## iii. Table of contents
 
-- A. Crystals and their sites
+- A. The unit cell
+- B. Sites and their finiteness
+- C. Translation symmetry
+- D. Constructing a crystal from a unit cell
 
 ## iv. References
 
-* N. Ashcroft & N. D. Mermin, Solid State Physics, Chapter 4.
-* T. Sunada, Topological Crystallography, Springer (2013), Chapter 1.
+* F. Göhmann, *Introduction to Solid State Physics*, lecture L3, Section 3.1, for the standard
+  description of a crystal as translated copies of a unit cell. [ref: goehmann_solid_state_2021]
 
 -/
 
@@ -56,7 +60,7 @@ namespace Physlib.CondensedMatter
 
 universe u v
 
-/-! ## A. Crystals and their sites -/
+/-! ## A. The unit cell -/
 
 /-- A crystal with finitely generated abelian translation group `G` and a finite, nonempty unit
 cell. The sites are one copy of each unit-cell label in every translated cell. -/
@@ -73,6 +77,8 @@ attribute [instance] Crystal.finiteUnitCell Crystal.nonemptyUnitCell
 namespace Crystal
 
 variable {G : Type*} [AddCommGroup G] [AddGroup.FG G]
+
+/-! ## B. Sites and their finiteness -/
 
 /-- A site of `C`, with label `i` in cell `n`. -/
 @[ext] structure Site (C : Crystal G) where
@@ -99,6 +105,8 @@ instance (C : Crystal G) [Fintype G] [Fintype C.UnitCell] : Fintype C.Site :=
 /-- A finite translation group, as for periodic boundary conditions, gives a finite crystal. -/
 instance (C : Crystal G) [Finite G] : Finite C.Site :=
   Finite.of_equiv _ (siteEquiv C).symm
+
+/-! ## C. Translation symmetry -/
 
 /-- Translate a site to another cell, preserving its unit-cell label. -/
 instance (C : Crystal G) : AddAction G C.Site where
@@ -133,6 +141,8 @@ lemma Site.mem_orbit_iff_label_eq {C : Crystal G} (x y : C.Site) :
     rfl
   · intro h
     exact ⟨y.cell - x.cell, Site.ext (by simp) (by simpa using h)⟩
+
+/-! ## D. Constructing a crystal from a unit cell -/
 
 /-- Construct a crystal by repeating a unit cell with labels `F`.
 The group `G` indexes translated cells; `⟨n, i⟩` is the site with label `i` in cell `n`. -/
