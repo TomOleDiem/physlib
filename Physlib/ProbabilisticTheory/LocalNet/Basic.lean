@@ -166,6 +166,12 @@ lemma toQuasilocal_incl {i j : R} (h : i ≤ j) (a : A i) :
     toQuasilocal N j (N.incl h a) = toQuasilocal N i a :=
   Module.DirectLimit.of_f (hij := h) (x := a)
 
+/-- Observables that agree in a common larger subsystem represent the same quasilocal
+observable. -/
+lemma toQuasilocal_eq_of_incl_eq {i j k : R} (hik : i ≤ k) (hjk : j ≤ k) {a : A i} {b : A j}
+    (h : N.incl hik a = N.incl hjk b) : toQuasilocal N i a = toQuasilocal N j b := by
+  rw [← toQuasilocal_incl hik, ← toQuasilocal_incl hjk, h]
+
 /-!
 
 ## E. Directed families of subsystems
@@ -179,20 +185,24 @@ section DirectedSubsystems
 
 variable [IsDirectedOrder R]
 
+/-- Observables representing the same quasilocal observable agree in a common larger
+subsystem. -/
+lemma exists_incl_eq_of_toQuasilocal_eq {i j : R} {a : A i} {b : A j}
+    (h : toQuasilocal N i a = toQuasilocal N j b) :
+    ∃ (k : R) (hik : i ≤ k) (hjk : j ≤ k), N.incl hik a = N.incl hjk b := by
+  obtain ⟨k, hik, hjk⟩ := exists_ge_ge i j
+  have h' : toQuasilocal N k (N.incl hik a) = toQuasilocal N k (N.incl hjk b) := by
+    rw [toQuasilocal_incl, toQuasilocal_incl, h]
+  obtain ⟨l, hkl, hl⟩ := Module.DirectLimit.exists_eq_of_of_eq (G := A) (f := N.inclLin) h'
+  exact ⟨l, hik.trans hkl, hjk.trans hkl,
+    (N.incl_trans_apply hik hkl _ a).trans (hl.trans (N.incl_trans_apply hjk hkl _ b).symm)⟩
+
 /-- Two local observables represent the same quasilocal observable exactly when they agree in a
 common larger subsystem. -/
 lemma toQuasilocal_eq_iff {i j : R} (a : A i) (b : A j) :
     toQuasilocal N i a = toQuasilocal N j b ↔
-      ∃ (k : R) (hik : i ≤ k) (hjk : j ≤ k), N.incl hik a = N.incl hjk b := by
-  refine ⟨fun h => ?_, fun ⟨k, hik, hjk, h⟩ => by
-    rw [← toQuasilocal_incl hik, ← toQuasilocal_incl hjk, h]⟩
-  obtain ⟨k, hik, hjk⟩ := exists_ge_ge i j
-  obtain ⟨l, hkl, hl⟩ := Module.DirectLimit.exists_eq_of_of_eq
-    (G := A) (f := N.inclLin)
-    (show toQuasilocal N k (N.incl hik a) = toQuasilocal N k (N.incl hjk b) by
-      rw [toQuasilocal_incl, toQuasilocal_incl, h])
-  exact ⟨l, hik.trans hkl, hjk.trans hkl,
-    (N.incl_trans_apply hik hkl _ a).trans (hl.trans (N.incl_trans_apply hjk hkl _ b).symm)⟩
+      ∃ (k : R) (hik : i ≤ k) (hjk : j ≤ k), N.incl hik a = N.incl hjk b :=
+  ⟨exists_incl_eq_of_toQuasilocal_eq, fun ⟨_, hik, hjk, h⟩ => toQuasilocal_eq_of_incl_eq hik hjk h⟩
 
 variable [N.IsOrderEmbedding] in
 /-- Order-embedding inclusions keep distinct local observables distinct in the quasilocal space. -/
