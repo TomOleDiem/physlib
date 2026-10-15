@@ -62,6 +62,8 @@ notation:25 E " →ₚ₁[" R:25 "] " F:0 => UnitalPositiveLinearMap R E F
 
 namespace UnitalPositiveLinearMap
 
+section Basic
+
 variable {R E F G : Type*} [Semiring R]
   [AddCommMonoid E] [PartialOrder E] [AddCommMonoid F] [PartialOrder F]
   [AddCommMonoid G] [PartialOrder G] [Module R E] [Module R F] [Module R G]
@@ -115,9 +117,9 @@ def comp (g : F →ₚ₁[R] G) (f : E →ₚ₁[R] F) : E →ₚ₁[R] G where
 
 @[simp] lemma id_comp (f : E →ₚ₁[R] F) : (UnitalPositiveLinearMap.id R F).comp f = f := rfl
 
-end UnitalPositiveLinearMap
+end Basic
 
-namespace UnitalPositiveLinearMap
+section Construction
 
 variable {R E F : Type*} [Semiring R]
   [AddCommGroup E] [PartialOrder E] [IsOrderedAddMonoid E]
@@ -144,6 +146,8 @@ omit [IsOrderedAddMonoid E] [IsOrderedAddMonoid F] in
 @[simp]
 lemma ofPositiveLinearMap_apply (f : E →ₚ[R] F) (hone : f 1 = 1) (x : E) :
     ofPositiveLinearMap f hone x = f x := rfl
+
+end Construction
 
 end UnitalPositiveLinearMap
 

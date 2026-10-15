@@ -98,21 +98,15 @@ class IsOrderEmbedding (N : LocalNet R A) : Prop where
   /-- An observable that is positive in a larger subsystem is already positive in the smaller. -/
   nonneg_of_incl_nonneg : ∀ {X Y : R} (h : X ≤ Y) {a : A X}, 0 ≤ N.incl h a → 0 ≤ a
 
-section OrderEmbedding
-
-variable [N.IsOrderEmbedding]
-
 /-- Inclusion in an order-embedding net preserves and reflects inequalities. -/
-lemma map_le_map_iff (h : X ≤ Y) {a b : A X} :
+lemma map_le_map_iff [N.IsOrderEmbedding] (h : X ≤ Y) {a b : A X} :
     N.incl h a ≤ N.incl h b ↔ a ≤ b := by
   rw [← sub_nonneg, ← map_sub, ← sub_nonneg (a := b) (b := a)]
   exact ⟨IsOrderEmbedding.nonneg_of_incl_nonneg h, map_nonneg _⟩
 
 /-- The inclusion maps of an order-embedding net are injective. -/
-lemma incl_injective (h : X ≤ Y) : Function.Injective (N.incl h) :=
+lemma incl_injective [N.IsOrderEmbedding] (h : X ≤ Y) : Function.Injective (N.incl h) :=
   (OrderEmbedding.ofMapLEIff (N.incl h) fun _ _ => N.map_le_map_iff h).injective
-
-end OrderEmbedding
 
 open scoped Classical
 
@@ -207,9 +201,8 @@ lemma toQuasilocal_eq_iff {i j : R} (a : A i) (b : A j) :
       ∃ (k : R) (hik : i ≤ k) (hjk : j ≤ k), N.incl hik a = N.incl hjk b :=
   ⟨exists_incl_eq_of_toQuasilocal_eq, fun ⟨_, hik, hjk, h⟩ => toQuasilocal_eq_of_incl_eq hik hjk h⟩
 
-variable [N.IsOrderEmbedding] in
 /-- Order-embedding inclusions keep distinct local observables distinct in the quasilocal space. -/
-lemma toQuasilocal_injective (i : R) : Function.Injective (toQuasilocal N i) := by
+lemma toQuasilocal_injective [N.IsOrderEmbedding] (i : R) : Function.Injective (toQuasilocal N i) := by
   intro a b hab
   obtain ⟨k, hik, _, h⟩ := (toQuasilocal_eq_iff a b).1 hab
   exact N.incl_injective hik h
