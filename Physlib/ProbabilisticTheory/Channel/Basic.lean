@@ -5,6 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
+public import Physlib.ProbabilisticTheory.OrderUnit.Basic
 public import Mathlib.Algebra.Order.Module.PositiveLinearMap
 public import Mathlib.Basic.NNReal.Defs
 
@@ -136,31 +137,30 @@ end UnitalPositiveLinearMap
 
 namespace UnitalPositiveLinearMap
 
-variable {R E F G : Type*} [Semiring R]
-  [AddCommMonoid E] [PartialOrder E] [AddCommMonoid F] [PartialOrder F]
-  [AddCommMonoid G] [PartialOrder G] [Module R E] [Module R F] [Module R G]
-  [One E] [One F] [One G]
+open ProbabilisticTheory
 
-variable (R E) in
+variable {E F G : Type*} [OrderUnitSpace E] [OrderUnitSpace F] [OrderUnitSpace G]
+
+variable (E) in
 /-- The identity as a unital positive linear map. -/
-protected def id : E →ₚ₁[R] E where
-  toPositiveLinearMap := PositiveLinearMap.id R E
+def id : E →ₚ₁[ℝ] E where
+  toPositiveLinearMap := PositiveLinearMap.id ℝ E
   map_one' := rfl
 
 /-- The identity map does nothing. -/
-@[simp] lemma id_apply (x : E) : UnitalPositiveLinearMap.id R E x = x := rfl
+@[simp] lemma id_apply (x : E) : UnitalPositiveLinearMap.id E x = x := rfl
 
 /-- The composition of unital positive linear maps is again a unital positive linear map. -/
-def comp (g : F →ₚ₁[R] G) (f : E →ₚ₁[R] F) : E →ₚ₁[R] G where
+def comp (g : F →ₚ₁[ℝ] G) (f : E →ₚ₁[ℝ] F) : E →ₚ₁[ℝ] G where
   toPositiveLinearMap := g.toPositiveLinearMap.comp f.toPositiveLinearMap
   map_one' := by simp
 
 /-- The composition acts by applying one map after the other. -/
-@[simp] lemma comp_apply (g : F →ₚ₁[R] G) (f : E →ₚ₁[R] F) (x : E) : g.comp f x = g (f x) := rfl
+@[simp] lemma comp_apply (g : F →ₚ₁[ℝ] G) (f : E →ₚ₁[ℝ] F) (x : E) : g.comp f x = g (f x) := rfl
 
-@[simp] lemma comp_id (f : E →ₚ₁[R] F) : f.comp (.id R E) = f := rfl
+@[simp] lemma comp_id (f : E →ₚ₁[ℝ] F) : f.comp (.id E) = f := rfl
 
-@[simp] lemma id_comp (f : E →ₚ₁[R] F) : (UnitalPositiveLinearMap.id R F).comp f = f := rfl
+@[simp] lemma id_comp (f : E →ₚ₁[ℝ] F) : (UnitalPositiveLinearMap.id F).comp f = f := rfl
 
 end UnitalPositiveLinearMap
 

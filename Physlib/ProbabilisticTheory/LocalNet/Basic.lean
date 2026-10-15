@@ -69,7 +69,7 @@ structure LocalNet (R : Type*) [Preorder R] (A : R → Type*)
   /-- Regard an observable of `X` as an observable of `Y` when `X ≤ Y`. -/
   incl : ∀ {X Y : R}, X ≤ Y → A X →ₚ₁[ℝ] A Y
   /-- Inclusion into the same subsystem is the identity. -/
-  incl_refl : ∀ X : R, incl (le_refl X) = .id ℝ (A X)
+  incl_refl : ∀ X : R, incl (le_refl X) = .id (A X)
   /-- Including through an intermediate subsystem agrees with direct inclusion. -/
   incl_trans : ∀ {X Y Z : R} (h₁ : X ≤ Y) (h₂ : Y ≤ Z) (h₃ : X ≤ Z),
     incl h₃ = (incl h₂).comp (incl h₁)
