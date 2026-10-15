@@ -202,7 +202,8 @@ lemma toQuasilocal_eq_iff {i j : R} (a : A i) (b : A j) :
   ⟨exists_incl_eq_of_toQuasilocal_eq, fun ⟨_, hik, hjk, h⟩ => toQuasilocal_eq_of_incl_eq hik hjk h⟩
 
 /-- Order-embedding inclusions keep distinct local observables distinct in the quasilocal space. -/
-lemma toQuasilocal_injective [N.IsOrderEmbedding] (i : R) : Function.Injective (toQuasilocal N i) := by
+lemma toQuasilocal_injective [N.IsOrderEmbedding] (i : R) :
+    Function.Injective (toQuasilocal N i) := by
   intro a b hab
   obtain ⟨k, hik, _, h⟩ := (toQuasilocal_eq_iff a b).1 hab
   exact N.incl_injective hik h
