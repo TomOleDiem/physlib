@@ -24,7 +24,10 @@ For a tensor product system with `H_Y ≃ H_X ⊗ H_rest`, take `A X` to be the 
 on `H_X`. Then the inclusion is the familiar map `M ↦ M ⊗ 1`: the observable acts as `M` on `X` and
 as the identity on the remaining factors.
 
-The local observables can also be viewed in one space, `N.Quasilocal`.
+The local observables can also be viewed in one space, `N.Quasilocal`, the algebraic direct limit
+of the local observable spaces. It is a real vector space and carries no norm. Completing it in a
+norm, which needs more structure than is assumed here, gives the quasilocal algebra of the physics
+literature. Inductive limits of order-unit spaces are developed in [ref: arxiv_1705_04663].
 
 ## ii. Key results
 
@@ -33,14 +36,12 @@ The local observables can also be viewed in one space, `N.Quasilocal`.
 - `LocalNet.map_le_map_iff`: inclusion preserves and reflects inequalities.
 - `LocalNet.incl_injective`: order-embedding inclusion maps are injective.
 - `LocalNet.Quasilocal`: the algebraic direct limit of the local observable spaces.
-- `LocalNet.Quasilocal.toQuasilocal`: regard an observable of one subsystem as a quasilocal
-  observable.
-- `LocalNet.Quasilocal.toQuasilocal_eq_iff`: equality of quasilocal observables can be checked in a
-  common larger subsystem.
-- `LocalNet.Quasilocal.toQuasilocal_injective`: order-embedding inclusions keep local observables
-  distinct.
-- `LocalNet.Quasilocal.exists_local`, `exists_local₂`: quasilocal observables have representatives
-  in a single subsystem, and any two have representatives in a common one.
+- `LocalNet.toQuasilocal`: regard an observable of one subsystem as a quasilocal observable.
+- `LocalNet.toQuasilocal_eq_iff`: equality of quasilocal observables can be checked in a common
+  larger subsystem.
+- `LocalNet.toQuasilocal_injective`: order-embedding inclusions keep local observables distinct.
+- `LocalNet.exists_toQuasilocal_eq`, `exists_toQuasilocal_eq₂`: quasilocal observables have
+  representatives in a single subsystem, and any two have representatives in a common one.
 
 ## iii. Table of contents
 
@@ -51,6 +52,9 @@ The local observables can also be viewed in one space, `N.Quasilocal`.
 - E. Directed families of subsystems
 
 ## iv. References
+
+* L. Mawhinney, I. G. Todorov, *Inductive limits in the operator system and related categories*,
+  arXiv:1705.04663. [ref: arxiv_1705_04663]
 
 -/
 
@@ -137,9 +141,7 @@ instance directedSystem (N : LocalNet R A) : DirectedSystem A fun _ _ h => N.inc
 def Quasilocal (N : LocalNet R A) : Type _ :=
   Module.DirectLimit A N.inclLin
 
-namespace Quasilocal
-
-variable {N : LocalNet R A}
+variable {N}
 
 /-- Quasilocal observables add, as elements of a direct limit of vector spaces. -/
 noncomputable instance : AddCommGroup N.Quasilocal :=
@@ -215,17 +217,15 @@ lemma toQuasilocal_injective (i : R) : Function.Injective (toQuasilocal N i) := 
 variable [Nonempty R]
 
 /-- Every quasilocal observable has a representative in some subsystem. -/
-lemma exists_local (x : N.Quasilocal) : ∃ (i : R) (a : A i), toQuasilocal N i a = x :=
+lemma exists_toQuasilocal_eq (x : N.Quasilocal) : ∃ (i : R) (a : A i), toQuasilocal N i a = x :=
   Module.DirectLimit.exists_of x
 
 /-- Any two quasilocal observables have representatives in a common subsystem. -/
-lemma exists_local₂ (x y : N.Quasilocal) :
+lemma exists_toQuasilocal_eq₂ (x y : N.Quasilocal) :
     ∃ (i : R) (a b : A i), toQuasilocal N i a = x ∧ toQuasilocal N i b = y :=
   Module.DirectLimit.exists_of₂ x y
 
 end DirectedSubsystems
-
-end Quasilocal
 
 end LocalNet
 
