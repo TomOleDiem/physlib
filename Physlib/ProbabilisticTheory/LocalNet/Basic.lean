@@ -68,8 +68,8 @@ structure LocalNet (R : Type*) [Preorder R] (A : R → Type*)
   /-- An observable is unchanged by inclusion into the same subsystem. -/
   incl_refl : ∀ (X : R) (a : A X), incl (le_refl X) a = a
   /-- Including through an intermediate subsystem agrees with direct inclusion. -/
-  incl_trans : ∀ {X Y Z : R} (h₁ : X ≤ Y) (h₂ : Y ≤ Z) (a : A X),
-    incl (h₁.trans h₂) a = incl h₂ (incl h₁ a)
+  incl_trans : ∀ {X Y Z : R} (h₁ : X ≤ Y) (h₂ : Y ≤ Z) (h3 : X ≤ Z) (a : A X),
+    incl h3 a = incl h₂ (incl h₁ a)
 
 attribute [simp] LocalNet.incl_refl
 
@@ -124,7 +124,7 @@ instance directedSystem (N : LocalNet R A) : DirectedSystem A fun _ _ h => N.inc
   map_map _ _ _ hij hjk x := (N.incl_trans hij hjk x).symm
 
 /-- The algebraic direct limit of the local observable spaces. -/
-def Quasilocal (N : LocalNet R A) : Type _ :=
+def Quasilocal (N : LocalNet R A) : Type* :=
   Module.DirectLimit A N.inclLin
 
 namespace Quasilocal
@@ -165,7 +165,7 @@ variable [IsDirectedOrder R]
 common larger subsystem. -/
 lemma toQuasilocal_eq_iff {i j : R} (a : A i) (b : A j) :
     toQuasilocal N i a = toQuasilocal N j b ↔
-      ∃ k, ∃ (hik : i ≤ k) (hjk : j ≤ k), N.incl hik a = N.incl hjk b := by
+      ∃ (k : R) (hik : i ≤ k) (hjk : j ≤ k), N.incl hik a = N.incl hjk b := by
   refine ⟨fun h => ?_, fun ⟨k, hik, hjk, h⟩ => by
     rw [← toQuasilocal_incl hik, ← toQuasilocal_incl hjk, h]⟩
   obtain ⟨k, hik, hjk⟩ := exists_ge_ge i j
