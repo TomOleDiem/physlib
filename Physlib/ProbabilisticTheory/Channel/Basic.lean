@@ -137,6 +137,8 @@ end UnitalPositiveLinearMap
 
 namespace UnitalPositiveLinearMap
 
+section IdentityAndComposition
+
 open ProbabilisticTheory
 
 variable {E F G : Type*} [OrderUnitSpace E] [OrderUnitSpace F] [OrderUnitSpace G]
@@ -161,6 +163,8 @@ def comp (g : F →ₚ₁[ℝ] G) (f : E →ₚ₁[ℝ] F) : E →ₚ₁[ℝ] G 
 @[simp] lemma comp_id (f : E →ₚ₁[ℝ] F) : f.comp (.id E) = f := rfl
 
 @[simp] lemma id_comp (f : E →ₚ₁[ℝ] F) : (UnitalPositiveLinearMap.id F).comp f = f := rfl
+
+end IdentityAndComposition
 
 end UnitalPositiveLinearMap
 
