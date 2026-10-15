@@ -114,7 +114,7 @@ lemma incl_injective (h : X ≤ Y) : Function.Injective (N.incl h) :=
 
 end OrderEmbedding
 
-variable [DecidableEq R]
+open scoped Classical
 
 /-!
 
