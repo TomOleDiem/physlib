@@ -39,6 +39,8 @@ The local observables can also be viewed in one space, `N.Quasilocal`.
   common larger subsystem.
 - `LocalNet.Quasilocal.toQuasilocal_injective`: order-embedding inclusions keep local observables
   distinct.
+- `LocalNet.Quasilocal.exists_local`, `exists_local₂`: quasilocal observables have representatives
+  in a single subsystem, and any two have representatives in a common one.
 
 ## iii. Table of contents
 
@@ -46,6 +48,7 @@ The local observables can also be viewed in one space, `N.Quasilocal`.
 - B. Order-embedding inclusions
 - C. The quasilocal observable space
 - D. Embedding the local observables
+- E. Directed families of subsystems
 
 ## iv. References
 
@@ -65,17 +68,24 @@ structure LocalNet (R : Type*) [Preorder R] (A : R → Type*)
     [∀ X, OrderUnitSpace (A X)] where
   /-- Regard an observable of `X` as an observable of `Y` when `X ≤ Y`. -/
   incl : ∀ {X Y : R}, X ≤ Y → A X →ₚ₁[ℝ] A Y
-  /-- An observable is unchanged by inclusion into the same subsystem. -/
-  incl_refl : ∀ (X : R) (a : A X), incl (le_refl X) a = a
+  /-- Inclusion into the same subsystem is the identity. -/
+  incl_refl : ∀ X : R, incl (le_refl X) = .id ℝ (A X)
   /-- Including through an intermediate subsystem agrees with direct inclusion. -/
-  incl_trans : ∀ {X Y Z : R} (h₁ : X ≤ Y) (h₂ : Y ≤ Z) (h3 : X ≤ Z) (a : A X),
-    incl h3 a = incl h₂ (incl h₁ a)
-
-attribute [simp] LocalNet.incl_refl
+  incl_trans : ∀ {X Y Z : R} (h₁ : X ≤ Y) (h₂ : Y ≤ Z) (h₃ : X ≤ Z),
+    incl h₃ = (incl h₂).comp (incl h₁)
 
 namespace LocalNet
 
 variable (N : LocalNet R A) {X Y Z : R}
+
+/-- An observable is unchanged by inclusion into the same subsystem. -/
+@[simp] lemma incl_refl_apply (X : R) (a : A X) : N.incl (le_refl X) a = a := by
+  simp [N.incl_refl]
+
+/-- Including an observable through an intermediate subsystem agrees with direct inclusion. -/
+lemma incl_trans_apply (h₁ : X ≤ Y) (h₂ : Y ≤ Z) (h₃ : X ≤ Z) (a : A X) :
+    N.incl h₃ a = N.incl h₂ (N.incl h₁ a) := by
+  simp [N.incl_trans h₁ h₂ h₃]
 
 /-! ## B. Order-embedding inclusions -/
 
@@ -120,11 +130,11 @@ abbrev inclLin (N : LocalNet R A) ⦃X Y : R⦄ (h : X ≤ Y) : A X →ₗ[ℝ] 
 /-- The inclusions form a directed system: including a subsystem into itself does nothing, and
 successive inclusions compose. -/
 instance directedSystem (N : LocalNet R A) : DirectedSystem A fun _ _ h => N.inclLin h where
-  map_self _ x := N.incl_refl _ x
-  map_map _ _ _ hij hjk x := (N.incl_trans hij hjk x).symm
+  map_self _ x := N.incl_refl_apply _ x
+  map_map _ _ _ hij hjk x := (N.incl_trans_apply hij hjk _ x).symm
 
 /-- The algebraic direct limit of the local observable spaces. -/
-def Quasilocal (N : LocalNet R A) : Type* :=
+def Quasilocal (N : LocalNet R A) : Type _ :=
   Module.DirectLimit A N.inclLin
 
 namespace Quasilocal
@@ -157,7 +167,16 @@ lemma toQuasilocal_incl {i j : R} (h : i ≤ j) (a : A i) :
     toQuasilocal N j (N.incl h a) = toQuasilocal N i a :=
   Module.DirectLimit.of_f (hij := h) (x := a)
 
-section Directed
+/-!
+
+## E. Directed families of subsystems
+
+If any two subsystems are contained in a common larger one, the quasilocal observable space is
+described by representatives in single subsystems.
+
+-/
+
+section DirectedSubsystems
 
 variable [IsDirectedOrder R]
 
@@ -174,12 +193,14 @@ lemma toQuasilocal_eq_iff {i j : R} (a : A i) (b : A j) :
     (show toQuasilocal N k (N.incl hik a) = toQuasilocal N k (N.incl hjk b) by
       rw [toQuasilocal_incl, toQuasilocal_incl, h])
   exact ⟨l, hik.trans hkl, hjk.trans hkl,
-    (N.incl_trans hik hkl a).trans (hl.trans (N.incl_trans hjk hkl b).symm)⟩
+    (N.incl_trans_apply hik hkl _ a).trans (hl.trans (N.incl_trans_apply hjk hkl _ b).symm)⟩
 
 variable [N.IsOrderEmbedding] in
 /-- Order-embedding inclusions keep distinct local observables distinct in the quasilocal space. -/
-lemma toQuasilocal_injective (i : R) : Function.Injective (toQuasilocal N i) :=
-  fun _ _ h => let ⟨_, hik, _, h⟩ := (toQuasilocal_eq_iff _ _).1 h; N.incl_injective hik h
+lemma toQuasilocal_injective (i : R) : Function.Injective (toQuasilocal N i) := by
+  intro a b hab
+  obtain ⟨k, hik, _, h⟩ := (toQuasilocal_eq_iff a b).1 hab
+  exact N.incl_injective hik h
 
 variable [Nonempty R]
 
@@ -192,7 +213,7 @@ lemma exists_local₂ (x y : N.Quasilocal) :
     ∃ (i : R) (a b : A i), toQuasilocal N i a = x ∧ toQuasilocal N i b = y :=
   Module.DirectLimit.exists_of₂ x y
 
-end Directed
+end DirectedSubsystems
 
 end Quasilocal
 

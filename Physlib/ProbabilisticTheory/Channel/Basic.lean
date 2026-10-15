@@ -28,12 +28,15 @@ which is not expressible using the order-unit structure alone.
   unitality.
 - `UnitalPositiveLinearMap.ofPositiveLinearMap` : bundle a positive linear map after checking
   unitality.
+- `UnitalPositiveLinearMap.id`, `UnitalPositiveLinearMap.comp` : the identity and composition of
+  unital positive linear maps.
 
 ## iii. Table of contents
 
 - A. Unital positive linear maps
 - B. Constructing unital positive linear maps
-- C. Scaling positive linear maps
+- C. Identity and composition
+- D. Scaling positive linear maps
 
 ## iv. References
 
@@ -127,7 +130,43 @@ end UnitalPositiveLinearMap
 
 /-!
 
-## C. Scaling positive linear maps
+## C. Identity and composition
+
+-/
+
+namespace UnitalPositiveLinearMap
+
+variable {R E F G : Type*} [Semiring R]
+  [AddCommMonoid E] [PartialOrder E] [AddCommMonoid F] [PartialOrder F]
+  [AddCommMonoid G] [PartialOrder G] [Module R E] [Module R F] [Module R G]
+  [One E] [One F] [One G]
+
+variable (R E) in
+/-- The identity as a unital positive linear map. -/
+protected def id : E →ₚ₁[R] E where
+  toPositiveLinearMap := PositiveLinearMap.id R E
+  map_one' := rfl
+
+/-- The identity map does nothing. -/
+@[simp] lemma id_apply (x : E) : UnitalPositiveLinearMap.id R E x = x := rfl
+
+/-- The composition of unital positive linear maps is again a unital positive linear map. -/
+def comp (g : F →ₚ₁[R] G) (f : E →ₚ₁[R] F) : E →ₚ₁[R] G where
+  toPositiveLinearMap := g.toPositiveLinearMap.comp f.toPositiveLinearMap
+  map_one' := by simp
+
+/-- The composition acts by applying one map after the other. -/
+@[simp] lemma comp_apply (g : F →ₚ₁[R] G) (f : E →ₚ₁[R] F) (x : E) : g.comp f x = g (f x) := rfl
+
+@[simp] lemma comp_id (f : E →ₚ₁[R] F) : f.comp (.id R E) = f := rfl
+
+@[simp] lemma id_comp (f : E →ₚ₁[R] F) : (UnitalPositiveLinearMap.id R F).comp f = f := rfl
+
+end UnitalPositiveLinearMap
+
+/-!
+
+## D. Scaling positive linear maps
 
 Positive linear maps are closed under addition and under scaling by nonnegative reals, but
 unital ones are not closed under scaling.
