@@ -125,6 +125,14 @@ public import PhyslibAlpha.Mathematics.Order.StrongUnit
 public import PhyslibAlpha.Mathematics.Order.VectorLattice
 public import PhyslibAlpha.Mathematics.PartialDerivativeTest
 public import PhyslibAlpha.Mathematics.Probability.Kernel.Factorization
+public import PhyslibAlpha.Mathematics.RepresentationTheory.Sl2.AngularMomentum
+public import PhyslibAlpha.Mathematics.RepresentationTheory.Sl2.Basic
+public import PhyslibAlpha.Mathematics.RepresentationTheory.Sl2.BivariateBasis
+public import PhyslibAlpha.Mathematics.RepresentationTheory.Sl2.Classification
+public import PhyslibAlpha.Mathematics.RepresentationTheory.Sl2.ClebschGordan
+public import PhyslibAlpha.Mathematics.RepresentationTheory.Sl2.CommutingActions
+public import PhyslibAlpha.Mathematics.RepresentationTheory.Sl2.Construction
+public import PhyslibAlpha.Mathematics.RepresentationTheory.Sl2.Weights
 public import PhyslibAlpha.Mathematics.Sublinear
 public import PhyslibAlpha.Mathematics.TauCeti.Analysis.Bochner.DiscreteGroup
 public import PhyslibAlpha.Mathematics.TauCeti.Analysis.Bochner.LocallyCompactGroup
