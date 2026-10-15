@@ -6,7 +6,6 @@ Authors: Tom Ole Diem
 module
 
 public import Physlib.ProbabilisticTheory.Channel.Basic
-public import Physlib.ProbabilisticTheory.OrderUnit.Basic
 public import Mathlib.Algebra.Colimit.Module
 
 /-!
