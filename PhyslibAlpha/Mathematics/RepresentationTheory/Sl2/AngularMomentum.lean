@@ -6,7 +6,7 @@ Authors: Tom Ole Diem
 module
 
 public import Mathlib.Analysis.Complex.Polynomial.Basic
-public import Mathlib.Data.Complex.Basic
+public import Mathlib.Basic.Complex.Basic
 public import PhyslibAlpha.Mathematics.RepresentationTheory.Sl2.Classification
 
 /-!
