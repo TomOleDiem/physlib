@@ -25,12 +25,10 @@ form a group. The translations are the symmetries with trivial linear part, and 
 subgroup. Sending a symmetry to its linear part is a homomorphism whose kernel contains the
 translations. The kernel is larger when the unit cell is not primitive: shifting a chain with two
 sites per cell by half a cell is a symmetry with trivial linear part that is not a translation by
-an element of `G`. An explicit description of all symmetries is in a later file.
+an element of `G`.
 
-Bonds enter only through the space group. Preserving adjacency is not enough to be a symmetry of
-the crystal, since this does not give the periodicity: swapping the two leaves at a single vertex
-of a chain preserves adjacency, but is not a symmetry. The space group of a periodic graph is the
-group of symmetries of its crystal that map bonds to bonds.
+Bonds constrain the space group: a symmetry must preserve both the crystal's periodic structure
+and its adjacency relation. Graph automorphisms alone need not preserve periodicity.
 
 ## ii. Key results
 
@@ -46,8 +44,6 @@ group of symmetries of its crystal that map bonds to bonds.
 - C. The space group of a periodic graph
 
 ## iv. References
-
-* N. Ashcroft & N. D. Mermin, Solid State Physics, Chapter 7.
 
 -/
 
