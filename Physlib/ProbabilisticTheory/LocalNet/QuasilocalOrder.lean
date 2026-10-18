@@ -12,31 +12,32 @@ public import Mathlib.Algebra.Order.Group.Cone
 /-!
 # Order-unit structure on quasilocal observables
 
-Positivity and the order unit on the space of quasilocal observables.
+Positivity and a common unit for observables assembled from a local net.
 
 ## i. Overview
 
-Local observables of different subsystems are stitched into one quasilocal space. Two local
-descriptions represent the same observable of the global system when they agree in a larger
-subsystem. To serve as the observable space of a global probabilistic theory, this space needs a
-notion of positivity and a certain observable `1`.
+The quasilocal construction treats observables from different subsystems as observables of one
+global system. A quantity measured locally can also be described in a larger subsystem; these
+descriptions must refer to the same physical quantity. For the global description to work, it must
+preserve more than identity: whether an observable is positive, how it compares with other
+observables, and what represents the certain outcome.
 
-This file carries those structures from the local theories to the quasilocal space. A quasilocal
-observable is positive when it has a positive local representative, and the inclusion maps
-identify the local units. For a nonempty directed net these make the global space an order-unit
-space, with each subsystem mapping into it by a channel. If inclusions reflect order, a local
-observable has the same order relations globally; if the local spaces are Archimedean, the global
-one is too.
+This file shows how those properties carry over from the local systems. Positive local observables
+give the quasilocal space its notion of positivity, and the local copies of `1` give it one certain
+observable. Local observables thereby retain their interpretation as observables of the whole
+system. The resulting order-unit structure lets a state of the global system assign positive,
+normalized expectations to them.
 
 ## ii. Key results
 
-- `LocalNet.Quasilocal.toQuasilocal_nonneg_iff`: with order-embedding inclusions, a local
-  observable is positive in the quasilocal space exactly when it is positive in its subsystem.
-- `LocalNet.Quasilocal.instOrderUnitSpace`: the quasilocal observables form an order-unit space.
-- `LocalNet.Quasilocal.toQuasilocalChannel`: each subsystem maps into the quasilocal space by a
-  channel.
-- `LocalNet.Quasilocal.instArchimedeanOrderUnitSpace`: the Archimedean property passes to the
-  quasilocal space.
+- `LocalNet.Quasilocal.Pos`: the global observables with a positive local representative.
+- `LocalNet.Quasilocal.toQuasilocal_nonneg_iff`: local and global positivity agree when inclusions
+  reflect order.
+- `LocalNet.Quasilocal.instOrderUnitSpace`: the global observables inherit an order unit.
+- `LocalNet.Quasilocal.toQuasilocalChannel`: each subsystem maps to the global observable space
+  by a channel.
+- `LocalNet.Quasilocal.instArchimedeanOrderUnitSpace`: the global space is Archimedean when the
+  local spaces are.
 
 ## iii. Table of contents
 
@@ -68,29 +69,29 @@ variable [∀ X, OrderUnitSpace (A X)] {N : LocalNet R A}
 
 ## A. Positivity
 
-The vector-space direct limit does not supply a positive cone. The set below collects the quasilocal
-observables represented by positive local observables. For a directed family, positive
-representatives from different subsystems can be included in a common larger one and added there.
+An observable assembled from local pieces is positive when it has a positive local description.
+Positive observables from different subsystems can be brought into a common larger subsystem and
+added there. Nonnegative scaling preserves positivity within any one subsystem.
 
 -/
 
 variable (N) in
-/-- The candidate positive cone on the direct limit, formed from positive local representatives. -/
+/-- Global observables with a positive local representative. -/
 def Pos : Set N.Quasilocal :=
   {x | ∃ (i : R) (a : A i), 0 ≤ a ∧ toQuasilocal N i a = x}
 
-/-- A nonnegative local observable represents an element of the quasilocal positive cone. -/
+/-- A positive local observable is positive globally. -/
 lemma toQuasilocal_mem_pos {i : R} {a : A i} (ha : 0 ≤ a) : toQuasilocal N i a ∈ Pos N :=
   ⟨i, a, ha, rfl⟩
 
-/-- The quasilocal positive cone is closed under nonnegative scalar multiplication. -/
+/-- Nonnegative scaling preserves global positivity. -/
 lemma smul_mem_pos {c : ℝ} (hc : 0 ≤ c) {x : N.Quasilocal} (hx : x ∈ Pos N) : c • x ∈ Pos N := by
   obtain ⟨i, a, ha, rfl⟩ := hx
   exact ⟨i, c • a, smul_nonneg hc ha, map_smul _ _ _⟩
 
 variable [IsDirectedOrder R]
 
-/-- The quasilocal positive cone is closed under addition for a directed net. -/
+/-- The sum of positive global observables is positive. -/
 lemma add_mem_pos {x y : N.Quasilocal} (hx : x ∈ Pos N) (hy : y ∈ Pos N) :
     x + y ∈ Pos N := by
   obtain ⟨i, a, ha, rfl⟩ := hx
@@ -103,18 +104,17 @@ lemma add_mem_pos {x y : N.Quasilocal} (hx : x ∈ Pos N) (hy : y ∈ Pos N) :
 
 ## B. The common order unit
 
-The inclusion channels preserve `1`. Consequently, the order unit of every subsystem represents
-the same quasilocal observable.
+The certain observable must not depend on which subsystem describes it. Every inclusion preserves
+`1`, so the local units all represent one global observable.
 
 -/
 
 variable [Nonempty R]
 
-/-- The quasilocal order unit: the image of the order unit of a subsystem. By
-`toQuasilocal_one`, it does not matter which one. -/
+/-- The common global image of the local units. -/
 @[no_expose] noncomputable instance : One N.Quasilocal := ⟨toQuasilocal N (Classical.arbitrary R) 1⟩
 
-/-- The order unit of each subsystem represents the quasilocal order unit. -/
+/-- Every local unit represents the global unit. -/
 lemma toQuasilocal_one (i : R) : toQuasilocal N i 1 = (1 : N.Quasilocal) := by
   rw [show (1 : N.Quasilocal) = toQuasilocal N (Classical.arbitrary R) 1 from rfl,
     toQuasilocal_eq_iff]
@@ -131,13 +131,13 @@ variable [∀ X, OrderUnitSpace (A X)] {N : LocalNet R A} [IsDirectedOrder R]
 
 ## C. The order
 
-The quasilocal positive cone is pointed because an equality in the direct limit holds in some later
-subsystem. Order-embedding inclusions additionally make the resulting order agree with each
-subsystem's original order.
+A comparison `x ≤ y` means that `y - x` has a positive local description. This is a partial order:
+an observable cannot be both positive and negative unless it is zero. When inclusions reflect
+order, comparisons made within a subsystem agree with comparisons in the global system.
 
 -/
 
-/-- An observable in both the quasilocal positive cone and its negative is zero. -/
+/-- A global observable that is both positive and negative is zero. -/
 lemma eq_zero_of_mem_pos_of_neg_mem_pos {x : N.Quasilocal} (hx : x ∈ Pos N) (hx' : -x ∈ Pos N) :
     x = 0 := by
   classical
@@ -156,48 +156,46 @@ lemma eq_zero_of_mem_pos_of_neg_mem_pos {x : N.Quasilocal} (hx : x ∈ Pos N) (h
 
 variable [Nonempty R]
 
-/-- The quasilocal positive cone as an additive group cone. -/
+/-- The cone of positive global observables. -/
 @[no_expose] noncomputable def posCone : AddGroupCone N.Quasilocal where
   carrier := Pos N
   zero_mem' := ⟨Classical.arbitrary R, 0, le_rfl, map_zero _⟩
   add_mem' := add_mem_pos
   eq_zero_of_mem_of_neg_mem' := eq_zero_of_mem_pos_of_neg_mem_pos
 
-/-- A quasilocal observable is below another when their difference is positive in some subsystem. -/
+/-- The order on global observables induced by local positivity. -/
 @[no_expose] noncomputable instance : PartialOrder N.Quasilocal :=
   PartialOrder.mkOfAddGroupCone posCone
 
-/-- `x ≤ y` exactly when `y - x` is nonnegative. -/
+/-- `x ≤ y` exactly when `y - x` has a positive local representative. -/
 lemma le_def {x y : N.Quasilocal} : x ≤ y ↔ y - x ∈ Pos N := Iff.rfl
 
-/-- Quasilocal nonnegativity is membership in the positive cone. -/
+/-- A global observable is nonnegative exactly when it belongs to `Pos N`. -/
 lemma nonneg_iff {x : N.Quasilocal} : 0 ≤ x ↔ x ∈ Pos N := by
   rw [le_def, sub_zero]
 
 variable [N.IsOrderEmbedding] in
-/-- A local observable is nonnegative in the quasilocal space exactly when it is nonnegative
-locally. -/
+/-- A local observable is positive globally exactly when it is positive locally. -/
 lemma toQuasilocal_nonneg_iff (i : R) (a : A i) : 0 ≤ toQuasilocal N i a ↔ 0 ≤ a := by
   refine ⟨fun ha => ?_, fun ha => nonneg_iff.2 (toQuasilocal_mem_pos ha)⟩
   obtain ⟨j, b, hb, heq⟩ := nonneg_iff.1 ha
   obtain ⟨k, hik, hjk, h⟩ := (toQuasilocal_eq_iff a b).1 heq.symm
   exact IsOrderEmbedding.nonneg_of_incl_nonneg hik (h ▸ map_nonneg (N.incl hjk) hb)
 
-/-- Adding a quasilocal observable preserves the order. -/
+/-- Adding the same global observable preserves a comparison. -/
 instance : IsOrderedAddMonoid N.Quasilocal := IsOrderedAddMonoid.mkOfCone posCone
 
-/-- Scaling by a nonnegative real preserves the order of quasilocal observables. -/
+/-- Nonnegative scaling preserves comparisons between global observables. -/
 instance : PosSMulMono ℝ N.Quasilocal where
   smul_le_smul_of_nonneg_left c hc x y h := by
     rw [le_def] at h ⊢
     simpa [smul_sub] using smul_mem_pos hc h
 
-/-- The quasilocal observables form an ordered real vector space. -/
+/-- Global observables form an ordered real vector space. -/
 noncomputable instance : OrderedVectorSpace N.Quasilocal where
 
 variable [N.IsOrderEmbedding] in
-/-- Two local observables have the same order relation in their subsystem and in the quasilocal
-space. -/
+/-- A comparison of local observables has the same meaning globally. -/
 lemma toQuasilocal_le_iff (i : R) (a b : A i) :
     toQuasilocal N i a ≤ toQuasilocal N i b ↔ a ≤ b := by
   rw [← sub_nonneg, ← map_sub, toQuasilocal_nonneg_iff, sub_nonneg]
@@ -206,12 +204,13 @@ lemma toQuasilocal_le_iff (i : R) (a b : A i) :
 
 ## D. The quasilocal order-unit space and local channels
 
-The common image of `1` is an order unit for the quasilocal space. The canonical map from each
-subsystem preserves positivity and this order unit, so it is a channel.
+Every global observable has a local representative bounded by a multiple of the local unit. The
+same bound holds for the global unit, making it an order unit. The map from each subsystem to the
+global space preserves positivity and `1`, so it is a channel.
 
 -/
 
-/-- The quasilocal observables form an order-unit space. -/
+/-- The global observable space inherits an order unit from its subsystems. -/
 noncomputable instance : OrderUnitSpace N.Quasilocal where
   one_nonneg := by
     rw [← toQuasilocal_one (Classical.arbitrary R)]
@@ -224,7 +223,7 @@ noncomputable instance : OrderUnitSpace N.Quasilocal where
     exact toQuasilocal_mem_pos (sub_nonneg.mpr hn)
 
 variable (N) in
-/-- The canonical channel from a subsystem to the quasilocal observable space. -/
+/-- Regard a subsystem observable as a global observable by a channel. -/
 noncomputable def toQuasilocalChannel (i : R) : A i →ₚ₁[ℝ] N.Quasilocal :=
   ofLinearMap (toQuasilocal N i) (fun _ ha => nonneg_iff.2 (toQuasilocal_mem_pos ha))
     (toQuasilocal_one i)
@@ -238,7 +237,9 @@ end Order
 
 ## E. The Archimedean property
 
-The Archimedean condition can be checked in a subsystem representing the quasilocal observable.
+The global description should not introduce infinitesimal observables absent from every local
+system. This property can be checked on a local representative, so it passes to the quasilocal
+space.
 
 -/
 
@@ -247,7 +248,7 @@ section Archimedean
 variable [∀ X, ArchimedeanOrderUnitSpace (A X)] {N : LocalNet R A} [IsDirectedOrder R]
   [Nonempty R] [N.IsOrderEmbedding]
 
-/-- The quasilocal order-unit space is Archimedean when every subsystem is Archimedean. -/
+/-- The global observable space is Archimedean when every subsystem is Archimedean. -/
 noncomputable instance : ArchimedeanOrderUnitSpace N.Quasilocal where
   le_zero_of_forall_pos_smul_one_le x hx := by
     obtain ⟨i, a, rfl⟩ := exists_toQuasilocal_eq x
