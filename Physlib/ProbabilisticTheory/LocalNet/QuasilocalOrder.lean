@@ -61,7 +61,7 @@ variable {R : Type*} [Preorder R] {A : R → Type*}
 
 namespace LocalNet.Quasilocal
 
-section Pos
+section OrderUnit
 
 variable [∀ X, OrderUnitSpace (A X)] {N : LocalNet R A}
 
@@ -100,43 +100,6 @@ lemma add_mem_pos {x y : N.Quasilocal} (hx : x ∈ Pos N) (hy : y ∈ Pos N) :
   refine ⟨k, N.incl hik a + N.incl hjk b, add_nonneg (map_nonneg _ ha) (map_nonneg _ hb), ?_⟩
   rw [map_add, toQuasilocal_incl, toQuasilocal_incl]
 
-/-!
-
-## B. The common order unit
-
-The certain observable must not depend on which subsystem describes it. Every inclusion preserves
-`1`, so the local units all represent one global observable.
-
--/
-
-variable [Nonempty R]
-
-/-- The common global image of the local units. -/
-@[no_expose] noncomputable instance : One N.Quasilocal := ⟨toQuasilocal N (Classical.arbitrary R) 1⟩
-
-/-- Every local unit represents the global unit. -/
-lemma toQuasilocal_one (i : R) : toQuasilocal N i 1 = (1 : N.Quasilocal) := by
-  rw [show (1 : N.Quasilocal) = toQuasilocal N (Classical.arbitrary R) 1 from rfl,
-    toQuasilocal_eq_iff]
-  obtain ⟨k, hik, hjk⟩ := exists_ge_ge i (Classical.arbitrary R)
-  exact ⟨k, hik, hjk, (map_one _).trans (map_one _).symm⟩
-
-end Pos
-
-section Order
-
-variable [∀ X, OrderUnitSpace (A X)] {N : LocalNet R A} [IsDirectedOrder R]
-
-/-!
-
-## C. The order
-
-A comparison `x ≤ y` means that `y - x` has a positive local description. This is a partial order:
-an observable cannot be both positive and negative unless it is zero. When inclusions reflect
-order, comparisons made within a subsystem agree with comparisons in the global system.
-
--/
-
 /-- A global observable that is both positive and negative is zero. -/
 lemma eq_zero_of_mem_pos_of_neg_mem_pos {x : N.Quasilocal} (hx : x ∈ Pos N) (hx' : -x ∈ Pos N) :
     x = 0 := by
@@ -154,17 +117,46 @@ lemma eq_zero_of_mem_pos_of_neg_mem_pos {x : N.Quasilocal} (hx : x ∈ Pos N) (h
       (map_nonneg (N.incl hkl) (map_nonneg (N.incl hjk) hb))).1 hl).1
   rw [← toQuasilocal_incl hik, ← toQuasilocal_incl hkl, h0, map_zero]
 
+/-!
+
+## B. The common order unit
+
+The certain observable must not depend on which subsystem describes it. Every inclusion preserves
+`1`, so the local units all represent one global observable.
+
+-/
+
 variable [Nonempty R]
 
+/-- The common global image of the local units. -/
+noncomputable instance : One N.Quasilocal := ⟨toQuasilocal N (Classical.arbitrary R) 1⟩
+
+/-- Every local unit represents the global unit. -/
+lemma toQuasilocal_one (i : R) : toQuasilocal N i 1 = (1 : N.Quasilocal) := by
+  rw [show (1 : N.Quasilocal) = toQuasilocal N (Classical.arbitrary R) 1 from rfl,
+    toQuasilocal_eq_iff]
+  obtain ⟨k, hik, hjk⟩ := exists_ge_ge i (Classical.arbitrary R)
+  exact ⟨k, hik, hjk, (map_one _).trans (map_one _).symm⟩
+
+/-!
+
+## C. The order
+
+A comparison `x ≤ y` means that `y - x` has a positive local description. This is a partial order:
+an observable cannot be both positive and negative unless it is zero. When inclusions reflect
+order, comparisons made within a subsystem agree with comparisons in the global system.
+
+-/
+
 /-- The cone of positive global observables. -/
-@[no_expose] noncomputable def posCone : AddGroupCone N.Quasilocal where
+noncomputable def posCone : AddGroupCone N.Quasilocal where
   carrier := Pos N
   zero_mem' := ⟨Classical.arbitrary R, 0, le_rfl, map_zero _⟩
   add_mem' := add_mem_pos
   eq_zero_of_mem_of_neg_mem' := eq_zero_of_mem_pos_of_neg_mem_pos
 
 /-- The order on global observables induced by local positivity. -/
-@[no_expose] noncomputable instance : PartialOrder N.Quasilocal :=
+noncomputable instance : PartialOrder N.Quasilocal :=
   PartialOrder.mkOfAddGroupCone posCone
 
 /-- `x ≤ y` exactly when `y - x` has a positive local representative. -/
@@ -177,10 +169,13 @@ lemma nonneg_iff {x : N.Quasilocal} : 0 ≤ x ↔ x ∈ Pos N := by
 variable [N.IsOrderEmbedding] in
 /-- A local observable is positive globally exactly when it is positive locally. -/
 lemma toQuasilocal_nonneg_iff (i : R) (a : A i) : 0 ≤ toQuasilocal N i a ↔ 0 ≤ a := by
-  refine ⟨fun ha => ?_, fun ha => nonneg_iff.2 (toQuasilocal_mem_pos ha)⟩
-  obtain ⟨j, b, hb, heq⟩ := nonneg_iff.1 ha
-  obtain ⟨k, hik, hjk, h⟩ := (toQuasilocal_eq_iff a b).1 heq.symm
-  exact IsOrderEmbedding.nonneg_of_incl_nonneg hik (h ▸ map_nonneg (N.incl hjk) hb)
+  constructor
+  · intro ha
+    obtain ⟨j, b, hb, heq⟩ := nonneg_iff.1 ha
+    obtain ⟨k, hik, hjk, h⟩ := (toQuasilocal_eq_iff a b).1 heq.symm
+    exact IsOrderEmbedding.nonneg_of_incl_nonneg hik (h ▸ map_nonneg (N.incl hjk) hb)
+  · intro ha
+    exact nonneg_iff.2 (toQuasilocal_mem_pos ha)
 
 /-- Adding the same global observable preserves a comparison. -/
 instance : IsOrderedAddMonoid N.Quasilocal := IsOrderedAddMonoid.mkOfCone posCone
@@ -224,14 +219,15 @@ noncomputable instance : OrderUnitSpace N.Quasilocal where
 
 variable (N) in
 /-- Regard a subsystem observable as a global observable by a channel. -/
-noncomputable def toQuasilocalChannel (i : R) : A i →ₚ₁[ℝ] N.Quasilocal :=
-  ofLinearMap (toQuasilocal N i) (fun _ ha => nonneg_iff.2 (toQuasilocal_mem_pos ha))
-    (toQuasilocal_one i)
+noncomputable def toQuasilocalChannel (i : R) : A i →ₚ₁[ℝ] N.Quasilocal := by
+  refine ofLinearMap (toQuasilocal N i) ?_ (toQuasilocal_one i)
+  intro _ ha
+  exact nonneg_iff.2 (toQuasilocal_mem_pos ha)
 
 @[simp] lemma toQuasilocalChannel_apply (i : R) (a : A i) :
     toQuasilocalChannel N i a = toQuasilocal N i a := rfl
 
-end Order
+end OrderUnit
 
 /-!
 
@@ -253,7 +249,8 @@ noncomputable instance : ArchimedeanOrderUnitSpace N.Quasilocal where
   le_zero_of_forall_pos_smul_one_le x hx := by
     obtain ⟨i, a, rfl⟩ := exists_toQuasilocal_eq x
     rw [← map_zero (toQuasilocal N i), toQuasilocal_le_iff]
-    refine le_zero_of_forall_pos_smul_one_le a fun ε hε => ?_
+    refine le_zero_of_forall_pos_smul_one_le a ?_
+    intro ε hε
     have h := hx ε hε
     rwa [← toQuasilocal_one i, ← map_smul, toQuasilocal_le_iff] at h
 
