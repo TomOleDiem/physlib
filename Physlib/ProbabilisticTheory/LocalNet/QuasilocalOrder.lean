@@ -16,20 +16,17 @@ Positivity and the order unit on the space of quasilocal observables.
 
 ## i. Overview
 
-Each `A X` already has an order and an order unit. But `N.Quasilocal` was constructed as a direct
-limit of vector spaces, which gives it no order. The set `Pos N` supplies the missing positive
-cone: a quasilocal observable belongs to it when some local representative is positive.
+Local observables of different subsystems are stitched into one quasilocal space. Two local
+descriptions represent the same observable of the global system when they agree in a larger
+subsystem. To serve as the observable space of a global probabilistic theory, this space needs a
+notion of positivity and a certain observable `1`.
 
-For a nonempty directed net, this cone defines an order on the quasilocal space. A quasilocal
-observable cannot be both positive and negative unless it is zero: equality with zero in the
-direct limit already holds in some larger subsystem. The additional assumption
-`N.IsOrderEmbedding` ensures that the quasilocal order agrees with the existing order of each
-subsystem.
-
-Every inclusion channel preserves `1`, so the order units of all subsystems give the same quasilocal
-observable. Together with the order, this makes `N.Quasilocal` an order-unit space, and each
-subsystem maps to it by a channel. If the subsystem spaces are Archimedean, the quasilocal space is
-Archimedean as well.
+This file carries those structures from the local theories to the quasilocal space. A quasilocal
+observable is positive when it has a positive local representative, and the inclusion maps
+identify the local units. For a nonempty directed net these make the global space an order-unit
+space, with each subsystem mapping into it by a channel. If inclusions reflect order, a local
+observable has the same order relations globally; if the local spaces are Archimedean, the global
+one is too.
 
 ## ii. Key results
 
