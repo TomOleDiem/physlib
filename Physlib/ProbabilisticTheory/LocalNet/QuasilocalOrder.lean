@@ -81,12 +81,12 @@ def positive : Set N.Quasilocal :=
   {x | ∃ (i : R) (a : A i), 0 ≤ a ∧ toQuasilocal N i a = x}
 
 /-- A positive local observable is positive globally. -/
-lemma toQuasilocal_mem_positive {i : R} {a : A i} (ha : 0 ≤ a) :
+lemma toQuasilocal_mem_pos {i : R} {a : A i} (ha : 0 ≤ a) :
     toQuasilocal N i a ∈ positive N :=
   ⟨i, a, ha, rfl⟩
 
 /-- Nonnegative scaling preserves global positivity. -/
-lemma smul_mem_positive {c : ℝ} (hc : 0 ≤ c) {x : N.Quasilocal}
+lemma smul_mem_pos {c : ℝ} (hc : 0 ≤ c) {x : N.Quasilocal}
     (hx : x ∈ positive N) : c • x ∈ positive N := by
   obtain ⟨i, a, ha, rfl⟩ := hx
   exact ⟨i, c • a, smul_nonneg hc ha, map_smul _ _ _⟩
@@ -94,7 +94,7 @@ lemma smul_mem_positive {c : ℝ} (hc : 0 ≤ c) {x : N.Quasilocal}
 variable [IsDirectedOrder R]
 
 /-- The sum of positive global observables is positive. -/
-lemma add_mem_positive {x y : N.Quasilocal} (hx : x ∈ positive N) (hy : y ∈ positive N) :
+lemma add_mem_pos {x y : N.Quasilocal} (hx : x ∈ positive N) (hy : y ∈ positive N) :
     x + y ∈ positive N := by
   obtain ⟨i, a, ha, rfl⟩ := hx
   obtain ⟨j, b, hb, rfl⟩ := hy
@@ -103,7 +103,7 @@ lemma add_mem_positive {x y : N.Quasilocal} (hx : x ∈ positive N) (hy : y ∈ 
   rw [map_add, toQuasilocal_incl, toQuasilocal_incl]
 
 /-- A global observable that is both positive and negative is zero. -/
-lemma eq_zero_of_mem_positive_of_neg_mem_positive {x : N.Quasilocal}
+lemma eq_zero_of_mem_pos_of_neg_mem_pos {x : N.Quasilocal}
     (hx : x ∈ positive N) (hx' : -x ∈ positive N) : x = 0 := by
   classical
   obtain ⟨i, a, ha, rfl⟩ := hx
@@ -155,15 +155,15 @@ order, comparisons made within a subsystem agree with comparisons in the global 
 -/
 
 /-- The cone of positive global observables. -/
-noncomputable def positiveCone : AddGroupCone N.Quasilocal where
+noncomputable def posCone : AddGroupCone N.Quasilocal where
   carrier := positive N
   zero_mem' := ⟨Classical.arbitrary R, 0, le_rfl, map_zero _⟩
-  add_mem' := add_mem_positive
-  eq_zero_of_mem_of_neg_mem' := eq_zero_of_mem_positive_of_neg_mem_positive
+  add_mem' := add_mem_pos
+  eq_zero_of_mem_of_neg_mem' := eq_zero_of_mem_pos_of_neg_mem_pos
 
 /-- The order on global observables induced by local positivity. -/
 noncomputable instance : PartialOrder N.Quasilocal :=
-  PartialOrder.mkOfAddGroupCone positiveCone
+  PartialOrder.mkOfAddGroupCone posCone
 
 /-- `x ≤ y` exactly when `y - x` has a positive local representative. -/
 lemma le_iff {x y : N.Quasilocal} : x ≤ y ↔ y - x ∈ positive N := Iff.rfl
@@ -181,16 +181,16 @@ lemma toQuasilocal_nonneg_iff (i : R) (a : A i) : 0 ≤ toQuasilocal N i a ↔ 0
     obtain ⟨k, hik, hjk, h⟩ := (toQuasilocal_eq_iff a b).1 heq.symm
     exact IsOrderEmbedding.nonneg_of_incl_nonneg hik (h ▸ map_nonneg (N.incl hjk) hb)
   · intro ha
-    exact nonneg_iff.2 (toQuasilocal_mem_positive ha)
+    exact nonneg_iff.2 (toQuasilocal_mem_pos ha)
 
 /-- Adding the same global observable preserves a comparison. -/
-instance : IsOrderedAddMonoid N.Quasilocal := IsOrderedAddMonoid.mkOfCone positiveCone
+instance : IsOrderedAddMonoid N.Quasilocal := IsOrderedAddMonoid.mkOfCone posCone
 
 /-- Nonnegative scaling preserves comparisons between global observables. -/
 instance : PosSMulMono ℝ N.Quasilocal where
   smul_le_smul_of_nonneg_left c hc x y h := by
     rw [le_iff] at h ⊢
-    simpa [smul_sub] using smul_mem_positive hc h
+    simpa [smul_sub] using smul_mem_pos hc h
 
 /-- Global observables form an ordered real vector space. -/
 noncomputable instance : OrderedVectorSpace N.Quasilocal where
@@ -215,20 +215,20 @@ global space preserves positivity and `1`, so it is a channel.
 noncomputable instance : OrderUnitSpace N.Quasilocal where
   one_nonneg := by
     rw [← toQuasilocal_one (Classical.arbitrary R)]
-    exact nonneg_iff.2 (toQuasilocal_mem_positive OrderUnitSpace.one_nonneg)
+    exact nonneg_iff.2 (toQuasilocal_mem_pos OrderUnitSpace.one_nonneg)
   exists_nsmul_one_le x := by
     obtain ⟨i, a, rfl⟩ := exists_toQuasilocal_eq x
     obtain ⟨n, hn⟩ := OrderUnitSpace.exists_nsmul_one_le a
     refine ⟨n, ?_⟩
     rw [← toQuasilocal_one i, ← map_nsmul, le_iff, ← map_sub]
-    exact toQuasilocal_mem_positive (sub_nonneg.mpr hn)
+    exact toQuasilocal_mem_pos (sub_nonneg.mpr hn)
 
 variable (N) in
 /-- Regard a subsystem observable as a global observable by a channel. -/
 noncomputable def toQuasilocalChannel (i : R) : A i →ₚ₁[ℝ] N.Quasilocal := by
   refine ofLinearMap (toQuasilocal N i) ?_ (toQuasilocal_one i)
   intro _ ha
-  exact nonneg_iff.2 (toQuasilocal_mem_positive ha)
+  exact nonneg_iff.2 (toQuasilocal_mem_pos ha)
 
 @[simp] lemma toQuasilocalChannel_apply (i : R) (a : A i) :
     toQuasilocalChannel N i a = toQuasilocal N i a := rfl
