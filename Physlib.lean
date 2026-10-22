@@ -53,6 +53,7 @@ public import Physlib.CondensedMatter.Basic
 public import Physlib.CondensedMatter.Crystal.Basic
 public import Physlib.CondensedMatter.Crystal.BondSymmetries
 public import Physlib.CondensedMatter.Crystal.Bonds
+public import Physlib.CondensedMatter.Crystal.Embedding
 public import Physlib.CondensedMatter.Crystal.Honeycomb
 public import Physlib.CondensedMatter.Crystal.Hypercubic
 public import Physlib.CondensedMatter.Crystal.NaCl
