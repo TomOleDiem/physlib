@@ -51,6 +51,7 @@ public import Physlib.ClassicalMechanics.WaveEquation.HarmonicWave
 public import Physlib.CondensedMatter.BandTheory.Basic
 public import Physlib.CondensedMatter.Basic
 public import Physlib.CondensedMatter.Crystal.Basic
+public import Physlib.CondensedMatter.Crystal.BondSymmetries
 public import Physlib.CondensedMatter.Crystal.Bonds
 public import Physlib.CondensedMatter.Crystal.Hypercubic
 public import Physlib.CondensedMatter.Crystal.PeriodicGraph
