@@ -55,6 +55,7 @@ public import Physlib.CondensedMatter.Crystal.BondSymmetries
 public import Physlib.CondensedMatter.Crystal.Bonds
 public import Physlib.CondensedMatter.Crystal.Chain
 public import Physlib.CondensedMatter.Crystal.Embedding
+public import Physlib.CondensedMatter.Crystal.EmbeddingSymmetry
 public import Physlib.CondensedMatter.Crystal.Euclidean
 public import Physlib.CondensedMatter.Crystal.Honeycomb
 public import Physlib.CondensedMatter.Crystal.Hypercubic
