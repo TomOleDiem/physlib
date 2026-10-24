@@ -1,3 +1,4 @@
+
 /-
 Copyright (c) 2026 Tom Ole Diem. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -8,32 +9,29 @@ module
 public import Physlib.ProbabilisticTheory.LocalNet.Basic
 
 /-!
-
 # Interactions on a local net
 
-A family of local pieces, each an observable of the region it lives in.
+An interaction is a family of local observables, each associated with a region of the net.
 
 ## i. Overview
 
-The energy, the magnetization and the particle number of a large system are sums of local pieces. An
-interaction labels the pieces and gives the region and the observable of each one. A piece seen in a
-larger region is included into it. A piece seen in a region it does not live in is zero.
+Extensive observables such as energy, magnetization and particle number can be expressed as
+sums of local terms. An interaction assigns a supporting region and an observable to each
+label. Each term can be included into any larger region and is taken to be zero when its
+support is not contained in the region.
 
 ## ii. Key results
 
-- `Interaction` : a region and a piece for every label.
-- `Interaction.piece` : a piece seen in a region.
-- `Interaction.incl_piece` : a piece seen in a region, then included into a larger one.
+- `Interaction`: A family of local observables with specified supports.
+- `Interaction.termIn`: An interaction term expressed in a given region.
+- `Interaction.incl_termIn`: Compatibility with inclusions of regions.
+- `Interaction.termIn_add`: Compatibility with addition.
+- `Interaction.termIn_smul`: Compatibility with scalar multiplication.
 
 ## iii. Table of contents
 
 - A. Interactions
-- B. Pieces in a region
-
-## iv. References
-
-* None.
-
+- B. Interaction terms in a region
 -/
 
 @[expose] public section
@@ -45,44 +43,47 @@ variable {R : Type*} [Preorder R] {A : R → Type*} [∀ X, OrderUnitSpace (A X)
 
 /-! ## A. Interactions -/
 
-/-- An interaction on the local net `N`: for every label a region and an observable of that
-region. -/
+/-- A family of local observables on `N`, indexed by `ι`, with specified supports. -/
 structure Interaction (N : LocalNet R A) (ι : Type*) where
-  /-- The region in which a piece lives. -/
+  /-- The supporting region of each term. -/
   supp : ι → R
-  /-- The piece, an observable of its region. -/
+  /-- The observable associated with each term. -/
   term : ∀ i, A (supp i)
 
 namespace Interaction
 
 variable (Φ : Interaction N ι)
 
-/-! ## B. Pieces in a region -/
+/-! ## B. Interaction terms in a region -/
 
-/-- The labels whose piece lives in `Λ`. -/
+/-- The labels of terms supported in `Λ`. -/
 def labelsIn (Λ : R) : Set ι := {i | Φ.supp i ≤ Λ}
 
 open Classical in
-/-- The piece `i` seen in the region `Λ`. It is zero if the piece does not live in `Λ`. -/
-noncomputable def piece (Λ : R) (i : ι) : A Λ :=
+/-- The term `i` expressed in `Λ`, or zero if its support is not contained in `Λ`. -/
+noncomputable def termIn (Λ : R) (i : ι) : A Λ :=
   if h : Φ.supp i ≤ Λ then N.incl h (Φ.term i) else 0
 
-/-- A piece seen in `Λ` and included into a larger region `Λ'` is the piece seen in `Λ'`, if it
-lives in `Λ`, and zero otherwise. -/
-lemma incl_piece {Λ Λ' : R} (h : Λ ≤ Λ') (i : ι) :
-    N.incl h (Φ.piece Λ i) = (Φ.labelsIn Λ).indicator (Φ.piece Λ') i := by
+/-- Including a term from `Λ` into `Λ'` agrees with evaluating it in `Λ'` whenever
+its support is contained in `Λ`, and gives zero otherwise. -/
+lemma incl_termIn {Λ Λ' : R} (h : Λ ≤ Λ') (i : ι) :
+    N.incl h (Φ.termIn Λ i) = (Φ.labelsIn Λ).indicator (Φ.termIn Λ') i := by
   by_cases h1 : Φ.supp i ≤ Λ
-  · simp [piece, labelsIn, h1, h1.trans h, N.incl_trans_apply h1 h (h1.trans h)]
-  · simp [piece, labelsIn, h1]
+  · simp [termIn, labelsIn, h1, h1.trans h, N.incl_trans_apply h1 h (h1.trans h)]
+  · simp [termIn, labelsIn, h1]
 
-lemma piece_add (s : ι → R) (t t' : ∀ i, A (s i)) (Λ : R) (i : ι) :
-    (⟨s, t + t'⟩ : Interaction N ι).piece Λ i =
-      (⟨s, t⟩ : Interaction N ι).piece Λ i + (⟨s, t'⟩ : Interaction N ι).piece Λ i := by
-  by_cases h : s i ≤ Λ <;> simp [piece, h]
+/-- Evaluating interaction terms in a region preserves addition. -/
+lemma termIn_add (s : ι → R) (t t' : ∀ i, A (s i)) (Λ : R) (i : ι) :
+    (⟨s, t + t'⟩ : Interaction N ι).termIn Λ i =
+      (⟨s, t⟩ : Interaction N ι).termIn Λ i +
+        (⟨s, t'⟩ : Interaction N ι).termIn Λ i := by
+  by_cases h : s i ≤ Λ <;> simp [termIn, h]
 
-lemma piece_smul (s : ι → R) (c : ℝ) (t : ∀ i, A (s i)) (Λ : R) (i : ι) :
-    (⟨s, c • t⟩ : Interaction N ι).piece Λ i = c • (⟨s, t⟩ : Interaction N ι).piece Λ i := by
-  by_cases h : s i ≤ Λ <;> simp [piece, h]
+/-- Evaluating interaction terms in a region preserves scalar multiplication. -/
+lemma termIn_smul (s : ι → R) (c : ℝ) (t : ∀ i, A (s i)) (Λ : R) (i : ι) :
+    (⟨s, c • t⟩ : Interaction N ι).termIn Λ i =
+      c • (⟨s, t⟩ : Interaction N ι).termIn Λ i := by
+  by_cases h : s i ≤ Λ <;> simp [termIn, h]
 
 end Interaction
 
