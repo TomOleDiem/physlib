@@ -54,6 +54,7 @@ public import Physlib.CondensedMatter.Crystal.Basic
 public import Physlib.CondensedMatter.Crystal.Bonds
 public import Physlib.CondensedMatter.Crystal.Embedding
 public import Physlib.CondensedMatter.Crystal.PeriodicGraph
+public import Physlib.CondensedMatter.Crystal.PointOperations
 public import Physlib.CondensedMatter.Crystal.Symmetries
 public import Physlib.CondensedMatter.LatticeModels.Basic
 public import Physlib.CondensedMatter.ManyBody.Basic
