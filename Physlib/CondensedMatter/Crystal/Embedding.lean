@@ -79,7 +79,7 @@ lemma position_vadd (a : G) (x : C.Site) : R.position (a +ᵥ x) = R.vector a + 
 /-- The translation group acts on the space by its vectors. -/
 abbrev action : AddAction G E := AddAction.compHom E R.vector
 
-/-- **The positions commute with the translations.** -/
+/-- The positions commute with the translations. -/
 def positionHom : letI := R.action; AddActionHom (id : G → G) C.Site E :=
   letI := R.action
   { toFun := R.position
@@ -99,8 +99,8 @@ variable [NormedSpace ℝ E]
 crystal repeats in every direction. -/
 def IsSpaceFilling : Prop := Submodule.span ℝ (Set.range R.vector) = ⊤
 
-/-- **An embedding fills the space exactly when the vectors of a generating set of the translation
-group span it.** -/
+/-- An embedding fills the space exactly when the vectors of a generating set of the translation
+group span it. -/
 lemma isSpaceFilling_iff {S : Set G} (hS : AddSubgroup.closure S = ⊤) :
     R.IsSpaceFilling ↔ Submodule.span ℝ (R.vector '' S) = ⊤ := by
   have h : Submodule.span ℝ (Set.range R.vector) = Submodule.span ℝ (R.vector '' S) := by
@@ -118,7 +118,7 @@ lemma IsSpaceFilling.finiteDimensional (h : R.IsSpaceFilling) : FiniteDimensiona
   obtain ⟨S, hS, hfin⟩ := (AddSubgroup.fg_iff _).1 (AddGroup.fg_def.1 ‹AddGroup.FG G›)
   exact ⟨(R.isSpaceFilling_iff hS).1 h ▸ Submodule.fg_span (hfin.image _)⟩
 
-/-- **The dimension equals the rank of the translation group** when the vectors of a basis of the
+/-- The dimension equals the rank of the translation group when the vectors of a basis of the
 group are linearly independent over `ℝ`. -/
 lemma IsSpaceFilling.finrank_eq_rank (h : R.IsSpaceFilling) {ι : Type*} [Fintype ι]
     (B : Module.Basis ι ℤ G) (hB : LinearIndependent ℝ (R.vector ∘ B)) :
