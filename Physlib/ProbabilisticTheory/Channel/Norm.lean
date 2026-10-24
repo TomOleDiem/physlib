@@ -8,29 +8,25 @@ module
 public import Physlib.ProbabilisticTheory.State.Separation
 
 /-!
-# Channels do not increase the norm
+# Channels are contractions
 
-Every channel is a continuous linear map for the order-unit norms.
+Unital positive linear maps are contractions with respect to the order-unit norm and are
+therefore continuous.
 
 ## i. Overview
 
-A channel cannot make an observable larger than the certain outcome allows. A state of the output
-pulls back to a state of the input, and states bound the order-unit norm. So the norm of the image
-is at most the norm of the observable.
+The norm bound follows from the characterization of the order-unit norm in terms of states.
+Every state on the codomain pulls back along a channel to a state on the domain, so evaluating
+the image of an observable cannot exceed its original norm.
 
 ## ii. Key results
 
-- `UnitalPositiveLinearMap.norm_apply_le` : a channel does not increase the norm.
-- `UnitalPositiveLinearMap.toContinuousLinearMap` : a channel as a continuous linear map.
+- `UnitalPositiveLinearMap.norm_apply_le`: Channels are contractions.
+- `UnitalPositiveLinearMap.toContinuousLinearMap`: Channels as continuous linear maps.
 
 ## iii. Table of contents
 
-- A. The norm bound and continuity
-
-## iv. References
-
-* None.
-
+- A. Contractivity and continuity
 -/
 
 @[expose] public section
@@ -38,14 +34,13 @@ is at most the norm of the observable.
 open ProbabilisticTheory ArchimedeanOrderUnitSpace
 open scoped ArchimedeanOrderUnitSpace
 
-/-! ## A. The norm bound and continuity -/
+/-! ## A. Contractivity and continuity -/
 
 namespace UnitalPositiveLinearMap
 
 variable {E F : Type*} [ArchimedeanOrderUnitSpace E] [ArchimedeanOrderUnitSpace F]
 
-/-- A channel does not increase the order-unit norm. A state of the output pulls back to a state of
-the input, and states bound the norm. -/
+/-- Unital positive linear maps are contractions for the order-unit norm. -/
 lemma orderUnitNorm_apply_le (T : E →ₚ₁[ℝ] F) (x : E) :
     orderUnitNorm (T x) ≤ orderUnitNorm x := by
   rcases subsingleton_or_nontrivial F with h | h
@@ -55,9 +50,10 @@ lemma orderUnitNorm_apply_le (T : E →ₚ₁[ℝ] F) (x : E) :
     intro ω
     exact abs_apply_le_orderUnitNorm (comap T ω) x
 
-lemma norm_apply_le (T : E →ₚ₁[ℝ] F) (x : E) : ‖T x‖ ≤ ‖x‖ := T.orderUnitNorm_apply_le x
+lemma norm_apply_le (T : E →ₚ₁[ℝ] F) (x : E) : ‖T x‖ ≤ ‖x‖ :=
+  T.orderUnitNorm_apply_le x
 
-/-- A channel as a continuous linear map for the order-unit norms. -/
+/-- A unital positive linear map regarded as a continuous linear map. -/
 noncomputable def toContinuousLinearMap (T : E →ₚ₁[ℝ] F) : E →L[ℝ] F :=
   LinearMap.mkContinuous T.toLinearMap 1 (by simpa using T.norm_apply_le)
 
