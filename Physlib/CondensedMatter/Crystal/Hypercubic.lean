@@ -109,8 +109,8 @@ lemma shift_mem_spaceGroup (d : ℕ) (c : Unit → Fin d → ℤ) :
   rw [eq_const_of_unique c, Symmetry.shift_const]
   exact (hypercubicGraph d).translation_mem_spaceGroup _
 
-/-- **The space group of the hypercubic lattice: a symmetry of the crystal preserves the bonds
-exactly when its lattice automorphism permutes the `2 d` unit steps.** Its shifts are translations
+/-- The space group of the hypercubic lattice: a symmetry of the crystal preserves the bonds
+exactly when its lattice automorphism permutes the `2 d` unit steps. Its shifts are translations
 and are always allowed, so the space group consists of the translations together with the signed
 permutations of the coordinates. -/
 lemma mem_spaceGroup_hypercubic_iff (d : ℕ) (φ : Symmetry (hypercubic d)) :
