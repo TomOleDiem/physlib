@@ -1,4 +1,3 @@
-
 /-
 Copyright (c) 2026 Tom Ole Diem. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -32,6 +31,9 @@ support is not contained in the region.
 
 - A. Interactions
 - B. Interaction terms in a region
+
+## iv. References
+
 -/
 
 @[expose] public section

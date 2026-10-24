@@ -27,6 +27,9 @@ the image of an observable cannot exceed its original norm.
 ## iii. Table of contents
 
 - A. Contractivity and continuity
+
+## iv. References
+
 -/
 
 @[expose] public section
