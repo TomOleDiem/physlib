@@ -13,13 +13,14 @@ public import Mathlib.LinearAlgebra.FiniteDimensional.Basic
 /-!
 # A crystal in space
 
-We embed a crystal into space.
+Embedding of a crystal into a space.
 
 ## i. Overview
 
-Send each translation to a vector and each site of the reference cell to a point. The site `(n, i)`
-then sits at the vector of `n` plus the point of `i`. The embedding fills the space when the vectors
-of the translations span it.
+Given a normed additive commutative group `E`, an embedding sends each translation of the crystal to
+a vector in `E` and each site of the reference cell to a point in `E`. The site `(n, i)` is then
+placed at the vector of `n` plus the point of `i`. The embedding is space filling if the vectors of
+the translations span `E`.
 
 ## ii. Key results
 
@@ -31,11 +32,11 @@ of the translations span it.
 - `Crystal.Embedding.dist_position_vadd` : translating two sites does not change the
   distance between their positions.
 - `Crystal.Embedding.IsSpaceFilling` : the vectors of the translations span the space.
-- `Crystal.Embedding.isSpaceFilling_iff` : this is checked on a generating set.
-- `Crystal.Embedding.IsSpaceFilling.finiteDimensional` : a space-filling embedding is in a
+- `Crystal.Embedding.isSpaceFilling_iff` : space filling can be checked on a generating set.
+- `Crystal.Embedding.IsSpaceFilling.finiteDimensional` : a space-filling embedding lies in a
   finite-dimensional space.
-- `Crystal.Embedding.IsSpaceFilling.finrank_eq_rank` : the dimension equals the rank when the
-  vectors of a basis of the translation group are linearly independent.
+- `Crystal.Embedding.IsSpaceFilling.finrank_eq_rank` : the dimension of the space equals the rank
+  of the translation group when the vectors of a basis of the group are linearly independent.
 
 ## iii. Table of contents
 
@@ -56,8 +57,8 @@ variable {G : Type*} [AddCommGroup G] [AddGroup.FG G]
 
 /-! ## A. Vectors and positions -/
 
-/-- A crystal in a normed group: a vector for each translation, and a position for each site of the
-reference cell. -/
+/-- An embedding of a crystal in a normed group `E`. It assigns a vector to each translation and a
+position to each site of the reference cell. -/
 structure Embedding (C : Crystal G) (E : Type*) [NormedAddCommGroup E] where
   /-- The vector of a translation. -/
   vector : G →+ E
@@ -78,8 +79,7 @@ lemma position_vadd (a : G) (x : C.Site) : R.position (a +ᵥ x) = R.vector a + 
 /-- The translation group acts on the space by its vectors. -/
 abbrev action : AddAction G E := AddAction.compHom E R.vector
 
-/-- **The positions commute with the translations**: the map of the sites is equivariant for the
-action of the translation group on the sites and on the space. -/
+/-- **The positions commute with the translations.** -/
 def positionHom : letI := R.action; AddActionHom (id : G → G) C.Site E :=
   letI := R.action
   { toFun := R.position
@@ -95,7 +95,8 @@ lemma dist_position_vadd (a : G) (x y : C.Site) :
 
 variable [NormedSpace ℝ E]
 
-/-- The vectors of the translations span the space: the crystal repeats in every direction. -/
+/-- The embedding is space filling if the vectors of the translations span the space, so that the
+crystal repeats in every direction. -/
 def IsSpaceFilling : Prop := Submodule.span ℝ (Set.range R.vector) = ⊤
 
 /-- **An embedding fills the space exactly when the vectors of a generating set of the translation
