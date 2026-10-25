@@ -16,16 +16,21 @@ group actions.
 
 ## i. Overview
 
-Reversible transformations are unital order isomorphisms of observable spaces. They form
-a group under composition and act on states through the inverse transformation.
+Recall that a channel is a unital positive linear map between observable spaces: it sends
+observables to observables and keeps the certain outcome certain. Here we single out the channels
+that can be undone, and ask how a general channel behaves with respect to them.
 
-A group representation by reversible transformations describes symmetries or reversible
-dynamics. For example, time evolution is represented by the additive group of real numbers.
+A reversible transformation is a channel that is a linear bijection whose inverse is again a
+channel, that is, a unital linear order isomorphism of observable spaces. These form a group under
+composition, and they act on states through the inverse transformation. A group representation by
+reversible transformations describes symmetries or reversible dynamics. For example, time evolution
+is represented by the additive group of real numbers.
 
-A channel is covariant if it intertwines the group actions on its domain and codomain.
-Covariance preserves invariant states under pullback. An order isomorphism also transports
-a group action between observable spaces, giving the unique action for which the
-isomorphism is covariant.
+On a channel between two spaces that each carry such a group action, we want to say that it
+respects the symmetry: applying the group element before or after the channel gives the same
+result. Such a channel is called covariant, or intertwining. Covariance preserves invariant states
+under pullback. An order isomorphism also transports a group action between observable spaces,
+giving the unique action for which the isomorphism is covariant.
 
 ## ii. Key results
 
