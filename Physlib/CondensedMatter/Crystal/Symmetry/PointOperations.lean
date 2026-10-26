@@ -46,16 +46,18 @@ the foundation for studying crystallographic symmetries once geometry is introdu
 
 ## iii. Table of contents
 
-- A. The data of a symmetry
+- A. The components of a symmetry
   - A.1. Offsets
-  - A.2. Symmetries from data
+  - A.2. Symmetries from components
   - A.3. Products
-- B. Shifts and point operations
-  - B.1. Shifts
-  - B.2. Point operations
-  - B.3. Composites
-- C. The semidirect product
-- D. The point operation of a symmetry
+- B. Point operations
+  - B.1. Point operations from components
+  - B.2. The point operation of a symmetry
+- C. Shifts
+  - C.1. Shifts
+  - C.2. Decomposition into a point operation and a shift
+  - C.3. Symmetries with trivial point operation
+- D. The semidirect product
 
 ## iv. References
 
@@ -74,7 +76,7 @@ namespace Symmetry
 variable {C : Crystal G} (A B : G ≃+ G) (σ τ : Equiv.Perm C.UnitCell)
   (b b' : C.UnitCell → G)
 
-/-! ## A. The data of a symmetry -/
+/-! ## A. The components of a symmetry -/
 
 /-! ### A.1. Offsets -/
 
@@ -93,7 +95,7 @@ lemma cell_apply (φ : Symmetry C) (x : C.Site) :
     (φ x).cell = φ.lattice x.cell + φ.offset x.label :=
   congrArg Site.cell (apply_eq_data φ x)
 
-/-! ### A.2. Symmetries from data -/
+/-! ### A.2. Symmetries from components -/
 
 /-- The bijection of the sites `⟨n, i⟩ ↦ ⟨A n + bᵢ, σ i⟩` given by a lattice automorphism `A`, a
 label permutation `σ` and offsets `b`. -/
@@ -154,30 +156,9 @@ lemma ofComponents_mul :
   rw [map_add, add_assoc]
   rfl
 
-/-! ## B. Shifts and point operations -/
+/-! ## B. Point operations -/
 
-/-! ### B.1. Shifts -/
-
-/-- The shift by `b`: it moves every site with label `i` by the lattice vector `bᵢ` and fixes the
-labels and the lattice. -/
-def shift (C : Crystal G) (b : C.UnitCell → G) : Symmetry C := ofComponents C 0 1 b
-
-/-- A shift has trivial lattice automorphism. -/
-@[simp] lemma lattice_shift : (shift C b).lattice = 0 := rfl
-
-/-- A shift by the same vector `a` on every label is the translation by `a`. -/
-lemma shift_const (a : G) : shift C (Function.const C.UnitCell a) = translation C a := by
-  ext x : 1
-  exact Site.ext (add_comm _ _) rfl
-
-/-- Shifts compose by adding their vectors: `shift (b + b') = shift b * shift b'`. -/
-lemma shift_add : shift C (b + b') = shift C b * shift C b' := by
-  show ofComponents C 0 1 (b + b') =
-    ofComponents C 0 1 b * ofComponents C 0 1 b'
-  rw [ofComponents_mul]
-  simp [add_comm]
-
-/-! ### B.2. Point operations -/
+/-! ### B.1. Point operations from components -/
 
 /-- The point operation with lattice automorphism `A` and label permutation `σ`: it sends `⟨n, i⟩`
 to `⟨A n, σ i⟩` and has no offsets. -/
@@ -202,7 +183,44 @@ lemma linear_add_mul :
   rw [ofComponents_mul]
   simp
 
-/-! ### B.3. Composites -/
+/-! ### B.2. The point operation of a symmetry -/
+
+/-- The point operation of a symmetry: the point operation with the same lattice automorphism and
+label permutation, dropping the shifts. It is a homomorphism. For `ℤᵈ` it is the rotation or
+reflection of the lattice. -/
+noncomputable def pointOp (C : Crystal G) : Symmetry C →* Symmetry C where
+  toFun φ := linear C φ.lattice (labelHom C φ)
+  map_one' := by
+    ext x : 1
+    exact Site.ext (add_zero _) rfl
+  map_mul' φ ψ := by
+    rw [lattice_mul, map_mul]
+    exact linear_add_mul _ _ _ _
+
+/-! ## C. Shifts -/
+
+/-! ### C.1. Shifts -/
+
+/-- The shift by `b`: it moves every site with label `i` by the lattice vector `bᵢ` and fixes the
+labels and the lattice. -/
+def shift (C : Crystal G) (b : C.UnitCell → G) : Symmetry C := ofComponents C 0 1 b
+
+/-- A shift has trivial lattice automorphism. -/
+@[simp] lemma lattice_shift : (shift C b).lattice = 0 := rfl
+
+/-- A shift by the same vector `a` on every label is the translation by `a`. -/
+lemma shift_const (a : G) : shift C (Function.const C.UnitCell a) = translation C a := by
+  ext x : 1
+  exact Site.ext (add_comm _ _) rfl
+
+/-- Shifts compose by adding their vectors: `shift (b + b') = shift b * shift b'`. -/
+lemma shift_add : shift C (b + b') = shift C b * shift C b' := by
+  show ofComponents C 0 1 (b + b') =
+    ofComponents C 0 1 b * ofComponents C 0 1 b'
+  rw [ofComponents_mul]
+  simp [add_comm]
+
+/-! ### C.2. Decomposition into a point operation and a shift -/
 
 /-- The point operation `(A, σ)` followed by the shift `b` is the symmetry with components `(A, σ, b
 ∘ σ)`. -/
@@ -230,17 +248,6 @@ lemma shift_mul_linear_mul :
   ext i
   simp [add_comm]
 
-/-! ## C. The semidirect product -/
-
-/-- The action of the point operations on the shifts: a lattice automorphism `A` and a label
-permutation `σ` send `b` to `A ∘ b ∘ σ⁻¹`. -/
-def shiftAction (C : Crystal G) :
-    Multiplicative (AddAut G) × Equiv.Perm C.UnitCell →*
-      MulAut (Multiplicative (C.UnitCell → G)) where
-  toFun p := (AddEquiv.arrowCongr p.2 (Multiplicative.toAdd p.1)).toMultiplicative
-  map_one' := MulEquiv.ext (congrFun rfl)
-  map_mul' _ _ := MulEquiv.ext (congrFun rfl)
-
 /-- Every symmetry is a point operation followed by a shift, with shift vectors `offset ∘ σ⁻¹`. -/
 lemma eq_shift_mul_linear (φ : Symmetry C) :
     φ = shift C (φ.offset ∘ (labelHom C φ).symm) * linear C φ.lattice (labelHom C φ) := by
@@ -250,39 +257,11 @@ lemma eq_shift_mul_linear (φ : Symmetry C) :
   rw [shift_mul_linear, h]
   exact eq_ofComponents φ
 
-/-- The symmetry group of a crystal is isomorphic to the semidirect product of the shifts, `UnitCell
-→ G`, by the point operations, `Aut G × Perm UnitCell`, acting through `shiftAction`. -/
-noncomputable def semidirectEquiv (C : Crystal G) :
-    Multiplicative (C.UnitCell → G) ⋊[shiftAction C]
-      (Multiplicative (AddAut G) × Equiv.Perm C.UnitCell) ≃* Symmetry C where
-  toFun y := shift C (Multiplicative.toAdd y.left) *
-    linear C (Multiplicative.toAdd y.right.1) y.right.2
-  invFun φ := ⟨Multiplicative.ofAdd (φ.offset ∘ (labelHom C φ).symm),
-    Multiplicative.ofAdd φ.lattice, labelHom C φ⟩
-  left_inv y := by
-    refine SemidirectProduct.ext (Multiplicative.toAdd.injective ?_) (Prod.ext (by simp) (by simp))
-    ext i
-    simp
-  right_inv φ := (eq_shift_mul_linear φ).symm
-  map_mul' _ _ := (shift_mul_linear_mul _ _ _ _ _ _).symm
-
-/-! ## D. The point operation of a symmetry -/
-
-/-- The point operation of a symmetry: the point operation with the same lattice automorphism and
-label permutation, dropping the shifts. It is a homomorphism. For `ℤᵈ` it is the rotation or
-reflection of the lattice. -/
-noncomputable def pointOp (C : Crystal G) : Symmetry C →* Symmetry C where
-  toFun φ := linear C φ.lattice (labelHom C φ)
-  map_one' := by
-    ext x : 1
-    exact Site.ext (add_zero _) rfl
-  map_mul' φ ψ := by
-    rw [lattice_mul, map_mul]
-    exact linear_add_mul _ _ _ _
-
 /-- Every symmetry is its point operation followed by a shift. -/
 lemma exists_eq_shift_mul_pointOp (φ : Symmetry C) : ∃ b, φ = shift C b * pointOp C φ :=
   ⟨_, eq_shift_mul_linear φ⟩
+
+/-! ### C.3. Symmetries with trivial point operation -/
 
 /-- A shift has trivial point operation. -/
 @[simp] lemma pointOp_shift : pointOp C (shift C b) = 1 := by
@@ -302,6 +281,33 @@ lemma pointOp_eq_one_iff (φ : Symmetry C) : pointOp C φ = 1 ↔ ∃ b, φ = sh
 lemma pointOp_translation (a : G) : pointOp C (translation C a) = 1 := by
   rw [← shift_const]
   exact pointOp_shift _
+
+/-! ## D. The semidirect product -/
+
+/-- The action of the point operations on the shifts: a lattice automorphism `A` and a label
+permutation `σ` send `b` to `A ∘ b ∘ σ⁻¹`. -/
+def shiftAction (C : Crystal G) :
+    Multiplicative (AddAut G) × Equiv.Perm C.UnitCell →*
+      MulAut (Multiplicative (C.UnitCell → G)) where
+  toFun p := (AddEquiv.arrowCongr p.2 (Multiplicative.toAdd p.1)).toMultiplicative
+  map_one' := MulEquiv.ext (congrFun rfl)
+  map_mul' _ _ := MulEquiv.ext (congrFun rfl)
+
+/-- The symmetry group of a crystal is isomorphic to the semidirect product of the shifts, `UnitCell
+→ G`, by the point operations, `Aut G × Perm UnitCell`, acting through `shiftAction`. -/
+noncomputable def semidirectEquiv (C : Crystal G) :
+    Multiplicative (C.UnitCell → G) ⋊[shiftAction C]
+      (Multiplicative (AddAut G) × Equiv.Perm C.UnitCell) ≃* Symmetry C where
+  toFun y := shift C (Multiplicative.toAdd y.left) *
+    linear C (Multiplicative.toAdd y.right.1) y.right.2
+  invFun φ := ⟨Multiplicative.ofAdd (φ.offset ∘ (labelHom C φ).symm),
+    Multiplicative.ofAdd φ.lattice, labelHom C φ⟩
+  left_inv y := by
+    refine SemidirectProduct.ext (Multiplicative.toAdd.injective ?_) (Prod.ext (by simp) (by simp))
+    ext i
+    simp
+  right_inv φ := (eq_shift_mul_linear φ).symm
+  map_mul' _ _ := (shift_mul_linear_mul _ _ _ _ _ _).symm
 
 end Symmetry
 
