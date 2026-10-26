@@ -16,15 +16,14 @@ the transport of group actions.
 
 ## i. Overview
 
-Recall that a channel is a unital positive linear map between observable spaces: it sends
-observables to observables and keeps the certain outcome certain. Here we single out the channels
-that can be undone.
+Time evolution, spatial symmetries and changes of reference frame all have something in common:
+they transform observables in a way that can be undone.
 
-A reversible transformation is a channel that is a linear bijection whose inverse is again a
-channel, that is, a unital linear order isomorphism of observable spaces. These form a group under
-composition, and they act on states through the inverse transformation. A group representation by
+This motivates reversible transformations, defined as unital linear order isomorphisms of
+observable spaces. They form a group and naturally act on states. A group representation by
 reversible transformations describes symmetries or reversible dynamics. For example, time evolution
-is represented by the additive group of real numbers.
+is represented by the additive group of real numbers. A reversible transformation also transports a
+group action from one observable space to another by conjugation.
 
 ## ii. Key results
 

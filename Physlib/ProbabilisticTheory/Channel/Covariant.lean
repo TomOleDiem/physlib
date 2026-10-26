@@ -14,11 +14,16 @@ Channels that commute with two group actions by reversible transformations.
 
 ## i. Overview
 
-On a channel between two spaces that each carry a group action by reversible transformations, we
-want to say that it respects the symmetry: applying the group element before or after the channel
-gives the same result. Such a channel is called covariant, or intertwining. Covariance preserves
-invariant states under pullback. A reversible transformation is covariant exactly when the target
-action is the transport of the source action.
+More general channels may lose information but can still respect the symmetries of a system. This
+is captured by covariance: a channel `Φ` between two spaces carrying group actions `ρ` and `σ` by
+reversible transformations is covariant, or intertwining, if
+
+`Φ ∘ ρ g = σ g ∘ Φ` for every group element `g`.
+
+Covariance preserves invariant states under pullback. A reversible transformation is covariant
+exactly when the target action is the transport of the source action. Together with the reversible
+transformations, this gives a common framework for symmetries and dynamics in general probabilistic
+theories.
 
 ## ii. Key results
 
