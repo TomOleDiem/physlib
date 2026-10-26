@@ -22,6 +22,7 @@ the image of an observable cannot exceed its original norm.
 ## ii. Key results
 
 - `UnitalPositiveLinearMap.norm_apply_le`: Channels are contractions.
+- `UnitalPositiveLinearMap.continuous`: Channels are continuous.
 - `UnitalPositiveLinearMap.toContinuousLinearMap`: Channels as continuous linear maps.
 
 ## iii. Table of contents
@@ -53,12 +54,18 @@ lemma orderUnitNorm_apply_le (T : E →ₚ₁[ℝ] F) (x : E) :
     intro ω
     exact abs_apply_le_orderUnitNorm (comap T ω) x
 
+/-- Unital positive linear maps are contractions for the norm. -/
 lemma norm_apply_le (T : E →ₚ₁[ℝ] F) (x : E) : ‖T x‖ ≤ ‖x‖ :=
   T.orderUnitNorm_apply_le x
 
+/-- Unital positive linear maps are continuous. -/
+@[continuity, fun_prop]
+lemma continuous (T : E →ₚ₁[ℝ] F) : Continuous T :=
+  AddMonoidHomClass.continuous_of_bound T 1 (by simpa using T.norm_apply_le)
+
 /-- A unital positive linear map regarded as a continuous linear map. -/
 noncomputable def toContinuousLinearMap (T : E →ₚ₁[ℝ] F) : E →L[ℝ] F :=
-  LinearMap.mkContinuous T.toLinearMap 1 (by simpa using T.norm_apply_le)
+  ⟨T.toLinearMap, T.continuous⟩
 
 @[simp] lemma toContinuousLinearMap_apply (T : E →ₚ₁[ℝ] F) (x : E) :
     T.toContinuousLinearMap x = T x := rfl
