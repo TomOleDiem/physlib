@@ -10,36 +10,28 @@ public import Physlib.ProbabilisticTheory.Channel.Reversible
 /-!
 # Covariant channels
 
-Invariant states and channels that commute with two group actions by reversible transformations.
+Channels that commute with two group actions by reversible transformations.
 
 ## i. Overview
 
-A group representation by reversible transformations acts on states. A state is invariant if it is
-fixed by this action. For time evolution these are the stationary states.
-
-On a channel between two spaces that each carry such a group action, we want to say that it
-respects the symmetry: applying the group element before or after the channel gives the same
-result. Such a channel is called covariant, or intertwining. Covariance preserves invariant states
-under pullback. A reversible transformation also transports a group action between observable
-spaces, giving the unique action for which the transformation is covariant.
+On a channel between two spaces that each carry a group action by reversible transformations, we
+want to say that it respects the symmetry: applying the group element before or after the channel
+gives the same result. Such a channel is called covariant, or intertwining. Covariance preserves
+invariant states under pullback. A reversible transformation is covariant exactly when the target
+action is the transport of the source action.
 
 ## ii. Key results
 
-- `IsInvariant`: A state fixed by every transformation of a group action.
 - `IsIntertwining`: Covariance of a channel under two group actions.
 - `IsIntertwining.comap_isInvariant`: Pullback of invariant states along covariant channels.
-- `Reversible.transport`: Transport of a group action along a reversible transformation.
 - `Reversible.isIntertwining_iff_eq_transport`: Characterization of the transported action.
 
 ## iii. Table of contents
 
-- A. Invariant states
-- B. Covariant channels
-  - B.1. Definition and closure properties
-  - B.2. Invariant states
-- C. Transport of group actions
-  - C.1. Conjugation
-  - C.2. Transported actions
+- A. Covariant channels
+  - A.1. Definition and closure properties
+  - A.2. Invariant states
+- B. Covariance of transport
 
 ## iv. References
 
@@ -49,17 +41,12 @@ spaces, giving the unique action for which the transformation is covariant.
 
 namespace ProbabilisticTheory
 
-/-! ## A. Invariant states -/
-
 variable {G E F : Type*} [Group G] [OrderUnitSpace E] [OrderUnitSpace F]
   (ρ : G →* Reversible E E) (σ : G →* Reversible F F)
 
-/-- A state is invariant if it is fixed by every transformation of the group action. -/
-def IsInvariant (ω : 𝓢[ℝ, E]) : Prop := ∀ g, ρ g • ω = ω
+/-! ## A. Covariant channels -/
 
-/-! ## B. Covariant channels -/
-
-/-! ### B.1. Definition and closure properties -/
+/-! ### A.1. Definition and closure properties -/
 
 /-- A channel intertwines two group actions if it commutes with their transformations. -/
 def IsIntertwining (Φ : E →ₚ₁[ℝ] F) : Prop := ∀ g x, Φ (ρ g x) = σ g (Φ x)
@@ -80,7 +67,7 @@ lemma comp {H : Type*} [OrderUnitSpace H] {τ : G →* Reversible H H}
   intro g x
   simp [hΦ g x, hΨ g (Φ x)]
 
-/-! ### B.2. Invariant states -/
+/-! ### A.2. Invariant states -/
 
 /-- Pulling back an invariant state along an intertwining channel preserves invariance. -/
 lemma comap_isInvariant {Φ : E →ₚ₁[ℝ] F} (h : IsIntertwining ρ σ Φ)
@@ -97,24 +84,11 @@ lemma comap_isInvariant {Φ : E →ₚ₁[ℝ] F} (h : IsIntertwining ρ σ Φ)
 
 end IsIntertwining
 
-/-! ## C. Transport of group actions -/
+/-! ## B. Covariance of transport -/
 
 namespace Reversible
 
 variable (ρ σ) (e : Reversible E F)
-
-/-! ### C.1. Conjugation -/
-
-/-- Conjugation by a reversible transformation transports automorphisms from `E` to `F`. -/
-def conj : Reversible E E →* Reversible F F where
-  toFun φ := e.symm.trans (φ.trans e)
-  map_one' := by ext y; exact e.apply_symm_apply y
-  map_mul' φ ψ := by ext y; simp
-
-/-! ### C.2. Transported actions -/
-
-/-- Transport a group action from `E` to `F` along a reversible transformation. -/
-def transport : G →* Reversible F F := e.conj.comp ρ
 
 /-- A reversible transformation intertwines an action with its transport. -/
 lemma isIntertwining_transport :

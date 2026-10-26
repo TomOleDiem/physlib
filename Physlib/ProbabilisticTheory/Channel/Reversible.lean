@@ -11,7 +11,8 @@ public import Physlib.ProbabilisticTheory.State.Basic
 /-!
 # Reversible transformations of observables
 
-Reversible transformations of observable spaces, their group structure and their action on states.
+Reversible transformations of observable spaces, their group structure, their action on states and
+the transport of group actions.
 
 ## i. Overview
 
@@ -31,6 +32,8 @@ is represented by the additive group of real numbers.
   observable spaces.
 - `Reversible.toChannelHom`: Reversible transformations embed in the monoid of channels.
 - `Reversible.instMulActionState`: The induced action on states.
+- `Reversible.transport`: Transport of a group action along a reversible transformation.
+- `IsInvariant`: A state fixed by every transformation of a group action.
 
 ## iii. Table of contents
 
@@ -39,6 +42,10 @@ is represented by the additive group of real numbers.
   - A.2. Group structure
   - A.3. As channels
 - B. Action on states
+- C. Transport of group actions
+  - C.1. Conjugation
+  - C.2. Transported actions
+- D. Invariant states
 
 ## iv. References
 
@@ -63,7 +70,7 @@ structure Reversible (E F : Type*) [OrderUnitSpace E] [OrderUnitSpace F]
 
 namespace Reversible
 
-variable {E F G : Type*} [OrderUnitSpace E] [OrderUnitSpace F] [OrderUnitSpace G]
+variable {G E F H : Type*} [Group G] [OrderUnitSpace E] [OrderUnitSpace F] [OrderUnitSpace H]
 
 instance : FunLike (Reversible E F) E F where
   coe e := e.toLinearEquiv
@@ -92,7 +99,7 @@ def symm (e : Reversible E F) : Reversible F E where
   map_one' := e.toLinearEquiv.symm_apply_eq.2 e.map_one'.symm
 
 /-- Composition of reversible transformations, applying `e₁` before `e₂`. -/
-def trans (e₁ : Reversible E F) (e₂ : Reversible F G) : Reversible E G where
+def trans (e₁ : Reversible E F) (e₂ : Reversible F H) : Reversible E H where
   toLinearEquiv := e₁.toLinearEquiv.trans e₂.toLinearEquiv
   map_le_map_iff' {x y} :=
     (e₂.map_le_map_iff' (x := e₁ x) (y := e₁ y)).trans e₁.map_le_map_iff'
@@ -108,7 +115,7 @@ def trans (e₁ : Reversible E F) (e₂ : Reversible F G) : Reversible E G where
 @[simp] lemma apply_symm_apply (e : Reversible E F) (y : F) : e (e.symm y) = y :=
   e.toLinearEquiv.apply_symm_apply y
 
-@[simp] lemma trans_apply (e₁ : Reversible E F) (e₂ : Reversible F G) (x : E) :
+@[simp] lemma trans_apply (e₁ : Reversible E F) (e₂ : Reversible F H) (x : E) :
     e₁.trans e₂ x = e₂ (e₁ x) := rfl
 
 /-- Reversible transformations of a single space form a group under composition. -/
@@ -155,6 +162,29 @@ instance instMulActionState : MulAction (Reversible E E) (𝓢[ℝ, E]) where
 lemma smul_state_apply (φ : Reversible E E) (ω : 𝓢[ℝ, E]) (x : E) :
     (φ • ω) x = ω (φ.symm x) := rfl
 
+/-! ## C. Transport of group actions -/
+
+variable (ρ : G →* Reversible E E) (e : Reversible E F)
+
+/-! ### C.1. Conjugation -/
+
+/-- Conjugation by a reversible transformation transports automorphisms from `E` to `F`. -/
+def conj : Reversible E E →* Reversible F F where
+  toFun φ := e.symm.trans (φ.trans e)
+  map_one' := by ext y; exact e.apply_symm_apply y
+  map_mul' φ ψ := by ext y; simp
+
+/-! ### C.2. Transported actions -/
+
+/-- Transport a group action from `E` to `F` along a reversible transformation. -/
+def transport : G →* Reversible F F := e.conj.comp ρ
+
 end Reversible
+
+/-! ## D. Invariant states -/
+
+/-- A state is invariant if it is fixed by every transformation of the group action. -/
+def IsInvariant {G E : Type*} [Group G] [OrderUnitSpace E] (ρ : G →* Reversible E E)
+    (ω : 𝓢[ℝ, E]) : Prop := ∀ g, ρ g • ω = ω
 
 end ProbabilisticTheory
