@@ -136,12 +136,6 @@ def toChannel (e : Reversible E F) : E →ₚ₁[ℝ] F :=
 
 @[simp] lemma toChannel_apply (e : Reversible E F) (x : E) : e.toChannel x = e x := rfl
 
-end Reversible
-
-namespace Reversible
-
-variable {E : Type*} [OrderUnitSpace E]
-
 /-- Regarding reversible transformations as channels is a homomorphism of monoids. -/
 def toChannelHom : Reversible E E →* (E →ₚ₁[ℝ] E) where
   toFun := toChannel

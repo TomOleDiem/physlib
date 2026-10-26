@@ -49,21 +49,15 @@ spaces, giving the unique action for which the transformation is covariant.
 
 namespace ProbabilisticTheory
 
-section Invariant
 /-! ## A. Invariant states -/
 
-variable {G E : Type*} [Group G] [OrderUnitSpace E] (ρ : G →* Reversible E E)
+variable {G E F : Type*} [Group G] [OrderUnitSpace E] [OrderUnitSpace F]
+  (ρ : G →* Reversible E E) (σ : G →* Reversible F F)
 
 /-- A state is invariant if it is fixed by every transformation of the group action. -/
 def IsInvariant (ω : 𝓢[ℝ, E]) : Prop := ∀ g, ρ g • ω = ω
 
-end Invariant
-
-section Intertwining
 /-! ## B. Covariant channels -/
-
-variable {G E F : Type*} [Group G] [OrderUnitSpace E] [OrderUnitSpace F]
-  (ρ : G →* Reversible E E) (σ : G →* Reversible F F)
 
 /-! ### B.1. Definition and closure properties -/
 
@@ -99,19 +93,14 @@ lemma IsIntertwining.comap_isInvariant {Φ : E →ₚ₁[ℝ] F} (h : IsIntertwi
   rw [h1]
   exact h2
 
-end Intertwining
-
-
-namespace Reversible
-
-variable {G E F : Type*} [Group G] [OrderUnitSpace E] [OrderUnitSpace F]
-
 /-! ## C. Transport of group actions -/
+
+variable (ρ σ) (e : Reversible E F)
 
 /-! ### C.1. Conjugation -/
 
 /-- Conjugation by a reversible transformation transports automorphisms from `E` to `F`. -/
-def conj (e : Reversible E F) : Reversible E E →* Reversible F F where
+def Reversible.conj : Reversible E E →* Reversible F F where
   toFun φ := e.symm.trans (φ.trans e)
   map_one' := by ext y; exact e.apply_symm_apply y
   map_mul' φ ψ := by ext y; simp
@@ -119,19 +108,17 @@ def conj (e : Reversible E F) : Reversible E E →* Reversible F F where
 /-! ### C.2. Transported actions -/
 
 /-- Transport a group action from `E` to `F` along a reversible transformation. -/
-def transport (e : Reversible E F) (ρ : G →* Reversible E E) :
-    G →* Reversible F F := e.conj.comp ρ
+def Reversible.transport : G →* Reversible F F := e.conj.comp ρ
 
 /-- A reversible transformation intertwines an action with its transport. -/
-lemma isIntertwining_transport (e : Reversible E F) (ρ : G →* Reversible E E) :
+lemma Reversible.isIntertwining_transport :
     IsIntertwining ρ (e.transport ρ) e.toChannel := by
   intro g x
   simp [transport, conj]
 
 /-- A reversible transformation intertwines two actions exactly when the target action
 is the transport of the source action. -/
-lemma isIntertwining_iff_eq_transport (e : Reversible E F) (ρ : G →* Reversible E E)
-    (σ : G →* Reversible F F) :
+lemma Reversible.isIntertwining_iff_eq_transport :
     IsIntertwining ρ σ e.toChannel ↔ σ = e.transport ρ := by
   constructor
   · intro h
@@ -141,8 +128,5 @@ lemma isIntertwining_iff_eq_transport (e : Reversible E F) (ρ : G →* Reversib
     simp [transport, conj, this]
   · rintro rfl
     exact e.isIntertwining_transport ρ
-
-end Reversible
-
 
 end ProbabilisticTheory
