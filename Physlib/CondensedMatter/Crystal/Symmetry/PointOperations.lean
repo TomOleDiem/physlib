@@ -15,27 +15,29 @@ A symmetry of a crystal is determined by where it sends the reference cell.
 
 ## i. Overview
 
-Every site is a copy of a site in the reference cell. A symmetry carries each lattice step to
-another lattice step by one automorphism `A`, and it sends the reference site with label `i` to a
-site `(bᵢ, σ i)`: the labels are permuted by `σ`, and the cell of the image is shifted by `bᵢ`.
-These three pieces of data determine the symmetry,
+A crystal is a repeating pattern: every site is a copy of a site in a unit cell. Its symmetries can
+turn the lattice, permute the sites of the unit cell, and move atoms from one cell to another.
 
-`φ (n, i) = (A n + bᵢ, σ i)`,
+Despite this freedom, a symmetry is determined by three pieces of data: a lattice automorphism `A`,
+a permutation `σ` of the labels of the unit cell, and an offset `bᵢ` for each label `i`. It sends
+the site with label `i` in the cell `n` to
 
-and any such data gives a symmetry. This is how crystallographers split a symmetry into a shift of
-the atoms along the lattice and a point operation that turns the lattice and permutes the kinds of
-atom. The product of two symmetries is then read off from the data.
+`(n, i) ↦ (A n + bᵢ, σ i)`,
 
-Ignoring the shifts leaves the point operations alone, which is the point group of crystallography
-once geometry is added. The symmetries without a point operation are exactly the shifts.
+and any such data gives a symmetry. This splits every symmetry into a point operation, which turns
+the lattice and permutes the labels, followed by a shift, which moves the sites of each label along
+the lattice. The symmetry group is the semidirect product of the shifts and the point operations,
+and the product of two symmetries is read off from the data. This describes the symmetries of a
+crystal algebraically, without embedding it in Euclidean space. Once geometry is added, the point
+operations give the point group of crystallography.
 
 ## ii. Key results
 
-- `Crystal.Symmetry.ofAutPermOffset` : the symmetry `(n, i) ↦ (A n + b i, σ i)` with lattice
+- `Crystal.Symmetry.ofComponents` : the symmetry `(n, i) ↦ (A n + b i, σ i)` with lattice
   automorphism `A`, label permutation `σ` and offsets `b`.
-- `Crystal.Symmetry.eq_ofAutPermOffset` : every symmetry is of this form, with `A`, `σ` and
+- `Crystal.Symmetry.eq_ofComponents` : every symmetry is of this form, with `A`, `σ` and
   `b` its lattice automorphism, `labelHom` and `offset`.
-- `Crystal.Symmetry.ofAutPermOffset_mul` : the product is
+- `Crystal.Symmetry.ofComponents_mul` : the product is
   `(A, σ, b) * (A', σ', b') = (A + A', σ * σ', A ∘ b' + b ∘ σ')`.
 - `Crystal.Symmetry.semidirectEquiv` : the symmetry group is isomorphic to the semidirect product
   `(F → G) ⋊ (Aut G × Sym F)` of the shifts and the point operations.
@@ -95,7 +97,7 @@ lemma cell_apply (φ : Symmetry C) (x : C.Site) :
 /-! ### A.2. Symmetries from data -/
 
 /-- The permutation of the sites `⟨n, i⟩ ↦ ⟨A n + b i, σ i⟩`. -/
-def autPermOffsetEquiv (C : Crystal G) (A : G ≃+ G) (σ : Equiv.Perm C.UnitCell)
+def componentsEquiv (C : Crystal G) (A : G ≃+ G) (σ : Equiv.Perm C.UnitCell)
     (b : C.UnitCell → G) :
     C.Site ≃ C.Site where
   toFun x := ⟨A x.cell + b x.label, σ x.label⟩
@@ -104,33 +106,33 @@ def autPermOffsetEquiv (C : Crystal G) (A : G ≃+ G) (σ : Equiv.Perm C.UnitCel
   right_inv x := Site.ext (by simp) (by simp)
 
 /-- The symmetry with lattice automorphism `A`, label permutation `σ` and offsets `b`. -/
-def ofAutPermOffset (C : Crystal G) (A : G ≃+ G) (σ : Equiv.Perm C.UnitCell)
+def ofComponents (C : Crystal G) (A : G ≃+ G) (σ : Equiv.Perm C.UnitCell)
     (b : C.UnitCell → G) :
     Symmetry C :=
-  ⟨A, { toFun := autPermOffsetEquiv C A σ b
-        map_vadd' _ _ := Site.ext (by simp [autPermOffsetEquiv, Site.vadd_def, add_assoc]) rfl },
-    (autPermOffsetEquiv C A σ b).bijective⟩
+  ⟨A, { toFun := componentsEquiv C A σ b
+        map_vadd' _ _ := Site.ext (by simp [componentsEquiv, Site.vadd_def, add_assoc]) rfl },
+    (componentsEquiv C A σ b).bijective⟩
 
 /-- The symmetry with this data moves `⟨n, i⟩` to `⟨A n + b i, σ i⟩`. -/
-@[simp] lemma ofAutPermOffset_apply (x : C.Site) :
-    ofAutPermOffset C A σ b x = ⟨A x.cell + b x.label, σ x.label⟩ := rfl
+@[simp] lemma ofComponents_apply (x : C.Site) :
+    ofComponents C A σ b x = ⟨A x.cell + b x.label, σ x.label⟩ := rfl
 
-@[simp] lemma lattice_ofAutPermOffset :
-    (ofAutPermOffset C A σ b).lattice = A := rfl
+@[simp] lemma lattice_ofComponents :
+    (ofComponents C A σ b).lattice = A := rfl
 
-@[simp] lemma labelHom_ofAutPermOffset :
-    labelHom C (ofAutPermOffset C A σ b) = σ :=
+@[simp] lemma labelHom_ofComponents :
+    labelHom C (ofComponents C A σ b) = σ :=
   Equiv.ext (congrFun rfl)
 
-@[simp] lemma offset_ofAutPermOffset :
-    (ofAutPermOffset C A σ b).offset = b := by
+@[simp] lemma offset_ofComponents :
+    (ofComponents C A σ b).offset = b := by
   ext i
   show A 0 + b i = b i
   rw [map_zero, zero_add]
 
 /-- Every symmetry is given by its lattice automorphism, label permutation and offsets. -/
-lemma eq_ofAutPermOffset (φ : Symmetry C) :
-    φ = ofAutPermOffset C φ.lattice (labelHom C φ) φ.offset := by
+lemma eq_ofComponents (φ : Symmetry C) :
+    φ = ofComponents C φ.lattice (labelHom C φ) φ.offset := by
   ext x : 1
   exact apply_eq_data φ x
 
@@ -139,9 +141,9 @@ lemma eq_ofAutPermOffset (φ : Symmetry C) :
 /-- The product of two symmetries, from their data.
 `(A, σ, b) * (A', σ', b') = (A + A', σ * σ', A ∘ b' + b ∘ σ')`, where `A + A'` is the composite
 `A ∘ A'`. -/
-lemma ofAutPermOffset_mul :
-    ofAutPermOffset C A σ b * ofAutPermOffset C B τ b' =
-      ofAutPermOffset C (A + B) (σ * τ) (A ∘ b' + b ∘ τ) := by
+lemma ofComponents_mul :
+    ofComponents C A σ b * ofComponents C B τ b' =
+      ofComponents C (A + B) (σ * τ) (A ∘ b' + b ∘ τ) := by
   ext x : 1
   refine Site.ext ?_ rfl
   show A (B x.cell + b' x.label) + b (τ x.label) = (A + B) x.cell + (A (b' x.label) + b (τ x.label))
@@ -153,7 +155,7 @@ lemma ofAutPermOffset_mul :
 /-! ### B.1. Shifts -/
 
 /-- Move every site with label `i` by the lattice vector `c i`. -/
-def shift (C : Crystal G) (c : C.UnitCell → G) : Symmetry C := ofAutPermOffset C 0 1 c
+def shift (C : Crystal G) (c : C.UnitCell → G) : Symmetry C := ofComponents C 0 1 c
 
 /-- A shift does not change the lattice. -/
 @[simp] lemma lattice_shift : (shift C c).lattice = 0 := rfl
@@ -165,9 +167,9 @@ lemma shift_const (a : G) : shift C (Function.const C.UnitCell a) = translation 
 
 /-- Shifts add. -/
 lemma shift_add : shift C (c + c') = shift C c * shift C c' := by
-  show ofAutPermOffset C 0 1 (c + c') =
-    ofAutPermOffset C 0 1 c * ofAutPermOffset C 0 1 c'
-  rw [ofAutPermOffset_mul]
+  show ofComponents C 0 1 (c + c') =
+    ofComponents C 0 1 c * ofComponents C 0 1 c'
+  rw [ofComponents_mul]
   simp [add_comm]
 
 /-! ### B.2. Point operations -/
@@ -175,7 +177,7 @@ lemma shift_add : shift C (c + c') = shift C c * shift C c' := by
 /-- Apply the lattice automorphism `A` to the cells and permute the labels within the cells by
 `σ`. -/
 def linear (C : Crystal G) (A : G ≃+ G) (σ : Equiv.Perm C.UnitCell) : Symmetry C :=
-  ofAutPermOffset C A σ 0
+  ofComponents C A σ 0
 
 /-- The lattice part of a point operation is its lattice automorphism. -/
 @[simp] lemma lattice_linear :
@@ -189,32 +191,32 @@ def linear (C : Crystal G) (A : G ≃+ G) (σ : Equiv.Perm C.UnitCell) : Symmetr
 /-- Point operations compose. -/
 lemma linear_add_mul :
     linear C (A + B) (σ * τ) = linear C A σ * linear C B τ := by
-  show ofAutPermOffset C (A + B) (σ * τ) 0 =
-    ofAutPermOffset C A σ 0 * ofAutPermOffset C B τ 0
-  rw [ofAutPermOffset_mul]
+  show ofComponents C (A + B) (σ * τ) 0 =
+    ofComponents C A σ 0 * ofComponents C B τ 0
+  rw [ofComponents_mul]
   simp
 
 /-! ### B.3. Composites -/
 
 /-- A shift followed by a point operation is the symmetry with offsets `c ∘ σ`. -/
 lemma shift_mul_linear :
-    shift C c * linear C A σ = ofAutPermOffset C A σ (c ∘ σ) := by
-  show ofAutPermOffset C 0 1 c * ofAutPermOffset C A σ 0 = _
-  rw [ofAutPermOffset_mul]
+    shift C c * linear C A σ = ofComponents C A σ (c ∘ σ) := by
+  show ofComponents C 0 1 c * ofComponents C A σ 0 = _
+  rw [ofComponents_mul]
   simp
 
 @[simp] lemma labelHom_shift_mul_linear : labelHom C (shift C c * linear C A σ) = σ := by
-  rw [shift_mul_linear, labelHom_ofAutPermOffset]
+  rw [shift_mul_linear, labelHom_ofComponents]
 
 @[simp] lemma offset_shift_mul_linear : (shift C c * linear C A σ).offset = c ∘ σ := by
-  rw [shift_mul_linear, offset_ofAutPermOffset]
+  rw [shift_mul_linear, offset_ofComponents]
 
 /-- The product of shifts and point operations. With `A + B` the composite `A ∘ B`,
 `(c, A, σ) * (c', B, τ) = (c + A ∘ c' ∘ σ⁻¹, A + B, σ * τ)`. -/
 lemma shift_mul_linear_mul :
     (shift C c * linear C A σ) * (shift C c' * linear C B τ) =
       shift C (c + A ∘ c' ∘ σ.symm) * linear C (A + B) (σ * τ) := by
-  rw [shift_mul_linear, shift_mul_linear, shift_mul_linear, ofAutPermOffset_mul]
+  rw [shift_mul_linear, shift_mul_linear, shift_mul_linear, ofComponents_mul]
   congr 1
   ext i
   simp [add_comm]
@@ -236,7 +238,7 @@ lemma eq_shift_mul_linear (φ : Symmetry C) :
     ext i
     simp
   rw [shift_mul_linear, h]
-  exact eq_ofAutPermOffset φ
+  exact eq_ofComponents φ
 
 /-- The symmetry group of a crystal is the semidirect product of the shifts of each label with
 the lattice automorphisms and label permutations. -/
