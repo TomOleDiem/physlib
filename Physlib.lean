@@ -278,7 +278,8 @@ public import Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.ZMod
 public import Physlib.Particles.SuperSymmetry.SU5.FieldLabels
 public import Physlib.Particles.SuperSymmetry.SU5.Potential
 public import Physlib.ProbabilisticTheory.Channel.Basic
-public import Physlib.ProbabilisticTheory.Channel.Symmetry
+public import Physlib.ProbabilisticTheory.Channel.Covariant
+public import Physlib.ProbabilisticTheory.Channel.Reversible
 public import Physlib.ProbabilisticTheory.Effect.Basic
 public import Physlib.ProbabilisticTheory.Effect.Complement
 public import Physlib.ProbabilisticTheory.Effect.Convex
