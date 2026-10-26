@@ -15,21 +15,20 @@ A symmetry of a crystal is determined by where it sends the reference cell.
 
 ## i. Overview
 
-A crystal is a repeating pattern: every site is a copy of a site in a unit cell. Its symmetries can
-turn the lattice, permute the sites of the unit cell, and move atoms from one cell to another.
+A crystal is built by repeating a unit cell across a lattice. Its symmetries may transform the
+lattice, permute the sites within the unit cell or move them between cells.
 
-Despite this freedom, a symmetry is determined by three pieces of data: a lattice automorphism `A`,
-a permutation `σ` of the labels of the unit cell, and an offset `bᵢ` for each label `i`. It sends
-the site with label `i` in the cell `n` to
+Remarkably, every symmetry is determined by just three ingredients: a lattice automorphism `A`, a
+permutation `σ` of the unit-cell labels and an offset `bᵢ` for each label. Together they describe
+the action on any site:
 
-`(n, i) ↦ (A n + bᵢ, σ i)`,
+`(n, i) ↦ (A n + bᵢ, σ i)`.
 
-and any such data gives a symmetry. This splits every symmetry into a point operation, which turns
-the lattice and permutes the labels, followed by a shift, which moves the sites of each label along
-the lattice. The symmetry group is the semidirect product of the shifts and the point operations,
-and the product of two symmetries is read off from the data. This describes the symmetries of a
-crystal algebraically, without embedding it in Euclidean space. Once geometry is added, the point
-operations give the point group of crystallography.
+This allows every symmetry to be decomposed into a shift and a point operation. The symmetry group
+is consequently a semidirect product of these two groups.
+
+The construction is entirely algebraic and requires no embedding into Euclidean space. It provides
+the foundation for studying crystallographic symmetries once geometry is introduced.
 
 ## ii. Key results
 
