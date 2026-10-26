@@ -71,8 +71,10 @@ lemma isIntertwining_id : IsIntertwining ρ ρ (.id ℝ E) := by
   intro _ _
   rfl
 
+namespace IsIntertwining
+
 /-- The composition of intertwining channels also intertwines the group actions. -/
-lemma IsIntertwining.comp {H : Type*} [OrderUnitSpace H] {τ : G →* Reversible H H}
+lemma comp {H : Type*} [OrderUnitSpace H] {τ : G →* Reversible H H}
     {Φ : E →ₚ₁[ℝ] F} {Ψ : F →ₚ₁[ℝ] H} (hΦ : IsIntertwining ρ σ Φ)
     (hΨ : IsIntertwining σ τ Ψ) : IsIntertwining ρ τ (Ψ.comp Φ) := by
   intro g x
@@ -81,7 +83,7 @@ lemma IsIntertwining.comp {H : Type*} [OrderUnitSpace H] {τ : G →* Reversible
 /-! ### B.2. Invariant states -/
 
 /-- Pulling back an invariant state along an intertwining channel preserves invariance. -/
-lemma IsIntertwining.comap_isInvariant {Φ : E →ₚ₁[ℝ] F} (h : IsIntertwining ρ σ Φ)
+lemma comap_isInvariant {Φ : E →ₚ₁[ℝ] F} (h : IsIntertwining ρ σ Φ)
     {ω : 𝓢[ℝ, F]} (hω : IsInvariant σ ω) :
     IsInvariant ρ (UnitalPositiveLinearMap.comap Φ ω) := by
   intro g
@@ -92,6 +94,8 @@ lemma IsIntertwining.comap_isInvariant {Φ : E →ₚ₁[ℝ] F} (h : IsIntertwi
   change ω (Φ ((ρ g).symm x)) = ω (Φ x)
   rw [h1]
   exact h2
+
+end IsIntertwining
 
 /-! ## C. Transport of group actions -/
 
