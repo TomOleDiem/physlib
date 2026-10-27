@@ -7,6 +7,7 @@ module
 
 public import Physlib.CondensedMatter.Crystal.Embedding
 public import Physlib.CondensedMatter.Crystal.Symmetries
+public import Mathlib.Tactic.Abel
 
 /-!
 # Isometries of an embedded crystal
@@ -30,6 +31,8 @@ distance, it suffices to compare the distances from the sites of the reference c
 - `Embedding.isometries`: The crystal symmetries that preserve distances between positions.
 - `Embedding.translations_le_isometries`: Translations are isometries.
 - `Embedding.norm_vector_lattice`: An isometry preserves the lengths of the translation vectors.
+- `Embedding.mem_isometries_iff_components`: A symmetry is an isometry exactly when a condition
+  on pairs of labels and cell differences holds.
 - `Embedding.mem_isometries_iff_referenceCell`: A symmetry is an isometry exactly when it
   preserves the distances from the sites of the reference cell.
 
@@ -37,7 +40,8 @@ distance, it suffices to compare the distances from the sites of the reference c
 
 - A. Distance-preserving symmetries
 - B. Lengths of the translation vectors
-- C. Checking on the reference cell
+- C. Coordinates of an isometry
+- D. Checking on the reference cell
 
 ## iv. References
 
@@ -90,7 +94,45 @@ lemma norm_vector_lattice (hφ : φ ∈ R.isometries) (a : G) :
   have h := hφ (a +ᵥ ⟨0, Classical.arbitrary C.UnitCell⟩) ⟨0, Classical.arbitrary C.UnitCell⟩
   rwa [Symmetry.map_vadd, R.dist_position_vadd_self, R.dist_position_vadd_self] at h
 
-/-! ## C. Checking on the reference cell -/
+/-! ## C. Coordinates of an isometry -/
+
+/-- The distance between the positions of two sites, in terms of their cells and labels. -/
+lemma dist_position (x y : C.Site) : dist (R.position x) (R.position y) =
+    ‖R.vector (x.cell - y.cell) + R.basis x.label - R.basis y.label‖ := by
+  rw [dist_eq_norm, Embedding.position, Embedding.position, map_sub]
+  congr 1
+  abel
+
+/-- A symmetry moves the position of a site by the vector of the lattice automorphism applied to
+its cell, starting from the position of the image of the same label in the reference cell. -/
+lemma position_apply (x : C.Site) : R.position (φ x) =
+    R.vector (φ.lattice x.cell) + R.position (φ ⟨0, x.label⟩) := by
+  conv_lhs => rw [show x = x.cell +ᵥ (⟨0, x.label⟩ : C.Site) from Site.ext (by simp) rfl]
+  rw [Symmetry.map_vadd, R.position_vadd]
+
+/-- The distance between the images of two sites depends on their cells only through the
+difference of the cells. -/
+lemma dist_position_apply (x y : C.Site) : dist (R.position (φ x)) (R.position (φ y)) =
+    ‖R.vector (φ.lattice (x.cell - y.cell)) + R.position (φ ⟨0, x.label⟩) -
+      R.position (φ ⟨0, y.label⟩)‖ := by
+  rw [dist_eq_norm, R.position_apply (φ := φ) x, R.position_apply (φ := φ) y, map_sub, map_sub]
+  congr 1
+  abel
+
+/-- A symmetry is an isometry exactly when, for every pair of labels and every cell difference `d`,
+the vector from the image of `j` to the image of `i` shifted by the lattice step `d` has the
+same length as before. -/
+lemma mem_isometries_iff_components : φ ∈ R.isometries ↔ ∀ (i j : C.UnitCell) (d : G),
+    ‖R.vector (φ.lattice d) + R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩)‖ =
+      ‖R.vector d + R.basis i - R.basis j‖ := by
+  refine ⟨fun h i j d => ?_, fun h x y => ?_⟩
+  · have := h ⟨d, i⟩ ⟨0, j⟩
+    rw [dist_position_apply, dist_position] at this
+    simpa only [sub_zero] using this
+  · rw [dist_position_apply, dist_position]
+    exact h _ _ _
+
+/-! ## D. Checking on the reference cell -/
 
 /-- A symmetry is an isometry exactly when it preserves the distances from the sites of the
 reference cell to all sites. -/
