@@ -16,14 +16,11 @@ The space group of a crystal whose sites sit at lattice points is symmorphic.
 
 ## i. Overview
 
-Take a crystal whose atoms sit on the points of the lattice itself, with one atom per cell and
-the origin on an atom. This is a Bravais lattice: a square lattice, a triangular lattice, and so
-on. Every rotation or reflection that maps the lattice to itself fixes the origin and carries
-atoms to atoms, so it is a symmetry of the crystal by itself.
-
-Hence all rotations and reflections of the point group are symmetries about the same point, and the
-space group is symmorphic. More generally this holds whenever the position of each atom of the unit
-cell is itself a lattice vector, since then the atoms still form the lattice.
+The space group of a crystal whose sites sit at lattice points is symmorphic. This includes the
+Bravais lattices with one site per cell, placed at the origin. Every element of the point group
+maps the lattice onto itself, so it is an affine isometry that preserves the set of sites and
+fixes the origin. All point operations are thus realised about one common point, and by the
+criterion of `Crystal.Symmetry.Symmorphic` the space group is symmorphic.
 
 ## ii. Key results
 
