@@ -143,6 +143,11 @@ lemma mem_isometries_iff_components : φ ∈ R.isometries ↔ ∀ (i j : C.UnitC
   · rw [dist_position_apply, dist_position]
     exact h _ _ _
 
+/-- An isometry preserves the lengths of the differences of the positions of the labels. -/
+lemma norm_position_sub (hφ : φ ∈ R.isometries) (i j : C.UnitCell) :
+    ‖R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩)‖ = ‖R.basis i - R.basis j‖ := by
+  simpa [Embedding.position] using R.mem_isometries_iff_components.1 hφ i j 0
+
 /-! ## D. Checking on the reference cell -/
 
 /-- A symmetry is an isometry exactly when it preserves the distances from the sites of the
@@ -189,6 +194,16 @@ lemma inner_vector_lattice_of_generators {S : Set G} (hS : AddSubgroup.closure S
   | zero => simp
   | add x y _ _ hx hy => simp [map_add, inner_add_left, hx, hy]
   | neg x _ hx => simp [inner_neg_left, hx]
+/-- An isometry preserves the inner products of the translation vectors with the differences of
+the label positions. -/
+lemma inner_lattice_position (hφ : φ ∈ R.isometries) (i j : C.UnitCell) (d : G) :
+    inner ℝ (R.vector (φ.lattice d)) (R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩)) =
+      inner ℝ (R.vector d) (R.basis i - R.basis j) := by
+  have := congrArg (· ^ 2) (R.mem_isometries_iff_components.1 hφ i j d)
+  simp only [add_sub_assoc, norm_add_sq_real, R.norm_vector_lattice hφ,
+    R.norm_position_sub hφ] at this
+  simpa [Embedding.position] using this
+
 /-- **Finite check for an isometry.** In an inner product space, a symmetry is an isometry exactly
 when it preserves the inner products of the vectors of a generating set of lattice steps, the
 lengths of the differences of the label positions, and the inner products of the generator
@@ -201,36 +216,30 @@ lemma mem_isometries_iff_generators {S : Set G} (hS : AddSubgroup.closure S = �
       (∀ i j, ∀ s ∈ S, inner ℝ (R.vector (φ.lattice s))
         (R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩)) =
           inner ℝ (R.vector s) (R.basis i - R.basis j)) := by
+  refine ⟨fun h => ⟨fun s _ s' _ => R.inner_vector_lattice_of_norm (R.norm_vector_lattice h) s s',
+    R.norm_position_sub h, fun i j s _ => R.inner_lattice_position h i j s⟩, ?_⟩
+  rintro ⟨h₁, h₂, h₃⟩
   rw [mem_isometries_iff_components]
-  simp only [add_sub_assoc]
-  constructor
-  · intro h
-    have hn : ∀ d, ‖R.vector (φ.lattice d)‖ = ‖R.vector d‖ := fun d => by
-      simpa using h (Classical.arbitrary C.UnitCell) (Classical.arbitrary C.UnitCell) d
-    have hP : ∀ i j, ‖R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩)‖ = ‖R.basis i - R.basis j‖ :=
-      fun i j => by simpa [Embedding.position] using h i j 0
-    refine ⟨fun s _ s' _ => R.inner_vector_lattice_of_norm hn s s', hP, fun i j s _ => ?_⟩
-    have := congrArg (· ^ 2) (h i j s)
-    simp only [norm_add_sq_real, hn, hP] at this
-    simpa [Embedding.position] using this
-  · rintro ⟨h₁, h₂, h₃⟩ i j d
-    have hinner := R.inner_vector_lattice_of_generators hS φ.lattice h₁
-    have hn : ∀ d, ‖R.vector (φ.lattice d)‖ = ‖R.vector d‖ := fun d => by
-      have := hinner d d
-      rw [real_inner_self_eq_norm_sq, real_inner_self_eq_norm_sq] at this
-      exact (sq_eq_sq₀ (norm_nonneg _) (norm_nonneg _)).1 this
-    have h₃' : ∀ i j d, inner ℝ (R.vector (φ.lattice d))
-        (R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩)) =
-          inner ℝ (R.vector d) (R.basis i - R.basis j) := by
-      intro i j d
-      have hd : d ∈ AddSubgroup.closure S := hS ▸ AddSubgroup.mem_top d
-      induction hd using AddSubgroup.closure_induction with
-      | mem s hs => exact h₃ i j s hs
-      | zero => simp
-      | add x y _ _ hx hy => simp [map_add, inner_add_left, hx, hy]
-      | neg x _ hx => simp [inner_neg_left, hx]
-    refine (sq_eq_sq₀ (norm_nonneg _) (norm_nonneg _)).1 ?_
-    rw [norm_add_sq_real, norm_add_sq_real, hn, h₂ i j, h₃' i j d]
+  intro i j d
+  have hinner := R.inner_vector_lattice_of_generators hS φ.lattice h₁
+  have hn : ∀ d, ‖R.vector (φ.lattice d)‖ = ‖R.vector d‖ := fun d => by
+    have := hinner d d
+    rw [real_inner_self_eq_norm_sq, real_inner_self_eq_norm_sq] at this
+    exact (sq_eq_sq₀ (norm_nonneg _) (norm_nonneg _)).1 this
+  have h₃' : ∀ d, inner ℝ (R.vector (φ.lattice d))
+      (R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩)) =
+        inner ℝ (R.vector d) (R.basis i - R.basis j) := by
+    intro d
+    have hd : d ∈ AddSubgroup.closure S := hS ▸ AddSubgroup.mem_top d
+    induction hd using AddSubgroup.closure_induction with
+    | mem s hs => exact h₃ i j s hs
+    | zero => simp
+    | add x y _ _ hx hy => simp [map_add, inner_add_left, hx, hy]
+    | neg x _ hx => simp [inner_neg_left, hx]
+  rw [add_sub_assoc, add_sub_assoc]
+  refine (sq_eq_sq₀ (norm_nonneg _) (norm_nonneg _)).1 ?_
+  rw [norm_add_sq_real, norm_add_sq_real, hn, h₂ i j, h₃' d]
+
 /-- **Finite check in components.** The symmetry with lattice automorphism `A`, label permutation
 `σ` and offsets `b` is an isometry exactly when the finitely many conditions of
 `mem_isometries_iff_generators` hold for `A`, `σ` and `b`. -/
