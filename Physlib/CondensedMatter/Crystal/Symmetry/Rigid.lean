@@ -69,15 +69,17 @@ section LinearIsometry
 
 variable {ι E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E] {u w : ι → E}
 
+open RealInnerProductSpace
+
 /-- Linear combinations of families with the same inner products have the same inner products. -/
-lemma inner_linearCombination_eq (h : ∀ a b, inner ℝ (w a) (w b) = inner ℝ (u a) (u b))
-    (c c' : ι →₀ ℝ) : inner ℝ (Finsupp.linearCombination ℝ w c) (Finsupp.linearCombination ℝ w c') =
-      inner ℝ (Finsupp.linearCombination ℝ u c) (Finsupp.linearCombination ℝ u c') := by
+lemma inner_linearCombination_eq (h : ∀ a b, ⟪w a, w b⟫ = ⟪u a, u b⟫)
+    (c c' : ι →₀ ℝ) : ⟪Finsupp.linearCombination ℝ w c, Finsupp.linearCombination ℝ w c'⟫ =
+      ⟪Finsupp.linearCombination ℝ u c, Finsupp.linearCombination ℝ u c'⟫ := by
   simp [Finsupp.linearCombination_apply, Finsupp.sum_inner, Finsupp.inner_sum,
     real_inner_smul_left, real_inner_smul_right, h]
 
 /-- A linear combination of `w` vanishes when the same combination of `u` does. -/
-lemma linearCombination_eq_zero (h : ∀ a b, inner ℝ (w a) (w b) = inner ℝ (u a) (u b))
+lemma linearCombination_eq_zero (h : ∀ a b, ⟪w a, w b⟫ = ⟪u a, u b⟫)
     {c : ι →₀ ℝ} (hc : Finsupp.linearCombination ℝ u c = 0) :
     Finsupp.linearCombination ℝ w c = 0 := by
   have := inner_linearCombination_eq h c c
@@ -91,7 +93,7 @@ lemma linearCombination_surjective (hu : Submodule.span ℝ (Set.range u) = ⊤)
 
 /-- A linear map carries the linear combinations of `u` to those of `w`. -/
 lemma exists_linearMap_comp (hu : Submodule.span ℝ (Set.range u) = ⊤)
-    (h : ∀ a b, inner ℝ (w a) (w b) = inner ℝ (u a) (u b)) :
+    (h : ∀ a b, ⟪w a, w b⟫ = ⟪u a, u b⟫) :
     ∃ T : E →ₗ[ℝ] E,
       ∀ c, T (Finsupp.linearCombination ℝ u c) = Finsupp.linearCombination ℝ w c := by
   obtain ⟨s, hs⟩ := (Finsupp.linearCombination ℝ u).exists_rightInverse_of_surjective
@@ -105,10 +107,10 @@ lemma exists_linearMap_comp (hu : Submodule.span ℝ (Set.range u) = ⊤)
 /-- Two spanning families with the same inner products differ by a linear isometry. -/
 lemma exists_linearIsometryEquiv [FiniteDimensional ℝ E]
     (hu : Submodule.span ℝ (Set.range u) = ⊤)
-    (h : ∀ a b, inner ℝ (w a) (w b) = inner ℝ (u a) (u b)) :
+    (h : ∀ a b, ⟪w a, w b⟫ = ⟪u a, u b⟫) :
     ∃ L : E ≃ₗᵢ[ℝ] E, ∀ a, L (u a) = w a := by
   obtain ⟨T, hT⟩ := exists_linearMap_comp hu h
-  have hinner : ∀ x y, inner ℝ (T x) (T y) = inner ℝ x y := fun x y => by
+  have hinner : ∀ x y, ⟪T x, T y⟫ = ⟪x, y⟫ := fun x y => by
     obtain ⟨c, rfl⟩ := linearCombination_surjective hu x
     obtain ⟨c', rfl⟩ := linearCombination_surjective hu y
     rw [hT, hT, inner_linearCombination_eq h]
@@ -185,12 +187,14 @@ section InnerProduct
 
 variable [InnerProductSpace ℝ E] {φ : Symmetry C} {L : E ≃ₗᵢ[ℝ] E}
 
+open RealInnerProductSpace
+
 /-- A linear isometry that agrees with a distance-preserving symmetry on the translation vectors
 carries the inner products with the images of the translation vectors to those with the vectors,
 on all of space. -/
 lemma inner_linear_eq (hR : R.IsSpaceFilling) (hL : ∀ a, L (R.vector a) = R.vector (φ.lattice a))
-    {P Q : E} (h : ∀ d, inner ℝ (R.vector (φ.lattice d)) P = inner ℝ (R.vector d) Q) (x : E) :
-    inner ℝ (L x) P = inner ℝ x Q := by
+    {P Q : E} (h : ∀ d, ⟪R.vector (φ.lattice d), P⟫ = ⟪R.vector d, Q⟫) (x : E) :
+    ⟪L x, P⟫ = ⟪x, Q⟫ := by
   have := LinearMap.ext_on (f := (innerSL ℝ P).toLinearMap ∘ₗ L.toLinearMap)
     (g := (innerSL ℝ Q).toLinearMap) hR (by
       rintro _ ⟨d, rfl⟩
@@ -201,10 +205,10 @@ lemma inner_linear_eq (hR : R.IsSpaceFilling) (hL : ∀ a, L (R.vector a) = R.ve
 carries the differences of the label positions to their images. -/
 lemma position_sub_eq_linear (hR : R.IsSpaceFilling) (hφ : φ ∈ R.isometries)
     (hL : ∀ a, L (R.vector a) = R.vector (φ.lattice a)) (i j : C.UnitCell) :
-    R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩) = L (R.basis i - R.basis j) := by
-  set z := R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩) - L (R.basis i - R.basis j)
+    R.imageSub φ i j = L (R.basisSub i j) := by
+  set z := R.imageSub φ i j - L (R.basisSub i j)
   have h0 := R.inner_linear_eq hR hL (R.inner_lattice_position hφ i j) (L.symm z)
-  have h1 := L.inner_map_map (L.symm z) (R.basis i - R.basis j)
+  have h1 := L.inner_map_map (L.symm z) (R.basisSub i j)
   rw [L.apply_symm_apply] at h0 h1
   rw [← sub_eq_zero]
   refine (inner_self_eq_zero (𝕜 := ℝ)).1 ?_
