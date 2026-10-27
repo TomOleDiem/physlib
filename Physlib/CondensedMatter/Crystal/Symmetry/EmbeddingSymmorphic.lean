@@ -16,14 +16,14 @@ The space group of a crystal whose sites sit at lattice points is symmorphic.
 
 ## i. Overview
 
-Suppose the position of every label of the unit cell is a lattice vector, as for a Bravais lattice
-with one site per cell placed at the origin. Then the set of positions is the lattice, and the
-embedding is primitive: a translation preserves the lattice exactly when its vector is a lattice
-vector.
+Take a crystal whose atoms sit on the points of the lattice itself, with one atom per cell and
+the origin on an atom. This is a Bravais lattice: a square lattice, a triangular lattice, and so
+on. Every rotation or reflection that maps the lattice to itself fixes the origin and carries
+atoms to atoms, so it is a symmetry of the crystal by itself.
 
-Every element of the point group maps the lattice onto itself, so it is itself an affine isometry
-that preserves the positions and fixes the origin. Hence all point operations are realised by
-elements of the space group about the origin, and the space group is symmorphic.
+Hence all rotations and reflections of the point group are symmetries about the same point, and the
+space group is symmorphic. More generally this holds whenever the position of each atom of the unit
+cell is itself a lattice vector, since then the atoms still form the lattice.
 
 ## ii. Key results
 

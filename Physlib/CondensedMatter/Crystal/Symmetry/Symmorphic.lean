@@ -16,16 +16,22 @@ common origin.
 
 ## i. Overview
 
-Let `S` be a group of affine isometries of a real normed space, for example the space group of a
-crystal. It is an extension of its point group by its translations. The group `S` is symmorphic if
-this extension splits: the point operations are realised by elements of `S` compatibly with the
-product, so that `S` is a semidirect product of its point group acting on its translations.
+In some crystals all the rotations and mirrors pass through one common point. A square lattice
+with an atom at each site is of this kind: the quarter turns and the mirrors all fix an atom, and
+the shifts are then independent of them. Such a crystal is symmorphic, and its space group is the
+lattice shifts together with the rotations about that point.
 
-A finite group of affine isometries fixes a point, the centre of any of its orbits. Hence a
-splitting provides a common origin about which every point operation is a symmetry. Conversely, the
-elements of `S` that fix a given origin map injectively to the point group, since an isometry that
-fixes the origin and has trivial linear part is the identity. So `S` is symmorphic exactly when its
-point operations are realised by elements of `S` fixing a common point.
+Others are not. In a crystal with a glide, a mirror has to be combined with a shift by half a
+lattice step, and no choice of origin makes the mirror alone a symmetry. Then no point is fixed by
+a mirror and a shift together.
+
+For a group of rigid motions, the shifts form a normal subgroup and the quotient is the point
+group. The group is symmorphic if this extension splits: the rotations and reflections of the point
+group can be chosen as elements of the group, compatibly with products. A finite group of rigid
+motions fixes a point, the centre of any orbit, so a splitting gives a common origin about which
+every rotation and reflection is a symmetry. Conversely, motions that fix a given origin are
+determined by their rotation or reflection. So the group is symmorphic exactly when its
+rotations and reflections are all realised by motions fixing one point.
 
 ## ii. Key results
 
