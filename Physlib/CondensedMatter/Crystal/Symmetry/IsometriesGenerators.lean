@@ -27,8 +27,9 @@ products of the translation vectors of the generators, and for the finitely many
 
 - `Crystal.Embedding.InnerEqOn` : a lattice automorphism preserves the inner products of the
   translation vectors of a set of steps.
+- `Crystal.Embedding.GeneratorCheck` : three conditions on a generating set and on the labels.
 - `Crystal.Embedding.mem_isometries_iff_generators` : a symmetry is an isometry exactly when it
-  satisfies three conditions on generators and labels.
+  satisfies the check on generators.
 
 ## iii. Table of contents
 
@@ -111,26 +112,36 @@ lemma inner_lattice_position (hφ : φ ∈ R.isometries) (i j : C.UnitCell) (d :
   simp only [norm_add_sq_real, R.norm_vector_lattice hφ, R.norm_imageSub hφ] at this
   simpa using this
 
-/-- **A symmetry is an isometry exactly when its lattice automorphism preserves the inner products
-on a generating set, and the differences of the label positions have the right lengths and inner
-products with the generators.** -/
+/-- The conditions on generators and labels that characterise the isometries: the lattice
+automorphism preserves the inner products on the generators, and the differences of the label
+positions have the right lengths and inner products with the generators. -/
+def GeneratorCheck (S : Set G) (φ : Symmetry C) : Prop :=
+  R.InnerEqOn S φ.lattice ∧ (∀ i j, ‖R.imageSub φ i j‖ = ‖R.basis i - R.basis j‖) ∧
+    ∀ i j, ∀ s ∈ S, ⟪R.vector (φ.lattice s), R.imageSub φ i j⟫ =
+      ⟪R.vector s, R.basis i - R.basis j⟫
+
+/-- An isometry satisfies the check on generators. -/
+lemma generatorCheck_of_mem (S : Set G) (h : φ ∈ R.isometries) : R.GeneratorCheck S φ := by
+  refine ⟨?_, R.norm_imageSub h, ?_⟩
+  · intro s _ s' _
+    exact R.inner_vector_lattice_of_norm (R.norm_vector_lattice h) s s'
+  · intro i j s _
+    exact R.inner_lattice_position h i j s
+
+/-- A symmetry that satisfies the check on generators is an isometry. -/
+lemma mem_of_generatorCheck {S : Set G} (hS : AddSubgroup.closure S = ⊤)
+    (h : R.GeneratorCheck S φ) : φ ∈ R.isometries := by
+  obtain ⟨h₁, h₂, h₃⟩ := h
+  rw [mem_isometries_iff_components]
+  intro i j d
+  refine (sq_eq_sq₀ (norm_nonneg _) (norm_nonneg _)).1 ?_
+  rw [norm_add_sq_real, norm_add_sq_real, R.norm_vector_lattice_of_generators hS h₁, h₂ i j,
+    R.inner_vector_lattice_of_generators_vec hS φ.lattice (h₃ i j) d]
+
+/-- **A symmetry is an isometry exactly when it satisfies the check on generators.** -/
 lemma mem_isometries_iff_generators {S : Set G} (hS : AddSubgroup.closure S = ⊤) :
-    φ ∈ R.isometries ↔ R.InnerEqOn S φ.lattice ∧ (∀ i j, ‖R.imageSub φ i j‖ =
-      ‖R.basis i - R.basis j‖) ∧ ∀ i j, ∀ s ∈ S, ⟪R.vector (φ.lattice s), R.imageSub φ i j⟫ =
-        ⟪R.vector s, R.basis i - R.basis j⟫ := by
-  constructor
-  · intro h
-    refine ⟨?_, R.norm_imageSub h, ?_⟩
-    · intro s _ s' _
-      exact R.inner_vector_lattice_of_norm (R.norm_vector_lattice h) s s'
-    · intro i j s _
-      exact R.inner_lattice_position h i j s
-  · rintro ⟨h₁, h₂, h₃⟩
-    rw [mem_isometries_iff_components]
-    intro i j d
-    refine (sq_eq_sq₀ (norm_nonneg _) (norm_nonneg _)).1 ?_
-    rw [norm_add_sq_real, norm_add_sq_real, R.norm_vector_lattice_of_generators hS h₁, h₂ i j,
-      R.inner_vector_lattice_of_generators_vec hS φ.lattice (h₃ i j) d]
+    φ ∈ R.isometries ↔ R.GeneratorCheck S φ :=
+  ⟨R.generatorCheck_of_mem S, R.mem_of_generatorCheck hS⟩
 
 end Embedding
 

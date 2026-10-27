@@ -75,9 +75,7 @@ def isometries : Subgroup (Symmetry C) where
     rw [Symmetry.mul_apply, Symmetry.mul_apply, hφ, hψ]
   inv_mem' {φ} hφ := by
     intro x y
-    have := hφ (φ⁻¹ x) (φ⁻¹ y)
-    rw [Symmetry.apply_inv_apply, Symmetry.apply_inv_apply] at this
-    exact this.symm
+    simpa using (hφ (φ⁻¹ x) (φ⁻¹ y)).symm
 
 /-- A symmetry is an isometry when it preserves the distance between any two sites. -/
 lemma mem_isometries_iff : φ ∈ R.isometries ↔
