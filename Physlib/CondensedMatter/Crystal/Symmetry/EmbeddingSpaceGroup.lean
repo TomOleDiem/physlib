@@ -7,7 +7,6 @@ module
 
 public import Physlib.CondensedMatter.Crystal.Embedding
 public import Physlib.CondensedMatter.Crystal.Symmetry.AffineIsometries
-public import Mathlib.Analysis.Normed.Affine.MazurUlam
 
 /-!
 # Space group of an embedded crystal
@@ -17,16 +16,12 @@ The affine isometries of space that map the positions of an embedded crystal ont
 ## i. Overview
 
 An embedding places the sites of a crystal in a real normed space `E`. Its space group consists
-of the affine isometries of `E` that map the set of positions onto itself. By the Mazur–Ulam
-theorem, these are all the isometries of `E` that preserve the placed crystal.
+of the affine isometries of `E` that map the set of positions onto itself.
 
-Every affine isometry has a linear part, and taking it is a homomorphism whose kernel is the group
-of translations of `E`. The point group consists of the linear parts of the space group, so the
-space group modulo its translations is the point group. The embedding is primitive if its lattice
-vectors are exactly the translations that preserve the positions.
-
-This file studies the group in space. Its relation to the symmetries of the abstract crystal is
-studied in `Crystal.Symmetry.Rigid`.
+As a subgroup of the affine isometries, it is an extension of its point group, the group of its
+linear parts, by its translations. The embedding is primitive if its lattice vectors are exactly
+the translations that preserve the positions. Then the point group maps the lattice vectors to
+lattice vectors.
 
 ## ii. Key results
 
@@ -36,8 +31,6 @@ studied in `Crystal.Symmetry.Rigid`.
 - `Crystal.Embedding.exists_lattice_vector_eq_linear` : the linear part of an element of the space
   group of a primitive embedding maps lattice vectors to lattice vectors.
 - `Crystal.Embedding.pointGroup` : the linear parts of the space group.
-- `Crystal.Embedding.spaceGroupQuotientEquiv` : the space group modulo its translations is the
-  point group.
 
 ## iii. Table of contents
 
@@ -61,12 +54,11 @@ variable {G : Type*} [AddCommGroup G] [AddGroup.FG G]
 namespace Embedding
 
 variable {C : Crystal G} {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
-  (R : Embedding C E)
+  (R : Embedding C E) {ψ : E ≃ᵃⁱ[ℝ] E}
 
 /-! ## A. The space group -/
 
-/-- The affine isometries that map the set of positions onto itself. By the Mazur–Ulam theorem,
-these are all the isometries of `E` that preserve the placed crystal. -/
+/-- The affine isometries that map the set of positions onto itself. -/
 def spaceGroup : Subgroup (E ≃ᵃⁱ[ℝ] E) where
   carrier := {ψ | ψ '' Set.range R.position = Set.range R.position}
   one_mem' := by simp
@@ -77,6 +69,11 @@ def spaceGroup : Subgroup (E ≃ᵃⁱ[ℝ] E) where
     show ⇑ψ.symm '' Set.range R.position = Set.range R.position
     conv_lhs => rw [← show ψ '' Set.range R.position = Set.range R.position from hψ]
     exact ψ.toEquiv.symm_image_image _
+
+/-- An affine isometry is in the space group when it maps the positions onto themselves. -/
+lemma mem_spaceGroup_iff :
+    ψ ∈ R.spaceGroup ↔ ψ '' Set.range R.position = Set.range R.position :=
+  Iff.rfl
 
 /-- The embedding is primitive if its lattice vectors are exactly the translations that map the set
 of positions onto itself. -/
@@ -95,18 +92,6 @@ lemma exists_lattice_vector_eq_linear (hprim : R.IsPrimitive) (hψ : ψ ∈ R.sp
 
 /-- The point group: the linear parts of the space group. -/
 noncomputable def pointGroup : Subgroup (E ≃ₗᵢ[ℝ] E) := R.spaceGroup.map linearHom
-
-/-- The kernel of the linear part on the space group is the group of its translations. -/
-lemma ker_domRestrict_linearHom :
-    (linearHom.domRestrict R.spaceGroup).ker =
-      (translationHom (E := E)).range.subgroupOf R.spaceGroup := by
-  rw [MonoidHom.ker_domRestrict, ker_linearHom]
-
-/-- **The space group modulo its translations is the point group.** -/
-noncomputable def spaceGroupQuotientEquiv :
-    R.spaceGroup ⧸ (linearHom.domRestrict R.spaceGroup).ker ≃* R.pointGroup :=
-  (QuotientGroup.quotientKerEquivRange _).trans
-    (MulEquiv.subgroupCongr (MonoidHom.domRestrict_range _ _))
 
 end Embedding
 
