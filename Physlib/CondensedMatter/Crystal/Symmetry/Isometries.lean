@@ -15,7 +15,7 @@ public import Mathlib.Tactic.Abel
 An embedding assigns a position to each crystal site. This file studies the crystal symmetries
 that preserve distances between those positions.
 
-## Overview
+## i. Overview
 
 A symmetry `φ` is an isometry of the embedded crystal when, for every pair of sites `x` and `y`,
 
@@ -30,7 +30,7 @@ Consequently, the isometry condition can be checked using a lattice step `d` and
 `i` and `j`. This criterion also shows that an isometry preserves the lengths of lattice
 translation vectors and the distances between sites in the reference cell.
 
-## Main results
+## ii. Key results
 
 - `Embedding.isometries`: crystal symmetries that preserve distances between site positions.
 - `Embedding.translations_le_isometries`: every translation is an isometry.
@@ -40,6 +40,16 @@ translation vectors and the distances between sites in the reference cell.
 - `Embedding.norm_imageSub`: an isometry preserves distances between reference-cell sites.
 - `Embedding.imageSub_ofComponents`: the image-position difference for a symmetry given by its
   lattice automorphism, label permutation, and offsets.
+
+## iii. Table of contents
+
+- A. Distance-preserving symmetries
+- B. Distances in lattice and unit-cell coordinates
+
+## iv. References
+
+* None.
+
 -/
 
 @[expose] public section
@@ -52,7 +62,7 @@ namespace Embedding
 
 variable {C : Crystal G} {E : Type*} [NormedAddCommGroup E] (R : Embedding C E) {φ : Symmetry C}
 
-/-! ## Distance-preserving symmetries -/
+/-! ## A. Distance-preserving symmetries -/
 
 /-- The crystal symmetries that preserve distances between all pairs of site positions. -/
 def isometries : Subgroup (Symmetry C) where
@@ -78,7 +88,7 @@ lemma translations_le_isometries : Symmetry.translations C ≤ R.isometries := b
   rintro _ ⟨a, rfl⟩ x y
   exact R.dist_position_vadd _ x y
 
-/-! ## Distances in lattice and unit-cell coordinates -/
+/-! ## B. Distances in lattice and unit-cell coordinates -/
 
 /-- The position of the image of label `i` minus that of the image of label `j`, with both
 labels taken in the reference cell. -/
