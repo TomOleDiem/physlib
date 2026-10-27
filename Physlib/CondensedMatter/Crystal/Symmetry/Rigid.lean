@@ -90,7 +90,8 @@ lemma linearCombination_surjective (hu : Submodule.span ℝ (Set.range u) = ⊤)
 /-- A linear map carries the linear combinations of `u` to those of `w`. -/
 lemma exists_linearMap_comp (hu : Submodule.span ℝ (Set.range u) = ⊤)
     (h : ∀ a b, inner ℝ (w a) (w b) = inner ℝ (u a) (u b)) :
-    ∃ T : E →ₗ[ℝ] E, ∀ c, T (Finsupp.linearCombination ℝ u c) = Finsupp.linearCombination ℝ w c := by
+    ∃ T : E →ₗ[ℝ] E,
+      ∀ c, T (Finsupp.linearCombination ℝ u c) = Finsupp.linearCombination ℝ w c := by
   obtain ⟨s, hs⟩ := (Finsupp.linearCombination ℝ u).exists_rightInverse_of_surjective
     (LinearMap.range_eq_top.2 (linearCombination_surjective hu))
   refine ⟨Finsupp.linearCombination ℝ w ∘ₗ s, fun c => ?_⟩
@@ -223,6 +224,18 @@ lemma position_sub_eq_linear (hR : R.IsSpaceFilling) (hφ : φ ∈ R.isometries)
   refine (inner_self_eq_zero (𝕜 := ℝ)).1 ?_
   rw [inner_sub_right z, h0, h1, sub_self]
 
+/-- The label positions of a distance-preserving symmetry are the images under a linear isometry,
+up to a common constant. -/
+lemma exists_position_const (hR : R.IsSpaceFilling) (hφ : φ ∈ R.isometries)
+    (hL : ∀ a, L (R.vector a) = R.vector (φ.lattice a)) :
+    ∃ t : E, ∀ i, R.position (φ ⟨0, i⟩) = L (R.basis i) + t := by
+  refine ⟨R.position (φ ⟨0, Classical.arbitrary _⟩) - L (R.basis (Classical.arbitrary _)),
+    fun i => ?_⟩
+  have := R.position_sub_eq_linear hR hφ hL i (Classical.arbitrary _)
+  rw [map_sub, sub_eq_iff_eq_add] at this
+  rw [this]
+  abel
+
 /-- A linear isometry and a constant carry the label positions of a distance-preserving symmetry
 to their images. -/
 lemma exists_linear_position (hR : R.IsSpaceFilling) (hφ : φ ∈ R.isometries) :
@@ -232,12 +245,8 @@ lemma exists_linear_position (hR : R.IsSpaceFilling) (hφ : φ ∈ R.isometries)
   obtain ⟨L, hL⟩ := exists_linearIsometryEquiv (u := R.vector)
     (w := fun d => R.vector (φ.lattice d)) hR
     (R.inner_vector_lattice_of_norm (R.norm_vector_lattice hφ))
-  refine ⟨L, R.position (φ ⟨0, Classical.arbitrary _⟩) - L (R.basis (Classical.arbitrary _)), hL,
-    fun i => ?_⟩
-  have := R.position_sub_eq_linear hR hφ hL i (Classical.arbitrary _)
-  rw [map_sub, sub_eq_iff_eq_add] at this
-  rw [this]
-  abel
+  exact ⟨L, (R.exists_position_const hR hφ hL).choose, hL,
+    (R.exists_position_const hR hφ hL).choose_spec⟩
 
 /-- An isometric symmetry of a space-filling embedding is the restriction of an affine isometry of
 space. -/
