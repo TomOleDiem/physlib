@@ -35,8 +35,8 @@ This is the Archimedean property.
 
 ## iii. Table of contents
 
-- A. Multiples of the identity
-- B. The order-unit space of observables
+- A. The order-unit space of observables
+- B. The Archimedean property
 
 ## iv. References
 
@@ -50,39 +50,11 @@ namespace selfAdjoint
 
 /-!
 
-## A. Multiples of the identity
+## A. The order-unit space of observables
 
 -/
 
-variable {𝒜 : Type*} [CStarAlgebra 𝒜]
-
-/-- Small multiples of the identity tend to zero. -/
-lemma tendsto_one_div_add_one_smul_one :
-    Filter.Tendsto (fun n : ℕ => (1 / ((n : ℝ) + 1)) • (1 : 𝒜)) Filter.atTop (nhds 0) := by
-  have h : Filter.Tendsto (fun n : ℕ => 1 / ((n : ℝ) + 1)) Filter.atTop (nhds 0) :=
-    tendsto_one_div_add_atTop_nhds_zero_nat
-  simpa using h.smul_const (1 : 𝒜)
-
-/-- The element `n • 1` of the observables is `(n : ℝ) • 1` in the algebra. -/
-lemma coe_nsmul_one (n : ℕ) : ((n • (1 : selfAdjoint 𝒜) : selfAdjoint 𝒜) : 𝒜) = (n : ℝ) • 1 := by
-  rw [← Nat.cast_smul_eq_nsmul ℝ]
-  rfl
-
-variable [PartialOrder 𝒜] [StarOrderedRing 𝒜]
-
-/-- An observable below every positive multiple of the identity is below zero. -/
-lemma le_zero_of_forall_pos_smul_one_le {x : selfAdjoint 𝒜}
-    (h : ∀ ε : ℝ, 0 < ε → x ≤ ε • (1 : selfAdjoint 𝒜)) : x ≤ 0 := by
-  show (x : 𝒜) ≤ 0
-  refine le_of_tendsto_of_tendsto' tendsto_const_nhds tendsto_one_div_add_one_smul_one ?_
-  intro n
-  exact h _ (by positivity)
-
-/-!
-
-## B. The order-unit space of observables
-
--/
+variable {𝒜 : Type*} [CStarAlgebra 𝒜] [PartialOrder 𝒜] [StarOrderedRing 𝒜]
 
 /-- Nonnegative real scalars preserve the order on observables. -/
 instance instPosSMulMono : PosSMulMono ℝ (selfAdjoint 𝒜) where
@@ -92,7 +64,11 @@ instance instPosSMulMono : PosSMulMono ℝ (selfAdjoint 𝒜) where
 
 /-- Every observable lies below a natural multiple of the identity. -/
 lemma le_nsmul_one_ceil_norm (x : selfAdjoint 𝒜) : x ≤ ⌈‖(x : 𝒜)‖⌉₊ • (1 : selfAdjoint 𝒜) := by
-  rw [← Subtype.coe_le_coe, coe_nsmul_one]
+  have h0 : ((⌈‖(x : 𝒜)‖⌉₊ • (1 : selfAdjoint 𝒜) : selfAdjoint 𝒜) : 𝒜) =
+      (⌈‖(x : 𝒜)‖⌉₊ : ℝ) • 1 := by
+    rw [← Nat.cast_smul_eq_nsmul ℝ]
+    rfl
+  rw [← Subtype.coe_le_coe, h0]
   calc (x : 𝒜) ≤ algebraMap ℝ 𝒜 ‖(x : 𝒜)‖ := x.2.le_algebraMap_norm_self
     _ = ‖(x : 𝒜)‖ • (1 : 𝒜) := Algebra.algebraMap_eq_smul_one _
     _ ≤ (⌈‖(x : 𝒜)‖⌉₊ : ℝ) • (1 : 𝒜) := by gcongr; exact Nat.le_ceil _
@@ -101,6 +77,21 @@ lemma le_nsmul_one_ceil_norm (x : selfAdjoint 𝒜) : x ≤ ⌈‖(x : 𝒜)‖�
 noncomputable instance instOrderUnitSpace : OrderUnitSpace (selfAdjoint 𝒜) where
   one_nonneg := zero_le_one (α := 𝒜)
   exists_nsmul_one_le x := ⟨_, le_nsmul_one_ceil_norm x⟩
+
+/-!
+
+## B. The Archimedean property
+
+-/
+
+/-- An observable below every positive multiple of the identity is below zero. -/
+lemma le_zero_of_forall_pos_smul_one_le {x : selfAdjoint 𝒜}
+    (h : ∀ ε : ℝ, 0 < ε → x ≤ ε • (1 : selfAdjoint 𝒜)) : x ≤ 0 := by
+  have : Filter.Tendsto (fun ε : ℝ => ε • (1 : 𝒜)) (nhdsWithin 0 (Set.Ioi 0)) (nhds 0) :=
+    tendsto_nhdsWithin_of_tendsto_nhds
+      ((show Continuous fun ε : ℝ => ε • (1 : 𝒜) by fun_prop).tendsto' 0 0 (by simp))
+  exact le_of_tendsto_of_tendsto (f := fun _ : ℝ => (x : 𝒜)) tendsto_const_nhds this
+    (eventually_nhdsWithin_of_forall fun ε hε => h ε hε)
 
 /-- The order of observables is Archimedean. -/
 noncomputable instance instArchimedeanOrderUnitSpace :

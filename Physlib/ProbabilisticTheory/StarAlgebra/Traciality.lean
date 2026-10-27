@@ -57,6 +57,9 @@ def IsTracial (f : 𝒜 →ₗ[ℂ] ℂ) : Prop :=
 
 ## B. Checking on `x⋆ x`
 
+Apply the hypothesis to `x⋆ + y` and `x⋆ + i y`. The cross terms leave `C - C' = 0` and
+`C + C' = 0` for the commutators `C = f [x, y]` and `C' = f [x⋆, y⋆]`, so `C = 0`.
+
 -/
 
 variable [StarRing 𝒜] [IsScalarTower ℂ 𝒜 𝒜] [SMulCommClass ℂ 𝒜 𝒜] [StarModule ℂ 𝒜]
@@ -74,10 +77,8 @@ lemma isTracial_iff_star_mul_self_eq_mul_star_self (f : 𝒜 →ₗ[ℂ] ℂ) :
   have h3 := h (star x + Complex.I • y)
   simp only [star_add, star_star, star_smul, map_add, map_smul, mul_add, add_mul,
     smul_mul_assoc, mul_smul_comm, smul_eq_mul, Complex.star_def, Complex.conj_I] at h0 h1 h2 h3
-  have h4 : Complex.I *
-      (f (x * y) - f (y * x) + (f (star x * star y) - f (star y * star x))) = 0 := by
-    linear_combination h3 - h0 - h1 + (f (star y * y) - f (y * star y)) * Complex.I_mul_I
-  have h5 := (mul_eq_zero.mp h4).resolve_left Complex.I_ne_zero
-  linear_combination (h2 - h0 - h1 + h5) / 2
+  linear_combination (h2 - h0 - h1) / 2 - Complex.I / 2 *
+    (h3 - h0 - h1 + (f (star y * y) - f (y * star y)) * Complex.I_mul_I) +
+    (f (x * y) - f (y * x) + (f (star x * star y) - f (star y * star x))) / 2 * Complex.I_mul_I
 
 end LinearMap

@@ -71,7 +71,7 @@ abbrev Observable (𝒜 : Type*) [AddGroup 𝒜] [StarAddMonoid 𝒜] := selfAdj
 
 namespace UnitalPositiveLinearMap
 
-variable {𝒜 : Type*} [CStarAlgebra 𝒜] [PartialOrder 𝒜]
+variable {𝒜 : Type*} [Ring 𝒜] [PartialOrder 𝒜] [Algebra ℂ 𝒜]
 
 /-!
 
@@ -91,13 +91,16 @@ lemma IsTracial.map_mul_comm {ω : 𝓢[ℂ, 𝒜]} (h : ω.IsTracial) (a b : �
 /-- A tracial state vanishes on commutators. -/
 lemma IsTracial.map_commutator {ω : 𝓢[ℂ, 𝒜]} (h : ω.IsTracial) (a b : 𝒜) :
     ω (a * b - b * a) = 0 := by
-  rw [map_sub, sub_eq_zero]
-  exact h.map_mul_comm a b
+  rw [map_sub, h.map_mul_comm a b, sub_self]
+
+variable [StarRing 𝒜]
 
 /-- A tracial state is invariant under the change of frame `x ↦ u * x * u⋆` by a unitary. -/
 lemma IsTracial.map_conj {ω : 𝓢[ℂ, 𝒜]} (h : ω.IsTracial) (u : unitary 𝒜) (x : 𝒜) :
     ω (u * x * star (u : 𝒜)) = ω x := by
   simpa [← mul_assoc] using h.map_mul_comm (u * x) (star (u : 𝒜))
+
+variable [StarModule ℂ 𝒜]
 
 /-- A state is tracial if and only if `ω (a⋆ * a) = ω (a * a⋆)` for all `a`. -/
 lemma isTracial_iff_star_mul_self_eq_mul_star_self (ω : 𝓢[ℂ, 𝒜]) :
@@ -110,21 +113,19 @@ lemma isTracial_iff_star_mul_self_eq_mul_star_self (ω : 𝓢[ℂ, 𝒜]) :
 
 -/
 
+variable [SelfAdjointDecompose 𝒜]
+
 /-- The real part of a state is a state of the observables. Its value is the expectation value
 (`coe_onObservables_apply`). -/
 noncomputable def onObservables (ω : 𝓢[ℂ, 𝒜]) : 𝓢[ℝ, Observable 𝒜] where
   toFun x := (ω x).re
-  map_add' x y := by simp [map_add]
-  map_smul' r x := by
-    change (ω ((r : ℂ) • (x : 𝒜))).re = r * (ω x).re
-    rw [map_smul]
-    simp
+  map_add' x y := by simp
+  map_smul' r x := by simp [← Complex.coe_smul]
   monotone' _ _ h := (Complex.le_def.mp (ω.monotone h)).1
-  map_one' := by simp [map_one ω]
-
-variable [StarOrderedRing 𝒜]
+  map_one' := by simp
 
 /-- The expectation value of an observable is real. It equals its real part. -/
+@[simp, norm_cast]
 lemma coe_onObservables_apply (ω : 𝓢[ℂ, 𝒜]) (x : Observable 𝒜) :
     ((ω.onObservables x : ℝ) : ℂ) = ω (x : 𝒜) :=
   Complex.conj_eq_iff_re.mp (by rw [← Complex.star_def]; exact (x.2.map' ω).star_eq)
@@ -135,7 +136,8 @@ lemma coe_onObservables_apply (ω : 𝓢[ℂ, 𝒜]) (x : Observable 𝒜) :
 
 -/
 
-variable {ℬ : Type*} [CStarAlgebra ℬ] [PartialOrder ℬ] [StarOrderedRing ℬ]
+variable {ℬ : Type*} [Ring ℬ] [PartialOrder ℬ] [Algebra ℂ ℬ] [StarRing ℬ] [StarModule ℂ ℬ]
+  [StarOrderedRing ℬ]
 
 /-- A unital positive map restricts to a channel between observables. -/
 noncomputable def restrictObservables (f : 𝒜 →ₚ₁[ℂ] ℬ) : Observable 𝒜 →ₚ₁[ℝ] Observable ℬ where
