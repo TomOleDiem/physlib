@@ -16,19 +16,17 @@ translations.
 
 ## i. Overview
 
-A rigid motion of space keeps all distances and straight lines. Every such motion is a rotation
-or reflection about the origin, followed by a shift. The rotation or reflection is the linear part
-of the motion. Two motions have the same linear part exactly when they differ by a shift, so the
-motions with trivial linear part are the shifts.
+The distance-preserving motions of a normed space are the affine isometries. Each factors uniquely
+as a linear isometry followed by a translation, so the translations form a normal subgroup of the
+affine isometries, with the linear isometries as quotient. Passing to the linear part is a
+homomorphism, and its kernel is the group of translations.
 
-A crystal in space is invariant under a group of such motions, its space group. Its shifts are the
-translations of the lattice. Its linear parts, the rotations and reflections that remain once the
-shifts are forgotten, form the point group. For a square lattice with an atom at each site, the
-shifts are the integer steps in both directions, and the point group consists of the quarter
-turns and the mirrors. Forgetting the shifts is a homomorphism whose kernel is the group of shifts,
-so the space group modulo its shifts is the point group.
-
-This file proves this for any group of rigid motions, with no crystal in sight.
+Consequently every group of affine isometries, in particular the space group of a crystal, is an
+extension of its point group by its translations. The translations are the lattice vectors it
+contains, and the point group collects the rotations and reflections that remain once translations
+are forgotten. For the square lattice the translations are the integer steps and the point group is
+the dihedral group of order eight. This file records the extension for an arbitrary subgroup,
+independently of any crystal.
 
 ## ii. Key results
 
