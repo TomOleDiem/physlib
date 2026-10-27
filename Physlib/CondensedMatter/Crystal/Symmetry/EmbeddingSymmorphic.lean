@@ -62,10 +62,10 @@ omit [NormedSpace ℝ E] in
 /-- If the positions of the labels are lattice vectors, the positions form the lattice. -/
 lemma range_position_eq (hb : ∀ i, R.basis i ∈ R.vector.range) :
     Set.range R.position = R.vector.range := by
-  refine Set.Subset.antisymm ?_ fun y hy => ?_
+  refine Set.Subset.antisymm ?_ ?_
   · rintro _ ⟨x, rfl⟩
     exact add_mem ⟨x.cell, rfl⟩ (hb x.label)
-  · obtain ⟨a, rfl⟩ := hy
+  · rintro _ ⟨a, rfl⟩
     obtain ⟨b, hb'⟩ := hb (Classical.arbitrary C.UnitCell)
     exact ⟨⟨a - b, Classical.arbitrary _⟩, by simp [position, hb']⟩
 
@@ -74,38 +74,48 @@ lemma isPrimitive_of_basis_mem (hb : ∀ i, R.basis i ∈ R.vector.range) : R.Is
   intro v
   show (fun x => v + x) '' Set.range R.position = Set.range R.position ↔ _
   rw [R.range_position_eq hb]
-  refine ⟨fun h => by simpa using h.subset ⟨0, R.vector.range.zero_mem, rfl⟩, fun hv => ?_⟩
-  refine Set.Subset.antisymm (by rintro _ ⟨x, hx, rfl⟩; exact add_mem hv hx) fun y hy => ?_
-  exact ⟨-v + y, add_mem (neg_mem hv) hy, add_neg_cancel_left v y⟩
+  constructor
+  · intro h
+    simpa using h.subset ⟨0, R.vector.range.zero_mem, rfl⟩
+  · intro hv
+    refine Set.Subset.antisymm ?_ ?_
+    · rintro _ ⟨x, hx, rfl⟩
+      exact add_mem hv hx
+    · intro y hy
+      exact ⟨-v + y, add_mem (neg_mem hv) hy, add_neg_cancel_left v y⟩
 
 /-! ## B. The space group is symmorphic -/
 
-/-- The point group maps the lattice onto itself. -/
+/-- Every element of the point group maps the lattice onto itself. -/
 lemma image_lattice_eq (hb : ∀ i, R.basis i ∈ R.vector.range) {L : E ≃ₗᵢ[ℝ] E}
     (hL : L ∈ R.pointGroup) : L '' (R.vector.range : Set E) = R.vector.range := by
   have hprim := R.isPrimitive_of_basis_mem hb
-  refine Set.Subset.antisymm ?_ fun y ⟨a, ha⟩ => ?_
+  refine Set.Subset.antisymm ?_ ?_
   · rintro _ ⟨_, ⟨a, rfl⟩, rfl⟩
     exact R.pointGroup_apply_mem hprim hL a
-  · exact ⟨L.symm y, ha ▸ R.pointGroup_apply_mem hprim (inv_mem hL) a, L.apply_symm_apply y⟩
+  · rintro _ ⟨a, rfl⟩
+    refine ⟨L.symm (R.vector a), ?_, L.apply_symm_apply _⟩
+    exact R.pointGroup_apply_mem hprim (inv_mem hL) a
 
 /-- Every point operation is an element of the space group fixing the origin. -/
 lemma toAffineIsometryEquiv_mem_spaceGroup (hb : ∀ i, R.basis i ∈ R.vector.range)
     {L : E ≃ₗᵢ[ℝ] E} (hL : L ∈ R.pointGroup) : L.toAffineIsometryEquiv ∈ R.spaceGroup := by
-  show L '' Set.range R.position = Set.range R.position
-  rw [R.range_position_eq hb]
+  rw [mem_spaceGroup_iff, R.range_position_eq hb]
   exact R.image_lattice_eq hb hL
 
 /-- **If the positions of the labels are lattice vectors, the space group is symmorphic.** -/
 lemma isSymmorphic_of_basis_mem (hb : ∀ i, R.basis i ∈ R.vector.range) :
-    IsSymmorphic R.spaceGroup :=
-  isSymmorphic_of_exists_fixing _ (p := 0) (le_antisymm (Subgroup.map_mono inf_le_left)
-    fun g hg => Subgroup.mem_map.2 ⟨g.toAffineIsometryEquiv,
-      ⟨R.toAffineIsometryEquiv_mem_spaceGroup hb hg, g.map_zero⟩, rfl⟩)
+    IsSymmorphic R.spaceGroup := by
+  refine isSymmorphic_of_map_fixing (p := 0) (le_antisymm (Subgroup.map_mono inf_le_left) ?_)
+  intro g hg
+  refine Subgroup.mem_map.2 ⟨g.toAffineIsometryEquiv, ⟨?_, g.map_zero⟩, rfl⟩
+  exact R.toAffineIsometryEquiv_mem_spaceGroup hb hg
 
 /-- The space group of a Bravais lattice is symmorphic. -/
-lemma isSymmorphic_ofVectors {d : ℕ} (v : Fin d → E) : IsSymmorphic (ofVectors v).spaceGroup :=
-  (ofVectors v).isSymmorphic_of_basis_mem fun _ => zero_mem _
+lemma isSymmorphic_ofVectors {d : ℕ} (v : Fin d → E) : IsSymmorphic (ofVectors v).spaceGroup := by
+  refine (ofVectors v).isSymmorphic_of_basis_mem ?_
+  intro i
+  exact zero_mem _
 
 end Embedding
 
