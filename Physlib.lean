@@ -61,6 +61,7 @@ public import Physlib.CondensedMatter.Crystal.Symmetry.AffineIsometries
 public import Physlib.CondensedMatter.Crystal.Symmetry.EmbeddingSpaceGroup
 public import Physlib.CondensedMatter.Crystal.Symmetry.FinitePointGroup
 public import Physlib.CondensedMatter.Crystal.Symmetry.PointOperations
+public import Physlib.CondensedMatter.Crystal.Symmetry.Symmorphic
 public import Physlib.CondensedMatter.LatticeModels.Basic
 public import Physlib.CondensedMatter.ManyBody.Basic
 public import Physlib.CondensedMatter.Response.Basic
