@@ -5,43 +5,53 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.CondensedMatter.Crystal.Embedding.SpaceGroup
+public import Physlib.CondensedMatter.Crystal.Symmetry.EmbeddingSpaceGroup
 public import Physlib.CondensedMatter.Crystal.Symmetry.Isometries
 public import Mathlib.Analysis.InnerProductSpace.LinearMap
 public import Mathlib.Analysis.Normed.Module.FiniteDimension
 
 /-!
-# Isometries of space as symmetries of a crystal
+# Isometries of space and symmetries of a crystal
 
-An affine isometry that preserves the positions of an embedded crystal is the action of a
-symmetry of the abstract crystal that preserves distances.
+The affine isometries that preserve an embedded crystal are exactly the extensions of its
+distance-preserving symmetries.
 
 ## i. Overview
 
-Embed a crystal in a real normed space so that distinct translations have distinct vectors,
-distinct sites have distinct positions, and the lattice is exactly the translations of the
-crystal. An affine isometry that maps the set of positions onto itself then moves every site to a
-site. Its linear part maps the lattice to itself, which gives an automorphism of the translation
-group. Together they form a symmetry of the abstract crystal, and it preserves the distances
-between the positions.
+The space group of an embedding consists of the affine isometries of space that map the positions
+of the sites onto themselves. A distance-preserving symmetry of the abstract crystal permutes the
+sites in the same way. The two descriptions agree.
+
+If an affine isometry preserves the positions, it moves every site to a site. When the embedding
+is primitive, its linear part maps the lattice vectors to lattice vectors, which gives an
+automorphism of the translation group. If the vectors and the positions are distinct, these data
+form a symmetry of the abstract crystal, and it preserves distances.
+
+Conversely, let the embedding fill space and let a symmetry preserve distances. The inner products
+of the lattice vectors are preserved, which gives a linear isometry of space. The label positions
+are then moved by this isometry up to a common constant, and the resulting affine isometry
+extends the symmetry.
 
 ## ii. Key results
 
-- `Embedding.exists_lattice_vector_eq_linear`: The linear part of an element of the space group
-  maps lattice vectors to lattice vectors.
-- `Embedding.exists_site_position_eq`: An element of the space group moves every position to a
-  position.
-- `Embedding.exists_isometry`: Every element of the space group is the action of an isometric
-  symmetry of the abstract crystal.
+- `Crystal.Embedding.exists_isometry` : every element of the space group is the action of a
+  distance-preserving symmetry.
+- `Crystal.Embedding.exists_mem_spaceGroup` : every distance-preserving symmetry is the
+  restriction of an element of the space group.
+- `Crystal.Embedding.mem_isometries_iff_exists` : a symmetry preserves distances exactly when it
+  is the restriction of an element of the space group.
+- `Crystal.exists_linearIsometryEquiv` : families of vectors with the same inner products differ
+  by a linear isometry.
 
 ## iii. Table of contents
 
-- A. The linear part preserves the lattice
-- B. From an isometry of space to a symmetry
+- A. A linear isometry from inner products
+- B. From the space group to symmetries
+- C. From symmetries to the space group
 
 ## iv. References
 
-* N. W. Ashcroft and N. D. Mermin, *Solid State Physics*, Chapter 7.
+* N. Ashcroft & N. D. Mermin, Solid State Physics, Chapter 7.
 
 -/
 
@@ -98,139 +108,71 @@ namespace Embedding
 
 variable {C : Crystal G} {E : Type*} [NormedAddCommGroup E] (R : Embedding C E)
 
-/-! ## B. The linear part preserves the lattice -/
+/-! ## B. From the space group to symmetries -/
 
 section NormedSpace
 
-variable [NormedSpace ℝ E]
+variable [NormedSpace ℝ E] {ψ : E ≃ᵃⁱ[ℝ] E}
 
-omit [NormedSpace ℝ E] in
-/-- A translation by a lattice vector maps the set of positions onto itself. -/
-lemma image_vadd_range_position (a : G) :
-    (HAdd.hAdd (R.vector a)) '' Set.range R.position = Set.range R.position := by
-  apply Set.Subset.antisymm
-  · rintro _ ⟨_, ⟨x, rfl⟩, rfl⟩
-    exact ⟨a +ᵥ x, R.position_vadd a x⟩
-  · rintro _ ⟨x, rfl⟩
-    refine ⟨R.position ((-a) +ᵥ x), ⟨_, rfl⟩, ?_⟩
-    rw [R.position_vadd, ← add_assoc, map_neg, add_neg_cancel, zero_add]
+/-- Conjugating a translation by an affine isometry translates by the linear part of the vector. -/
+lemma mul_translationHom_mul_inv (ψ : E ≃ᵃⁱ[ℝ] E) (v : E) :
+    ψ * translationHom (Multiplicative.ofAdd v) * ψ⁻¹ =
+      translationHom (Multiplicative.ofAdd (ψ.linearIsometryEquiv v)) := by
+  ext x
+  show ψ (v + ψ.symm x) = ψ.linearIsometryEquiv v + x
+  simpa using ψ.map_vadd (ψ.symm x) v
 
-/-- The linear part of an isometry in the space group maps lattice vectors to lattice vectors,
-when the lattice is the full translation group of the placed crystal. -/
-lemma exists_lattice_vector_eq_linear (hprim : R.IsPrimitive) {ψ : E ≃ᵃⁱ[ℝ] E}
-    (hψ : ψ ∈ R.spaceGroup) (a : G) :
+/-- The linear part of an element of the space group of a primitive embedding maps lattice vectors
+to lattice vectors. -/
+lemma exists_lattice_vector_eq_linear (hprim : R.IsPrimitive) (hψ : ψ ∈ R.spaceGroup) (a : G) :
     ∃ b : G, R.vector b = ψ.linearIsometryEquiv (R.vector a) := by
-  have hψ' : ψ '' Set.range R.position = Set.range R.position := hψ
-  have key : ∀ c : G, ∀ s ∈ Set.range R.position,
-      ψ.linearIsometryEquiv (R.vector c) + s ∈ Set.range R.position := by
-    intro c s hs
-    have hs' : s ∈ ψ '' Set.range R.position := by
-      rw [hψ']
-      exact hs
-    obtain ⟨s0, hs0, rfl⟩ := hs'
-    have h1 : R.vector c + s0 ∈ Set.range R.position := by
-      rw [← R.image_vadd_range_position c]
-      exact ⟨s0, hs0, rfl⟩
-    have h2 : ψ (R.vector c + s0) ∈ Set.range R.position := by
-      rw [← hψ']
-      exact ⟨_, h1, rfl⟩
-    have h3 := ψ.map_vadd s0 (R.vector c)
-    simp only [vadd_eq_add] at h3
-    rw [← h3]
-    exact h2
-  have heq : (HAdd.hAdd (ψ.linearIsometryEquiv (R.vector a))) '' Set.range R.position =
-      Set.range R.position := by
-    apply Set.Subset.antisymm
-    · rintro _ ⟨s, hs, rfl⟩
-      exact key a s hs
-    · intro s hs
-      refine ⟨ψ.linearIsometryEquiv (R.vector (-a)) + s, key (-a) s hs, ?_⟩
-      rw [← add_assoc, map_neg R.vector, map_neg ψ.linearIsometryEquiv, add_neg_cancel, zero_add]
-  exact (hprim _).1 heq
+  refine (hprim _).1 ?_
+  rw [← mul_translationHom_mul_inv]
+  exact mul_mem (mul_mem hψ ((hprim _).2 ⟨a, rfl⟩)) (inv_mem hψ)
 
-/-! ## C. From an isometry of space to a symmetry -/
-
-/-- An isometry in the space group moves every position to a position. -/
-lemma exists_site_position_eq {ψ : E ≃ᵃⁱ[ℝ] E} (hψ : ψ ∈ R.spaceGroup) (x : C.Site) :
+/-- An element of the space group moves every position to a position. -/
+lemma exists_site_position_eq (hψ : ψ ∈ R.spaceGroup) (x : C.Site) :
     ∃ y : C.Site, R.position y = ψ (R.position x) := by
-  have hψ' : ψ '' Set.range R.position = Set.range R.position := hψ
-  have : ψ (R.position x) ∈ Set.range R.position := by
-    rw [← hψ']
-    exact ⟨_, ⟨x, rfl⟩, rfl⟩
-  exact this
+  have : ψ (R.position x) ∈ ψ '' Set.range R.position := ⟨_, ⟨x, rfl⟩, rfl⟩
+  rwa [show ψ '' Set.range R.position = Set.range R.position from hψ] at this
 
-/-- The linear part of the inverse undoes the linear part. -/
-lemma linear_inv_linear (ψ : E ≃ᵃⁱ[ℝ] E) (v : E) :
-    ψ⁻¹.linearIsometryEquiv (ψ.linearIsometryEquiv v) = v := by
-  show (linearHom ψ⁻¹ * linearHom ψ) v = v
-  rw [← map_mul, inv_mul_cancel, map_one]
-  rfl
+/-- The linear part of the inverse is the inverse of the linear part. -/
+lemma linear_inv (ψ : E ≃ᵃⁱ[ℝ] E) : ψ⁻¹.linearIsometryEquiv = ψ.linearIsometryEquiv.symm :=
+  map_inv linearHom ψ
 
-/-- The linear part undoes the linear part of the inverse. -/
-lemma linear_linear_inv (ψ : E ≃ᵃⁱ[ℝ] E) (v : E) :
-    ψ.linearIsometryEquiv (ψ⁻¹.linearIsometryEquiv v) = v := by
-  show (linearHom ψ * linearHom ψ⁻¹) v = v
-  rw [← map_mul, mul_inv_cancel, map_one]
-  rfl
-
-/-- **Every element of the space group is the action of an isometric symmetry**, when the
-translation vectors and the positions are injective and the lattice is the full translation group
-of the placed crystal. -/
+/-- **Every element of the space group is the action of a distance-preserving symmetry**, when the
+vectors and the positions are injective and the embedding is primitive. -/
 lemma exists_isometry (hv : Function.Injective R.vector) (hp : Function.Injective R.position)
-    (hprim : R.IsPrimitive) {ψ : E ≃ᵃⁱ[ℝ] E} (hψ : ψ ∈ R.spaceGroup) :
+    (hprim : R.IsPrimitive) (hψ : ψ ∈ R.spaceGroup) :
     ∃ φ : Symmetry C, φ ∈ R.isometries ∧ ∀ x, R.position (φ x) = ψ (R.position x) := by
-  have hψi : ψ⁻¹ ∈ R.spaceGroup := inv_mem hψ
   choose f hf using R.exists_site_position_eq hψ
   choose A hA using R.exists_lattice_vector_eq_linear hprim hψ
-  choose f' hf' using R.exists_site_position_eq hψi
-  choose A' hA' using R.exists_lattice_vector_eq_linear hprim hψi
-  have hAadd : ∀ a b : G, A (a + b) = A a + A b := by
-    intro a b
-    apply hv
-    calc R.vector (A (a + b)) = ψ.linearIsometryEquiv (R.vector (a + b)) := hA _
-      _ = ψ.linearIsometryEquiv (R.vector a) + ψ.linearIsometryEquiv (R.vector b) := by
-        rw [map_add, map_add]
-      _ = R.vector (A a) + R.vector (A b) := by rw [hA, hA]
-      _ = R.vector (A a + A b) := (map_add _ _ _).symm
-  have hleft : ∀ a : G, A' (A a) = a := by
-    intro a
-    apply hv
-    rw [hA', hA, linear_inv_linear]
-  have hright : ∀ a : G, A (A' a) = a := by
-    intro a
-    apply hv
-    rw [hA, hA', linear_linear_inv]
-  have hequiv : ∀ (a : G) (x : C.Site), f (a +ᵥ x) = A a +ᵥ f x := by
-    intro a x
-    apply hp
-    rw [hf, R.position_vadd, R.position_vadd, hA, hf]
-    have h := ψ.map_vadd (R.position x) (R.vector a)
-    simpa only [vadd_eq_add] using h
-  have hinv1 : ∀ x : C.Site, f' (f x) = x := by
-    intro x
-    apply hp
-    rw [hf', hf]
-    exact ψ.symm_apply_apply _
-  have hinv2 : ∀ x : C.Site, f (f' x) = x := by
-    intro x
-    apply hp
-    rw [hf, hf']
-    exact ψ.apply_symm_apply _
-  refine ⟨{ lattice := { toFun := A, invFun := A', left_inv := hleft, right_inv := hright,
-                         map_add' := hAadd }
-            toHom := { toFun := f, map_vadd' := hequiv }
-            bijective := ⟨Function.LeftInverse.injective hinv1,
-              Function.LeftInverse.surjective hinv2⟩ }, ?_, ?_⟩
-  · rw [mem_isometries_iff]
-    intro x y
-    show dist (R.position (f x)) (R.position (f y)) = dist (R.position x) (R.position y)
-    rw [hf, hf]
-    exact ψ.dist_map _ _
-  · intro x
-    exact hf x
+  choose f' hf' using R.exists_site_position_eq (inv_mem hψ)
+  choose A' hA' using R.exists_lattice_vector_eq_linear hprim (inv_mem hψ)
+  have hleft : ∀ x, f' (f x) = x := fun x => hp (by rw [hf', hf]; exact ψ.symm_apply_apply _)
+  have hright : ∀ x, f (f' x) = x := fun x => hp (by rw [hf, hf']; exact ψ.apply_symm_apply _)
+  let φ : Symmetry C :=
+    { lattice :=
+        { toFun := A, invFun := A'
+          left_inv a := hv (by rw [hA', hA, linear_inv, LinearIsometryEquiv.symm_apply_apply])
+          right_inv a := hv (by
+            rw [hA, hA', linear_inv, LinearIsometryEquiv.apply_symm_apply])
+          map_add' a b := hv (by simp only [map_add, hA]) }
+      toHom :=
+        { toFun := f
+          map_vadd' a x := hp (by
+            show R.position (f (a +ᵥ x)) = R.position (A a +ᵥ f x)
+            rw [hf, R.position_vadd, R.position_vadd, hA, hf]
+            simpa only [vadd_eq_add] using ψ.map_vadd (R.position x) (R.vector a)) }
+      bijective := ⟨Function.LeftInverse.injective hleft, Function.LeftInverse.surjective hright⟩ }
+  refine ⟨φ, fun x y => ?_, hf⟩
+  show dist (R.position (f x)) (R.position (f y)) = _
+  rw [hf, hf]
+  exact ψ.dist_map _ _
+
 end NormedSpace
 
-/-! ## D. From a symmetry to an isometry of space -/
+/-! ## C. From symmetries to the space group -/
 
 section InnerProduct
 
