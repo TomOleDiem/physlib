@@ -16,11 +16,15 @@ distance-preserving symmetry of the crystal.
 
 ## i. Overview
 
-Let an embedding be primitive, with distinct translations having distinct vectors and distinct
-sites distinct positions. An affine isometry that maps the set of positions onto itself moves
-every site to a site. Its linear part maps the lattice vectors to lattice vectors, which gives an
-automorphism of the translation group. Together they form a symmetry of the abstract crystal, and
-it preserves the distances between the positions.
+A rigid motion of space that carries every atom of a crystal onto an atom also acts on the crystal
+itself. It sends each atom to another atom, so it shuffles the atoms among themselves, and it
+moves each lattice vector to another lattice vector. Since it keeps all distances, this
+relabelling of the atoms is a symmetry of the abstract crystal that keeps all distances.
+
+For a square lattice, a quarter turn about an atom sends the atom at `(m, n)` to the atom at
+`(-n, m)`. The lattice vector `(1, 0)` goes to `(0, 1)`. To make this precise the placement has to
+be faithful: different lattice steps give different vectors, different atoms sit at different
+points, and the shifts that carry atoms onto atoms are exactly the lattice steps.
 
 ## ii. Key results
 

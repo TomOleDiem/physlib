@@ -18,11 +18,14 @@ inner products differ by a linear isometry of the space.
 
 ## i. Overview
 
-Let `u` and `w` be families of vectors in a real inner product space `E`, with the same inner
-products `⟪w a, w b⟫ = ⟪u a, u b⟫`, and let `u` span `E`. Linear combinations of `w` then vanish
-wherever the same combination of `u` vanishes, so `u a ↦ w a` extends to a linear map of `E`. This
-map preserves inner products, and a linear map of a finite-dimensional space that preserves inner
-products is a linear isometry equivalence.
+Two lists of vectors that have the same lengths and the same angles between them can be moved
+into one another by a rotation or reflection. If the first list spans the space, the rotation or
+reflection is unique and is defined on the whole space.
+
+Here this is made precise for families `u` and `w` with the same inner products. Linear
+combinations of `w` vanish wherever the same combination of `u` vanishes, so `u a ↦ w a` extends to
+a linear map. This map preserves inner products, and a linear map of a finite-dimensional space
+that preserves inner products is a linear isometry equivalence.
 
 ## ii. Key results
 

@@ -17,16 +17,19 @@ element of its space group.
 
 ## i. Overview
 
-Let the crystal be embedded in a real inner product space so that the translation vectors span.
-A symmetry that preserves distances preserves the inner products of the translation vectors, so
-by `GramIsometry.exists_linearIsometryEquiv` there is a linear isometry of space that agrees with
-its lattice automorphism on them. The inner products of the translation vectors with the
-differences of the label positions are preserved as well. Hence the linear isometry carries these
-differences to their images, and the label positions are moved by a common constant. The linear
-isometry followed by this translation is an affine isometry of space that extends the symmetry.
+Conversely, suppose that a relabelling of the atoms of a crystal keeps all distances. Is it a
+rigid motion of space? If the lattice vectors span space, it is, and the motion can be read off
+from the symmetry.
 
-Together with `Crystal.Symmetry.FromSpaceGroup`, this identifies the distance-preserving symmetries
-with the elements of the space group.
+A symmetry that keeps distances keeps the lengths and mutual angles of the lattice vectors, so it
+turns the lattice vectors as a rotation or reflection of space would. This rotation or reflection
+is fixed by the lattice vectors alone. The atoms of one unit cell then move with it, up to one
+common shift: the relative positions of the atoms in a cell are carried along by the rotation, so
+a single shift is left over. The rotation followed by this shift is a rigid motion of space that
+acts on the atoms as the symmetry does.
+
+Together with `Crystal.Symmetry.FromSpaceGroup`, the distance-preserving symmetries of the crystal
+and the rigid motions of space that carry atoms onto atoms are the same thing.
 
 ## ii. Key results
 
