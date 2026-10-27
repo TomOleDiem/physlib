@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.CondensedMatter.Crystal.Symmetry.Isometries
+public import Physlib.CondensedMatter.Crystal.Symmetry.IsometriesCoordinates
 public import Mathlib.Analysis.InnerProductSpace.Basic
 
 /-!
@@ -16,8 +16,8 @@ checked on generators of the translation group and on the labels.
 
 ## i. Overview
 
-The condition that a symmetry of an embedded crystal preserves distances quantifies over all pairs of
-sites. Periodicity reduces it to finitely many conditions. In an inner product space, a symmetry
+The condition that a symmetry of an embedded crystal preserves distances quantifies over all pairs
+of sites. Periodicity reduces it to finitely many conditions. In an inner product space, a symmetry
 with lattice automorphism `A` is an isometry exactly when `A` preserves the inner products of the
 translation vectors of a generating set of the translation group, the differences of the images of
 the label positions have the lengths of the differences of the labels, and their inner products
@@ -112,22 +112,24 @@ lemma norm_vector_lattice_of_generators {S : Set G} (hS : AddSubgroup.closure S 
 /-- An isometry preserves the inner products of the translation vectors with the differences of
 the positions of the labels. -/
 lemma inner_lattice_position (hφ : φ ∈ R.isometries) (i j : C.UnitCell) (d : G) :
-    ⟪R.vector (φ.lattice d), R.imageSub φ i j⟫ = ⟪R.vector d, R.basis i - R.basis j⟫ := by
+    ⟪R.vector (φ.lattice d), R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩)⟫ =
+      ⟪R.vector d, R.basis i - R.basis j⟫ := by
   have := congrArg (· ^ 2) (R.mem_isometries_iff_components.1 hφ i j d)
-  simp only [norm_add_sq_real, R.norm_vector_lattice hφ, R.norm_imageSub hφ] at this
+  simp only [norm_add_sq_real, R.norm_vector_lattice hφ, R.norm_position_sub hφ] at this
   simpa using this
 
 /-- The conditions on generators and labels that characterise the isometries: the lattice
 automorphism preserves the inner products on the generators, and the differences of the label
 positions have the right lengths and inner products with the generators. -/
 def GeneratorCheck (S : Set G) (φ : Symmetry C) : Prop :=
-  R.InnerEqOn S φ.lattice ∧ (∀ i j, ‖R.imageSub φ i j‖ = ‖R.basis i - R.basis j‖) ∧
-    ∀ i j, ∀ s ∈ S, ⟪R.vector (φ.lattice s), R.imageSub φ i j⟫ =
+  R.InnerEqOn S φ.lattice ∧
+    (∀ i j, ‖R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩)‖ = ‖R.basis i - R.basis j‖) ∧
+    ∀ i j, ∀ s ∈ S, ⟪R.vector (φ.lattice s), R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩)⟫ =
       ⟪R.vector s, R.basis i - R.basis j⟫
 
 /-- An isometry satisfies the check on generators. -/
 lemma generatorCheck_of_mem (S : Set G) (h : φ ∈ R.isometries) : R.GeneratorCheck S φ := by
-  refine ⟨?_, R.norm_imageSub h, ?_⟩
+  refine ⟨?_, R.norm_position_sub h, ?_⟩
   · intro s _ s' _
     exact R.inner_vector_lattice_of_norm (R.norm_vector_lattice h) s s'
   · intro i j s _
