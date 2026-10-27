@@ -6,12 +6,13 @@ Authors: Tom Ole Diem
 module
 
 public import Mathlib.Analysis.Normed.Affine.Isometry
-public import Mathlib.Tactic.Abel
+public import Mathlib.GroupTheory.GroupExtension.Basic
 
 /-!
-# Linear parts and translations of affine isometries
+# Subgroups of the affine isometries
 
-The group of affine isometries of a normed space, its translations and its linear parts.
+A subgroup of the affine isometries of a normed space is an extension of its point group by its
+translations.
 
 ## i. Overview
 
@@ -21,9 +22,9 @@ translating by a vector is a homomorphism from `E` to the affine isometries. The
 first is the image of the second: the affine isometries with trivial linear part are exactly the
 translations.
 
-These facts are about the Euclidean group alone, with no crystal in sight. They are the
-vocabulary for the groups of a crystal in space: its translations are the kernel and its point
-group is the image of the linear part.
+Consequently every subgroup `S` of the affine isometries, for example the space group of a
+crystal, is an extension of its point group, the group of linear parts, by its translations. Thus
+the quotient of `S` by its translations is the point group.
 
 ## ii. Key results
 
@@ -33,10 +34,15 @@ group is the image of the linear part.
   translations.
 - `Crystal.Euclidean.mul_translationHom_mul_inv` : conjugating a translation by an affine
   isometry translates by the linear part of the vector.
+- `Crystal.Euclidean.translations` : the translations in a subgroup.
+- `Crystal.Euclidean.extension` : a subgroup is an extension of its point group by its
+  translations.
+- `Crystal.Euclidean.quotientEquiv` : a subgroup modulo its translations is its point group.
 
 ## iii. Table of contents
 
 - A. Linear parts and translations
+- B. Subgroups
 
 ## iv. References
 
@@ -50,13 +56,14 @@ namespace Physlib.CondensedMatter.Crystal
 
 namespace Euclidean
 
-variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] (S : Subgroup (E ≃ᵃⁱ[ℝ] E))
 
 /-! ## A. Linear parts and translations -/
 
 /-- The linear part of an affine isometry is the difference of the images of a point and the
 origin. -/
-lemma linear_apply (ψ : E ≃ᵃⁱ[ℝ] E) (v : E) : ψ.linearIsometryEquiv v = ψ v - ψ 0 := by
+lemma linearIsometryEquiv_apply (ψ : E ≃ᵃⁱ[ℝ] E) (v : E) :
+    ψ.linearIsometryEquiv v = ψ v - ψ 0 := by
   simpa using ψ.map_vsub v 0
 
 /-- The linear part of an affine isometry, as a homomorphism. -/
@@ -78,7 +85,7 @@ lemma linearHom_translationHom (v : E) :
     linearHom (translationHom (Multiplicative.ofAdd v)) = 1 := by
   ext w
   show (translationHom (Multiplicative.ofAdd v)).linearIsometryEquiv w = w
-  rw [linear_apply]
+  rw [linearIsometryEquiv_apply]
   show v + w - (v + 0) = w
   simp
 
@@ -87,13 +94,17 @@ lemma eq_translationHom_of_linearHom_eq_one (ψ : E ≃ᵃⁱ[ℝ] E) (h : linea
     ψ = translationHom (Multiplicative.ofAdd (ψ 0)) := by
   ext v
   have hv : ψ.linearIsometryEquiv v = v := DFunLike.congr_fun h v
-  rw [linear_apply] at hv
+  rw [linearIsometryEquiv_apply] at hv
   exact sub_eq_iff_eq_add'.1 hv
 
 /-- The affine isometries with trivial linear part are the translations. -/
-lemma ker_linearHom : (linearHom (E := E)).ker = (translationHom (E := E)).range :=
-  le_antisymm (fun ψ h => ⟨_, (eq_translationHom_of_linearHom_eq_one ψ h).symm⟩)
-    (by rintro _ ⟨v, rfl⟩; exact linearHom_translationHom _)
+lemma ker_linearHom : (linearHom (E := E)).ker = (translationHom (E := E)).range := by
+  ext ψ
+  constructor
+  · intro h
+    exact ⟨_, (eq_translationHom_of_linearHom_eq_one ψ h).symm⟩
+  · rintro ⟨v, rfl⟩
+    exact linearHom_translationHom _
 
 /-- Conjugating a translation by an affine isometry translates by the linear part of the vector. -/
 lemma mul_translationHom_mul_inv (ψ : E ≃ᵃⁱ[ℝ] E) (v : E) :
@@ -102,6 +113,35 @@ lemma mul_translationHom_mul_inv (ψ : E ≃ᵃⁱ[ℝ] E) (v : E) :
   ext x
   show ψ (v + ψ.symm x) = ψ.linearIsometryEquiv v + x
   simpa using ψ.map_vadd (ψ.symm x) v
+
+/-! ## B. Subgroups -/
+
+/-- The translations in a subgroup of the affine isometries. -/
+noncomputable def translations : Subgroup S := (translationHom (E := E)).range.subgroupOf S
+
+/-- The linear part on a subgroup, with values in its point group. -/
+noncomputable def toPointGroup : S →* S.map linearHom := linearHom.subgroupMap S
+
+/-- An element of a subgroup has trivial point operation exactly when it is a translation. -/
+lemma mem_ker_toPointGroup (ψ : S) : ψ ∈ (toPointGroup S).ker ↔ ψ ∈ translations S := by
+  rw [MonoidHom.mem_ker, show ψ ∈ translations S ↔ ψ.1 ∈ (translationHom (E := E)).range from
+    Iff.rfl, ← ker_linearHom, MonoidHom.mem_ker]
+  simp [toPointGroup, Subtype.ext_iff]
+
+/-- A subgroup of the affine isometries is an extension of its point group by its translations. -/
+noncomputable def extension : GroupExtension (translations S) S (S.map linearHom) where
+  inl := (translations S).subtype
+  rightHom := toPointGroup S
+  inl_injective := Subtype.val_injective
+  range_inl_eq_ker_rightHom := by
+    ext ψ
+    rw [Subgroup.range_subtype]
+    exact (mem_ker_toPointGroup S ψ).symm
+  rightHom_surjective := linearHom.subgroupMap_surjective S
+
+/-- **A subgroup modulo its translations is its point group.** -/
+noncomputable def quotientEquiv : S ⧸ (toPointGroup S).ker ≃* S.map linearHom :=
+  QuotientGroup.quotientKerEquivOfSurjective _ (linearHom.subgroupMap_surjective S)
 
 end Euclidean
 
