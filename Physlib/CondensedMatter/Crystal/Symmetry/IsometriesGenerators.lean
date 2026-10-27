@@ -16,19 +16,15 @@ checked on generators of the translation group and on the labels.
 
 ## i. Overview
 
-Does a symmetry of a crystal move the atoms rigidly, so that every distance between two atoms
-stays the same? There are infinitely many pairs of atoms to look at, but a crystal repeats, so
-only a few measurements are needed.
-
-Take a crystal with a square lattice. A symmetry that keeps the length of both primitive vectors
-and the angle between them keeps the lengths and angles of all lattice vectors, since every
-lattice vector is a combination of these two. It then remains to check that the atoms of the unit
-cell keep their mutual distances and their position relative to the primitive vectors. In
-general, a symmetry preserves all distances exactly when the following finitely many conditions
-hold: the images of a generating set of lattice vectors have the same lengths and mutual angles,
-and the atoms of one cell have the same mutual distances and the same angles with the generators.
-
-This needs the notion of angle, so the crystal is placed in an inner product space.
+The condition that a symmetry of an embedded crystal preserves distances quantifies over all pairs of
+sites. Periodicity reduces it to finitely many conditions. In an inner product space, a symmetry
+with lattice automorphism `A` is an isometry exactly when `A` preserves the inner products of the
+translation vectors of a generating set of the translation group, the differences of the images of
+the label positions have the lengths of the differences of the labels, and their inner products
+with the generators agree. The proof squares the length condition of the coordinate criterion,
+which is additive in the lattice step once the lengths of the translation vectors are preserved.
+For a symmetry given by its lattice automorphism, label permutation and offsets, being an isometry
+is therefore a finite computation.
 
 ## ii. Key results
 
