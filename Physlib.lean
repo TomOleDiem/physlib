@@ -59,6 +59,7 @@ public import Physlib.CondensedMatter.Crystal.PeriodicGraph
 public import Physlib.CondensedMatter.Crystal.Symmetries
 public import Physlib.CondensedMatter.Crystal.Symmetry.AffineIsometries
 public import Physlib.CondensedMatter.Crystal.Symmetry.EmbeddingSpaceGroup
+public import Physlib.CondensedMatter.Crystal.Symmetry.FromSpaceGroup
 public import Physlib.CondensedMatter.Crystal.Symmetry.Isometries
 public import Physlib.CondensedMatter.Crystal.Symmetry.IsometriesGenerators
 public import Physlib.CondensedMatter.Crystal.Symmetry.PointOperations
@@ -179,6 +180,7 @@ public import Physlib.Mathematics.InnerProductSpace.Adjoint
 public import Physlib.Mathematics.InnerProductSpace.Basic
 public import Physlib.Mathematics.InnerProductSpace.Calculus
 public import Physlib.Mathematics.InnerProductSpace.Gaussian
+public import Physlib.Mathematics.InnerProductSpace.GramIsometry
 public import Physlib.Mathematics.InnerProductSpace.Submodule
 public import Physlib.Mathematics.KroneckerDelta.Basic
 public import Physlib.Mathematics.KroneckerDelta.Contraction
