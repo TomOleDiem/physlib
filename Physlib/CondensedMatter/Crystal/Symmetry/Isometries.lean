@@ -13,41 +13,43 @@ public import Mathlib.Analysis.InnerProductSpace.Basic
 /-!
 # Isometries of an embedded crystal
 
-The crystal symmetries that preserve the distances between sites in space.
+The symmetries of a crystal that preserve the distances between its sites in space.
 
 ## i. Overview
 
-An embedding places every site of a crystal at a point of a normed group. A crystal symmetry is an
-isometry of the embedded crystal if it preserves the distance between the positions of any two
-sites,
+An embedding places every site of a crystal at a point of a normed group. A symmetry of the
+crystal is an isometry if it preserves the distance between the positions of any two sites,
 
 `dist (position (φ x)) (position (φ y)) = dist (position x) (position y)`.
 
-These symmetries form a subgroup of the crystal symmetries, and it contains the translations,
-which move both sites by the same vector. Since translating a pair of sites does not change its
-distance, it suffices to compare the distances from the sites of the reference cell.
+These symmetries are a subgroup of the symmetries of the crystal. It contains the translations,
+which move both sites by the same vector, and it is independent of the bonds and of the species.
+
+A symmetry moves a site `(n, i)` to the translate of the image of `(0, i)` by the image of `n`.
+Hence the distance between two image sites depends on the cells only through their difference
+`d`, and being an isometry is a condition on pairs of labels `(i, j)` and lattice steps `d`. In an
+inner product space the condition is linear in `d` once the lengths are preserved, so it only has
+to be checked on a finite generating set of the translation group and on the finitely many pairs
+of labels.
 
 ## ii. Key results
 
-- `Embedding.isometries`: The crystal symmetries that preserve distances between positions.
-- `Embedding.translations_le_isometries`: Translations are isometries.
-- `Embedding.norm_vector_lattice`: An isometry preserves the lengths of the translation vectors.
-- `Embedding.mem_isometries_iff_components`: A symmetry is an isometry exactly when a condition
-  on pairs of labels and cell differences holds.
-- `Embedding.mem_isometries_iff_generators`: In an inner product space, an isometry is
-  characterized by finitely many conditions on generators and labels.
-- `Embedding.ofComponents_mem_isometries_iff`: The same check for the symmetry with given
-  lattice automorphism, label permutation and offsets.
-- `Embedding.mem_isometries_iff_referenceCell`: A symmetry is an isometry exactly when it
-  preserves the distances from the sites of the reference cell.
+- `Crystal.Embedding.isometries` : the symmetries that preserve the distances between positions.
+- `Crystal.Embedding.translations_le_isometries` : translations are isometries.
+- `Crystal.Embedding.mem_isometries_iff_components` : a symmetry is an isometry exactly when a
+  condition on pairs of labels and lattice steps holds.
+- `Crystal.Embedding.norm_vector_lattice` : an isometry preserves the lengths of the translation
+  vectors.
+- `Crystal.Embedding.mem_isometries_iff_generators` : in an inner product space, finitely many
+  conditions on a generating set and on the labels suffice.
+- `Crystal.Embedding.ofComponents_mem_isometries_iff` : the same check for the symmetry with
+  given lattice automorphism, label permutation and offsets.
 
 ## iii. Table of contents
 
-- A. Distance-preserving symmetries
-- B. Lengths of the translation vectors
-- C. Coordinates of an isometry
-- D. Checking on the reference cell
-- E. Finite check in an inner product space
+- A. Isometries
+- B. Coordinates of the image sites
+- C. Finite check in an inner product space
 
 ## iv. References
 
@@ -63,12 +65,12 @@ variable {G : Type*} [AddCommGroup G] [AddGroup.FG G]
 
 namespace Embedding
 
-variable {C : Crystal G} {E : Type*} [NormedAddCommGroup E] (R : Embedding C E)
-  {φ : Symmetry C}
+variable {C : Crystal G} {E : Type*} [NormedAddCommGroup E] (R : Embedding C E) {φ : Symmetry C}
 
-/-! ## A. Distance-preserving symmetries -/
+/-! ## A. Isometries -/
 
-/-- The crystal symmetries that preserve the distance between the positions of any two sites. -/
+/-- The symmetries of a crystal that preserve the distance between the positions of any two
+sites. -/
 def isometries : Subgroup (Symmetry C) where
   carrier := {φ | ∀ x y, dist (R.position (φ x)) (R.position (φ y)) =
     dist (R.position x) (R.position y)}
@@ -86,21 +88,7 @@ lemma translations_le_isometries : Symmetry.translations C ≤ R.isometries := b
   rintro _ ⟨a, rfl⟩ x y
   exact R.dist_position_vadd _ x y
 
-/-! ## B. Lengths of the translation vectors -/
-
-/-- The distance between a site and its translate by `a` is the norm of the vector of `a`. -/
-lemma dist_position_vadd_self (a : G) (x : C.Site) :
-    dist (R.position (a +ᵥ x)) (R.position x) = ‖R.vector a‖ := by
-  rw [R.position_vadd, dist_eq_norm, add_sub_cancel_right]
-
-/-- An isometry acts on the translation vectors by norm-preserving maps: the vector of the
-image of a lattice step has the same length as the vector of the step. -/
-lemma norm_vector_lattice (hφ : φ ∈ R.isometries) (a : G) :
-    ‖R.vector (φ.lattice a)‖ = ‖R.vector a‖ := by
-  have h := hφ (a +ᵥ ⟨0, Classical.arbitrary C.UnitCell⟩) ⟨0, Classical.arbitrary C.UnitCell⟩
-  rwa [Symmetry.map_vadd, R.dist_position_vadd_self, R.dist_position_vadd_self] at h
-
-/-! ## C. Coordinates of an isometry -/
+/-! ## B. Coordinates of the image sites -/
 
 /-- The distance between the positions of two sites, in terms of their cells and labels. -/
 lemma dist_position (x y : C.Site) : dist (R.position x) (R.position y) =
@@ -109,20 +97,19 @@ lemma dist_position (x y : C.Site) : dist (R.position x) (R.position y) =
   congr 1
   abel
 
-/-- A symmetry moves the position of a site by the vector of the lattice automorphism applied to
-its cell, starting from the position of the image of the same label in the reference cell. -/
+/-- A symmetry moves the position of a site by the vector of the image of its cell, starting from
+the position of the image of the same label in the reference cell. -/
 lemma position_apply (x : C.Site) : R.position (φ x) =
     R.vector (φ.lattice x.cell) + R.position (φ ⟨0, x.label⟩) := by
   conv_lhs => rw [show x = x.cell +ᵥ (⟨0, x.label⟩ : C.Site) from Site.ext (by simp) rfl]
   rw [Symmetry.map_vadd, R.position_vadd]
 
-/-- The position of the image of a reference-cell site is the vector of the offset plus the
-position of the permuted label. -/
+/-- The position of the image of a site of the reference cell, in terms of the offset and the
+permutation of the labels. -/
 lemma position_reference (i : C.UnitCell) :
     R.position (φ ⟨0, i⟩) = R.vector (φ.offset i) + R.basis (Symmetry.labelHom C φ i) := rfl
 
-/-- The distance between the images of two sites depends on their cells only through the
-difference of the cells. -/
+/-- The distance between two image sites depends on their cells only through the difference. -/
 lemma dist_position_apply (x y : C.Site) : dist (R.position (φ x)) (R.position (φ y)) =
     ‖R.vector (φ.lattice (x.cell - y.cell)) + R.position (φ ⟨0, x.label⟩) -
       R.position (φ ⟨0, y.label⟩)‖ := by
@@ -130,9 +117,8 @@ lemma dist_position_apply (x y : C.Site) : dist (R.position (φ x)) (R.position 
   congr 1
   abel
 
-/-- A symmetry is an isometry exactly when, for every pair of labels and every cell difference `d`,
-the vector from the image of `j` to the image of `i` shifted by the lattice step `d` has the
-same length as before. -/
+/-- A symmetry is an isometry exactly when, for every pair of labels `i`, `j` and every lattice
+step `d`, the distance between the images of `(d, i)` and `(0, j)` is unchanged. -/
 lemma mem_isometries_iff_components : φ ∈ R.isometries ↔ ∀ (i j : C.UnitCell) (d : G),
     ‖R.vector (φ.lattice d) + R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩)‖ =
       ‖R.vector d + R.basis i - R.basis j‖ := by
@@ -143,24 +129,18 @@ lemma mem_isometries_iff_components : φ ∈ R.isometries ↔ ∀ (i j : C.UnitC
   · rw [dist_position_apply, dist_position]
     exact h _ _ _
 
-/-- An isometry preserves the lengths of the differences of the positions of the labels. -/
+/-- An isometry preserves the lengths of the translation vectors. -/
+lemma norm_vector_lattice (hφ : φ ∈ R.isometries) (a : G) :
+    ‖R.vector (φ.lattice a)‖ = ‖R.vector a‖ := by
+  simpa using R.mem_isometries_iff_components.1 hφ (Classical.arbitrary C.UnitCell)
+    (Classical.arbitrary C.UnitCell) a
+
+/-- An isometry preserves the distances between the positions of the labels. -/
 lemma norm_position_sub (hφ : φ ∈ R.isometries) (i j : C.UnitCell) :
     ‖R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩)‖ = ‖R.basis i - R.basis j‖ := by
   simpa [Embedding.position] using R.mem_isometries_iff_components.1 hφ i j 0
 
-/-! ## D. Checking on the reference cell -/
-
-/-- A symmetry is an isometry exactly when it preserves the distances from the sites of the
-reference cell to all sites. -/
-lemma mem_isometries_iff_referenceCell : φ ∈ R.isometries ↔ ∀ (i : C.UnitCell) (y : C.Site),
-    dist (R.position (φ ⟨0, i⟩)) (R.position (φ y)) = dist (R.position ⟨0, i⟩) (R.position y) := by
-  refine ⟨fun h i y => h _ _, fun h x y => ?_⟩
-  have hx : x = x.cell +ᵥ (⟨0, x.label⟩ : C.Site) := Site.ext (by simp) rfl
-  have hy : y = x.cell +ᵥ ((-x.cell) +ᵥ y) := by simp
-  rw [hx, hy, Symmetry.map_vadd, Symmetry.map_vadd, R.dist_position_vadd, R.dist_position_vadd]
-  exact h _ _
-
-/-! ## E. Finite check in an inner product space -/
+/-! ## C. Finite check in an inner product space -/
 
 section InnerProduct
 
@@ -175,8 +155,8 @@ lemma inner_vector_lattice_of_norm {A : G ≃+ G} (h : ∀ d, ‖R.vector (A d)�
     real_inner_eq_norm_add_mul_self_sub_norm_mul_self_sub_norm_mul_self_div_two (R.vector d),
     ← map_add, ← map_add, h, h, h, map_add]
 
-/-- The inner products of the translation vectors are preserved on all lattice steps as soon as
-they are preserved on a generating set. -/
+/-- The inner products of the translation vectors are preserved by a lattice automorphism as soon
+as they are preserved on a generating set. -/
 lemma inner_vector_lattice_of_generators {S : Set G} (hS : AddSubgroup.closure S = ⊤) (A : G ≃+ G)
     (h : ∀ s ∈ S, ∀ s' ∈ S,
       inner ℝ (R.vector (A s)) (R.vector (A s')) = inner ℝ (R.vector s) (R.vector s'))
@@ -194,8 +174,9 @@ lemma inner_vector_lattice_of_generators {S : Set G} (hS : AddSubgroup.closure S
   | zero => simp
   | add x y _ _ hx hy => simp [map_add, inner_add_left, hx, hy]
   | neg x _ hx => simp [inner_neg_left, hx]
+
 /-- An isometry preserves the inner products of the translation vectors with the differences of
-the label positions. -/
+the positions of the labels. -/
 lemma inner_lattice_position (hφ : φ ∈ R.isometries) (i j : C.UnitCell) (d : G) :
     inner ℝ (R.vector (φ.lattice d)) (R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩)) =
       inner ℝ (R.vector d) (R.basis i - R.basis j) := by
