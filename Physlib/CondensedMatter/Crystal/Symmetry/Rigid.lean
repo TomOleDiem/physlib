@@ -59,6 +59,8 @@ extends the symmetry.
 
 namespace Physlib.CondensedMatter.Crystal
 
+open Euclidean
+
 variable {G : Type*} [AddCommGroup G] [AddGroup.FG G]
 
 /-! ## A. A linear isometry from inner products -/
