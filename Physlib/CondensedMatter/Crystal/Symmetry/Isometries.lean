@@ -42,8 +42,8 @@ of labels.
   vectors.
 - `Crystal.Embedding.mem_isometries_iff_generators` : in an inner product space, finitely many
   conditions on a generating set and on the labels suffice.
-- `Crystal.Embedding.ofComponents_mem_isometries_iff` : the same check for the symmetry with
-  given lattice automorphism, label permutation and offsets.
+- `Crystal.Embedding.imageSub_ofComponents` : the label position differences of the symmetry with
+  given lattice automorphism, label permutation and offsets, to which the finite check applies.
 
 ## iii. Table of contents
 
@@ -104,11 +104,6 @@ lemma position_apply (x : C.Site) : R.position (φ x) =
   conv_lhs => rw [show x = x.cell +ᵥ (⟨0, x.label⟩ : C.Site) from Site.ext (by simp) rfl]
   rw [Symmetry.map_vadd, R.position_vadd]
 
-/-- The position of the image of a site of the reference cell, in terms of the offset and the
-permutation of the labels. -/
-lemma position_reference (i : C.UnitCell) :
-    R.position (φ ⟨0, i⟩) = R.vector (φ.offset i) + R.basis (Symmetry.labelHom C φ i) := rfl
-
 /-- The distance between two image sites depends on their cells only through the difference. -/
 lemma dist_position_apply (x y : C.Site) : dist (R.position (φ x)) (R.position (φ y)) =
     ‖R.vector (φ.lattice (x.cell - y.cell)) + R.position (φ ⟨0, x.label⟩) -
@@ -135,10 +130,17 @@ lemma norm_vector_lattice (hφ : φ ∈ R.isometries) (a : G) :
   simpa using R.mem_isometries_iff_components.1 hφ (Classical.arbitrary C.UnitCell)
     (Classical.arbitrary C.UnitCell) a
 
+/-- The difference of the positions of the images of two labels. -/
+abbrev imageSub (φ : Symmetry C) (i j : C.UnitCell) : E :=
+  R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩)
+
+/-- The difference of the positions of two labels. -/
+abbrev basisSub (i j : C.UnitCell) : E := R.basis i - R.basis j
+
 /-- An isometry preserves the distances between the positions of the labels. -/
-lemma norm_position_sub (hφ : φ ∈ R.isometries) (i j : C.UnitCell) :
-    ‖R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩)‖ = ‖R.basis i - R.basis j‖ := by
-  simpa [Embedding.position] using R.mem_isometries_iff_components.1 hφ i j 0
+lemma norm_imageSub (hφ : φ ∈ R.isometries) (i j : C.UnitCell) :
+    ‖R.imageSub φ i j‖ = ‖R.basisSub i j‖ := by
+  simpa [imageSub, basisSub, Embedding.position] using R.mem_isometries_iff_components.1 hφ i j 0
 
 /-! ## C. Finite check in an inner product space -/
 
@@ -146,74 +148,68 @@ section InnerProduct
 
 variable [InnerProductSpace ℝ E]
 
+open RealInnerProductSpace
+
+/-- The lattice automorphism `A` preserves the inner products of the vectors of the steps in `S`. -/
+def InnerEqOn (S : Set G) (A : G ≃+ G) : Prop :=
+  ∀ s ∈ S, ∀ s' ∈ S, ⟪R.vector (A s), R.vector (A s')⟫ = ⟪R.vector s, R.vector s'⟫
+
 /-- A lattice automorphism that preserves the lengths of the translation vectors preserves their
 inner products. -/
 lemma inner_vector_lattice_of_norm {A : G ≃+ G} (h : ∀ d, ‖R.vector (A d)‖ = ‖R.vector d‖)
-    (d d' : G) :
-    inner ℝ (R.vector (A d)) (R.vector (A d')) = inner ℝ (R.vector d) (R.vector d') := by
+    (d d' : G) : ⟪R.vector (A d), R.vector (A d')⟫ = ⟪R.vector d, R.vector d'⟫ := by
   rw [real_inner_eq_norm_add_mul_self_sub_norm_mul_self_sub_norm_mul_self_div_two,
     real_inner_eq_norm_add_mul_self_sub_norm_mul_self_sub_norm_mul_self_div_two (R.vector d),
     ← map_add, ← map_add, h, h, h, map_add]
 
 /-- The inner products of the translation vectors are preserved by a lattice automorphism as soon
 as they are preserved on a generating set. -/
-lemma inner_vector_lattice_of_generators {S : Set G} (hS : AddSubgroup.closure S = ⊤) (A : G ≃+ G)
-    (h : ∀ s ∈ S, ∀ s' ∈ S,
-      inner ℝ (R.vector (A s)) (R.vector (A s')) = inner ℝ (R.vector s) (R.vector s'))
-    (d d' : G) :
-    inner ℝ (R.vector (A d)) (R.vector (A d')) = inner ℝ (R.vector d) (R.vector d') := by
+lemma inner_vector_lattice_of_generators {S : Set G} (hS : AddSubgroup.closure S = ⊤)
+    {A : G ≃+ G} (h : R.InnerEqOn S A) (d d' : G) :
+    ⟪R.vector (A d), R.vector (A d')⟫ = ⟪R.vector d, R.vector d'⟫ := by
   refine AddSubgroup.closure_induction₂ (p := fun d d' _ _ =>
-    inner ℝ (R.vector (A d)) (R.vector (A d')) = inner ℝ (R.vector d) (R.vector d'))
+    ⟪R.vector (A d), R.vector (A d')⟫ = ⟪R.vector d, R.vector d'⟫)
     (fun x y hx hy => h x hx y hy) (fun _ _ => by simp) (fun _ _ => by simp)
     (fun _ _ _ _ _ _ h₁ h₂ => by simp [inner_add_left, h₁, h₂])
     (fun _ _ _ _ _ _ h₁ h₂ => by simp [inner_add_right, h₁, h₂])
     (fun _ _ _ _ h => by simp [inner_neg_left, h]) (fun _ _ _ _ h => by simp [inner_neg_right, h])
     (hS ▸ AddSubgroup.mem_top d) (hS ▸ AddSubgroup.mem_top d')
 
-/-- An isometry preserves the inner products of the translation vectors with the differences of
-the positions of the labels. -/
-lemma inner_lattice_position (hφ : φ ∈ R.isometries) (i j : C.UnitCell) (d : G) :
-    inner ℝ (R.vector (φ.lattice d)) (R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩)) =
-      inner ℝ (R.vector d) (R.basis i - R.basis j) := by
-  have := congrArg (· ^ 2) (R.mem_isometries_iff_components.1 hφ i j d)
-  simp only [add_sub_assoc, norm_add_sq_real, R.norm_vector_lattice hφ,
-    R.norm_position_sub hφ] at this
-  simpa [Embedding.position] using this
-
 /-- A lattice automorphism that preserves the inner products on a generating set preserves the
 lengths of all translation vectors. -/
-lemma norm_vector_lattice_of_generators {S : Set G} (hS : AddSubgroup.closure S = ⊤) {A : G ≃+ G}
-    (h : ∀ s ∈ S, ∀ s' ∈ S,
-      inner ℝ (R.vector (A s)) (R.vector (A s')) = inner ℝ (R.vector s) (R.vector s'))
-    (d : G) : ‖R.vector (A d)‖ = ‖R.vector d‖ := by
-  have := R.inner_vector_lattice_of_generators hS A h d d
+lemma norm_vector_lattice_of_generators {S : Set G} (hS : AddSubgroup.closure S = ⊤)
+    {A : G ≃+ G} (h : R.InnerEqOn S A) (d : G) : ‖R.vector (A d)‖ = ‖R.vector d‖ := by
+  have := R.inner_vector_lattice_of_generators hS h d d
   rw [real_inner_self_eq_norm_sq, real_inner_self_eq_norm_sq] at this
   exact (sq_eq_sq₀ (norm_nonneg _) (norm_nonneg _)).1 this
 
-/-- The inner products of the translation vectors with a fixed vector are preserved as soon as they
+/-- An isometry preserves the inner products of the translation vectors with the differences of
+the positions of the labels. -/
+lemma inner_lattice_position (hφ : φ ∈ R.isometries) (i j : C.UnitCell) (d : G) :
+    ⟪R.vector (φ.lattice d), R.imageSub φ i j⟫ = ⟪R.vector d, R.basisSub i j⟫ := by
+  have := congrArg (· ^ 2) (R.mem_isometries_iff_components.1 hφ i j d)
+  simp only [add_sub_assoc, norm_add_sq_real, R.norm_vector_lattice hφ, R.norm_imageSub hφ] at this
+  simpa [imageSub, basisSub, Embedding.position] using this
+
+/-- The inner products of the translation vectors with fixed vectors are preserved as soon as they
 are preserved on a generating set. -/
 lemma inner_vector_lattice_of_generators_vec {S : Set G} (hS : AddSubgroup.closure S = ⊤)
-    (A : G ≃+ G) {P Q : E} (h : ∀ s ∈ S, inner ℝ (R.vector (A s)) P = inner ℝ (R.vector s) Q)
-    (d : G) : inner ℝ (R.vector (A d)) P = inner ℝ (R.vector d) Q := by
-  refine AddSubgroup.closure_induction (p := fun d _ =>
-    inner ℝ (R.vector (A d)) P = inner ℝ (R.vector d) Q) h (by simp)
-    (fun _ _ _ _ h₁ h₂ => by simp [inner_add_left, h₁, h₂])
+    (A : G ≃+ G) {P Q : E} (h : ∀ s ∈ S, ⟪R.vector (A s), P⟫ = ⟪R.vector s, Q⟫) (d : G) :
+    ⟪R.vector (A d), P⟫ = ⟪R.vector d, Q⟫ := by
+  refine AddSubgroup.closure_induction (p := fun d _ => ⟪R.vector (A d), P⟫ = ⟪R.vector d, Q⟫)
+    h (by simp) (fun _ _ _ _ h₁ h₂ => by simp [inner_add_left, h₁, h₂])
     (fun _ _ h => by simp [inner_neg_left, h]) (hS ▸ AddSubgroup.mem_top d)
 
 /-- **Finite check for an isometry.** In an inner product space, a symmetry is an isometry exactly
-when it preserves the inner products of the vectors of a generating set of lattice steps, the
-lengths of the differences of the label positions, and the inner products of the generator
-vectors with these differences. Only finitely many conditions have to be checked. -/
+when its lattice automorphism preserves the inner products on a generating set, and the
+differences of the label positions have the right lengths and inner products with the generators.
+Only finitely many conditions have to be checked. -/
 lemma mem_isometries_iff_generators {S : Set G} (hS : AddSubgroup.closure S = ⊤) :
-    φ ∈ R.isometries ↔
-      (∀ s ∈ S, ∀ s' ∈ S, inner ℝ (R.vector (φ.lattice s)) (R.vector (φ.lattice s')) =
-        inner ℝ (R.vector s) (R.vector s')) ∧
-      (∀ i j, ‖R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩)‖ = ‖R.basis i - R.basis j‖) ∧
-      (∀ i j, ∀ s ∈ S, inner ℝ (R.vector (φ.lattice s))
-        (R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩)) =
-          inner ℝ (R.vector s) (R.basis i - R.basis j)) := by
+    φ ∈ R.isometries ↔ R.InnerEqOn S φ.lattice ∧ (∀ i j, ‖R.imageSub φ i j‖ = ‖R.basisSub i j‖) ∧
+      ∀ i j, ∀ s ∈ S, ⟪R.vector (φ.lattice s), R.imageSub φ i j⟫ =
+        ⟪R.vector s, R.basisSub i j⟫ := by
   refine ⟨fun h => ⟨fun s _ s' _ => R.inner_vector_lattice_of_norm (R.norm_vector_lattice h) s s',
-    R.norm_position_sub h, fun i j s _ => R.inner_lattice_position h i j s⟩, ?_⟩
+    R.norm_imageSub h, fun i j s _ => R.inner_lattice_position h i j s⟩, ?_⟩
   rintro ⟨h₁, h₂, h₃⟩
   rw [mem_isometries_iff_components]
   intro i j d
@@ -222,24 +218,14 @@ lemma mem_isometries_iff_generators {S : Set G} (hS : AddSubgroup.closure S = �
   rw [norm_add_sq_real, norm_add_sq_real, R.norm_vector_lattice_of_generators hS h₁, h₂ i j,
     R.inner_vector_lattice_of_generators_vec hS φ.lattice (h₃ i j) d]
 
-/-- **Finite check in components.** The symmetry with lattice automorphism `A`, label permutation
-`σ` and offsets `b` is an isometry exactly when the finitely many conditions of
-`mem_isometries_iff_generators` hold for `A`, `σ` and `b`. -/
-lemma ofComponents_mem_isometries_iff {S : Set G} (hS : AddSubgroup.closure S = ⊤) (A : G ≃+ G)
-    (σ : Equiv.Perm C.UnitCell) (b : C.UnitCell → G) :
-    Symmetry.ofComponents C A σ b ∈ R.isometries ↔
-      (∀ s ∈ S, ∀ s' ∈ S, inner ℝ (R.vector (A s)) (R.vector (A s')) =
-        inner ℝ (R.vector s) (R.vector s')) ∧
-      (∀ i j, ‖(R.vector (b i) + R.basis (σ i)) - (R.vector (b j) + R.basis (σ j))‖ =
-        ‖R.basis i - R.basis j‖) ∧
-      (∀ i j, ∀ s ∈ S, inner ℝ (R.vector (A s))
-        ((R.vector (b i) + R.basis (σ i)) - (R.vector (b j) + R.basis (σ j))) =
-          inner ℝ (R.vector s) (R.basis i - R.basis j)) := by
-  rw [R.mem_isometries_iff_generators hS]
-  simp only [R.position_reference, Symmetry.lattice_ofComponents, Symmetry.offset_ofComponents,
-    Symmetry.labelHom_ofComponents]
-
 end InnerProduct
+
+/-- The label position differences of the symmetry with lattice automorphism `A`, label
+permutation `σ` and offsets `b`. -/
+lemma imageSub_ofComponents (A : G ≃+ G) (σ : Equiv.Perm C.UnitCell) (b : C.UnitCell → G)
+    (i j : C.UnitCell) : R.imageSub (Symmetry.ofComponents C A σ b) i j =
+      (R.vector (b i) + R.basis (σ i)) - (R.vector (b j) + R.basis (σ j)) := by
+  simp [imageSub, Embedding.position]
 
 end Embedding
 
