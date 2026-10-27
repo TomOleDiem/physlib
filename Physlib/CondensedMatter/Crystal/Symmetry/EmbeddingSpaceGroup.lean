@@ -15,13 +15,16 @@ The affine isometries of space that map the positions of an embedded crystal ont
 
 ## i. Overview
 
-An embedding places the sites of a crystal in a real normed space `E`. Its space group consists
-of the affine isometries of `E` that map the set of positions onto itself.
+Place a crystal in space by giving the position of every atom. The rigid motions of space that
+carry every atom onto an atom form the space group of the crystal. For a square lattice with an
+atom at each site, they are the integer shifts, the quarter turns about an atom or about the centre
+of a square, and the mirrors in the lattice lines and the diagonals.
 
-As a subgroup of the affine isometries, it is an extension of its point group, the group of its
-linear parts, by its translations. The embedding is primitive if its lattice vectors are exactly
-the translations that preserve the positions. Then the point group maps the lattice vectors to
-lattice vectors.
+The shifts of the space group are the lattice translations, and the rotations and reflections
+that remain once the shifts are forgotten form the point group. The placement is primitive if
+no shift beyond the lattice steps maps the atoms onto atoms. In that case every element of the
+point group maps lattice vectors to lattice vectors: conjugating a lattice shift by a motion of the
+space group gives a shift by the rotated vector, which again carries the atoms onto atoms.
 
 ## ii. Key results
 
