@@ -7,6 +7,7 @@ module
 
 public import Physlib.CondensedMatter.Crystal.Symmetry.AffineIsometries
 public import Mathlib.Algebra.Module.BigOperators
+public import Mathlib.GroupTheory.GroupExtension.Basic
 
 /-!
 # Symmorphic groups
@@ -34,12 +35,17 @@ point operations are realised by elements of `S` fixing a common point.
 - `Crystal.Euclidean.IsSymmorphic` : the linear part has a section in the group.
 - `Crystal.Euclidean.isSymmorphic_iff_exists_fixing` : a group with finite point group is
   symmorphic exactly when the elements fixing some point realise all its point operations.
+- `Crystal.Euclidean.extension` : a group of affine isometries is an extension of its point group
+  by its translations.
+- `Crystal.Euclidean.exists_semidirect_mulEquiv` : a symmorphic group is a semidirect product of
+  its point group acting on its translations.
 
 ## iii. Table of contents
 
 - A. Isometries fixing a point
 - B. A finite group fixes a point
 - C. Symmorphic groups
+- D. The extension by the translations
 
 ## iv. References
 
@@ -133,6 +139,46 @@ fixing some point realise all its point operations.** -/
 lemma isSymmorphic_iff_exists_fixing [Finite (S.map linearHom)] :
     IsSymmorphic S ↔ ∃ p, (S ⊓ fixing p).map linearHom = S.map linearHom :=
   ⟨exists_fixing_of_isSymmorphic S, fun ⟨_, h⟩ => isSymmorphic_of_exists_fixing S h⟩
+
+/-! ## D. The extension by the translations -/
+
+/-- The translations in a group of affine isometries. -/
+noncomputable def translations : Subgroup S := (translationHom (E := E)).range.subgroupOf S
+
+/-- The linear part on `S`, with values in the point group. -/
+noncomputable def toPointGroup : S →* S.map linearHom :=
+  (MulEquiv.subgroupCongr (MonoidHom.domRestrict_range _ _)).toMonoidHom.comp
+    (linearHom.domRestrict S).rangeRestrict
+
+/-- An element of `S` has trivial point operation exactly when it is a translation. -/
+lemma mem_ker_toPointGroup (ψ : S) : ψ ∈ (toPointGroup S).ker ↔ ψ ∈ translations S := by
+  rw [MonoidHom.mem_ker, show ψ ∈ translations S ↔ ψ.1 ∈ (translationHom (E := E)).range from
+    Iff.rfl, ← ker_linearHom, MonoidHom.mem_ker]
+  simp [toPointGroup, Subtype.ext_iff]
+
+/-- The group `S` is an extension of its point group by its translations. -/
+noncomputable def extension : GroupExtension (translations S) S (S.map linearHom) where
+  inl := (translations S).subtype
+  rightHom := toPointGroup S
+  inl_injective := Subtype.val_injective
+  range_inl_eq_ker_rightHom := by
+    ext ψ
+    rw [Subgroup.range_subtype]
+    exact (mem_ker_toPointGroup S ψ).symm
+  rightHom_surjective := fun ⟨_, ψ, hψ, rfl⟩ => ⟨⟨ψ, hψ⟩, rfl⟩
+
+/-- A group is symmorphic exactly when the extension by its translations splits. -/
+lemma isSymmorphic_iff_nonempty_splitting : IsSymmorphic S ↔ Nonempty (extension S).Splitting :=
+  ⟨fun ⟨s, hs⟩ => ⟨⟨s, fun g => Subtype.ext (hs g)⟩⟩,
+    fun ⟨sp⟩ => ⟨sp.toMonoidHom, fun g => congrArg Subtype.val (sp.rightHom_splitting g)⟩⟩
+
+/-- **A symmorphic group is a semidirect product of its point group acting on its
+translations.** -/
+lemma exists_semidirect_mulEquiv (h : IsSymmorphic S) :
+    ∃ φ : S.map linearHom →* MulAut (translations S),
+      Nonempty (translations S ⋊[φ] S.map linearHom ≃* S) :=
+  have ⟨sp⟩ := (isSymmorphic_iff_nonempty_splitting S).1 h
+  ⟨_, ⟨sp.semidirectProductMulEquiv⟩⟩
 
 end Euclidean
 
