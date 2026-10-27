@@ -84,20 +84,27 @@ noncomputable def translationHom : Multiplicative E →* (E ≃ᵃⁱ[ℝ] E) wh
     ext
     exact add_assoc _ _ _
 
+/-- The linear part of a translation is trivial. -/
+lemma linearHom_translationHom (v : E) :
+    linearHom (translationHom (Multiplicative.ofAdd v)) = 1 := by
+  ext w
+  show (translationHom (Multiplicative.ofAdd v)).linearIsometryEquiv w = w
+  rw [linear_apply]
+  show v + w - (v + 0) = w
+  simp
+
+/-- An affine isometry with trivial linear part is a translation. -/
+lemma eq_translationHom_of_linearHom_eq_one (ψ : E ≃ᵃⁱ[ℝ] E) (h : linearHom ψ = 1) :
+    ψ = translationHom (Multiplicative.ofAdd (ψ 0)) := by
+  ext v
+  have hv : ψ.linearIsometryEquiv v = v := DFunLike.congr_fun h v
+  rw [linear_apply] at hv
+  exact sub_eq_iff_eq_add'.1 hv
+
 /-- The affine isometries with trivial linear part are the translations. -/
-lemma ker_linearHom : (linearHom (E := E)).ker = (translationHom (E := E)).range := by
-  ext ψ
-  refine ⟨fun h => ⟨Multiplicative.ofAdd (ψ 0), ?_⟩, ?_⟩
-  · ext v
-    have hv : ψ.linearIsometryEquiv v = v := DFunLike.congr_fun h v
-    rw [linear_apply] at hv
-    exact (sub_eq_iff_eq_add'.1 hv).symm
-  · rintro ⟨v, rfl⟩
-    ext w
-    show (translationHom v).linearIsometryEquiv w = w
-    rw [linear_apply]
-    show Multiplicative.toAdd v + w - (Multiplicative.toAdd v + 0) = w
-    simp
+lemma ker_linearHom : (linearHom (E := E)).ker = (translationHom (E := E)).range :=
+  le_antisymm (fun ψ h => ⟨_, (eq_translationHom_of_linearHom_eq_one ψ h).symm⟩)
+    (by rintro _ ⟨v, rfl⟩; exact linearHom_translationHom _)
 
 /-! ## B. The space group -/
 
@@ -111,9 +118,8 @@ def spaceGroup : Subgroup (E ≃ᵃⁱ[ℝ] E) where
     rw [Set.image_comp, hχ, hψ]
   inv_mem' {ψ} hψ := by
     show ⇑ψ.symm '' Set.range R.position = Set.range R.position
-    conv_lhs => rw [← hψ]
-    rw [← Set.image_comp]
-    simp
+    conv_lhs => rw [← show ψ '' Set.range R.position = Set.range R.position from hψ]
+    exact ψ.toEquiv.symm_image_image _
 
 /-- The embedding is primitive if its lattice vectors are exactly the translations that map the set
 of positions onto itself. -/
