@@ -16,15 +16,19 @@ translations.
 
 ## i. Overview
 
-Every affine isometry of a real normed space `E` is a linear isometry followed by a translation.
-Taking the linear part is a homomorphism from the affine isometries to the linear isometries, and
-translating by a vector is a homomorphism from `E` to the affine isometries. The kernel of the
-first is the image of the second: the affine isometries with trivial linear part are exactly the
-translations.
+A rigid motion of space keeps all distances and straight lines. Every such motion is a rotation
+or reflection about the origin, followed by a shift. The rotation or reflection is the linear part
+of the motion. Two motions have the same linear part exactly when they differ by a shift, so the
+motions with trivial linear part are the shifts.
 
-Consequently every subgroup `S` of the affine isometries, for example the space group of a
-crystal, is an extension of its point group, the group of linear parts, by its translations. Thus
-the quotient of `S` by its translations is the point group.
+A crystal in space is invariant under a group of such motions, its space group. Its shifts are the
+translations of the lattice. Its linear parts, the rotations and reflections that remain once the
+shifts are forgotten, form the point group. For a square lattice with an atom at each site, the
+shifts are the integer steps in both directions, and the point group consists of the quarter
+turns and the mirrors. Forgetting the shifts is a homomorphism whose kernel is the group of shifts,
+so the space group modulo its shifts is the point group.
+
+This file proves this for any group of rigid motions, with no crystal in sight.
 
 ## ii. Key results
 
@@ -79,6 +83,11 @@ noncomputable def translationHom : Multiplicative E →* (E ≃ᵃⁱ[ℝ] E) wh
   map_mul' _ _ := by
     ext
     exact add_assoc _ _ _
+
+/-- The linear part of the inverse is the inverse of the linear part. -/
+lemma linearIsometryEquiv_inv (ψ : E ≃ᵃⁱ[ℝ] E) :
+    ψ⁻¹.linearIsometryEquiv = ψ.linearIsometryEquiv.symm :=
+  map_inv linearHom ψ
 
 /-- The linear part of a translation is trivial. -/
 lemma linearHom_translationHom (v : E) :

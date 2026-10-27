@@ -16,11 +16,15 @@ The point group of a primitive, space-filling embedding with a discrete lattice 
 
 ## i. Overview
 
-The point group of an embedding consists of the linear parts of its space group. Each of them is a
-linear isometry that maps the lattice vectors to lattice vectors. A linear map is determined by
-its values on finitely many generators of the lattice, and the images of a generator are lattice
-vectors of the same length. A discrete lattice has only finitely many vectors of bounded length, so
-there are only finitely many choices for these values.
+A crystal cannot be turned by an arbitrary angle and still look the same: only a few rotations
+and reflections map the lattice to itself. Why is the list finite?
+
+A rotation or reflection that maps the crystal to itself maps every lattice vector to a lattice
+vector of the same length. Atoms in a crystal keep a minimal distance, so the lattice vectors
+within any given distance of the origin are finitely many. The images of the generating vectors
+of the lattice are therefore chosen from a finite list, and a rotation or reflection is determined
+by these images. Hence there are only finitely many such rotations and reflections: the point group
+is finite.
 
 ## ii. Key results
 
