@@ -29,13 +29,15 @@ distance, it suffices to compare the distances from the sites of the reference c
 
 - `Embedding.isometries`: The crystal symmetries that preserve distances between positions.
 - `Embedding.translations_le_isometries`: Translations are isometries.
+- `Embedding.norm_vector_lattice`: An isometry preserves the lengths of the translation vectors.
 - `Embedding.mem_isometries_iff_referenceCell`: A symmetry is an isometry exactly when it
   preserves the distances from the sites of the reference cell.
 
 ## iii. Table of contents
 
 - A. Distance-preserving symmetries
-- B. Checking on the reference cell
+- B. Lengths of the translation vectors
+- C. Checking on the reference cell
 
 ## iv. References
 
@@ -74,7 +76,21 @@ lemma translations_le_isometries : Symmetry.translations C ≤ R.isometries := b
   rintro _ ⟨a, rfl⟩ x y
   exact R.dist_position_vadd _ x y
 
-/-! ## B. Checking on the reference cell -/
+/-! ## B. Lengths of the translation vectors -/
+
+/-- The distance between a site and its translate by `a` is the norm of the vector of `a`. -/
+lemma dist_position_vadd_self (a : G) (x : C.Site) :
+    dist (R.position (a +ᵥ x)) (R.position x) = ‖R.vector a‖ := by
+  rw [R.position_vadd, dist_eq_norm, add_sub_cancel_right]
+
+/-- An isometry acts on the translation vectors by norm-preserving maps: the vector of the
+image of a lattice step has the same length as the vector of the step. -/
+lemma norm_vector_lattice (hφ : φ ∈ R.isometries) (a : G) :
+    ‖R.vector (φ.lattice a)‖ = ‖R.vector a‖ := by
+  have h := hφ (a +ᵥ ⟨0, Classical.arbitrary C.UnitCell⟩) ⟨0, Classical.arbitrary C.UnitCell⟩
+  rwa [Symmetry.map_vadd, R.dist_position_vadd_self, R.dist_position_vadd_self] at h
+
+/-! ## C. Checking on the reference cell -/
 
 /-- A symmetry is an isometry exactly when it preserves the distances from the sites of the
 reference cell to all sites. -/
