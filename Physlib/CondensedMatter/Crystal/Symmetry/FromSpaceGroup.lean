@@ -16,15 +16,13 @@ distance-preserving symmetry of the crystal.
 
 ## i. Overview
 
-A rigid motion of space that carries every atom of a crystal onto an atom also acts on the crystal
-itself. It sends each atom to another atom, so it shuffles the atoms among themselves, and it
-moves each lattice vector to another lattice vector. Since it keeps all distances, this
-relabelling of the atoms is a symmetry of the abstract crystal that keeps all distances.
-
-For a square lattice, a quarter turn about an atom sends the atom at `(m, n)` to the atom at
-`(-n, m)`. The lattice vector `(1, 0)` goes to `(0, 1)`. To make this precise the placement has to
-be faithful: different lattice steps give different vectors, different atoms sit at different
-points, and the shifts that carry atoms onto atoms are exactly the lattice steps.
+A rigid motion of space that maps the sites of an embedded crystal onto sites permutes the sites
+and maps lattice vectors to lattice vectors. For a primitive embedding in which different lattice
+steps have different vectors and different sites have different positions, these two pieces of data
+form a lattice automorphism and a bijection of the sites compatible with the translations, that is,
+a symmetry of the crystal. It preserves distances because the motion does. Every element of the
+space group is thus induced by a distance-preserving symmetry of the abstract crystal. The converse
+for space-filling embeddings is in `Crystal.Symmetry.Rigid`.
 
 ## ii. Key results
 

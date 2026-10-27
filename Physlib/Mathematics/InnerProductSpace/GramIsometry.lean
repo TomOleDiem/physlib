@@ -18,14 +18,13 @@ inner products differ by a linear isometry of the space.
 
 ## i. Overview
 
-Two lists of vectors that have the same lengths and the same angles between them can be moved
-into one another by a rotation or reflection. If the first list spans the space, the rotation or
-reflection is unique and is defined on the whole space.
-
-Here this is made precise for families `u` and `w` with the same inner products. Linear
-combinations of `w` vanish wherever the same combination of `u` vanishes, so `u a ↦ w a` extends to
-a linear map. This map preserves inner products, and a linear map of a finite-dimensional space
-that preserves inner products is a linear isometry equivalence.
+Finite families of vectors with the same lengths and mutual angles are related by a rotation or
+reflection. Let `u` and `w` be families in a finite-dimensional real inner product space with
+`⟪w a, w b⟫ = ⟪u a, u b⟫` for all `a` and `b`, and let `u` span the space. Then there is a linear
+isometry `L` with `L (u a) = w a`. The assignment `u a ↦ w a` extends linearly because a
+combination of `w` vanishes whenever the same combination of `u` does, as the norm of a combination
+is computed from the inner products. The extension preserves inner products and is therefore an
+isometry. This recovers the linear part of a rigid motion from its action on the lattice vectors.
 
 ## ii. Key results
 

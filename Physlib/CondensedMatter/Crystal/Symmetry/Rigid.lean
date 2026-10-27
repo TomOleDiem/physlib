@@ -17,19 +17,16 @@ element of its space group.
 
 ## i. Overview
 
-Conversely, suppose that a relabelling of the atoms of a crystal keeps all distances. Is it a
-rigid motion of space? If the lattice vectors span space, it is, and the motion can be read off
-from the symmetry.
+A distance-preserving symmetry of an embedded crystal whose translation vectors span space is
+induced by a rigid motion of space. The symmetry preserves the lengths and mutual angles of the
+translation vectors, so there is a linear isometry of space that agrees with its lattice
+automorphism on them. This isometry carries the differences of the label positions to their images,
+so it moves the label positions of the symmetry up to a single common translation. The linear
+isometry followed by this translation is an affine isometry that extends the symmetry, and it maps
+the sites onto sites.
 
-A symmetry that keeps distances keeps the lengths and mutual angles of the lattice vectors, so it
-turns the lattice vectors as a rotation or reflection of space would. This rotation or reflection
-is fixed by the lattice vectors alone. The atoms of one unit cell then move with it, up to one
-common shift: the relative positions of the atoms in a cell are carried along by the rotation, so
-a single shift is left over. The rotation followed by this shift is a rigid motion of space that
-acts on the atoms as the symmetry does.
-
-Together with `Crystal.Symmetry.FromSpaceGroup`, the distance-preserving symmetries of the crystal
-and the rigid motions of space that carry atoms onto atoms are the same thing.
+Together with `Crystal.Symmetry.FromSpaceGroup`, a symmetry of the crystal preserves distances
+exactly when it is induced by an element of the space group.
 
 ## ii. Key results
 
