@@ -59,6 +59,7 @@ public import Physlib.CondensedMatter.Crystal.PeriodicGraph
 public import Physlib.CondensedMatter.Crystal.Symmetries
 public import Physlib.CondensedMatter.Crystal.Symmetry.AffineIsometries
 public import Physlib.CondensedMatter.Crystal.Symmetry.EmbeddingSpaceGroup
+public import Physlib.CondensedMatter.Crystal.Symmetry.EmbeddingSymmorphic
 public import Physlib.CondensedMatter.Crystal.Symmetry.FinitePointGroup
 public import Physlib.CondensedMatter.Crystal.Symmetry.PointOperations
 public import Physlib.CondensedMatter.Crystal.Symmetry.Symmorphic
