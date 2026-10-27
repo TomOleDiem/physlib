@@ -88,10 +88,12 @@ as they are preserved on a generating set. -/
 lemma inner_vector_lattice_of_generators {S : Set G} (hS : AddSubgroup.closure S = ⊤)
     {A : G ≃+ G} (h : R.InnerEqOn S A) (d d' : G) :
     ⟪R.vector (A d), R.vector (A d')⟫ = ⟪R.vector d, R.vector d'⟫ := by
-  refine R.inner_vector_lattice_of_generators_vec hS A (fun s hs => ?_) d
+  refine R.inner_vector_lattice_of_generators_vec hS A ?_ d
+  intro s hs
   rw [real_inner_comm (R.vector (A d')) (R.vector (A s)),
     real_inner_comm (R.vector d') (R.vector s)]
-  refine R.inner_vector_lattice_of_generators_vec hS A (fun t ht => ?_) d'
+  refine R.inner_vector_lattice_of_generators_vec hS A ?_ d'
+  intro t ht
   exact h t ht s hs
 
 /-- A lattice automorphism that preserves the inner products on a generating set preserves the
