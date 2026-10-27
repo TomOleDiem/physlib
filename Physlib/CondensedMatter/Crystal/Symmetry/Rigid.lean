@@ -178,6 +178,30 @@ section InnerProduct
 
 variable [InnerProductSpace ℝ E]
 
+/-- A linear isometry that agrees with a distance-preserving symmetry on the translation vectors
+carries the differences of the label positions to their images. -/
+lemma position_sub_eq_linear (hR : R.IsSpaceFilling) {φ : Symmetry C} (hφ : φ ∈ R.isometries)
+    {L : E ≃ₗᵢ[ℝ] E} (hL : ∀ a, L (R.vector a) = R.vector (φ.lattice a)) (i j : C.UnitCell) :
+    R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩) = L (R.basis i - R.basis j) := by
+  have h : ∀ x, inner ℝ (L x) (R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩)) =
+      inner ℝ x (R.basis i - R.basis j) := by
+    intro x
+    have hx : x ∈ Submodule.span ℝ (Set.range R.vector) := hR ▸ Submodule.mem_top
+    induction hx using Submodule.span_induction with
+    | mem y hy =>
+      obtain ⟨d, rfl⟩ := hy
+      rw [hL]
+      exact R.inner_lattice_position hφ i j d
+    | zero => simp
+    | add x y _ _ hx hy => simp [inner_add_left, hx, hy]
+    | smul c x _ hx => simp [real_inner_smul_left, hx]
+  have h0 : ∀ x, inner ℝ (L x) (R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩) -
+      L (R.basis i - R.basis j)) = 0 := fun x => by
+    rw [inner_sub_right, h, L.inner_map_map, sub_self]
+  have := h0 (L.symm (R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩) -
+    L (R.basis i - R.basis j)))
+  rwa [L.apply_symm_apply, inner_self_eq_zero, sub_eq_zero] at this
+
 /-- An isometric symmetry of a space-filling embedding is the restriction of an affine isometry of
 space. -/
 lemma exists_affineIsometryEquiv (hR : R.IsSpaceFilling) {φ : Symmetry C}
@@ -186,31 +210,10 @@ lemma exists_affineIsometryEquiv (hR : R.IsSpaceFilling) {φ : Symmetry C}
   obtain ⟨L, hL⟩ := exists_linearIsometryEquiv (u := R.vector)
     (w := fun d => R.vector (φ.lattice d)) hR
     (R.inner_vector_lattice_of_norm (R.norm_vector_lattice hφ))
-  have key : ∀ i j, R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩) =
-      L (R.basis i - R.basis j) := by
-    intro i j
-    have h : ∀ x, inner ℝ (L x) (R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩)) =
-        inner ℝ x (R.basis i - R.basis j) := by
-      intro x
-      have hx : x ∈ Submodule.span ℝ (Set.range R.vector) := hR ▸ Submodule.mem_top
-      induction hx using Submodule.span_induction with
-      | mem y hy =>
-        obtain ⟨d, rfl⟩ := hy
-        rw [hL]
-        exact R.inner_lattice_position hφ i j d
-      | zero => simp
-      | add x y _ _ hx hy => simp [inner_add_left, hx, hy]
-      | smul c x _ hx => simp [real_inner_smul_left, hx]
-    have hz : ∀ x, inner ℝ (L x) (R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩) -
-        L (R.basis i - R.basis j)) = 0 := fun x => by
-      rw [inner_sub_right, h, L.inner_map_map, sub_self]
-    have := hz (L.symm (R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩) -
-      L (R.basis i - R.basis j)))
-    rwa [L.apply_symm_apply, inner_self_eq_zero, sub_eq_zero] at this
   set i₀ : C.UnitCell := Classical.arbitrary _
   have ht : ∀ i, R.position (φ ⟨0, i⟩) =
       L (R.basis i) + (R.position (φ ⟨0, i₀⟩) - L (R.basis i₀)) := fun i => by
-    have := key i i₀
+    have := R.position_sub_eq_linear hR hφ hL i i₀
     rw [map_sub, sub_eq_iff_eq_add] at this
     rw [this]
     abel
