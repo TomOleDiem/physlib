@@ -125,22 +125,6 @@ section NormedSpace
 
 variable [NormedSpace ℝ E] {ψ : E ≃ᵃⁱ[ℝ] E}
 
-/-- Conjugating a translation by an affine isometry translates by the linear part of the vector. -/
-lemma mul_translationHom_mul_inv (ψ : E ≃ᵃⁱ[ℝ] E) (v : E) :
-    ψ * translationHom (Multiplicative.ofAdd v) * ψ⁻¹ =
-      translationHom (Multiplicative.ofAdd (ψ.linearIsometryEquiv v)) := by
-  ext x
-  show ψ (v + ψ.symm x) = ψ.linearIsometryEquiv v + x
-  simpa using ψ.map_vadd (ψ.symm x) v
-
-/-- The linear part of an element of the space group of a primitive embedding maps lattice vectors
-to lattice vectors. -/
-lemma exists_lattice_vector_eq_linear (hprim : R.IsPrimitive) (hψ : ψ ∈ R.spaceGroup) (a : G) :
-    ∃ b : G, R.vector b = ψ.linearIsometryEquiv (R.vector a) := by
-  refine (hprim _).1 ?_
-  rw [← mul_translationHom_mul_inv]
-  exact mul_mem (mul_mem hψ ((hprim _).2 ⟨a, rfl⟩)) (inv_mem hψ)
-
 /-- An element of the space group moves every position to a position. -/
 lemma exists_site_position_eq (hψ : ψ ∈ R.spaceGroup) (x : C.Site) :
     ∃ y : C.Site, R.position y = ψ (R.position x) := by
