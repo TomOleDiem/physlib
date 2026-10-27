@@ -76,10 +76,10 @@ lemma inner_linear_eq (hR : R.IsSpaceFilling) (hL : ∀ a, L (R.vector a) = R.ve
 
 /-- A linear isometry that agrees with a distance-preserving symmetry on the translation vectors
 carries the differences of the label positions to their images. -/
-lemma imageSub_eq_linear (hR : R.IsSpaceFilling) (hφ : φ ∈ R.isometries)
+lemma position_sub_eq_linear (hR : R.IsSpaceFilling) (hφ : φ ∈ R.isometries)
     (hL : ∀ a, L (R.vector a) = R.vector (φ.lattice a)) (i j : C.UnitCell) :
-    R.imageSub φ i j = L (R.basis i - R.basis j) := by
-  set z := R.imageSub φ i j - L (R.basis i - R.basis j)
+    R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩) = L (R.basis i - R.basis j) := by
+  set z := R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩) - L (R.basis i - R.basis j)
   have h0 := R.inner_linear_eq hR hL (R.inner_lattice_position hφ i j) (L.symm z)
   have h1 := L.inner_map_map (L.symm z) (R.basis i - R.basis j)
   rw [L.apply_symm_apply] at h0 h1
@@ -94,8 +94,8 @@ lemma exists_position_const (hR : R.IsSpaceFilling) (hφ : φ ∈ R.isometries)
     ∃ t : E, ∀ i, R.position (φ ⟨0, i⟩) = L (R.basis i) + t := by
   refine ⟨R.position (φ ⟨0, Classical.arbitrary _⟩) - L (R.basis (Classical.arbitrary _)), ?_⟩
   intro i
-  have := R.imageSub_eq_linear hR hφ hL i (Classical.arbitrary _)
-  rw [imageSub, map_sub, sub_eq_iff_eq_add] at this
+  have := R.position_sub_eq_linear hR hφ hL i (Classical.arbitrary _)
+  rw [map_sub, sub_eq_iff_eq_add] at this
   rw [this]
   abel
 
