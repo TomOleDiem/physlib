@@ -57,6 +57,7 @@ public import Physlib.CondensedMatter.Crystal.Bravais.Basic
 public import Physlib.CondensedMatter.Crystal.Embedding
 public import Physlib.CondensedMatter.Crystal.PeriodicGraph
 public import Physlib.CondensedMatter.Crystal.Symmetries
+public import Physlib.CondensedMatter.Crystal.Symmetry.AffineIsometries
 public import Physlib.CondensedMatter.Crystal.Symmetry.EmbeddingSpaceGroup
 public import Physlib.CondensedMatter.Crystal.Symmetry.Isometries
 public import Physlib.CondensedMatter.Crystal.Symmetry.PointOperations
