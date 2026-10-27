@@ -36,6 +36,8 @@ studied in `Crystal.Symmetry.Rigid`.
 - `Crystal.Embedding.spaceGroup` : the affine isometries that preserve the set of positions.
 - `Crystal.Embedding.IsPrimitive` : the lattice vectors are exactly the translations that
   preserve the positions.
+- `Crystal.Embedding.exists_lattice_vector_eq_linear` : the linear part of an element of the space
+  group of a primitive embedding maps lattice vectors to lattice vectors.
 - `Crystal.Embedding.pointGroup` : the linear parts of the space group.
 - `Crystal.Embedding.spaceGroupQuotientEquiv` : the space group modulo its translations is the
   point group.
@@ -125,6 +127,22 @@ def spaceGroup : Subgroup (E ≃ᵃⁱ[ℝ] E) where
 of positions onto itself. -/
 def IsPrimitive : Prop :=
   ∀ v : E, translationHom (Multiplicative.ofAdd v) ∈ R.spaceGroup ↔ v ∈ Set.range R.vector
+
+/-- Conjugating a translation by an affine isometry translates by the linear part of the vector. -/
+lemma mul_translationHom_mul_inv (ψ : E ≃ᵃⁱ[ℝ] E) (v : E) :
+    ψ * translationHom (Multiplicative.ofAdd v) * ψ⁻¹ =
+      translationHom (Multiplicative.ofAdd (ψ.linearIsometryEquiv v)) := by
+  ext x
+  show ψ (v + ψ.symm x) = ψ.linearIsometryEquiv v + x
+  simpa using ψ.map_vadd (ψ.symm x) v
+
+/-- The linear part of an element of the space group of a primitive embedding maps lattice vectors
+to lattice vectors. -/
+lemma exists_lattice_vector_eq_linear (hprim : R.IsPrimitive) (hψ : ψ ∈ R.spaceGroup) (a : G) :
+    ∃ b : G, R.vector b = ψ.linearIsometryEquiv (R.vector a) := by
+  refine (hprim _).1 ?_
+  rw [← mul_translationHom_mul_inv]
+  exact mul_mem (mul_mem hψ ((hprim _).2 ⟨a, rfl⟩)) (inv_mem hψ)
 
 /-! ## C. The point group -/
 
