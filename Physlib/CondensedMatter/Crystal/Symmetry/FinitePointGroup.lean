@@ -24,13 +24,14 @@ there are only finitely many choices for these values.
 
 ## ii. Key results
 
-- `Crystal.Embedding.finite_lattice_ball` : a discrete lattice has finitely many vectors in a ball.
+- `Crystal.Euclidean.finite_closedBall_inter` : a discrete additive subgroup has finitely many
+  elements in a ball.
 - `Crystal.Embedding.finite_pointGroup` : the point group of a primitive, space-filling embedding
   with a discrete lattice is finite.
 
 ## iii. Table of contents
 
-- A. Lattice vectors of bounded length
+- A. Elements of bounded length
 - B. The point group
 
 ## iv. References
@@ -43,21 +44,27 @@ there are only finitely many choices for these values.
 
 namespace Physlib.CondensedMatter.Crystal
 
+/-! ## A. Elements of bounded length -/
+
+namespace Euclidean
+
+/-- A discrete additive subgroup of a proper normed group has finitely many elements in a ball. -/
+lemma finite_closedBall_inter {E : Type*} [NormedAddCommGroup E] [ProperSpace E]
+    (L : AddSubgroup E) [DiscreteTopology L] (r : ℝ) :
+    (Metric.closedBall (0 : E) r ∩ L).Finite := by
+  exact Metric.finite_isBounded_inter_isClosed DiscreteTopology.isDiscrete
+    Metric.isBounded_closedBall (AddSubgroup.isClosed_of_discreteTopology (U := L))
+
+end Euclidean
+
+open Euclidean
+
 variable {G : Type*} [AddCommGroup G] [AddGroup.FG G]
 
 namespace Embedding
 
 variable {C : Crystal G} {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
   (R : Embedding C E)
-
-/-! ## A. Lattice vectors of bounded length -/
-
-omit [NormedSpace ℝ E] in
-/-- A discrete lattice has finitely many vectors in a ball. -/
-lemma finite_lattice_ball [ProperSpace E] [DiscreteTopology R.vector.range] (r : ℝ) :
-    (Metric.closedBall (0 : E) r ∩ R.vector.range).Finite :=
-  Metric.finite_isBounded_inter_isClosed DiscreteTopology.isDiscrete Metric.isBounded_closedBall
-    (AddSubgroup.isClosed_of_discreteTopology (U := R.vector.range))
 
 /-! ## B. The point group -/
 
@@ -66,13 +73,6 @@ lemma pointGroup_apply_mem (hprim : R.IsPrimitive) {L : E ≃ₗᵢ[ℝ] E} (hL 
     (a : G) : L (R.vector a) ∈ R.vector.range := by
   obtain ⟨ψ, hψ, rfl⟩ := Subgroup.mem_map.1 hL
   exact R.exists_lattice_vector_eq_linear hprim hψ a
-
-/-- The point group maps a lattice vector of bounded length to a lattice vector in the same
-ball. -/
-lemma pointGroup_apply_mem_ball (hprim : R.IsPrimitive) {L : E ≃ₗᵢ[ℝ] E} (hL : L ∈ R.pointGroup)
-    {a : G} {r : ℝ} (hr : ‖R.vector a‖ ≤ r) :
-    L (R.vector a) ∈ Metric.closedBall (0 : E) r ∩ R.vector.range :=
-  ⟨by simpa using hr, R.pointGroup_apply_mem hprim hL a⟩
 
 /-- Two linear isometries that agree on the vectors of generators of a space-filling embedding
 are equal. -/
@@ -84,27 +84,32 @@ lemma linearIsometryEquiv_ext {S : Set G} (hS : AddSubgroup.closure S = ⊤)
   rintro _ ⟨s, hs, rfl⟩
   exact h s hs
 
-/-- The point group is finite if the generators of the translation group are finite and the
-lattice is discrete. -/
-lemma finite_pointGroup_of_generators [DiscreteTopology R.vector.range] {S : Set G}
-    (hS : AddSubgroup.closure S = ⊤) (hfin : S.Finite) (hR : R.IsSpaceFilling)
-    (hprim : R.IsPrimitive) : Finite R.pointGroup := by
-  have := hR.finiteDimensional
-  obtain ⟨r, hr⟩ := (hfin.image R.vector).isBounded.exists_norm_le
-  have := (R.finite_lattice_ball r).to_subtype
-  have := hfin.to_subtype
-  refine Finite.of_injective (fun (L : R.pointGroup) (s : S) =>
-    (⟨L.1 (R.vector s), R.pointGroup_apply_mem_ball hprim L.2 (hr _ ⟨s, s.2, rfl⟩)⟩ :
-      ↥(Metric.closedBall (0 : E) r ∩ R.vector.range))) fun L L' h => ?_
-  exact Subtype.ext (R.linearIsometryEquiv_ext hS hR fun s hs =>
-    congrArg Subtype.val (congrFun h ⟨s, hs⟩))
+/-- The values of an element of the point group on generators, as lattice vectors in a ball. -/
+noncomputable def ballValues (hprim : R.IsPrimitive) {S : Set G} {r : ℝ}
+    (hr : ∀ s ∈ S, ‖R.vector s‖ ≤ r) (L : R.pointGroup) (s : S) :
+    ↥(Metric.closedBall (0 : E) r ∩ R.vector.range) := by
+  refine ⟨L.1 (R.vector s), ?_, R.pointGroup_apply_mem hprim L.2 s⟩
+  simpa using hr s s.2
+
+/-- An element of the point group is determined by its values on generators. -/
+lemma injective_ballValues (hprim : R.IsPrimitive) (hR : R.IsSpaceFilling) {S : Set G}
+    (hS : AddSubgroup.closure S = ⊤) {r : ℝ} (hr : ∀ s ∈ S, ‖R.vector s‖ ≤ r) :
+    Function.Injective (R.ballValues hprim hr) := by
+  intro L L' h
+  refine Subtype.ext (R.linearIsometryEquiv_ext hS hR ?_)
+  intro s hs
+  exact congrArg Subtype.val (congrFun h ⟨s, hs⟩)
 
 /-- **The point group of a primitive, space-filling embedding with a discrete lattice is
 finite.** -/
 lemma finite_pointGroup [DiscreteTopology R.vector.range] (hR : R.IsSpaceFilling)
     (hprim : R.IsPrimitive) : Finite R.pointGroup := by
-  obtain ⟨S, hS, hfin⟩ := (AddSubgroup.fg_iff _).1 (AddGroup.fg_def.1 ‹AddGroup.FG G›)
-  exact R.finite_pointGroup_of_generators hS hfin hR hprim
+  have := hR.finiteDimensional
+  obtain ⟨S, hS, hfin⟩ := AddGroup.fg_iff.1 ‹AddGroup.FG G›
+  obtain ⟨r, hr⟩ := (hfin.image R.vector).isBounded.exists_norm_le
+  have := (finite_closedBall_inter R.vector.range r).to_subtype
+  have := hfin.to_subtype
+  exact Finite.of_injective _ (R.injective_ballValues hprim hR hS fun s hs => hr _ ⟨s, hs, rfl⟩)
 
 end Embedding
 
