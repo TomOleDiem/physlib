@@ -16,12 +16,19 @@ checked on generators of the translation group and on the labels.
 
 ## i. Overview
 
-Let the crystal be embedded in a real inner product space. A symmetry preserves distances exactly
-when, for every pair of labels `(i, j)` and every lattice step `d`, a certain vector has the same
-length before and after the symmetry. Squaring the lengths turns this into a statement that is
-additive in `d` once the lengths of the translation vectors are preserved. Hence it suffices to
-check it for the steps of a generating set of the translation group, together with the inner
-products of the translation vectors of the generators, and for the finitely many pairs of labels.
+Does a symmetry of a crystal move the atoms rigidly, so that every distance between two atoms
+stays the same? There are infinitely many pairs of atoms to look at, but a crystal repeats, so
+only a few measurements are needed.
+
+Take a crystal with a square lattice. A symmetry that keeps the length of both primitive vectors
+and the angle between them keeps the lengths and angles of all lattice vectors, since every
+lattice vector is a combination of these two. It then remains to check that the atoms of the unit
+cell keep their mutual distances and their position relative to the primitive vectors. In
+general, a symmetry preserves all distances exactly when the following finitely many conditions
+hold: the images of a generating set of lattice vectors have the same lengths and mutual angles,
+and the atoms of one cell have the same mutual distances and the same angles with the generators.
+
+This needs the notion of angle, so the crystal is placed in an inner product space.
 
 ## ii. Key results
 
