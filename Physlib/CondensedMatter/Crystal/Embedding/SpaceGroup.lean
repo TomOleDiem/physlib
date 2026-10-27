@@ -70,26 +70,15 @@ lemma linear_apply (ψ : E ≃ᵃⁱ[ℝ] E) (v : E) : ψ.linearIsometryEquiv v 
 /-- The linear part of an affine isometry, as a homomorphism. -/
 noncomputable def linearHom : (E ≃ᵃⁱ[ℝ] E) →* (E ≃ₗᵢ[ℝ] E) where
   toFun ψ := ψ.linearIsometryEquiv
-  map_one' := by
-    ext v
-    show (1 : E ≃ᵃⁱ[ℝ] E).linearIsometryEquiv v = v
-    rw [linear_apply]
-    simp
-  map_mul' ψ χ := by
-    ext v
-    show (ψ * χ).linearIsometryEquiv v = ψ.linearIsometryEquiv (χ.linearIsometryEquiv v)
-    rw [linear_apply, linear_apply χ, map_sub, linear_apply ψ, linear_apply ψ (χ 0)]
-    simp only [AffineIsometryEquiv.coe_mul, Function.comp_apply]
-    abel
+  map_one' := rfl
+  map_mul' _ _ := rfl
 
 /-- Translation by a vector, as an affine isometry. -/
 noncomputable def translationHom : Multiplicative E →* (E ≃ᵃⁱ[ℝ] E) where
   toFun v := AffineIsometryEquiv.constVAdd ℝ E (Multiplicative.toAdd v)
-  map_one' := by
-    ext v
-    exact zero_add v
-  map_mul' a b := by
-    ext v
+  map_one' := AffineIsometryEquiv.constVAdd_zero
+  map_mul' _ _ := by
+    ext
     exact add_assoc _ _ _
 
 /-- An affine isometry with trivial linear part is a translation. -/
