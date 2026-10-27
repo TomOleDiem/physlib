@@ -47,10 +47,9 @@ observables. A unital positive map restricts to a channel between the observable
 
 ## iii. Table of contents
 
-- A. Observables
-- B. Tracial states
-- C. States of observables
-- D. Channels between observables
+- A. Observables and tracial states
+- B. States of observables
+- C. Channels between observables
 
 ## iv. References
 
@@ -62,7 +61,7 @@ open ComplexOrder
 
 /-!
 
-## A. Observables
+## A. Observables and tracial states
 
 -/
 
@@ -71,13 +70,7 @@ abbrev Observable (𝒜 : Type*) [AddGroup 𝒜] [StarAddMonoid 𝒜] := selfAdj
 
 namespace UnitalPositiveLinearMap
 
-variable {𝒜 : Type*} [Ring 𝒜] [PartialOrder 𝒜] [Algebra ℂ 𝒜]
-
-/-!
-
-## B. Tracial states
-
--/
+variable {𝒜 : Type*} [Ring 𝒜] [PartialOrder 𝒜] [Module ℂ 𝒜]
 
 /-- A state `ω` is tracial if `ω (a * b) = ω (b * a)` for all `a` and `b`. -/
 def IsTracial (ω : 𝓢[ℂ, 𝒜]) : Prop :=
@@ -102,14 +95,20 @@ lemma IsTracial.map_conj {ω : 𝓢[ℂ, 𝒜]} (h : ω.IsTracial) (u : unitary 
 
 variable [StarModule ℂ 𝒜]
 
+section
+
+variable [IsScalarTower ℂ 𝒜 𝒜] [SMulCommClass ℂ 𝒜 𝒜]
+
 /-- A state is tracial if and only if `ω (a⋆ * a) = ω (a * a⋆)` for all `a`. -/
 lemma isTracial_iff_star_mul_self_eq_mul_star_self (ω : 𝓢[ℂ, 𝒜]) :
     ω.IsTracial ↔ ∀ a : 𝒜, ω (star a * a) = ω (a * star a) :=
   LinearMap.isTracial_iff_star_mul_self_eq_mul_star_self ω.toLinearMap
 
+end
+
 /-!
 
-## C. States of observables
+## B. States of observables
 
 -/
 
@@ -132,11 +131,11 @@ lemma coe_onObservables_apply (ω : 𝓢[ℂ, 𝒜]) (x : Observable 𝒜) :
 
 /-!
 
-## D. Channels between observables
+## C. Channels between observables
 
 -/
 
-variable {ℬ : Type*} [Ring ℬ] [PartialOrder ℬ] [Algebra ℂ ℬ] [StarRing ℬ] [StarModule ℂ ℬ]
+variable {ℬ : Type*} [Ring ℬ] [PartialOrder ℬ] [Module ℂ ℬ] [StarRing ℬ] [StarModule ℂ ℬ]
   [StarOrderedRing ℬ]
 
 /-- A unital positive map restricts to a channel between observables. -/
