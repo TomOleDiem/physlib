@@ -60,6 +60,7 @@ public import Physlib.CondensedMatter.Crystal.Symmetries
 public import Physlib.CondensedMatter.Crystal.Symmetry.AffineIsometries
 public import Physlib.CondensedMatter.Crystal.Symmetry.EmbeddingSpaceGroup
 public import Physlib.CondensedMatter.Crystal.Symmetry.Isometries
+public import Physlib.CondensedMatter.Crystal.Symmetry.IsometriesGenerators
 public import Physlib.CondensedMatter.Crystal.Symmetry.PointOperations
 public import Physlib.CondensedMatter.Crystal.Symmetry.Rigid
 public import Physlib.CondensedMatter.LatticeModels.Basic
