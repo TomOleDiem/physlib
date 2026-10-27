@@ -80,6 +80,11 @@ noncomputable def translationHom : Multiplicative E →* (E ≃ᵃⁱ[ℝ] E) wh
     ext
     exact add_assoc _ _ _
 
+/-- The linear part of the inverse is the inverse of the linear part. -/
+lemma linearIsometryEquiv_inv (ψ : E ≃ᵃⁱ[ℝ] E) :
+    ψ⁻¹.linearIsometryEquiv = ψ.linearIsometryEquiv.symm :=
+  map_inv linearHom ψ
+
 /-- The linear part of a translation is trivial. -/
 lemma linearHom_translationHom (v : E) :
     linearHom (translationHom (Multiplicative.ofAdd v)) = 1 := by
