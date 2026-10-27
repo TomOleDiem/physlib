@@ -78,11 +78,7 @@ lemma isPrimitive_of_basis_mem (hb : ∀ i, R.basis i ∈ R.vector.range) : R.Is
   · intro h
     simpa using h.subset ⟨0, R.vector.range.zero_mem, rfl⟩
   · intro hv
-    refine Set.Subset.antisymm ?_ ?_
-    · rintro _ ⟨x, hx, rfl⟩
-      exact add_mem hv hx
-    · intro y hy
-      exact ⟨-v + y, add_mem (neg_mem hv) hy, add_neg_cancel_left v y⟩
+    simpa only [← Set.image_vadd, vadd_eq_add] using vadd_coe_set hv
 
 /-! ## B. The space group is symmorphic -/
 
