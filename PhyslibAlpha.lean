@@ -661,6 +661,7 @@ public import PhyslibAlpha.ProbabilisticTheory.Weight.Extension
 public import PhyslibAlpha.QuantumMechanics.AngularMomentum.Addition
 public import PhyslibAlpha.QuantumMechanics.AngularMomentum.Basic
 public import PhyslibAlpha.QuantumMechanics.AngularMomentum.ClebschGordanCoefficients
+public import PhyslibAlpha.QuantumMechanics.AngularMomentum.ClebschGordanFormula
 public import PhyslibAlpha.QuantumMechanics.AngularMomentum.NormalizedBasis
 public import PhyslibAlpha.QuantumMechanics.AngularMomentum.ProjectionTheorem
 public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SelectionRules
@@ -676,6 +677,8 @@ public import PhyslibAlpha.QuantumMechanics.HilbertSpaces.FiniteTarget.Operators
 public import PhyslibAlpha.QuantumMechanics.HilbertSpaces.FiniteTarget.Product
 public import PhyslibAlpha.QuantumMechanics.HilbertSpaces.FiniteTarget.ProductState
 public import PhyslibAlpha.QuantumMechanics.Hydrogen.Eigenfunctions
+public import PhyslibAlpha.QuantumMechanics.Hydrogen.FineStructure
+public import PhyslibAlpha.QuantumMechanics.Hydrogen.PauliSpectrum
 public import PhyslibAlpha.QuantumMechanics.Hydrogen.RadialFunctions
 public import PhyslibAlpha.QuantumMechanics.Hydrogen.RadialQuantization
 public import PhyslibAlpha.QuantumMechanics.QuantumHarmonicOscillator

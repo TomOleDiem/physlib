@@ -38,11 +38,15 @@ defined with the periodic graph.
 - `Crystal.Symmetry.apply_eq` : a symmetry acts on every site through the image of the reference
   cell and its lattice automorphism.
 - `Crystal.Symmetry.lattice_mul` : the lattice automorphism of a product is the composite.
+- `Crystal.Symmetry.labelHom` : the permutation of the labels by a symmetry, a homomorphism.
 - `Crystal.Symmetry.translations` : the translations, a normal subgroup of the symmetries.
 
 ## iii. Table of contents
 
 - A. Symmetries
+  - A.1. Action on the sites
+  - A.2. Group structure
+  - A.3. Permutation of the labels
 - B. The translations
 
 ## iv. References
@@ -73,6 +77,8 @@ structure Symmetry (C : Crystal G) where
 namespace Symmetry
 
 variable {C : Crystal G}
+
+/-! ### A.1. Action on the sites -/
 
 /-- Symmetries with the same action on the sites are equal, since translations act freely. -/
 lemma ext' {φ ψ : Symmetry C} (h : ∀ x, φ.toHom x = ψ.toHom x) : φ = ψ := by
@@ -121,6 +127,8 @@ lemma symm_map_vadd (φ : Symmetry C) (a : G) (x : C.Site) :
   map_vaddₛₗ (φ.toHom.inverse' φ.toEquiv.symm φ.lattice.apply_symm_apply
     φ.toEquiv.symm_apply_apply φ.toEquiv.apply_symm_apply) a x
 
+/-! ### A.2. Group structure -/
+
 /-- Symmetries form a group under composition. -/
 noncomputable instance (C : Crystal G) : Group (Symmetry C) where
   mul φ ψ := ⟨ψ.lattice.trans φ.lattice, ⟨φ ∘ ψ, comp_map_vadd φ ψ⟩, φ.bijective.comp ψ.bijective⟩
@@ -153,6 +161,27 @@ noncomputable def toPerm (C : Crystal G) : Symmetry C →* Equiv.Perm C.Site whe
 
 /-- The identity symmetry has trivial lattice automorphism. -/
 @[simp] lemma lattice_one : (1 : Symmetry C).lattice = 0 := rfl
+
+/-! ### A.3. Permutation of the labels -/
+
+/-- The label of the image of `⟨n, i⟩` does not depend on the cell `n`. -/
+lemma label_apply (φ : Symmetry C) (n : G) (i : C.UnitCell) :
+    (φ ⟨n, i⟩).label = (φ ⟨0, i⟩).label := by
+  rw [apply_eq φ n i]
+
+/-- A symmetry permutes the labels: it sends `i` to the label of the image of `⟨0, i⟩`. -/
+instance : MulAction (Symmetry C) C.UnitCell where
+  smul φ i := (φ ⟨0, i⟩).label
+  one_smul _ := rfl
+  mul_smul φ ψ i := label_apply φ (ψ ⟨0, i⟩).cell (ψ ⟨0, i⟩).label
+
+/-- The permutation of the labels by a symmetry, as a homomorphism. -/
+noncomputable def labelHom (C : Crystal G) : Symmetry C →* Equiv.Perm C.UnitCell :=
+  MulAction.toPermHom (Symmetry C) C.UnitCell
+
+/-- The label permutation of a symmetry sends `i` to the label of the image of `⟨0, i⟩`. -/
+lemma labelHom_apply (φ : Symmetry C) (i : C.UnitCell) :
+    labelHom C φ i = (φ ⟨0, i⟩).label := rfl
 
 /-! ## B. The translations -/
 
