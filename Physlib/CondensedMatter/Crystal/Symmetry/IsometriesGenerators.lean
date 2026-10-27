@@ -16,8 +16,8 @@ checked on generators of the translation group and on the labels.
 
 ## i. Overview
 
-The condition that a symmetry of an embedded crystal preserves distances quantifies over all pairs of
-sites. Periodicity reduces it to finitely many conditions. In an inner product space, a symmetry
+The condition that a symmetry of an embedded crystal preserves distances quantifies over all pairs
+of sites. Periodicity reduces it to finitely many conditions. In an inner product space, a symmetry
 with lattice automorphism `A` is an isometry exactly when `A` preserves the inner products of the
 translation vectors of a generating set of the translation group, the differences of the images of
 the label positions have the lengths of the differences of the labels, and their inner products
