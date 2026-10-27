@@ -7,6 +7,8 @@ module
 
 public import Physlib.CondensedMatter.Crystal.Embedding.SpaceGroup
 public import Physlib.CondensedMatter.Crystal.Symmetry.Isometries
+public import Mathlib.Analysis.InnerProductSpace.LinearMap
+public import Mathlib.Analysis.Normed.Module.FiniteDimension
 
 /-!
 # Isometries of space as symmetries of a crystal
@@ -49,11 +51,58 @@ namespace Physlib.CondensedMatter.Crystal
 
 variable {G : Type*} [AddCommGroup G] [AddGroup.FG G]
 
+/-! ## A. A linear isometry from inner products -/
+
+/-- Two families that span the space and have the same inner products differ by a linear isometry
+of the space. -/
+lemma exists_linearIsometryEquiv {ι E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+    [FiniteDimensional ℝ E] {u w : ι → E} (hu : Submodule.span ℝ (Set.range u) = ⊤)
+    (h : ∀ a b, inner ℝ (w a) (w b) = inner ℝ (u a) (u b)) :
+    ∃ L : E ≃ₗᵢ[ℝ] E, ∀ a, L (u a) = w a := by
+  classical
+  let Φu := Finsupp.linearCombination ℝ u
+  let Φw := Finsupp.linearCombination ℝ w
+  have hΦ : ∀ c c', inner ℝ (Φw c) (Φw c') = inner ℝ (Φu c) (Φu c') := by
+    intro c c'
+    induction c using Finsupp.induction_linear with
+    | zero => simp
+    | add f g hf hg => simp [map_add, inner_add_left, hf, hg]
+    | single a r =>
+      induction c' using Finsupp.induction_linear with
+      | zero => simp
+      | add f g hf hg => simp [map_add, inner_add_right, hf, hg]
+      | single b t => simp [Φu, Φw, real_inner_smul_left, real_inner_smul_right, h]
+  have hsurj : Function.Surjective Φu := by
+    rw [← LinearMap.range_eq_top, Finsupp.range_linearCombination]
+    exact hu
+  obtain ⟨s, hs⟩ := Φu.exists_rightInverse_of_surjective (LinearMap.range_eq_top.2 hsurj)
+  have hker : ∀ c, Φu c = 0 → Φw c = 0 := fun c hc => by
+    have := hΦ c c
+    rwa [hc, inner_zero_left, inner_self_eq_zero] at this
+  have hL : ∀ c, (Φw ∘ₗ s) (Φu c) = Φw c := fun c => by
+    have h0 : Φu (s (Φu c) - c) = 0 := by
+      rw [map_sub, sub_eq_zero]
+      exact LinearMap.congr_fun hs (Φu c)
+    simpa [sub_eq_zero] using hker _ h0
+  have hinner : ∀ x y, inner ℝ ((Φw ∘ₗ s) x) ((Φw ∘ₗ s) y) = inner ℝ x y := by
+    intro x y
+    obtain ⟨c, rfl⟩ := hsurj x
+    obtain ⟨c', rfl⟩ := hsurj y
+    rw [hL, hL, hΦ]
+  refine ⟨((Φw ∘ₗ s).isometryOfInner hinner).toLinearIsometryEquiv rfl, fun a => ?_⟩
+  have := hL (Finsupp.single a 1)
+  simp only [Φu, Φw, Finsupp.linearCombination_single, one_smul] at this
+  simpa using this
+
 namespace Embedding
 
-variable {C : Crystal G} {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] (R : Embedding C E)
+variable {C : Crystal G} {E : Type*} [NormedAddCommGroup E] (R : Embedding C E)
 
-/-! ## A. The linear part preserves the lattice -/
+/-! ## B. The linear part preserves the lattice -/
+
+section NormedSpace
+
+variable [NormedSpace ℝ E]
 
 omit [NormedSpace ℝ E] in
 /-- A translation by a lattice vector maps the set of positions onto itself. -/
@@ -99,7 +148,7 @@ lemma exists_lattice_vector_eq_linear (hprim : R.IsPrimitive) {ψ : E ≃ᵃⁱ[
       rw [← add_assoc, map_neg R.vector, map_neg ψ.linearIsometryEquiv, add_neg_cancel, zero_add]
   exact (hprim _).1 heq
 
-/-! ## B. From an isometry of space to a symmetry -/
+/-! ## C. From an isometry of space to a symmetry -/
 
 /-- An isometry in the space group moves every position to a position. -/
 lemma exists_site_position_eq {ψ : E ≃ᵃⁱ[ℝ] E} (hψ : ψ ∈ R.spaceGroup) (x : C.Site) :
@@ -179,7 +228,76 @@ lemma exists_isometry (hv : Function.Injective R.vector) (hp : Function.Injectiv
     exact ψ.dist_map _ _
   · intro x
     exact hf x
+end NormedSpace
 
+/-! ## D. From a symmetry to an isometry of space -/
+
+section InnerProduct
+
+variable [InnerProductSpace ℝ E]
+
+/-- An isometric symmetry of a space-filling embedding is the restriction of an affine isometry of
+space. -/
+lemma exists_affineIsometryEquiv (hR : R.IsSpaceFilling) {φ : Symmetry C}
+    (hφ : φ ∈ R.isometries) : ∃ ψ : E ≃ᵃⁱ[ℝ] E, ∀ x, ψ (R.position x) = R.position (φ x) := by
+  have := hR.finiteDimensional
+  obtain ⟨L, hL⟩ := exists_linearIsometryEquiv (u := R.vector)
+    (w := fun d => R.vector (φ.lattice d)) hR
+    (R.inner_vector_lattice_of_norm (R.norm_vector_lattice hφ))
+  have key : ∀ i j, R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩) =
+      L (R.basis i - R.basis j) := by
+    intro i j
+    have h : ∀ x, inner ℝ (L x) (R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩)) =
+        inner ℝ x (R.basis i - R.basis j) := by
+      intro x
+      have hx : x ∈ Submodule.span ℝ (Set.range R.vector) := hR ▸ Submodule.mem_top
+      induction hx using Submodule.span_induction with
+      | mem y hy =>
+        obtain ⟨d, rfl⟩ := hy
+        rw [hL]
+        exact R.inner_lattice_position hφ i j d
+      | zero => simp
+      | add x y _ _ hx hy => simp [inner_add_left, hx, hy]
+      | smul c x _ hx => simp [real_inner_smul_left, hx]
+    have hz : ∀ x, inner ℝ (L x) (R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩) -
+        L (R.basis i - R.basis j)) = 0 := fun x => by
+      rw [inner_sub_right, h, L.inner_map_map, sub_self]
+    have := hz (L.symm (R.position (φ ⟨0, i⟩) - R.position (φ ⟨0, j⟩) -
+      L (R.basis i - R.basis j)))
+    rwa [L.apply_symm_apply, inner_self_eq_zero, sub_eq_zero] at this
+  set i₀ : C.UnitCell := Classical.arbitrary _
+  have ht : ∀ i, R.position (φ ⟨0, i⟩) =
+      L (R.basis i) + (R.position (φ ⟨0, i₀⟩) - L (R.basis i₀)) := fun i => by
+    have := key i i₀
+    rw [map_sub, sub_eq_iff_eq_add] at this
+    rw [this]
+    abel
+  refine ⟨L.toAffineIsometryEquiv.trans
+    (AffineIsometryEquiv.constVAdd ℝ E (R.position (φ ⟨0, i₀⟩) - L (R.basis i₀))), fun x => ?_⟩
+  show (R.position (φ ⟨0, i₀⟩) - L (R.basis i₀)) + L (R.position x) = R.position (φ x)
+  rw [R.position_apply (φ := φ) x, ht x.label]
+  rw [show R.position x = R.vector x.cell + R.basis x.label from rfl, map_add, hL]
+  abel
+
+/-- An isometric symmetry of a space-filling embedding is the restriction of an element of the
+space group. -/
+lemma exists_mem_spaceGroup (hR : R.IsSpaceFilling) {φ : Symmetry C} (hφ : φ ∈ R.isometries) :
+    ∃ ψ ∈ R.spaceGroup, ∀ x, ψ (R.position x) = R.position (φ x) := by
+  obtain ⟨ψ, h⟩ := R.exists_affineIsometryEquiv hR hφ
+  refine ⟨ψ, ?_, h⟩
+  show ψ '' Set.range R.position = Set.range R.position
+  rw [← Set.range_comp, show ψ ∘ R.position = R.position ∘ φ from funext h, Set.range_comp,
+    show Set.range ⇑φ = Set.univ from φ.bijective.surjective.range_eq, Set.image_univ]
+
+/-- **A symmetry preserves distances exactly when it is the restriction of an element of the space
+group.** -/
+lemma mem_isometries_iff_exists (hR : R.IsSpaceFilling) {φ : Symmetry C} :
+    φ ∈ R.isometries ↔ ∃ ψ ∈ R.spaceGroup, ∀ x, ψ (R.position x) = R.position (φ x) :=
+  ⟨R.exists_mem_spaceGroup hR, fun ⟨ψ, _, h⟩ x y => by
+    rw [← h x, ← h y]
+    exact ψ.dist_map _ _⟩
+
+end InnerProduct
 
 end Embedding
 
