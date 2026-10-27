@@ -109,7 +109,10 @@ lemma finite_pointGroup [DiscreteTopology R.vector.range] (hR : R.IsSpaceFilling
   obtain ⟨r, hr⟩ := (hfin.image R.vector).isBounded.exists_norm_le
   have := (finite_closedBall_inter R.vector.range r).to_subtype
   have := hfin.to_subtype
-  exact Finite.of_injective _ (R.injective_ballValues hprim hR hS fun s hs => hr _ ⟨s, hs, rfl⟩)
+  have hr' : ∀ s ∈ S, ‖R.vector s‖ ≤ r := by
+    intro s hs
+    exact hr _ ⟨s, hs, rfl⟩
+  exact Finite.of_injective _ (R.injective_ballValues hprim hR hS hr')
 
 end Embedding
 
