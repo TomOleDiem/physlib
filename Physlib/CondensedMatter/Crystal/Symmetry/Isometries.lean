@@ -6,7 +6,7 @@ Authors: Tom Ole Diem
 module
 
 public import Physlib.CondensedMatter.Crystal.Embedding
-public import Physlib.CondensedMatter.Crystal.Symmetries
+public import Physlib.CondensedMatter.Crystal.Symmetry.PointOperations
 public import Mathlib.Tactic.Abel
 public import Mathlib.Analysis.InnerProductSpace.Basic
 
@@ -36,6 +36,8 @@ distance, it suffices to compare the distances from the sites of the reference c
   on pairs of labels and cell differences holds.
 - `Embedding.mem_isometries_iff_generators`: In an inner product space, an isometry is
   characterized by finitely many conditions on generators and labels.
+- `Embedding.ofComponents_mem_isometries_iff`: The same check for the symmetry with given
+  lattice automorphism, label permutation and offsets.
 - `Embedding.mem_isometries_iff_referenceCell`: A symmetry is an isometry exactly when it
   preserves the distances from the sites of the reference cell.
 
@@ -113,6 +115,11 @@ lemma position_apply (x : C.Site) : R.position (φ x) =
     R.vector (φ.lattice x.cell) + R.position (φ ⟨0, x.label⟩) := by
   conv_lhs => rw [show x = x.cell +ᵥ (⟨0, x.label⟩ : C.Site) from Site.ext (by simp) rfl]
   rw [Symmetry.map_vadd, R.position_vadd]
+
+/-- The position of the image of a reference-cell site is the vector of the offset plus the
+position of the permuted label. -/
+lemma position_reference (i : C.UnitCell) :
+    R.position (φ ⟨0, i⟩) = R.vector (φ.offset i) + R.basis (Symmetry.labelHom C φ i) := rfl
 
 /-- The distance between the images of two sites depends on their cells only through the
 difference of the cells. -/
@@ -224,6 +231,22 @@ lemma mem_isometries_iff_generators {S : Set G} (hS : AddSubgroup.closure S = �
       | neg x _ hx => simp [inner_neg_left, hx]
     refine (sq_eq_sq₀ (norm_nonneg _) (norm_nonneg _)).1 ?_
     rw [norm_add_sq_real, norm_add_sq_real, hn, h₂ i j, h₃' i j d]
+/-- **Finite check in components.** The symmetry with lattice automorphism `A`, label permutation
+`σ` and offsets `b` is an isometry exactly when the finitely many conditions of
+`mem_isometries_iff_generators` hold for `A`, `σ` and `b`. -/
+lemma ofComponents_mem_isometries_iff {S : Set G} (hS : AddSubgroup.closure S = ⊤) (A : G ≃+ G)
+    (σ : Equiv.Perm C.UnitCell) (b : C.UnitCell → G) :
+    Symmetry.ofComponents C A σ b ∈ R.isometries ↔
+      (∀ s ∈ S, ∀ s' ∈ S, inner ℝ (R.vector (A s)) (R.vector (A s')) =
+        inner ℝ (R.vector s) (R.vector s')) ∧
+      (∀ i j, ‖(R.vector (b i) + R.basis (σ i)) - (R.vector (b j) + R.basis (σ j))‖ =
+        ‖R.basis i - R.basis j‖) ∧
+      (∀ i j, ∀ s ∈ S, inner ℝ (R.vector (A s))
+        ((R.vector (b i) + R.basis (σ i)) - (R.vector (b j) + R.basis (σ j))) =
+          inner ℝ (R.vector s) (R.basis i - R.basis j)) := by
+  rw [R.mem_isometries_iff_generators hS]
+  simp only [R.position_reference, Symmetry.lattice_ofComponents, Symmetry.offset_ofComponents,
+    Symmetry.labelHom_ofComponents]
 
 end InnerProduct
 
