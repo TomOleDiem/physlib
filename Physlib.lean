@@ -67,6 +67,7 @@ public import Physlib.CondensedMatter.Crystal.PeriodicGraph
 public import Physlib.CondensedMatter.Crystal.Symmetry.Basic
 public import Physlib.CondensedMatter.Crystal.Symmetry.Isometries
 public import Physlib.CondensedMatter.Crystal.Symmetry.PointOperations
+public import Physlib.CondensedMatter.Crystal.Symmetry.SpaceGroup
 public import Physlib.CondensedMatter.LatticeModels.Basic
 public import Physlib.CondensedMatter.ManyBody.Basic
 public import Physlib.CondensedMatter.Response.Basic
