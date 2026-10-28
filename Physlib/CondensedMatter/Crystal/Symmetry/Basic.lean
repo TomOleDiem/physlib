@@ -39,6 +39,7 @@ defined with the periodic graph.
   cell and its lattice automorphism.
 - `Crystal.Symmetry.lattice_mul` : the lattice automorphism of a product is the composite.
 - `Crystal.Symmetry.labelHom` : the permutation of the labels by a symmetry, a homomorphism.
+- `Crystal.Symmetry.offset` : the cell in which a symmetry sends the reference site of a label.
 - `Crystal.Symmetry.translations` : the translations, a normal subgroup of the symmetries.
 
 ## iii. Table of contents
@@ -47,6 +48,7 @@ defined with the periodic graph.
   - A.1. Action on the sites
   - A.2. Group structure
   - A.3. Permutation of the labels
+  - A.4. Offsets
 - B. The translations
 
 ## iv. References
@@ -182,6 +184,23 @@ noncomputable def labelHom (C : Crystal G) : Symmetry C →* Equiv.Perm C.UnitCe
 /-- The label permutation of a symmetry sends `i` to the label of the image of `⟨0, i⟩`. -/
 lemma labelHom_apply (φ : Symmetry C) (i : C.UnitCell) :
     labelHom C φ i = (φ ⟨0, i⟩).label := rfl
+
+/-! ### A.4. Offsets -/
+
+/-- The offset of a symmetry at the label `i`: the cell in which the image of the reference site
+`⟨0, i⟩` lies, as a lattice vector in `G`. -/
+def offset (φ : Symmetry C) (i : C.UnitCell) : G := (φ ⟨0, i⟩).cell
+
+/-- A symmetry sends the site `⟨n, i⟩` to the cell `A n + bᵢ` with label `σ i`, where `A` is its
+lattice automorphism, `σ` its label permutation and `bᵢ` its offset at `i`. -/
+lemma apply_eq_data (φ : Symmetry C) (x : C.Site) :
+    φ x = ⟨φ.lattice x.cell + φ.offset x.label, labelHom C φ x.label⟩ :=
+  apply_eq φ x.cell x.label
+
+/-- The cell of the image of `⟨n, i⟩` is `A n + bᵢ`. -/
+lemma cell_apply (φ : Symmetry C) (x : C.Site) :
+    (φ x).cell = φ.lattice x.cell + φ.offset x.label :=
+  congrArg Site.cell (apply_eq_data φ x)
 
 /-! ## B. The translations -/
 
