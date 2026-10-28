@@ -5,7 +5,7 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.CondensedMatter.Crystal.Symmetries
+public import Physlib.CondensedMatter.Crystal.Symmetry.Basic
 public import Mathlib.GroupTheory.SemidirectProduct
 
 /-!
