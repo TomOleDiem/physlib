@@ -6,6 +6,7 @@ Authors: Tom Ole Diem
 module
 
 public import Physlib.CondensedMatter.Crystal.Basic
+public import Physlib.CondensedMatter.Crystal.Bonds
 public import Mathlib.GroupTheory.GroupAction.Hom
 
 /-!
@@ -29,8 +30,10 @@ it sends the reference cell. When the cell has several sites, it can move them d
 example, shifting a chain with two sites per cell by half a cell exchanges the two sites, and is
 not a translation by a lattice step.
 
-Bonds are not involved yet. The symmetries that also respect the bonds, the space group, are
-defined with the periodic graph.
+A symmetry also moves the bonds between sites. A bond from the label `i` to the label `j` with
+displacement `δ` goes to the bond from `σ i` to `σ j` with displacement `A δ + bⱼ - bᵢ`, where `σ`
+is the permutation of the labels, `A` the lattice automorphism and `bᵢ` the offset at `i`. The
+symmetries that respect the bonds, the space group, are defined with the periodic graph.
 
 ## ii. Key results
 
@@ -41,6 +44,7 @@ defined with the periodic graph.
 - `Crystal.Symmetry.labelHom` : the permutation of the labels by a symmetry, a homomorphism.
 - `Crystal.Symmetry.offset` : the cell in which a symmetry sends the reference site of a label.
 - `Crystal.Symmetry.translations` : the translations, a normal subgroup of the symmetries.
+- `Crystal.Symmetry.mapBond` : the image of a bond under a symmetry.
 
 ## iii. Table of contents
 
@@ -50,6 +54,7 @@ defined with the periodic graph.
   - A.3. Permutation of the labels
   - A.4. Offsets
 - B. The translations
+- C. Action on bonds
 
 ## iv. References
 
@@ -249,6 +254,41 @@ instance : (translations C).Normal where
   conj_mem := by
     rintro _ ⟨a, rfl⟩ φ
     exact ⟨_, (conj_translation φ (Multiplicative.toAdd a)).symm⟩
+
+/-! ## C. Action on bonds -/
+
+section Bonds
+
+variable (φ : Symmetry C)
+
+/-- The image of a bond under a crystal symmetry, with displacement `A δ + bⱼ - bᵢ`. -/
+noncomputable def mapBond (b : Bond C) : Bond C where
+  source := labelHom C φ b.source
+  target := labelHom C φ b.target
+  displacement := φ.lattice b.displacement + φ.offset b.target - φ.offset b.source
+
+/-- A symmetry maps sites connected by a bond to sites connected by its image. -/
+lemma mapBond_links {b : Bond C} {x y : C.Site} (h : b.Links x y) :
+    (φ.mapBond b).Links (φ x) (φ y) := by
+  obtain ⟨s, t, d⟩ := b
+  obtain ⟨n, i⟩ := x
+  obtain ⟨m, j⟩ := y
+  simp only [Bond.Links] at h
+  obtain ⟨rfl, rfl, rfl⟩ := h
+  exact ⟨label_apply φ n i, label_apply φ _ j, by
+    simp [mapBond, cell_apply, map_add, add_assoc]⟩
+
+/-- Applying a symmetry and its inverse to a bond recovers the original bond. -/
+lemma mapBond_inv_mapBond (b : Bond C) : φ⁻¹.mapBond (φ.mapBond b) = b := by
+  have eq_of_links : ∀ (b b' : Bond C) (x y : C.Site), b.Links x y → b'.Links x y → b = b' := by
+    rintro ⟨s, t, d⟩ ⟨s', t', d'⟩ x y ⟨hs, ht, hd⟩ ⟨hs', ht', hd'⟩
+    simp_all
+  have hl : b.Links ⟨0, b.source⟩ ⟨b.displacement, b.target⟩ := ⟨rfl, rfl, (zero_add _).symm⟩
+  have h := φ⁻¹.mapBond_links (φ.mapBond_links hl)
+  rw [inv_apply_apply, inv_apply_apply] at h
+  exact eq_of_links _ _ _ _ h hl
+
+end Bonds
 
 end Symmetry
 
