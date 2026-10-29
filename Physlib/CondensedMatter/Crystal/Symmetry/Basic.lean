@@ -39,12 +39,12 @@ symmetries that respect the bonds, the space group, are defined with the periodi
 - `Crystal.Symmetry` : a symmetry of a crystal, a group.
 - `Crystal.Symmetry.apply_eq` : a symmetry acts on every site through the image of the reference
   cell and its lattice automorphism.
+- `Crystal.Symmetry.apply_eq_components` : a symmetry sends `⟨n, i⟩` to `⟨A n + bᵢ, σ i⟩`.
 - `Crystal.Symmetry.lattice_mul` : the lattice automorphism of a product is the composite.
 - `Crystal.Symmetry.labelHom` : the permutation of the labels by a symmetry, a homomorphism.
 - `Crystal.Symmetry.offset` : the cell in which a symmetry sends the reference site of a label.
 - `Crystal.Symmetry.translations` : the translations, a normal subgroup of the symmetries.
-- `Crystal.Symmetry.mapBond` : the image of a bond under a symmetry.
-- `Crystal.Symmetry.smul_bond_def` : the action of a symmetry on a bond is its image.
+- `Crystal.Symmetry.mapBond` : the image of a bond under a symmetry, an action on the bonds.
 
 ## iii. Table of contents
 
@@ -198,14 +198,14 @@ def offset (φ : Symmetry C) (i : C.UnitCell) : G := (φ ⟨0, i⟩).cell
 
 /-- A symmetry sends the site `⟨n, i⟩` to the cell `A n + bᵢ` with label `σ i`, where `A` is its
 lattice automorphism, `σ` its label permutation and `bᵢ` its offset at `i`. -/
-lemma apply_eq_lattice_add_offset_labelHom (φ : Symmetry C) (x : C.Site) :
+lemma apply_eq_components (φ : Symmetry C) (x : C.Site) :
     φ x = ⟨φ.lattice x.cell + φ.offset x.label, labelHom C φ x.label⟩ :=
   apply_eq φ x.cell x.label
 
 /-- The cell of the image of `⟨n, i⟩` is `A n + bᵢ`. -/
 lemma cell_apply (φ : Symmetry C) (x : C.Site) :
     (φ x).cell = φ.lattice x.cell + φ.offset x.label :=
-  congrArg Site.cell (apply_eq_lattice_add_offset_labelHom φ x)
+  congrArg Site.cell (apply_eq_components φ x)
 
 /-! ## B. The translations -/
 
@@ -281,12 +281,12 @@ lemma mapBond_links {b : Bond C} {x y : C.Site} (h : b.Links x y) :
 /-- The image of a bond under a product is the iterated image. -/
 lemma mapBond_mul (ψ : Symmetry C) (b : Bond C) :
     (φ * ψ).mapBond b = φ.mapBond (ψ.mapBond b) := by
-  have hl : b.Links ⟨0, b.source⟩ ⟨b.displacement, b.target⟩ := ⟨rfl, rfl, (zero_add _).symm⟩
+  have hl := b.links_reference
   exact Bond.eq_of_links ((φ * ψ).mapBond_links hl) (φ.mapBond_links (ψ.mapBond_links hl))
 
 /-- The identity symmetry fixes every bond. -/
 lemma mapBond_one (b : Bond C) : (1 : Symmetry C).mapBond b = b := by
-  have hl : b.Links ⟨0, b.source⟩ ⟨b.displacement, b.target⟩ := ⟨rfl, rfl, (zero_add _).symm⟩
+  have hl := b.links_reference
   exact Bond.eq_of_links ((1 : Symmetry C).mapBond_links hl) hl
 
 /-- The crystal symmetries act on the bonds. -/
@@ -294,13 +294,6 @@ noncomputable instance : MulAction (Symmetry C) (Bond C) where
   smul φ b := φ.mapBond b
   one_smul := mapBond_one
   mul_smul := mapBond_mul
-
-/-- The action on a bond is the image of the bond. -/
-lemma smul_bond_def (b : Bond C) : φ • b = φ.mapBond b := rfl
-
-/-- Applying a symmetry and its inverse to a bond recovers the original bond. -/
-lemma mapBond_inv_mapBond (b : Bond C) : φ⁻¹.mapBond (φ.mapBond b) = b :=
-  inv_smul_smul φ b
 
 end Bonds
 

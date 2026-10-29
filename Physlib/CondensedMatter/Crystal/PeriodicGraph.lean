@@ -26,6 +26,12 @@ It is enough to list the connections once. A finite set of bonds gives a periodi
 conversely every periodic graph in which each site has finitely many neighbors comes from finitely
 many bonds.
 
+A symmetry of the crystal need not respect these connections. A quarter turn of a square lattice
+with bonds along one axis only carries bonded sites to unbonded ones. A symmetry keeps the graph
+when it carries bonded sites to bonded sites. The graph repeats under translations. It is therefore
+enough to check the finitely many bonds of the reference cell. A symmetry keeps the graph exactly
+when it permutes these bonds.
+
 ## ii. Key results
 
 - `PeriodicGraph` : a graph on the sites that is invariant under translation and has finitely

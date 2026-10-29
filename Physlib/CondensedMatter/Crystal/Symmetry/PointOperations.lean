@@ -123,7 +123,7 @@ automorphism, label permutation and offsets. -/
 lemma eq_ofComponents (φ : Symmetry C) :
     φ = ofComponents C φ.lattice (labelHom C φ) φ.offset := by
   ext x : 1
-  exact apply_eq_lattice_add_offset_labelHom φ x
+  exact apply_eq_components φ x
 
 /-! ### A.2. Products -/
 

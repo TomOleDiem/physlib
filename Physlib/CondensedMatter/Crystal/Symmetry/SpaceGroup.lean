@@ -26,8 +26,8 @@ A periodic graph is fixed by finitely many bonds of the reference cell. A symmet
 belongs to the space group exactly when it permutes these bonds. The space group is the
 stabilizer of the bond set.
 
-Dropping the shifts of a space group leaves its point group. This is the group of rotations and
-reflections.
+Dropping the shifts of a space group leaves its point group. In a crystal embedded in space the
+point group consists of rotations and reflections.
 
 ## ii. Key results
 
@@ -97,12 +97,14 @@ lemma mem_pointGroup_iff :
 
 /-! ## C. The bond set -/
 
+section BondSet
+
 variable [DecidableEq G] [DecidableEq C.UnitCell] [Fintype C.UnitCell]
 
 /-- Every space-group symmetry preserves the reference-cell bonds. -/
 lemma PreservesBonds.of_mem_spaceGroup (hφ : φ ∈ g.spaceGroup) : g.PreservesBonds φ := by
   intro b hb
-  have hl : b.Links ⟨0, b.source⟩ ⟨b.displacement, b.target⟩ := ⟨rfl, rfl, (zero_add _).symm⟩
+  have hl := b.links_reference
   have hadj := (g.mem_bonds b).1 hb
   have hmap := (hφ _ _).2 hadj
   exact (g.adj_iff_mem_bonds (φ.mapBond_links hl)).1 hmap
@@ -124,6 +126,8 @@ lemma spaceGroup_eq_stabilizer :
     g.spaceGroup = MulAction.stabilizer (Symmetry C) g.bonds := by
   ext φ
   rw [mem_spaceGroup_iff_preservesBonds, preservesBonds_iff_smul_eq, MulAction.mem_stabilizer_iff]
+
+end BondSet
 
 end PeriodicGraph
 

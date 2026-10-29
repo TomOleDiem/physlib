@@ -62,6 +62,10 @@ namespace Bond
 def Links (b : Bond C) (x y : C.Site) : Prop :=
   x.label = b.source ∧ y.label = b.target ∧ y.cell = x.cell + b.displacement
 
+/-- Every bond links the reference site of its source to the site its displacement points to. -/
+lemma links_reference (b : Bond C) : b.Links ⟨0, b.source⟩ ⟨b.displacement, b.target⟩ :=
+  ⟨rfl, rfl, (zero_add _).symm⟩
+
 /-- Two bonds linking the same pair of sites are equal. -/
 lemma eq_of_links {b b' : Bond C} {x y : C.Site} (h : b.Links x y) (h' : b'.Links x y) :
     b = b' := by
