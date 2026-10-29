@@ -62,6 +62,15 @@ namespace Bond
 def Links (b : Bond C) (x y : C.Site) : Prop :=
   x.label = b.source ∧ y.label = b.target ∧ y.cell = x.cell + b.displacement
 
+/-- Two bonds linking the same pair of sites are equal. -/
+lemma eq_of_links {b b' : Bond C} {x y : C.Site} (h : b.Links x y) (h' : b'.Links x y) :
+    b = b' := by
+  obtain ⟨s, t, d⟩ := b
+  obtain ⟨s', t', d'⟩ := b'
+  obtain ⟨hs, ht, hd⟩ := h
+  obtain ⟨hs', ht', hd'⟩ := h'
+  simp_all
+
 /-- Translating the endpoints gives another copy of the same bond. -/
 lemma links_vadd (b : Bond C) (a : G) (x y : C.Site) :
     b.Links (a +ᵥ x) (a +ᵥ y) ↔ b.Links x y := by

@@ -5,7 +5,6 @@ Authors: Tom Ole Diem
 -/
 module
 
-public import Physlib.CondensedMatter.Crystal.Basic
 public import Physlib.CondensedMatter.Crystal.Bonds
 public import Mathlib.GroupTheory.GroupAction.Hom
 
@@ -17,17 +16,17 @@ The symmetries of a crystal are the permutations of its sites that respect its t
 ## i. Overview
 
 A crystal is a pattern that repeats. Shift the whole crystal by one lattice step and it looks
-exactly the same. This translation symmetry is why momentum is conserved in a solid, and why the
-electrons of a crystal are described by waves labelled by a wavevector.
+exactly the same. This translation symmetry is why momentum is conserved in a solid. It is also
+why the electrons of a crystal are described by waves labelled by a wavevector.
 
 Other operations can leave the pattern looking the same, such as turning a square lattice by a
 quarter turn. This file defines the operations that keep the repetition intact: they move the
-sites around and turn each lattice step into another lattice step. They form a group, and the
+sites around and turn each lattice step into another lattice step. They form a group. The
 translations are a normal subgroup of it.
 
 Every site is a copy of a site in the reference cell, so such an operation is determined by where
 it sends the reference cell. When the cell has several sites, it can move them differently. For
-example, shifting a chain with two sites per cell by half a cell exchanges the two sites, and is
+example, shifting a chain with two sites per cell by half a cell exchanges the two sites. It is
 not a translation by a lattice step.
 
 A symmetry also moves the bonds between sites. A bond from the label `i` to the label `j` with
@@ -45,6 +44,7 @@ symmetries that respect the bonds, the space group, are defined with the periodi
 - `Crystal.Symmetry.offset` : the cell in which a symmetry sends the reference site of a label.
 - `Crystal.Symmetry.translations` : the translations, a normal subgroup of the symmetries.
 - `Crystal.Symmetry.mapBond` : the image of a bond under a symmetry.
+- `Crystal.Symmetry.smul_bond_def` : the action of a symmetry on a bond is its image.
 
 ## iii. Table of contents
 
@@ -198,14 +198,14 @@ def offset (φ : Symmetry C) (i : C.UnitCell) : G := (φ ⟨0, i⟩).cell
 
 /-- A symmetry sends the site `⟨n, i⟩` to the cell `A n + bᵢ` with label `σ i`, where `A` is its
 lattice automorphism, `σ` its label permutation and `bᵢ` its offset at `i`. -/
-lemma apply_eq_data (φ : Symmetry C) (x : C.Site) :
+lemma apply_eq_lattice_add_offset_labelHom (φ : Symmetry C) (x : C.Site) :
     φ x = ⟨φ.lattice x.cell + φ.offset x.label, labelHom C φ x.label⟩ :=
   apply_eq φ x.cell x.label
 
 /-- The cell of the image of `⟨n, i⟩` is `A n + bᵢ`. -/
 lemma cell_apply (φ : Symmetry C) (x : C.Site) :
     (φ x).cell = φ.lattice x.cell + φ.offset x.label :=
-  congrArg Site.cell (apply_eq_data φ x)
+  congrArg Site.cell (apply_eq_lattice_add_offset_labelHom φ x)
 
 /-! ## B. The translations -/
 
@@ -278,15 +278,29 @@ lemma mapBond_links {b : Bond C} {x y : C.Site} (h : b.Links x y) :
   exact ⟨label_apply φ n i, label_apply φ _ j, by
     simp [mapBond, cell_apply, map_add, add_assoc]⟩
 
-/-- Applying a symmetry and its inverse to a bond recovers the original bond. -/
-lemma mapBond_inv_mapBond (b : Bond C) : φ⁻¹.mapBond (φ.mapBond b) = b := by
-  have eq_of_links : ∀ (b b' : Bond C) (x y : C.Site), b.Links x y → b'.Links x y → b = b' := by
-    rintro ⟨s, t, d⟩ ⟨s', t', d'⟩ x y ⟨hs, ht, hd⟩ ⟨hs', ht', hd'⟩
-    simp_all
+/-- The image of a bond under a product is the iterated image. -/
+lemma mapBond_mul (ψ : Symmetry C) (b : Bond C) :
+    (φ * ψ).mapBond b = φ.mapBond (ψ.mapBond b) := by
   have hl : b.Links ⟨0, b.source⟩ ⟨b.displacement, b.target⟩ := ⟨rfl, rfl, (zero_add _).symm⟩
-  have h := φ⁻¹.mapBond_links (φ.mapBond_links hl)
-  rw [inv_apply_apply, inv_apply_apply] at h
-  exact eq_of_links _ _ _ _ h hl
+  exact Bond.eq_of_links ((φ * ψ).mapBond_links hl) (φ.mapBond_links (ψ.mapBond_links hl))
+
+/-- The identity symmetry fixes every bond. -/
+lemma mapBond_one (b : Bond C) : (1 : Symmetry C).mapBond b = b := by
+  have hl : b.Links ⟨0, b.source⟩ ⟨b.displacement, b.target⟩ := ⟨rfl, rfl, (zero_add _).symm⟩
+  exact Bond.eq_of_links ((1 : Symmetry C).mapBond_links hl) hl
+
+/-- The crystal symmetries act on the bonds. -/
+noncomputable instance : MulAction (Symmetry C) (Bond C) where
+  smul φ b := φ.mapBond b
+  one_smul := mapBond_one
+  mul_smul := mapBond_mul
+
+/-- The action on a bond is the image of the bond. -/
+lemma smul_bond_def (b : Bond C) : φ • b = φ.mapBond b := rfl
+
+/-- Applying a symmetry and its inverse to a bond recovers the original bond. -/
+lemma mapBond_inv_mapBond (b : Bond C) : φ⁻¹.mapBond (φ.mapBond b) = b :=
+  inv_smul_smul φ b
 
 end Bonds
 
