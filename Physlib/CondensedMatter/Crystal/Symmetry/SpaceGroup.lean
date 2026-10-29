@@ -27,7 +27,7 @@ belongs to the space group exactly when it permutes these bonds. The space group
 stabilizer of the bond set.
 
 Dropping the shifts of a space group leaves its point group. This is the group of rotations and
-reflections that physicists read off from the bonded crystal.
+reflections.
 
 ## ii. Key results
 
