@@ -58,6 +58,8 @@ many bonds.
 
 @[expose] public section
 
+open Pointwise
+
 namespace Physlib.CondensedMatter.Crystal
 
 variable {G : Type*} [AddCommGroup G] [AddGroup.FG G] {C : Crystal G}
@@ -223,8 +225,6 @@ def graphAutomorphisms (g : PeriodicGraph C) : Subgroup (Equiv.Perm C.Site) wher
 /-! ## G. Symmetries preserving the bonds -/
 
 section PreservesBonds
-
-open Pointwise
 
 variable {g : PeriodicGraph C} {φ : Symmetry C} [Fintype C.UnitCell]
 

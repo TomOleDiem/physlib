@@ -52,6 +52,8 @@ reflections that physicists read off from the bonded crystal.
 
 @[expose] public section
 
+open Pointwise
+
 namespace Physlib.CondensedMatter.Crystal
 
 variable {G : Type*} [AddCommGroup G] [AddGroup.FG G] {C : Crystal G}
@@ -117,7 +119,6 @@ lemma mem_spaceGroup_iff_preservesBonds : φ ∈ g.spaceGroup ↔ g.PreservesBon
       simpa using h.inv.map_adj hxy
     · exact h.map_adj
 
-open Pointwise in
 /-- The space group is the stabilizer of the set of reference-cell bonds. -/
 lemma spaceGroup_eq_stabilizer :
     g.spaceGroup = MulAction.stabilizer (Symmetry C) g.bonds := by
