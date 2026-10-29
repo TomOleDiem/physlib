@@ -68,6 +68,7 @@ public import Physlib.CondensedMatter.Crystal.Symmetry.Basic
 public import Physlib.CondensedMatter.Crystal.Symmetry.Isometries
 public import Physlib.CondensedMatter.Crystal.Symmetry.PointOperations
 public import Physlib.CondensedMatter.Crystal.Symmetry.SpaceGroup
+public import Physlib.CondensedMatter.Crystal.Symmetry.Species
 public import Physlib.CondensedMatter.LatticeModels.Basic
 public import Physlib.CondensedMatter.ManyBody.Basic
 public import Physlib.CondensedMatter.Response.Basic
@@ -614,6 +615,7 @@ public import Physlib.SpaceAndTime.TimeAndSpace.Basic
 public import Physlib.SpaceAndTime.TimeAndSpace.ConstantTimeDist
 public import Physlib.SpaceAndTime.TimeAndSpace.EuclideanGroup.Action
 public import Physlib.SpaceAndTime.TimeAndSpace.EuclideanGroup.SchwartzAction
+public import Physlib.SpaceAndTime.WaveVectorSpace.Basic
 public import Physlib.StatisticalMechanics.BoltzmannConstant
 public import Physlib.StatisticalMechanics.CanonicalEnsemble.Basic
 public import Physlib.StatisticalMechanics.CanonicalEnsemble.Finite
