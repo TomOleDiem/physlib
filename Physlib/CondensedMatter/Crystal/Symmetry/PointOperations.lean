@@ -32,12 +32,8 @@ the foundation for studying crystallographic symmetries once geometry is introdu
 
 ## ii. Key results
 
-- `Crystal.Symmetry.ofComponents` : the symmetry `(n, i) ↦ (A n + b i, σ i)` with lattice
-  automorphism `A`, label permutation `σ` and offsets `b`.
-- `Crystal.Symmetry.eq_ofComponents` : every symmetry is of this form, with `A`, `σ` and
-  `b` its lattice automorphism, `labelHom` and `offset`.
-- `Crystal.Symmetry.ofComponents_mul` : the product is
-  `(A, σ, b) * (A', σ', b') = (A + A', σ * σ', A ∘ b' + b ∘ σ')`.
+- `Crystal.Symmetry.ofSemidirect` : the symmetry `(n, i) ↦ (A n + b (σ i), σ i)` of a shift `b`
+  followed by a lattice automorphism `A` and a label permutation `σ`.
 - `Crystal.Symmetry.semidirectEquiv` : the symmetry group is isomorphic to the semidirect product
   `(F → G) ⋊ (Aut G × Sym F)` of the shifts and the point operations.
 - `Crystal.Symmetry.shift` and `Crystal.Symmetry.linear` : the symmetries with only offsets and the
@@ -48,9 +44,7 @@ the foundation for studying crystallographic symmetries once geometry is introdu
 
 ## iii. Table of contents
 
-- A. The components of a symmetry
-  - A.1. Symmetries from components
-  - A.2. Products
+- A. The symmetry group as a semidirect product
 - B. Shifts and point operations
 
 ## iv. References
@@ -71,70 +65,7 @@ namespace Symmetry
 variable {C : Crystal G} (A B : G ≃+ G) (σ τ : Equiv.Perm C.UnitCell)
   (b b' : Offsets C)
 
-/-! ## A. The components of a symmetry -/
-
-/-! ### A.1. Symmetries from components -/
-
-/-- The bijection of the sites `⟨n, i⟩ ↦ ⟨A n + bᵢ, σ i⟩` given by a lattice automorphism `A`, a
-label permutation `σ` and offsets `b`. -/
-def componentsEquiv (C : Crystal G) (A : G ≃+ G) (σ : Equiv.Perm C.UnitCell)
-    (b : Offsets C) :
-    C.Site ≃ C.Site where
-  toFun x := ⟨A x.cell + b x.label, σ x.label⟩
-  invFun x := ⟨A.symm (x.cell - b (σ.symm x.label)), σ.symm x.label⟩
-  left_inv x := Site.ext (by simp) (by simp)
-  right_inv x := Site.ext (by simp) (by simp)
-
-/-- The symmetry with lattice automorphism `A`, label permutation `σ` and offsets `b`. It is
-equivariant for `A`, since translating `⟨n, i⟩` by `a` translates its image by `A a`. -/
-def ofComponents (C : Crystal G) (A : G ≃+ G) (σ : Equiv.Perm C.UnitCell)
-    (b : Offsets C) :
-    Symmetry C :=
-  ⟨A, { toFun := componentsEquiv C A σ b
-        map_vadd' _ _ := Site.ext (by simp [componentsEquiv, Site.vadd_def, add_assoc]) rfl },
-    (componentsEquiv C A σ b).bijective⟩
-
-/-- `ofComponents C A σ b` sends `⟨n, i⟩` to `⟨A n + bᵢ, σ i⟩`. -/
-@[simp] lemma ofComponents_apply (x : C.Site) :
-    ofComponents C A σ b x = ⟨A x.cell + b x.label, σ x.label⟩ := rfl
-
-/-- The lattice automorphism of `ofComponents C A σ b` is `A`. -/
-@[simp] lemma lattice_ofComponents :
-    (ofComponents C A σ b).lattice = A := rfl
-
-/-- The label permutation of `ofComponents C A σ b` is `σ`. -/
-@[simp] lemma labelHom_ofComponents :
-    labelHom C (ofComponents C A σ b) = σ :=
-  Equiv.ext (congrFun rfl)
-
-/-- The offsets of `ofComponents C A σ b` are `b`. -/
-@[simp] lemma offset_ofComponents :
-    (ofComponents C A σ b).offset = b := by
-  ext i
-  show A 0 + b i = b i
-  rw [map_zero, zero_add]
-
-/-- Every symmetry is determined by its components: it equals `ofComponents` of its lattice
-automorphism, label permutation and offsets. -/
-lemma eq_ofComponents (φ : Symmetry C) :
-    φ = ofComponents C φ.lattice (labelHom C φ) φ.offset := by
-  ext x : 1
-  exact apply_eq_components φ x
-
-/-! ### A.2. Products -/
-
-/-- The product of two symmetries in components: `(A, σ, b) * (A', σ', b') = (A + A', σ * σ', A ∘ b'
-+ b ∘ σ')`, where `A + A'` is the composite `A ∘ A'` of lattice automorphisms. -/
-lemma ofComponents_mul :
-    ofComponents C A σ b * ofComponents C B τ b' =
-      ofComponents C (A + B) (σ * τ) (A ∘ b' + b ∘ τ) := by
-  ext x : 1
-  refine Site.ext ?_ rfl
-  show A (B x.cell + b' x.label) + b (τ x.label) = (A + B) x.cell + (A (b' x.label) + b (τ x.label))
-  rw [map_add, add_assoc]
-  rfl
-
-/-! ## B. Shifts and point operations -/
+/-! ## A. The symmetry group as a semidirect product -/
 
 /-- The action of the point operations on the shifts: a lattice automorphism `A` and a label
 permutation `σ` send `b` to `A ∘ b ∘ σ⁻¹`. -/
@@ -145,38 +76,66 @@ def shiftAction (C : Crystal G) :
   map_one' := MulEquiv.ext (congrFun rfl)
   map_mul' _ _ := MulEquiv.ext (congrFun rfl)
 
-/-- The symmetry of a shift `b` followed by a point operation `(A, σ)`: it has the components
-`(A, σ, b ∘ σ)`. -/
-def ofSemidirect (C : Crystal G) (y : Multiplicative (Offsets C) ⋊[shiftAction C]
-    (Multiplicative (AddAut G) × Equiv.Perm C.UnitCell)) : Symmetry C :=
-  ofComponents C (Multiplicative.toAdd y.right.1) y.right.2
-    (Multiplicative.toAdd y.left ∘ y.right.2)
+/-- The shifts and point operations of a crystal: the semidirect product of the shifts by the
+lattice automorphisms and label permutations. -/
+abbrev ShiftPointOp (C : Crystal G) :=
+  Multiplicative (Offsets C) ⋊[shiftAction C] (Multiplicative (AddAut G) × Equiv.Perm C.UnitCell)
+
+/-- The bijection of the sites of the element `(b, (A, σ))`: it sends `⟨n, i⟩` to
+`⟨A n + b (σ i), σ i⟩`. -/
+def siteEquiv (C : Crystal G) (y : ShiftPointOp C) : C.Site ≃ C.Site where
+  toFun x := ⟨Multiplicative.toAdd y.right.1 x.cell +
+    Multiplicative.toAdd y.left (y.right.2 x.label), y.right.2 x.label⟩
+  invFun x := ⟨(Multiplicative.toAdd y.right.1).symm
+    (x.cell - Multiplicative.toAdd y.left x.label), y.right.2.symm x.label⟩
+  left_inv x := Site.ext (by simp) (by simp)
+  right_inv x := Site.ext (by simp) (by simp)
+
+/-- The symmetry of the element `(b, (A, σ))`: it has the lattice automorphism `A` and sends
+`⟨n, i⟩` to `⟨A n + b (σ i), σ i⟩`. -/
+def ofSemidirect (C : Crystal G) (y : ShiftPointOp C) : Symmetry C :=
+  ⟨Multiplicative.toAdd y.right.1,
+    { toFun := siteEquiv C y
+      map_vadd' _ _ := Site.ext (by simp [siteEquiv, Site.vadd_def, add_assoc]) rfl },
+    (siteEquiv C y).bijective⟩
+
+/-- `ofSemidirect C (b, (A, σ))` sends `⟨n, i⟩` to `⟨A n + b (σ i), σ i⟩`. -/
+@[simp] lemma ofSemidirect_apply (y : ShiftPointOp C) (x : C.Site) :
+    ofSemidirect C y x = siteEquiv C y x := rfl
+
+/-- The lattice automorphism of `ofSemidirect C (b, (A, σ))` is `A`. -/
+@[simp] lemma lattice_ofSemidirect (y : ShiftPointOp C) :
+    (ofSemidirect C y).lattice = Multiplicative.toAdd y.right.1 := rfl
+
+/-- The label permutation of `ofSemidirect C (b, (A, σ))` is `σ`. -/
+@[simp] lemma labelHom_ofSemidirect (y : ShiftPointOp C) :
+    labelHom C (ofSemidirect C y) = y.right.2 :=
+  Equiv.ext (congrFun rfl)
 
 /-- The symmetry of a product is the product of the symmetries. -/
-lemma ofSemidirect_mul (x y : Multiplicative (Offsets C) ⋊[shiftAction C]
-    (Multiplicative (AddAut G) × Equiv.Perm C.UnitCell)) :
+lemma ofSemidirect_mul (x y : ShiftPointOp C) :
     ofSemidirect C (x * y) = ofSemidirect C x * ofSemidirect C y := by
-  rw [ofSemidirect, ofSemidirect, ofSemidirect, ofComponents_mul]
-  congr 1
-  ext i
-  show (Multiplicative.toAdd (x.left * shiftAction C x.right y.left) ∘ ⇑(x.right.2 * y.right.2))
-    i = _
-  simp [shiftAction, AddEquiv.arrowCongr, add_comm]
+  ext z : 1
+  refine Site.ext ?_ rfl
+  simp [siteEquiv, shiftAction, AddEquiv.arrowCongr]
+  rw [← add_assoc, add_right_comm]
 
 /-- The symmetry group of a crystal is isomorphic to the semidirect product of the shifts, `UnitCell
 → G`, by the point operations, `Aut G × Perm UnitCell`, acting through `shiftAction`. -/
-noncomputable def semidirectEquiv (C : Crystal G) :
-    Multiplicative (Offsets C) ⋊[shiftAction C]
-      (Multiplicative (AddAut G) × Equiv.Perm C.UnitCell) ≃* Symmetry C where
+noncomputable def semidirectEquiv (C : Crystal G) : ShiftPointOp C ≃* Symmetry C where
   toFun := ofSemidirect C
   invFun φ := ⟨Multiplicative.ofAdd (φ.offset ∘ (labelHom C φ).symm),
     Multiplicative.ofAdd φ.lattice, labelHom C φ⟩
   left_inv y := by
     refine SemidirectProduct.ext (Multiplicative.toAdd.injective ?_)
-      (Prod.ext (by simp [ofSemidirect]) (by simp [ofSemidirect]))
+      (Prod.ext (by simp) (by simp))
     ext i
-    simp [ofSemidirect]
-  right_inv φ := by simpa [Function.comp_assoc, ofSemidirect] using (eq_ofComponents φ).symm
+    simp [siteEquiv, offset]
+  right_inv φ := by
+    ext x : 1
+    refine Site.ext ?_ ?_
+    · simp [siteEquiv, cell_apply]
+    · exact (label_apply φ x.cell x.label).symm
   map_mul' := ofSemidirect_mul
 
 /-- The shift by `b`: it moves every site with label `i` by the lattice vector `bᵢ` and fixes the
