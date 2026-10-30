@@ -83,7 +83,7 @@ abbrev ShiftPointOp (C : Crystal G) :=
 
 /-- The bijection of the sites of the element `(b, (A, σ))`: it sends `⟨n, i⟩` to
 `⟨A n + b (σ i), σ i⟩`. -/
-def siteEquiv (C : Crystal G) (y : ShiftPointOp C) : C.Site ≃ C.Site where
+def ofSemidirectEquiv (C : Crystal G) (y : ShiftPointOp C) : C.Site ≃ C.Site where
   toFun x := ⟨Multiplicative.toAdd y.right.1 x.cell +
     Multiplicative.toAdd y.left (y.right.2 x.label), y.right.2 x.label⟩
   invFun x := ⟨(Multiplicative.toAdd y.right.1).symm
@@ -95,13 +95,13 @@ def siteEquiv (C : Crystal G) (y : ShiftPointOp C) : C.Site ≃ C.Site where
 `⟨n, i⟩` to `⟨A n + b (σ i), σ i⟩`. -/
 def ofSemidirect (C : Crystal G) (y : ShiftPointOp C) : Symmetry C :=
   ⟨Multiplicative.toAdd y.right.1,
-    { toFun := siteEquiv C y
-      map_vadd' _ _ := Site.ext (by simp [siteEquiv, Site.vadd_def, add_assoc]) rfl },
-    (siteEquiv C y).bijective⟩
+    { toFun := ofSemidirectEquiv C y
+      map_vadd' _ _ := Site.ext (by simp [ofSemidirectEquiv, Site.vadd_def, add_assoc]) rfl },
+    (ofSemidirectEquiv C y).bijective⟩
 
 /-- `ofSemidirect C (b, (A, σ))` sends `⟨n, i⟩` to `⟨A n + b (σ i), σ i⟩`. -/
 @[simp] lemma ofSemidirect_apply (y : ShiftPointOp C) (x : C.Site) :
-    ofSemidirect C y x = siteEquiv C y x := rfl
+    ofSemidirect C y x = ofSemidirectEquiv C y x := rfl
 
 /-- The lattice automorphism of `ofSemidirect C (b, (A, σ))` is `A`. -/
 @[simp] lemma lattice_ofSemidirect (y : ShiftPointOp C) :
@@ -117,7 +117,7 @@ lemma ofSemidirect_mul (x y : ShiftPointOp C) :
     ofSemidirect C (x * y) = ofSemidirect C x * ofSemidirect C y := by
   ext z : 1
   refine Site.ext ?_ rfl
-  simp [siteEquiv, shiftAction, AddEquiv.arrowCongr]
+  simp [ofSemidirectEquiv, shiftAction, AddEquiv.arrowCongr]
   rw [← add_assoc, add_right_comm]
 
 /-- The symmetry group of a crystal is isomorphic to the semidirect product of the shifts, `UnitCell
@@ -130,11 +130,11 @@ noncomputable def semidirectEquiv (C : Crystal G) : ShiftPointOp C ≃* Symmetry
     refine SemidirectProduct.ext (Multiplicative.toAdd.injective ?_)
       (Prod.ext (by simp) (by simp))
     ext i
-    simp [siteEquiv, offset]
+    simp [ofSemidirectEquiv, offset]
   right_inv φ := by
     ext x : 1
     refine Site.ext ?_ ?_
-    · simp [siteEquiv, cell_apply]
+    · simp [ofSemidirectEquiv, cell_apply]
     · exact (label_apply φ x.cell x.label).symm
   map_mul' := ofSemidirect_mul
 
