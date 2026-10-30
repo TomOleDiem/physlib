@@ -80,9 +80,7 @@ lemma mem_isometries_iff : φ ∈ R.isometries ↔
 /-- Translating both sites by the same lattice vector preserves their distance. -/
 lemma translations_le_isometries : Symmetry.translations C ≤ R.isometries := by
   rintro _ ⟨a, rfl⟩
-  rw [mem_isometries_iff]
-  intro x y
-  exact R.dist_position_vadd _ x y
+  exact R.mem_isometries_iff.2 (R.dist_position_vadd _)
 
 /-! ## B. Distances to the reference cell -/
 

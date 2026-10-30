@@ -231,18 +231,13 @@ lemma exists_eq_shift_mul_pointOp (φ : Symmetry C) : ∃ b, φ = shift C b * po
   simp [pointOp, shift]
 
 /-- A symmetry has trivial point operation exactly when it is a shift. -/
-lemma pointOp_eq_one_iff (φ : Symmetry C) : pointOp C φ = 1 ↔ ∃ b, φ = shift C b := by
-  constructor
-  · intro h
-    obtain ⟨b, hc⟩ := exists_eq_shift_mul_pointOp φ
-    exact ⟨b, by rw [hc, h, mul_one]⟩
-  · rintro ⟨b, rfl⟩
-    exact pointOp_shift b
+lemma pointOp_eq_one_iff (φ : Symmetry C) : pointOp C φ = 1 ↔ ∃ b, φ = shift C b :=
+  ⟨fun h => let ⟨b, hb⟩ := exists_eq_shift_mul_pointOp φ; ⟨b, by rw [hb, h, mul_one]⟩,
+    by rintro ⟨b, rfl⟩; exact pointOp_shift b⟩
 
 /-- A translation has trivial point operation. -/
 lemma pointOp_translation (a : G) : pointOp C (translation C a) = 1 := by
-  rw [← shift_const]
-  exact pointOp_shift _
+  rw [← shift_const, pointOp_shift]
 
 end Symmetry
 

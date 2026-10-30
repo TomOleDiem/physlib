@@ -74,9 +74,7 @@ lemma mem_speciesGroup_iff {q : Species C Q} {φ : Symmetry C} :
 lemma speciesGroup_const (c : Q) : speciesGroup (C := C) (Function.const _ c) = ⊤ := by
   rw [Subgroup.eq_top_iff']
   intro φ
-  rw [mem_speciesGroup_iff]
-  intro i
-  rfl
+  exact mem_speciesGroup_iff.2 (congrFun rfl)
 
 /-- A symmetry that fixes every unit-cell label preserves any species assignment. -/
 lemma ker_labelHom_le_speciesGroup (q : Species C Q) : (labelHom C).ker ≤ speciesGroup q := by
@@ -107,17 +105,13 @@ lemma speciesGroup_le_comp (q : Species C Q) {Q' : Type*} (f : Q → Q') :
 
 /-- Every shift fixes the unit-cell labels and so preserves species. -/
 lemma shift_mem_speciesGroup (q : Species C Q) (b : C.UnitCell → G) :
-    shift C b ∈ speciesGroup q := by
-  rw [mem_speciesGroup_iff]
-  intro i
-  rfl
+    shift C b ∈ speciesGroup q :=
+  mem_speciesGroup_iff.2 (congrFun rfl)
 
 /-- Every translation preserves any species assignment. -/
 lemma translations_le_speciesGroup (q : Species C Q) : translations C ≤ speciesGroup q := by
   rintro _ ⟨a, rfl⟩
-  rw [mem_speciesGroup_iff]
-  intro i
-  rfl
+  exact mem_speciesGroup_iff.2 (congrFun rfl)
 
 end Symmetry
 
