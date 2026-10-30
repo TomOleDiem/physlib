@@ -138,6 +138,8 @@ noncomputable def semidirectEquiv (C : Crystal G) : ShiftPointOp C ≃* Symmetry
     · exact (label_apply φ x.cell x.label).symm
   map_mul' := ofSemidirect_mul
 
+/-! ## B. Shifts and point operations -/
+
 /-- The shift by `b`: it moves every site with label `i` by the lattice vector `bᵢ` and fixes the
 labels and the lattice. -/
 noncomputable def shift (C : Crystal G) (b : Offsets C) : Symmetry C :=
