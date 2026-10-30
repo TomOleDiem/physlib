@@ -102,6 +102,8 @@ noncomputable instance (C : Crystal G) : MulDistribMulAction (Symmetry C) (Brill
        map_one' := rfl
        map_mul' := fun _ _ => rfl } : Symmetry C →* Multiplicative (AddAut G))
 
+open Symmetry
+
 namespace BrillouinZone
 
 /-- Transforming momentum and lattice vector together keeps the value. -/
@@ -111,12 +113,12 @@ lemma smul_lattice_apply {C : Crystal G} (s : Symmetry C) (k : BrillouinZone G) 
 
 /-- A symmetry and its point operation act in the same way on the Brillouin zone. -/
 lemma pointOp_smul {C : Crystal G} (s : Symmetry C) (k : BrillouinZone G) :
-    Symmetry.pointOp C s • k = s • k := rfl
+    pointOp C s • k = s • k := rfl
 
 /-- Shifts fix every momentum. -/
 lemma shift_smul {C : Crystal G} (b : C.UnitCell → G) (k : BrillouinZone G) :
-    Symmetry.shift C b • k = k := by
-  rw [← pointOp_smul, Symmetry.pointOp_shift, one_smul]
+    shift C b • k = k := by
+  rw [← pointOp_smul, pointOp_shift, one_smul]
 
 end BrillouinZone
 
