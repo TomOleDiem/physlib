@@ -46,8 +46,9 @@ The translation group is discrete. Every character is therefore continuous.
 
 ## iv. References
 
-* N. W. Ashcroft and N. D. Mermin, *Solid State Physics*, Chapter 8.
-  [ref: ashcroft_mermin_solid_state_1976]
+* F. Göhmann, *Introduction to Solid State Physics*, lecture L3, Section 3.3 and lecture L5,
+  Section 5.1.
+  [ref: goehmann_solid_state_2021]
 
 -/
 
