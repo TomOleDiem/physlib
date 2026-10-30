@@ -33,10 +33,10 @@ The translation group is discrete. Every character is therefore continuous.
 
 - `BrillouinZone` : the characters of the translation group.
 - `BrillouinZone.smul_apply` : the value of a transformed momentum on a lattice vector.
-- `Symmetry.smul_lattice_apply` : transforming momentum and lattice vector together keeps the
+- `BrillouinZone.smul_lattice_apply` : transforming momentum and lattice vector together keeps the
   value.
-- `Symmetry.pointOp_smul` : a symmetry and its point operation act in the same way.
-- `Symmetry.shift_smul` : shifts fix every momentum.
+- `BrillouinZone.pointOp_smul` : a symmetry and its point operation act in the same way.
+- `BrillouinZone.shift_smul` : shifts fix every momentum.
 
 ## iii. Table of contents
 
@@ -95,14 +95,14 @@ lemma BrillouinZone.smul_apply (A : Multiplicative (AddAut G)) (k : BrillouinZon
 
 /-! ## C. The action of the symmetries -/
 
-namespace Symmetry
-
 /-- A symmetry acts on the Brillouin zone through its lattice automorphism. -/
 noncomputable instance (C : Crystal G) : MulDistribMulAction (Symmetry C) (BrillouinZone G) :=
   MulDistribMulAction.compHom _
     ({ toFun := fun s => Multiplicative.ofAdd s.lattice
        map_one' := rfl
        map_mul' := fun _ _ => rfl } : Symmetry C →* Multiplicative (AddAut G))
+
+namespace BrillouinZone
 
 /-- Transforming momentum and lattice vector together keeps the value. -/
 lemma smul_lattice_apply {C : Crystal G} (s : Symmetry C) (k : BrillouinZone G) (a : G) :
@@ -111,13 +111,13 @@ lemma smul_lattice_apply {C : Crystal G} (s : Symmetry C) (k : BrillouinZone G) 
 
 /-- A symmetry and its point operation act in the same way on the Brillouin zone. -/
 lemma pointOp_smul {C : Crystal G} (s : Symmetry C) (k : BrillouinZone G) :
-    pointOp C s • k = s • k := rfl
+    Symmetry.pointOp C s • k = s • k := rfl
 
 /-- Shifts fix every momentum. -/
 lemma shift_smul {C : Crystal G} (b : C.UnitCell → G) (k : BrillouinZone G) :
-    shift C b • k = k := by
-  rw [← pointOp_smul, pointOp_shift, one_smul]
+    Symmetry.shift C b • k = k := by
+  rw [← pointOp_smul, Symmetry.pointOp_shift, one_smul]
 
-end Symmetry
+end BrillouinZone
 
 end Physlib.CondensedMatter.Crystal
