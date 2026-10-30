@@ -107,8 +107,8 @@ lemma degree_vadd (g : PeriodicGraph C) (a : G) (x : C.Site) :
 
 /-- The degree of a site depends only on its label. -/
 lemma degree_cell (g : PeriodicGraph C) (n : G) (i : C.UnitCell) :
-    g.toSimpleGraph.degree ⟨n, i⟩ = g.toSimpleGraph.degree ⟨0, i⟩ := by
-  have := g.degree_vadd n (⟨0, i⟩ : C.Site)
+    g.toSimpleGraph.degree ⟨n, i⟩ = g.toSimpleGraph.degree (Site.ref i) := by
+  have := g.degree_vadd n (Site.ref i)
   rwa [Site.vadd_def, add_zero] at this
 
 /-! ## B. Building the graph from bonds -/
@@ -132,9 +132,9 @@ lemma adj_graphOfBonds (bonds : Finset (Bond C)) (x y : C.Site) :
 /-- Adjacency depends only on the labels of the sites and the difference of their cells. -/
 lemma adj_iff (g : PeriodicGraph C) (x y : C.Site) :
     g.toSimpleGraph.Adj x y ↔
-      g.toSimpleGraph.Adj ⟨0, x.label⟩ ⟨y.cell - x.cell, y.label⟩ := by
+      g.toSimpleGraph.Adj (Site.ref x.label) ⟨y.cell - x.cell, y.label⟩ := by
   rw [← g.adj_vadd (-x.cell)]
-  have hx : -x.cell +ᵥ x = ⟨0, x.label⟩ := Site.ext (neg_add_cancel _) rfl
+  have hx : -x.cell +ᵥ x = (Site.ref x.label) := Site.ext (neg_add_cancel _) rfl
   have hy : -x.cell +ᵥ y = ⟨y.cell - x.cell, y.label⟩ := Site.ext (neg_add_eq_sub _ _) rfl
   rw [hx, hy]
 
@@ -181,12 +181,12 @@ variable [Fintype C.UnitCell]
 
 /-- The bonds that join a site of the reference cell to one of its neighbors. -/
 def bonds (g : PeriodicGraph C) : Finset (Bond C) :=
-  Finset.univ.biUnion fun i => (g.toSimpleGraph.neighborFinset ⟨0, i⟩).image
+  Finset.univ.biUnion fun i => (g.toSimpleGraph.neighborFinset (Site.ref i)).image
     fun y => ⟨i, y.label, y.cell⟩
 
 /-- A bond of `g.bonds` joins a site of the reference cell to one of its neighbors. -/
 lemma mem_bonds (g : PeriodicGraph C) (b : Bond C) :
-    b ∈ g.bonds ↔ g.toSimpleGraph.Adj ⟨0, b.source⟩ ⟨b.displacement, b.target⟩ := by
+    b ∈ g.bonds ↔ g.toSimpleGraph.Adj (Site.ref b.source) ⟨b.displacement, b.target⟩ := by
   simp only [bonds, Finset.mem_biUnion, Finset.mem_univ, Finset.mem_image, true_and,
     SimpleGraph.mem_neighborFinset]
   exact ⟨fun ⟨_, y, hy, h⟩ => h ▸ hy, fun h => ⟨b.source, ⟨b.displacement, b.target⟩, h, rfl⟩⟩
