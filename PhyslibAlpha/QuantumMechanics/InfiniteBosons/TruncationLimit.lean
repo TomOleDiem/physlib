@@ -56,7 +56,6 @@ variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteS
 
 -/
 
-omit [CompleteSpace H] in
 lemma inner_star_wot (A : H →WOT[ℂ] H) (x y : H) : inner ℂ (star A x) y = inner ℂ x (A y) := by
   rw [ContinuousLinearMapWOT.star_apply, ContinuousLinearMap.star_eq_adjoint,
     ContinuousLinearMap.adjoint_inner_left]
