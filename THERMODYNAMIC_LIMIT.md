@@ -116,6 +116,29 @@ Milestones 0 to 3 are intermediate. They are not evidence that T2 holds.
    limit and `R → ∞` by monotone convergence gives T1 for `U_t`. Uses only truncated moments, so it
    is not circular.
 
+### Truncation removal: status and remaining steps
+
+Done (TruncationLimit.lean): `norm_unitaryGroup_apply`, `norm_unitaryGroup_sub_le`,
+`norm_unitaryGroup_neg_sub_le` (Duhamel: `‖U(-t)φ(0) - φ(t)‖ ≤ ε t` if `‖φ' + iTφ‖ ≤ ε`).
+
+Remaining, in order:
+1. `truncSet Λ K := univ.image (fun φ : Λ → Fin (K+1) => fillIn Λ 0 (fun x => φ x))`, the states
+   supported in `Λ` with occupations `≤ K`; membership lemma.
+2. Embedding `ι v := embed (Σ_{a : S} single a.1 (v a))` of `EuclideanSpace ℂ S`; `‖ι v‖ = ‖v‖`.
+3. Leakage identity: `embed (H_Λ f_v) - ι (H_K v)` has coordinates `[γ ∉ S] Σ_a matEl γ a v_a`.
+4. Leakage bound (Cauchy-Schwarz + row/column sums): `‖leak‖² ≤ R·C·Σ_{a ∈ ∂S} |v_a|²`, where
+   `∂S = {a : ∃ x ∈ Λ, a x = K}` (only moves raising an occupation from `K` leave `S`), and
+   `R, C ≤ 4 K' |Λ|² (2K + 4)` from the `isMove_*` lemmas (unique partner per row and column,
+   amplitude `≤ (n_x+1)+(n_y+1) ≤ 2K+4`).
+5. Chebyshev: `Σ_{a ∈ ∂S} |v_a|² ≤ Σ_{x∈Λ} (K+1)^{-(p+1)} Σ_a (a_x+1)^{p+1} |v_a|²`, then
+   `truncated_localMoment_uniform` for `v = ψ_s` gives `‖leak‖ ≤ C_Λ K^{(1-p)/2} e^{cs/2}`.
+6. Apply `norm_unitaryGroup_neg_sub_le` with `T` = closure of `polyOp (finiteHam V Λ)` (ESA by T0,
+   spectral data from `unboundedSpectralTheorem_of_essentiallySelfAdjoint`, as in
+   `hamPMap_dynamics`), `φ s = ι (schrodinger H_K s ψ)`: `‖U(-t) ι ψ - ι ψ_t‖ → 0` as `K → ∞`
+   for `p ≥ 2`, uniformly for `t ∈ [0, T]`.
+7. Pass the moment bound to the limit with bounded cutoffs `min((N_x+1)^{p+1}, R)` and let
+   `R → ∞` (monotone convergence), giving T1 for the true finite-volume dynamics.
+
 ## Where Deuchert-Lampart-Lemm use number conservation
 
 Read from arXiv:2505.13170 (graph `d`-dimensional with surface parameter σ, `p > 2d + 2`):
