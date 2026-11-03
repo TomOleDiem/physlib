@@ -741,6 +741,11 @@ public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.SpinBosonLocal
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.WeylCStar
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.WeylRegular
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.WeylSymplectic
+public import PhyslibAlpha.QuantumMechanics.LatticeFermions.CARNet
+public import PhyslibAlpha.QuantumMechanics.LatticeFermions.FiniteDynamics
+public import PhyslibAlpha.QuantumMechanics.LatticeFermions.FockSpace
+public import PhyslibAlpha.QuantumMechanics.LatticeFermions.GradedLocalNet
+public import PhyslibAlpha.QuantumMechanics.LatticeFermions.WeightedComposition
 public import PhyslibAlpha.QuantumMechanics.QuantumHarmonicOscillator
 public import PhyslibAlpha.QuantumMechanics.StinespringDilation
 public import PhyslibAlpha.QuantumMechanics.WeylAlgebra.Weyl
