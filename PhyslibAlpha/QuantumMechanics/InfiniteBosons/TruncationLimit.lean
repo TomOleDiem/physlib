@@ -332,4 +332,126 @@ lemma norm_sum_mul_sq_le {ι : Type*} (s : Finset ι) (m v : ι → ℂ) :
 
 end LeakageBound
 
+
+namespace BoseHubbardData
+
+open Finsupp Matrix
+
+variable {L : Type*} [DecidableEq L] (D : BoseHubbardData L)
+
+/-- The leakage of a truncated vector: the part of `H_Λ ι v` that leaves the truncation. -/
+def leak (V : L → ℕ → ℝ) (Λ : Finset L) (S : Finset (Occ L)) (v : EuclideanSpace ℂ S) :
+    Occ L →₀ ℂ :=
+  (D.finiteHam V Λ).1.1 (truncVec S v) -
+    truncVec S (toEuclideanCLM (𝕜 := ℂ) (D.truncHam V Λ S) v)
+
+lemma leak_apply_not_mem (V : L → ℕ → ℝ) (Λ : Finset L) (S : Finset (Occ L))
+    (v : EuclideanSpace ℂ S) {γ : Occ L} (hγ : γ ∉ S) :
+    D.leak V Λ S v γ = ∑ a : S, matEl (D.finiteHam V Λ) γ a.1 * v a := by
+  rw [leak, Finsupp.sub_apply, apply_truncVec, truncVec_apply, dif_neg hγ, sub_zero]
+
+lemma not_mem_of_mem_support_leak (V : L → ℕ → ℝ) (Λ : Finset L) (S : Finset (Occ L))
+    (v : EuclideanSpace ℂ S) {γ : Occ L} (hγ : γ ∈ (D.leak V Λ S v).support) : γ ∉ S := by
+  intro h
+  exact Finsupp.mem_support_iff.mp hγ
+    (by rw [leak, Finsupp.sub_apply]; exact D.leak_apply_mem V Λ S v h)
+
+/-- A state connected to a truncated state has occupations at most `n + 1` in `Λ`. -/
+lemma occ_le_of_matEl_ne (V : L → ℕ → ℝ) (Λ : Finset L) {n : ℕ} {γ a : Occ L}
+    (h : matEl (D.finiteHam V Λ) γ a ≠ 0) (ha : a ∈ truncSet Λ n) : ∀ x ∈ Λ, γ x ≤ n + 1 :=
+  fun x hx => by
+    have h1 := ((D.step_of_matEl_ne V Λ h).1 x).2
+    have h2 := (mem_truncSet.mp ha).2 x hx
+    omega
+
+/-- A truncated state without an occupation equal to `n` only connects to truncated states. -/
+lemma mem_truncSet_of_matEl_ne (V : L → ℕ → ℝ) (Λ : Finset L) {n : ℕ} {γ a : Occ L}
+    (h : matEl (D.finiteHam V Λ) a γ ≠ 0) (ha : a ∈ truncSet Λ n) (hb : ∀ x ∈ Λ, a x ≠ n) :
+    γ ∈ truncSet Λ n := by
+  obtain ⟨hstep, hout⟩ := D.step_of_matEl_ne V Λ h
+  obtain ⟨ha0, haK⟩ := mem_truncSet.mp ha
+  refine mem_truncSet.mpr ⟨fun z hz => by rw [← hout z hz, ha0 z hz], fun x hx => ?_⟩
+  have h1 := (hstep x).1
+  have h2 := haK x hx
+  have h3 := hb x hx
+  omega
+
+/-- Row sums of `H_Λ` at a leaking state. -/
+lemma rowSum_leak_le (V : L → ℕ → ℝ) (Λ : Finset L) (n : ℕ) {K : ℝ} (hK : 0 ≤ K)
+    (hJ : ∀ x y, |D.J x y| ≤ K) (hΔ : ∀ x y, ‖D.Δ x y‖ ≤ K)
+    (v : EuclideanSpace ℂ (truncSet Λ n)) {γ : Occ L}
+    (hγ : γ ∈ (D.leak V Λ (truncSet Λ n) v).support) :
+    ∑ a : truncSet Λ n, ‖matEl (D.finiteHam V Λ) γ a.1‖ ≤
+      8 * K * (Λ.card : ℝ) ^ 2 * (n + 2) := by
+  have hR : (0 : ℝ) ≤ 8 * K * (Λ.card : ℝ) ^ 2 * (n + 2) := by positivity
+  have hγS := D.not_mem_of_mem_support_leak V Λ _ v hγ
+  by_cases hall : ∀ a : truncSet Λ n, matEl (D.finiteHam V Λ) γ a.1 = 0
+  · rw [Finset.sum_eq_zero fun a _ => by rw [hall a, norm_zero]]; exact hR
+  push Not at hall
+  obtain ⟨a, ha⟩ := hall
+  have hocc := D.occ_le_of_matEl_ne V Λ ha a.2
+  rw [Finset.sum_coe_sort (truncSet Λ n) (fun β => ‖matEl (D.finiteHam V Λ) γ β‖),
+    ← Finset.erase_eq_of_notMem hγS]
+  refine (D.sum_norm_finiteHam_le V Λ _ hK hJ hΔ γ hocc).trans (le_of_eq ?_)
+  push_cast; ring
+
+open Classical in
+/-- Column sums of `H_Λ` over the leaking states: only boundary states contribute. -/
+lemma colSum_leak_le (V : L → ℕ → ℝ) (Λ : Finset L) (n : ℕ) {K : ℝ} (hK : 0 ≤ K)
+    (hJ : ∀ x y, |D.J x y| ≤ K) (hΔ : ∀ x y, ‖D.Δ x y‖ ≤ K)
+    (v : EuclideanSpace ℂ (truncSet Λ n)) (a : truncSet Λ n) :
+    ∑ γ ∈ (D.leak V Λ (truncSet Λ n) v).support, ‖matEl (D.finiteHam V Λ) γ a.1‖ ≤
+      if ∃ x ∈ Λ, a.1 x = n then 8 * K * (Λ.card : ℝ) ^ 2 * (n + 2) else 0 := by
+  have hsym : ∀ γ, ‖matEl (D.finiteHam V Λ) γ a.1‖ = ‖matEl (D.finiteHam V Λ) a.1 γ‖ :=
+    fun γ => by rw [matEl_conj _ (D.star_finiteHam V Λ) a.1 γ, RCLike.norm_conj]
+  simp only [hsym]
+  split_ifs with hb
+  · have haS : a.1 ∉ (D.leak V Λ (truncSet Λ n) v).support :=
+      fun h => D.not_mem_of_mem_support_leak V Λ _ v h a.2
+    rw [← Finset.erase_eq_of_notMem haS]
+    refine (D.sum_norm_finiteHam_le V Λ _ hK hJ hΔ a.1 (n := n + 1)
+      fun x hx => ((mem_truncSet.mp a.2).2 x hx).trans (Nat.le_succ n)).trans (le_of_eq ?_)
+    push_cast; ring
+  · push Not at hb
+    refine (Finset.sum_eq_zero fun γ hγ => ?_).le
+    by_contra hne
+    exact D.not_mem_of_mem_support_leak V Λ _ v hγ
+      (D.mem_truncSet_of_matEl_ne V Λ (norm_ne_zero_iff.mp hne) a.2 hb)
+
+open Classical in
+/-- **The leakage is bounded by the boundary weight of the truncated vector.** With
+`R = 8 K |Λ|² (n + 2)`, only the truncated states with an occupation equal to `n` leak, and
+`‖leak‖² ≤ R² Σ_{a ∈ ∂S} |v_a|²`. -/
+theorem norm_leak_sq_le (V : L → ℕ → ℝ) (Λ : Finset L) (n : ℕ) {K : ℝ} (hK : 0 ≤ K)
+    (hJ : ∀ x y, |D.J x y| ≤ K) (hΔ : ∀ x y, ‖D.Δ x y‖ ≤ K)
+    (v : EuclideanSpace ℂ (truncSet Λ n)) :
+    ‖embed (D.leak V Λ (truncSet Λ n) v)‖ ^ 2 ≤ (8 * K * (Λ.card : ℝ) ^ 2 * (n + 2)) ^ 2 *
+      ∑ a : truncSet Λ n, if ∃ x ∈ Λ, a.1 x = n then ‖v a‖ ^ 2 else 0 := by
+  set R : ℝ := 8 * K * (Λ.card : ℝ) ^ 2 * (n + 2) with hRdef
+  have hR : 0 ≤ R := by positivity
+  rw [norm_embed_sq_eq_sum]
+  calc ∑ γ ∈ (D.leak V Λ (truncSet Λ n) v).support, ‖D.leak V Λ (truncSet Λ n) v γ‖ ^ 2
+      ≤ ∑ γ ∈ (D.leak V Λ (truncSet Λ n) v).support,
+          R * ∑ a : truncSet Λ n, ‖matEl (D.finiteHam V Λ) γ a.1‖ * ‖v a‖ ^ 2 :=
+        Finset.sum_le_sum fun γ hγ => by
+          rw [D.leak_apply_not_mem V Λ _ v (D.not_mem_of_mem_support_leak V Λ _ v hγ)]
+          exact (norm_sum_mul_sq_le _ _ _).trans (mul_le_mul_of_nonneg_right
+            (D.rowSum_leak_le V Λ n hK hJ hΔ v hγ) (Finset.sum_nonneg fun _ _ => by positivity))
+    _ = R * ∑ a : truncSet Λ n, ‖v a‖ ^ 2 *
+          ∑ γ ∈ (D.leak V Λ (truncSet Λ n) v).support, ‖matEl (D.finiteHam V Λ) γ a.1‖ := by
+        rw [← Finset.mul_sum, Finset.sum_comm]
+        congr 1
+        refine Finset.sum_congr rfl fun a _ => ?_
+        rw [Finset.mul_sum]
+        exact Finset.sum_congr rfl fun γ _ => by ring
+    _ ≤ R * ∑ a : truncSet Λ n, ‖v a‖ ^ 2 * (if ∃ x ∈ Λ, a.1 x = n then R else 0) :=
+        mul_le_mul_of_nonneg_left (Finset.sum_le_sum fun a _ =>
+          mul_le_mul_of_nonneg_left (D.colSum_leak_le V Λ n hK hJ hΔ v a) (by positivity)) hR
+    _ = R ^ 2 * ∑ a : truncSet Λ n, if ∃ x ∈ Λ, a.1 x = n then ‖v a‖ ^ 2 else 0 := by
+        rw [Finset.mul_sum, Finset.mul_sum]
+        refine Finset.sum_congr rfl fun a _ => ?_
+        split_ifs <;> ring
+
+end BoseHubbardData
+
 end InfiniteBosons
