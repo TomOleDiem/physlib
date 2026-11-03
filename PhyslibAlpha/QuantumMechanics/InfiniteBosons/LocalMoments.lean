@@ -396,4 +396,131 @@ lemma sum_bondTerm_le (S : Finset (Occ L)) {Λ : Finset L} (w : L → ℝ) (hw :
 
 end BoseHubbardData
 
+
+/-!
+
+## E. Counting bonds
+
+-/
+
+omit [DecidableEq L] in
+lemma sum_ite_adj_le (Λ : Finset L) (G : SimpleGraph L) [DecidableRel G.Adj] {d : ℕ}
+    (hd : ∀ x ∈ Λ, (Λ.filter (G.Adj x)).card ≤ d) (f : L → ℝ) (hf : ∀ x, 0 ≤ f x) :
+    ∑ x ∈ Λ, ∑ y ∈ Λ, (if G.Adj x y then f x else 0) ≤ d * ∑ x ∈ Λ, f x := by
+  calc ∑ x ∈ Λ, ∑ y ∈ Λ, (if G.Adj x y then f x else 0) =
+        ∑ x ∈ Λ, f x * (Λ.filter (G.Adj x)).card := by
+        refine Finset.sum_congr rfl fun x _ => ?_
+        rw [Finset.sum_ite, Finset.sum_const_zero, add_zero, Finset.sum_const, nsmul_eq_mul,
+          mul_comm]
+    _ ≤ ∑ x ∈ Λ, f x * d := Finset.sum_le_sum fun x hx =>
+        mul_le_mul_of_nonneg_left (by exact_mod_cast hd x hx) (hf x)
+    _ = d * ∑ x ∈ Λ, f x := by rw [Finset.mul_sum]; exact Finset.sum_congr rfl fun _ _ => by ring
+
+omit [DecidableEq L] in
+/-- **Counting the bonds of a region.** If each site has at most `d` neighbours in the region, a
+sum over its bonds of `f x + f y` is at most `2 d Σ_x f x`. -/
+lemma sum_adj_le (Λ : Finset L) (G : SimpleGraph L) [DecidableRel G.Adj] {d : ℕ}
+    (hd : ∀ x ∈ Λ, (Λ.filter (G.Adj x)).card ≤ d) (f : L → ℝ) (hf : ∀ x, 0 ≤ f x) :
+    ∑ x ∈ Λ, ∑ y ∈ Λ, (if G.Adj x y then f x + f y else 0) ≤ 2 * d * ∑ x ∈ Λ, f x := by
+  have hsplit : ∀ x y, (if G.Adj x y then f x + f y else 0) =
+      (if G.Adj x y then f x else 0) + (if G.Adj y x then f y else 0) := fun x y => by
+    by_cases h : G.Adj x y
+    · rw [if_pos h, if_pos h, if_pos h.symm]
+    · rw [if_neg h, if_neg h, if_neg (fun h' => h h'.symm)]; ring
+  simp only [hsplit, Finset.sum_add_distrib]
+  have h1 := sum_ite_adj_le Λ G hd f hf
+  have h2 := sum_ite_adj_le Λ G hd f hf
+  rw [Finset.sum_comm] at h2
+  linarith
+
+
+/-!
+
+## F. The row bound of the finite-volume Hamiltonian
+
+-/
+
+namespace BoseHubbardData
+
+variable (D : BoseHubbardData L)
+
+omit [DecidableEq L] in
+lemma localMoment_nonneg (p : ℕ) (z : L) (α : Occ L) : 0 ≤ localMoment p z α := by
+  unfold localMoment; positivity
+
+/-- Weights comparable on neighbours turn `(w_x + w_y)(G_x + G_y)` into `w_x G_x + w_y G_y`. -/
+lemma weight_mul_le {wx wy Gx Gy ρ : ℝ} (hGx : 0 ≤ Gx) (hGy : 0 ≤ Gy) (h1 : wx ≤ ρ * wy)
+    (h2 : wy ≤ ρ * wx) : (wx + wy) * (Gx + Gy) ≤ (1 + ρ) * (wx * Gx + wy * Gy) := by
+  nlinarith [mul_le_mul_of_nonneg_right h1 hGy, mul_le_mul_of_nonneg_right h2 hGx]
+
+open Classical in
+/-- Each bond of the region contributes at most its row bound, and nothing if it is not a bond. -/
+lemma sum_bondTerm_le_ite (S : Finset (Occ L)) {Λ : Finset L} (w : L → ℝ) (hw : ∀ z, 0 ≤ w z)
+    {ρ : ℝ} (hρ : ∀ x y, D.graph.Adj x y → w x ≤ ρ * w y) {K : ℝ} (hK : 0 ≤ K)
+    (hJ : ∀ x y, |D.J x y| ≤ K) (hΔ : ∀ x y, ‖D.Δ x y‖ ≤ K) (p : ℕ) (α : Occ L) {q : L × L}
+    (hq : q ∈ Λ ×ˢ Λ) :
+    ∑ β ∈ S, ‖matEl (D.bondTerm q.1 q.2) α β‖ *
+        |weightedMoment Λ w p β - weightedMoment Λ w p α| ≤
+      if D.graph.Adj q.1 q.2 then 4 * K * ((p + 1) * 2 ^ (p + 1) * (1 + ρ)) *
+        (w q.1 * localMoment p q.1 α + w q.2 * localMoment p q.2 α) else 0 := by
+  obtain ⟨hx, hy⟩ := Finset.mem_product.mp hq
+  split_ifs with hadj
+  · refine (D.sum_bondTerm_le S w hw p hx hy (hJ _ _) (hΔ _ _) α).trans ?_
+    have := weight_mul_le (localMoment_nonneg p q.1 α) (localMoment_nonneg p q.2 α)
+      (hρ _ _ hadj) (hρ _ _ hadj.symm)
+    have hc : 0 ≤ 4 * K * ((p + 1) * 2 ^ (p + 1) : ℝ) := by positivity
+    calc _ = 4 * K * ((p + 1) * 2 ^ (p + 1) : ℝ) *
+          ((w q.1 + w q.2) * (localMoment p q.1 α + localMoment p q.2 α)) := by ring
+      _ ≤ 4 * K * ((p + 1) * 2 ^ (p + 1) : ℝ) *
+          ((1 + ρ) * (w q.1 * localMoment p q.1 α + w q.2 * localMoment p q.2 α)) :=
+          mul_le_mul_of_nonneg_left this hc
+      _ = _ := by ring
+  · refine (Finset.sum_eq_zero fun β _ => ?_).le
+    rw [matEl_bondTerm, if_neg hadj, norm_zero, zero_mul]
+
+open Classical in
+/-- **Row bound of the finite-volume Hamiltonian.** For weights comparable on neighbours, a region
+of degree at most `d` and amplitudes bounded by `K`, the matrix elements of `H_Λ` times the change
+of the weighted moment sum along a row to at most `c A(α)`, with `c` independent of the on-site
+potential `V`. -/
+lemma sum_finiteHam_le (V : L → ℕ → ℝ) (Λ : Finset L) (S : Finset (Occ L)) (w : L → ℝ)
+    (hw : ∀ z, 0 ≤ w z) {ρ : ℝ} (hρ0 : 0 ≤ ρ) (hρ : ∀ x y, D.graph.Adj x y → w x ≤ ρ * w y)
+    {d : ℕ} (hd : ∀ x ∈ Λ, (Λ.filter (D.graph.Adj x)).card ≤ d) {K : ℝ} (hK : 0 ≤ K)
+    (hJ : ∀ x y, |D.J x y| ≤ K) (hΔ : ∀ x y, ‖D.Δ x y‖ ≤ K) (p : ℕ) (α : Occ L) :
+    ∑ β ∈ S, ‖matEl (D.finiteHam V Λ) α β‖ *
+        |weightedMoment Λ w p β - weightedMoment Λ w p α| ≤
+      8 * d * K * ((p + 1) * 2 ^ (p + 1)) * (1 + ρ) * weightedMoment Λ w p α := by
+  set dA : Occ L → ℝ := fun β => |weightedMoment Λ w p β - weightedMoment Λ w p α|
+  set M : ℝ := 4 * K * ((p + 1) * 2 ^ (p + 1) * (1 + ρ))
+  set f : L → ℝ := fun z => w z * localMoment p z α
+  have hM : 0 ≤ M := by positivity
+  -- the diagonal part does not change the moment
+  have hpt : ∀ β ∈ S, ‖matEl (D.finiteHam V Λ) α β‖ * dA β ≤
+      ∑ q ∈ Λ ×ˢ Λ, ‖matEl (D.bondTerm q.1 q.2) α β‖ * dA β := by
+    intro β _
+    by_cases hβ : β = α
+    · subst hβ
+      simp only [dA, sub_self, abs_zero, mul_zero]
+      exact Finset.sum_nonneg fun _ _ => le_rfl
+    · unfold finiteHam
+      rw [matEl_add, matEl_sum, matEl_diagAdj, if_neg hβ, zero_add, ← Finset.sum_mul]
+      exact mul_le_mul_of_nonneg_right (norm_sum_le _ _) (abs_nonneg _)
+  calc ∑ β ∈ S, ‖matEl (D.finiteHam V Λ) α β‖ * dA β
+      ≤ ∑ β ∈ S, ∑ q ∈ Λ ×ˢ Λ, ‖matEl (D.bondTerm q.1 q.2) α β‖ * dA β := Finset.sum_le_sum hpt
+    _ = ∑ q ∈ Λ ×ˢ Λ, ∑ β ∈ S, ‖matEl (D.bondTerm q.1 q.2) α β‖ * dA β := Finset.sum_comm
+    _ ≤ ∑ q ∈ Λ ×ˢ Λ, if D.graph.Adj q.1 q.2 then M * (f q.1 + f q.2) else 0 :=
+        Finset.sum_le_sum fun q hq => D.sum_bondTerm_le_ite S w hw hρ hK hJ hΔ p α hq
+    _ = M * ∑ x ∈ Λ, ∑ y ∈ Λ, (if D.graph.Adj x y then f x + f y else 0) := by
+        rw [Finset.sum_product, Finset.mul_sum]
+        refine Finset.sum_congr rfl fun x _ => ?_
+        rw [Finset.mul_sum]
+        refine Finset.sum_congr rfl fun y _ => ?_
+        split_ifs <;> ring
+    _ ≤ M * (2 * d * ∑ x ∈ Λ, f x) :=
+        mul_le_mul_of_nonneg_left (sum_adj_le Λ D.graph hd f
+          fun z => mul_nonneg (hw z) (localMoment_nonneg p z α)) hM
+    _ = _ := by simp only [weightedMoment, f, M]; ring
+
+end BoseHubbardData
+
 end InfiniteBosons
