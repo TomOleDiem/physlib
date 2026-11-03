@@ -42,12 +42,15 @@ No bound on the on-site terms `D_x` and no particle-number conservation is assum
 - `LatticeFermions.Interaction.locallyFinite_of_hasFiniteRange` : finite range implies local
   finiteness.
 - `LatticeFermions.car_dynamics` : the infinite-volume dynamics of lattice fermions.
+- `LatticeFermions.Interaction.lieb_robinson_exp` : the Lieb–Robinson bound
+  `‖[α_t(A), B]‖ ≤ C ‖A‖ ‖B‖ e^{v t - μ d(X, Y)}` on a graph.
 
 ## iii. Table of contents
 
 - A. Balls in locally finite graphs
 - B. Interactions of finite range
 - C. The dynamics of lattice fermions
+- D. The Lieb–Robinson bound on graphs
 
 ## iv. References
 
@@ -168,5 +171,105 @@ theorem car_dynamics (Φ : Interaction (carNet site)) (G : SimpleGraph V) [G.Loc
     fun t => Interaction.parity_dynamics hJ hfin hq t, ?_⟩
   rw [← Interaction.generator_eq hfin hA]
   exact Interaction.hasDerivAt_dynamics hJ hfin hA
+
+/-!
+
+## D. The Lieb–Robinson bound on graphs
+
+For an interaction of range `R` a chain of `k` nonzero terms from `X` to `Y` spans a graph distance
+at most `k R`. If all points of `X` and `Y` are at distance at least `n`, only chains of length
+`k ≥ n / R` contribute, and `e^{-μ n} ≤ e^{μ (k R - n)}` turns the Lieb–Robinson series into an
+exponential: with `v = 2 J e^{μ R}`,
+
+`‖[α_t(A), B]‖ ≤ 2 max(1, |X|) ‖A‖ ‖B‖ e^{v |t| - μ n}` for every `μ ≥ 0`.
+
+The constants do not depend on the region `Λ` nor on the on-site terms.
+
+-/
+
+namespace Interaction
+
+open Nat
+
+variable {V : Type*} [DecidableEq V] {𝔄 : Type*} [CStarAlgebra 𝔄] {N : GradedLocalNet V 𝔄}
+  {Φ : Interaction N} {G : SimpleGraph V} {R : ℕ}
+
+/-- A chain of `k` nonzero interaction terms of range `R` from `X` to `Y` spans graph distance at
+most `k R`. -/
+lemma exists_edist_le_of_chainWeight_ne_zero (hR : Φ.HasFiniteRange G R) (Λ : Finset V)
+    (k : ℕ) {X Y : Finset V} (hw : Φ.chainWeight Λ k X Y ≠ 0) :
+    ∃ x ∈ X, ∃ y ∈ Y, G.edist x y ≤ k * R := by
+  induction k generalizing X with
+  | zero =>
+    simp only [chainWeight, ne_eq, ite_eq_left_iff, Classical.not_imp] at hw
+    obtain ⟨x, hxX, hxY⟩ := not_disjoint_iff.mp hw.1
+    exact ⟨x, hxX, x, hxY, by simp⟩
+  | succ k ih =>
+    obtain ⟨Z, hZ, hZ0⟩ := exists_ne_zero_of_sum_ne_zero hw
+    have hZ1 : Φ.term Z ≠ 0 := fun h0 => hZ0 (by rw [h0, norm_zero, zero_mul])
+    obtain ⟨z, hz, y, hy, hzy⟩ := ih fun h0 => hZ0 (by rw [h0, mul_zero])
+    obtain ⟨x, hxZ, hxX⟩ := not_disjoint_iff.mp (mem_touching.mp hZ).2
+    refine ⟨x, hxX, y, hy, (G.edist_triangle (v := z)).trans ?_⟩
+    calc G.edist x z + G.edist z y ≤ R + k * R := add_le_add (hR Z hZ1 x hxZ z hz) hzy
+      _ = (k + 1 : ℕ) * R := by push_cast; ring
+
+/-- The Lieb–Robinson coefficients of a chain weight are bounded by the exponentially weighted
+majorant `max(1, |X|) (2 t J e^{μ R})^k / k! · e^{-μ n}`. -/
+lemma lrCoeff_mul_chainWeight_le_exp (hR : Φ.HasFiniteRange G R) {J : ℝ}
+    (hJ : Φ.IsBoundedBy J) (hJ0 : 0 ≤ J) (Λ : Finset V) {X Y : Finset V} {n : ℕ}
+    (hXY : ∀ x ∈ X, ∀ y ∈ Y, (n : ℕ∞) ≤ G.edist x y) {μ t : ℝ} (hμ : 0 ≤ μ) (ht : 0 ≤ t)
+    (k : ℕ) :
+    lrCoeff k t * Φ.chainWeight Λ k X Y ≤
+      max 1 (#X : ℝ) * ((2 * t * J * Real.exp (μ * R)) ^ k / k !) * Real.exp (-(μ * n)) := by
+  by_cases hw : Φ.chainWeight Λ k X Y = 0
+  · rw [hw, mul_zero]; positivity
+  obtain ⟨x, hx, y, hy, hxy⟩ := exists_edist_le_of_chainWeight_ne_zero hR Λ k hw
+  have hn : (n : ℝ) ≤ k * R := by exact_mod_cast (ENat.natCast_le_natCast.mp ((hXY x hx y hy).trans hxy))
+  have hexp : 1 ≤ Real.exp (μ * R) ^ k * Real.exp (-(μ * n)) := by
+    rw [← Real.exp_nat_mul, ← Real.exp_add]
+    exact Real.one_le_exp (by nlinarith)
+  calc lrCoeff k t * Φ.chainWeight Λ k X Y
+      ≤ max 1 (#X : ℝ) * ((2 * t * J) ^ k / k !) :=
+        (mul_le_mul_of_nonneg_left (chainWeight_le_chainWeightAll Λ k X Y)
+          (lrCoeff_nonneg k ht)).trans (lrCoeff_mul_chainWeightAll_le hJ hJ0 Λ X k ht)
+    _ ≤ max 1 (#X : ℝ) * ((2 * t * J) ^ k / k !) *
+          (Real.exp (μ * R) ^ k * Real.exp (-(μ * n))) :=
+        le_mul_of_one_le_right (by positivity) hexp
+    _ = _ := by rw [mul_pow]; ring
+
+lemma hasSum_exp_mul (x c : ℝ) : HasSum (fun k : ℕ => c * (x ^ k / k !)) (c * Real.exp x) := by
+  have h : Real.exp x = ∑' k : ℕ, x ^ k / k ! := by
+    rw [Real.exp_eq_exp_ℝ, NormedSpace.exp_eq_tsum_div]
+  rw [h]
+  exact ((Real.summable_pow_div_factorial x).hasSum).mul_left c
+
+/-- The Lieb–Robinson bound on a graph. For an interaction of range `R` bounded by `J`,
+`A ∈ 𝔄_X` with `X ⊆ Λ`, `B ∈ 𝔄_Y` even, and all points of `X` and `Y` at graph distance at
+least `n`, for every `μ ≥ 0` and `t ≥ 0`:
+
+`‖[α_t(A), B]‖ ≤ 2 max(1, |X|) ‖A‖ ‖B‖ e^{v t - μ n}`, `v = 2 J e^{μ R}`.
+
+The constants are independent of `Λ` and of the on-site terms. -/
+lemma lieb_robinson_exp (hR : Φ.HasFiniteRange G R) {J : ℝ} (hJ : Φ.IsBoundedBy J)
+    (hJ0 : 0 ≤ J) (Λ Y : Finset V) {B : 𝔄} (hB : B ∈ N.loc Y) (hBe : N.IsEven B)
+    {X : Finset V} (hX : X ⊆ Λ) {A : 𝔄} (hA : A ∈ N.loc X) {n : ℕ}
+    (hXY : ∀ x ∈ X, ∀ y ∈ Y, (n : ℕ∞) ≤ G.edist x y) {μ t : ℝ} (hμ : 0 ≤ μ) (ht : 0 ≤ t) :
+    ‖evolution (Φ.hamiltonian Λ) t A * B - B * evolution (Φ.hamiltonian Λ) t A‖ ≤
+      2 * max 1 (#X : ℝ) * ‖A‖ * ‖B‖ *
+        Real.exp (2 * J * Real.exp (μ * R) * t - μ * n) := by
+  have hsum := (hasSum_exp_mul (2 * t * J * Real.exp (μ * R)) (max 1 (#X : ℝ))).mul_right
+    (Real.exp (-(μ * n)))
+  have hle := (summable_lrCoeff_mul_chainWeight hJ hJ0 Λ X Y ht).tsum_le_tsum
+    (lrCoeff_mul_chainWeight_le_exp hR hJ hJ0 Λ hXY hμ ht) hsum.summable
+  rw [hsum.tsum_eq] at hle
+  refine (Φ.lieb_robinson hJ Λ Y hB hBe hX hA ht).trans ?_
+  calc 2 * ‖A‖ * ‖B‖ * ∑' k, lrCoeff k t * Φ.chainWeight Λ k X Y
+      ≤ 2 * ‖A‖ * ‖B‖ * (max 1 (#X : ℝ) * Real.exp (2 * t * J * Real.exp (μ * R)) *
+          Real.exp (-(μ * n))) := mul_le_mul_of_nonneg_left hle (by positivity)
+    _ = _ := by
+        rw [mul_assoc (max 1 (#X : ℝ)), ← Real.exp_add, sub_eq_add_neg]
+        ring_nf
+
+end Interaction
 
 end LatticeFermions
