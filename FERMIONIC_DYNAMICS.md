@@ -46,10 +46,10 @@ nonzero pairing together.
 | # | Content | Status |
 |---|---|---|
 | 0 | Audit: existing CAR, Fock, local-net, quasi-local and inductive-limit C*-code in Physlib and PhyslibAlpha | done (see Audit) |
-| 1 | Finite local CAR algebras `𝒜_X`, inclusions, CAR relations across sites, parity `Θ`, even-odd locality, quasi-local C*-algebra | open |
-| 2 | Interactions `Φ(X) ∈ 𝒜_X`: even, self-adjoint, finite range, norm `J`; on-site `D_x` separate; hopping, pairing, Hubbard, density terms instantiate it | open |
-| 3 | Finite-volume dynamics `α_t^Λ`: group law, isometry, parity, Heisenberg equation (finite-dimensional) | open |
-| 4 | Lieb-Robinson bound `‖[α_t^Λ(A), B]‖ ≤ C e^{v|t| - μ d(X,Y)}` for `B` even, constants independent of `Λ` and of `D` | open |
+| 1 | Finite local CAR algebras `𝒜_X`, inclusions, CAR relations across sites, parity `Θ`, even-odd locality, quasi-local C*-algebra | done: `FockSpace`, `CARNet` (`carNet`, `carLocal`), `GradedLocalNet` (`quasiLocal`, `ofClosure`) |
+| 2 | Interactions `Φ(X) ∈ 𝒜_X`: even, self-adjoint, finite range, norm `J`; on-site `D_x` separate; hopping, pairing, Hubbard, density terms instantiate it | abstract part done: `Interaction` (`hamiltonian`, `IsBoundedBy`, `LocallyFinite`); CAR instances with milestone 8 |
+| 3 | Finite-volume dynamics `α_t^Λ`: group law, isometry, parity, Heisenberg equation (finite-dimensional) | done: `FiniteDynamics` (any bounded `H` in a C*-algebra) |
+| 4 | Lieb-Robinson bound `‖[α_t^Λ(A), B]‖ ≤ C e^{v|t| - μ d(X,Y)}` for `B` even, constants independent of `Λ` and of `D` | done in chain form: `LiebRobinson.lieb_robinson`, `‖[α_t A, B]‖ ≤ 2‖A‖‖B‖ Σ_k (2t)^k/k! w_k(X,Y)` (no `D`); metric form is a corollary not needed for 5-6 |
 | 5 | Duhamel Cauchy estimate, norm convergence and exhaustion independence | open |
 | 6 | Infinite-volume automorphism group and generator on local elements | open |
 | 7 | States and GNS unitary implementation | open |
@@ -57,6 +57,22 @@ nonzero pairing together.
 
 Not needed initially: infinite-volume Fock operators, formal Hamiltonians, occupation cutoffs,
 Gibbs states, conditional expectations, spectral flow.
+
+## Design notes (milestones 1-4)
+
+- Local algebras are norm closed (`GradedLocalNet.isClosed_loc`); the CAR local algebra is the
+  closure of the generated star algebra (`GradedLocalNet.ofClosure`), so no finite-dimensionality
+  argument is needed.
+- `FockSpace M` is a type synonym (`def`) of `ℓ²(Finset M)` with its instances re-declared: with
+  `abbrev`, `star_neg`/`neg_mul` fail to rewrite on `FockSpace M →L[ℂ] FockSpace M` because two
+  instance paths for the additive structure of `lp` are not reducibly equal.
+- Interaction picture: the step of the LR bound uses `β_t` = dynamics of `H_Λ - K_X`, which on
+  `𝒜_X` equals the dynamics of `D_X` (`Interaction.evolution_sub_interactionAt_mem`), and the
+  identity `‖[α_t A, B]‖ = ‖[β_t A, β_t α_{-t} B]‖`. The derivative of `s ↦ β_s α_{-s} B` has
+  norm `‖[α_s K_X, B]‖`, independent of `D`.
+- The LR bound is in chain-weight form; with local finiteness (`Interaction.LocallyFinite`) and
+  `IsBoundedBy J` this suffices for the thermodynamic limit, without a graph metric. The graph
+  hypotheses (bounded degree, finite range) imply local finiteness.
 
 ## Audit (milestone 0)
 
