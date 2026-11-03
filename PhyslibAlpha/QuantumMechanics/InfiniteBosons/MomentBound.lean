@@ -128,4 +128,55 @@ theorem expect_le_exp_mul (H A : E →L[ℂ] E) (hH : ∀ x y : E, inner ℂ (H 
         rw [← mul_assoc, ← Real.exp_add]; simp [f]
     _ ≤ _ := mul_le_mul_of_nonneg_left key hpos.le
 
+
+/-!
+
+## C. Commutators with diagonal operators
+
+-/
+
+section Diagonal
+
+variable {β : Type*} [Fintype β]
+
+/-- **Weighted Schur test for commutators with a diagonal operator.** Let `T` be a Hermitian matrix
+and `a` real eigenvalues of a diagonal operator. If every row satisfies
+`Σ_β |T_{αβ}| |a_β - a_α| ≤ G_α`, then the quadratic form of `[T, a]` is bounded by the diagonal
+form of `G`. -/
+lemma norm_commutator_diag_le (T : β → β → ℂ) (hT : ∀ α β, T β α = starRingEnd ℂ (T α β))
+    (a G : β → ℝ) (hrow : ∀ α, ∑ b, ‖T α b‖ * |a b - a α| ≤ G α) (φ : β → ℂ) :
+    ‖∑ α, ∑ b, starRingEnd ℂ (φ α) * (T α b * ((a b - a α : ℝ) : ℂ)) * φ b‖ ≤
+      ∑ α, G α * ‖φ α‖ ^ 2 := by
+  set K : β → β → ℝ := fun α b => ‖T α b‖ * |a b - a α|
+  have hK : ∀ α b, K b α = K α b := fun α b => by
+    simp only [K, hT α b, RCLike.norm_conj, abs_sub_comm]
+  have h1 : ‖∑ α, ∑ b, starRingEnd ℂ (φ α) * (T α b * ((a b - a α : ℝ) : ℂ)) * φ b‖ ≤
+      ∑ α, ∑ b, K α b * ((‖φ α‖ ^ 2 + ‖φ b‖ ^ 2) / 2) := by
+    refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun α _ => (norm_sum_le _ _).trans
+      (Finset.sum_le_sum fun b _ => ?_))
+    rw [norm_mul, norm_mul, norm_mul, RCLike.norm_conj, Complex.norm_real, Real.norm_eq_abs]
+    have hk : 0 ≤ K α b := by positivity
+    nlinarith [sq_nonneg (‖φ α‖ - ‖φ b‖), mul_nonneg hk (sq_nonneg (‖φ α‖ - ‖φ b‖))]
+  refine h1.trans ?_
+  have e : ∑ α, ∑ b, K α b * ((‖φ α‖ ^ 2 + ‖φ b‖ ^ 2) / 2) = ∑ α, ‖φ α‖ ^ 2 * ∑ b, K α b := by
+    have hsplit : ∑ α, ∑ b, K α b * ((‖φ α‖ ^ 2 + ‖φ b‖ ^ 2) / 2) =
+        (∑ α, ∑ b, K α b * ‖φ α‖ ^ 2 + ∑ α, ∑ b, K α b * ‖φ b‖ ^ 2) / 2 := by
+      rw [eq_div_iff two_ne_zero, Finset.sum_mul, ← Finset.sum_add_distrib]
+      refine Finset.sum_congr rfl fun α _ => ?_
+      rw [Finset.sum_mul, ← Finset.sum_add_distrib]
+      exact Finset.sum_congr rfl fun b _ => by ring
+    have hswap : ∑ α, ∑ b, K α b * ‖φ b‖ ^ 2 = ∑ α, ∑ b, K α b * ‖φ α‖ ^ 2 := by
+      rw [Finset.sum_comm]
+      exact Finset.sum_congr rfl fun α _ => Finset.sum_congr rfl fun b _ => by rw [hK]
+    rw [hsplit, hswap, add_self_div_two]
+    refine Finset.sum_congr rfl fun α _ => ?_
+    rw [Finset.mul_sum]
+    exact Finset.sum_congr rfl fun b _ => by ring
+  rw [e]
+  exact Finset.sum_le_sum fun α _ => by
+    rw [mul_comm (G α)]
+    exact mul_le_mul_of_nonneg_left (hrow α) (by positivity)
+
+end Diagonal
+
 end InfiniteBosons
