@@ -162,4 +162,77 @@ lemma isSelfAdjoint_cutOp (Y : Finset L) (n : ℕ) : IsSelfAdjoint (cutOp Y n) :
   funext α
   exact Complex.conj_ofReal _
 
+
+/-!
+
+## B. The tail of the cutoff
+
+-/
+
+omit [DecidableEq L] in
+/-- **Pointwise Markov bound.** `1 - P_{Y,n} ≤ Σ_{x∈Y} ((N_x + 1) / (n + 1))^k` on basis states. -/
+lemma one_sub_cutWeight_le (Y : Finset L) (n k : ℕ) (α : Occ L) :
+    1 - cutWeight Y n α ≤ ∑ x ∈ Y, (((α x : ℝ) + 1) / ((n : ℝ) + 1)) ^ k := by
+  unfold cutWeight
+  split_ifs with h
+  · simp only [sub_self]; positivity
+  · push Not at h
+    obtain ⟨x, hx, hlt⟩ := h
+    have h1 : (1 : ℝ) ≤ ((α x : ℝ) + 1) / ((n : ℝ) + 1) := by
+      rw [le_div_iff₀ (by positivity), one_mul]
+      exact_mod_cast (show n + 1 ≤ α x + 1 by omega)
+    have h2 : (1 : ℝ) ≤ (((α x : ℝ) + 1) / ((n : ℝ) + 1)) ^ k := one_le_pow₀ h1
+    have h3 := Finset.single_le_sum (f := fun x => (((α x : ℝ) + 1) / ((n : ℝ) + 1)) ^ k)
+      (fun _ _ => by positivity) hx
+    simp only [sub_zero]
+    linarith
+
+omit [DecidableEq L] in
+/-- **The tail of the localized cutoff is controlled by local moments in `Y` only.** Let `q ≥ 0` be
+a weight on basis states, for instance the diagonal `q(α) = ⟨α|ρ|α⟩` of a density matrix, whose
+local moments `Σ_α q(α) (α_x + 1)^k` are at most `M` at every site of `Y`. Then the weight of the
+complement of `P_{Y,n}` is at most `|Y| M / (n + 1)^k`. Nothing depends on the occupations outside
+`Y` or on the ambient volume. -/
+lemma tsum_tail_le (Y : Finset L) (n k : ℕ) (q : Occ L → ℝ) (hq : ∀ α, 0 ≤ q α) {M : ℝ}
+    (hsum : ∀ x ∈ Y, Summable fun α => q α * ((α x : ℝ) + 1) ^ k)
+    (hM : ∀ x ∈ Y, ∑' α, q α * ((α x : ℝ) + 1) ^ k ≤ M) :
+    Summable (fun α => q α * (1 - cutWeight Y n α)) ∧
+      ∑' α, q α * (1 - cutWeight Y n α) ≤ Y.card * M / ((n : ℝ) + 1) ^ k := by
+  have hn : (0 : ℝ) < ((n : ℝ) + 1) ^ k := by positivity
+  set g : Occ L → ℝ := fun α => ∑ x ∈ Y, q α * ((α x : ℝ) + 1) ^ k / ((n : ℝ) + 1) ^ k
+  have hle : ∀ α, q α * (1 - cutWeight Y n α) ≤ g α := fun α => by
+    have := mul_le_mul_of_nonneg_left (one_sub_cutWeight_le Y n k α) (hq α)
+    refine this.trans (le_of_eq ?_)
+    rw [Finset.mul_sum]
+    exact Finset.sum_congr rfl fun x _ => by rw [div_pow]; ring
+  have hnn : ∀ α, 0 ≤ q α * (1 - cutWeight Y n α) := fun α =>
+    mul_nonneg (hq α) (by rcases cutWeight_mem Y n α with h | h <;> simp [h])
+  have hg : Summable g := summable_sum fun x hx => (hsum x hx).div_const _
+  refine ⟨hg.of_nonneg_of_le hnn hle, ?_⟩
+  calc ∑' α, q α * (1 - cutWeight Y n α) ≤ ∑' α, g α :=
+        (hg.of_nonneg_of_le hnn hle).tsum_le_tsum hle hg
+    _ = ∑ x ∈ Y, (∑' α, q α * ((α x : ℝ) + 1) ^ k) / ((n : ℝ) + 1) ^ k := by
+        rw [Summable.tsum_finsetSum fun x hx => (hsum x hx).div_const _]
+        exact Finset.sum_congr rfl fun x _ => tsum_div_const
+    _ ≤ ∑ x ∈ Y, M / ((n : ℝ) + 1) ^ k :=
+        Finset.sum_le_sum fun x hx => div_le_div_of_nonneg_right (hM x hx) hn.le
+    _ = _ := by rw [Finset.sum_const, nsmul_eq_mul, mul_div_assoc]
+
+omit [DecidableEq L] in
+/-- **The tail in a vector state.** `‖(1 - P_{Y,n}) ψ‖² ≤ |Y| M / (n + 1)^k` if the local moments
+`Σ_α (α_x + 1)^k |ψ_α|²` at the sites of `Y` are at most `M`. -/
+lemma norm_sub_cutOp_sq_le (Y : Finset L) (n k : ℕ) (ψ : HilbertSp (Occ L)) {M : ℝ}
+    (hsum : ∀ x ∈ Y, Summable fun α => ‖(ψ : HilbertSp (Occ L)) α‖ ^ 2 * ((α x : ℝ) + 1) ^ k)
+    (hM : ∀ x ∈ Y, ∑' α, ‖(ψ : HilbertSp (Occ L)) α‖ ^ 2 * ((α x : ℝ) + 1) ^ k ≤ M) :
+    ‖ψ - cutOp Y n ψ‖ ^ 2 ≤ Y.card * M / ((n : ℝ) + 1) ^ k := by
+  have hcoord : ∀ α, ‖((ψ - cutOp Y n ψ : HilbertSp (Occ L)) α)‖ ^ 2 =
+      ‖(ψ : HilbertSp (Occ L)) α‖ ^ 2 * (1 - cutWeight Y n α) := fun α => by
+    rw [lp.coeFn_sub, Pi.sub_apply, cutOp_apply]
+    rcases cutWeight_mem Y n α with h | h <;> simp [h]
+  have h := lp.norm_rpow_eq_tsum (p := 2) (by norm_num) (ψ - cutOp Y n ψ)
+  have e2 : (2 : ENNReal).toReal = 2 := by norm_num
+  simp only [e2, Real.rpow_two] at h
+  rw [h, tsum_congr hcoord]
+  exact (tsum_tail_le Y n k _ (fun _ => by positivity) hsum hM).2
+
 end InfiniteBosons
