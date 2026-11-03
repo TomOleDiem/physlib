@@ -724,4 +724,56 @@ lemma support_subset_truncSet {Λ : Finset L} {f : Occ L →₀ ℂ}
 
 end Representative
 
+
+section WindowLimit
+
+variable {B : Type*}
+
+lemma tendsto_apply_of_tendsto {ι : Type*} {l : Filter ι} {g : ι → HilbertSp B} {h : HilbertSp B}
+    (hg : Filter.Tendsto g l (𝓝 h)) (γ : B) :
+    Filter.Tendsto (fun i => (g i : HilbertSp B) γ) l (𝓝 ((h : HilbertSp B) γ)) := by
+  rw [tendsto_iff_norm_sub_tendsto_zero] at hg ⊢
+  refine squeeze_zero (fun _ => norm_nonneg _) (fun i => ?_) hg
+  have := lp.norm_apply_le_norm (by norm_num) (g i - h) γ
+  rwa [lp.coeFn_sub, Pi.sub_apply] at this
+
+/-- Weighted window sums are continuous along a convergent sequence of vectors. -/
+lemma tendsto_window {ι : Type*} {l : Filter ι} {g : ι → HilbertSp B} {h : HilbertSp B}
+    (hg : Filter.Tendsto g l (𝓝 h)) (F : Finset B) (G : B → ℝ) :
+    Filter.Tendsto (fun i => ∑ γ ∈ F, G γ * ‖(g i : HilbertSp B) γ‖ ^ 2) l
+      (𝓝 (∑ γ ∈ F, G γ * ‖(h : HilbertSp B) γ‖ ^ 2)) :=
+  tendsto_finsetSum F fun γ _ =>
+    ((tendsto_apply_of_tendsto hg γ).norm.pow 2).const_mul (G γ)
+
+end WindowLimit
+
+namespace BoseHubbardData
+
+open Finsupp Matrix
+
+variable {L : Type*} [DecidableEq L] (D : BoseHubbardData L)
+
+open Classical in
+/-- The local moments stay bounded along the whole truncated path. -/
+lemma moments_along (V : L → ℕ → ℝ) (Λ : Finset L) (S : Finset (Occ L)) {d : ℕ}
+    (hd : ∀ x ∈ Λ, (Λ.filter (D.graph.Adj x)).card ≤ d) {K : ℝ} (hK : 0 ≤ K)
+    (hJ : ∀ x y, |D.J x y| ≤ K) (hΔ : ∀ x y, ‖D.Δ x y‖ ≤ K) (p : ℕ) {μ : ℝ} (hμ : 0 < μ)
+    {C : ℝ} {ν : ℕ} (hball : ∀ x₀ (s : Finset L) (R : ℕ), (∀ x ∈ s, D.graph.dist x₀ x ≤ R) →
+      (s.card : ℝ) ≤ C * (R + 1) ^ ν)
+    (v : EuclideanSpace ℂ S) {M : ℝ} (hM0 : 0 ≤ M)
+    (hM : ∀ x ∈ Λ, ∑ a : S, localMoment p x a.1 * ‖v a‖ ^ 2 ≤ M) {t : ℝ} :
+    ∀ x ∈ Λ, ∀ s ∈ Set.Icc 0 t, ∑ a : S, localMoment p x a.1 *
+        ‖schrodinger (toEuclideanCLM (𝕜 := ℂ) (D.truncHam V Λ S)) s v a‖ ^ 2 ≤
+      Real.exp (8 * d * K * ((p + 1) * 2 ^ (p + 1)) * (1 + Real.exp μ) * t) *
+        (M * ∑' n : ℕ, C * ((n : ℝ) + 1) ^ ν * Real.exp (-μ * n)) := by
+  intro x hx s hs
+  refine (D.truncated_localMoment_uniform V Λ S hd hK hJ hΔ p hx hμ (hball x) v hM0 hM
+    hs.1).trans (mul_le_mul_of_nonneg_right (Real.exp_le_exp.mpr ?_) ?_)
+  · have : 0 ≤ 8 * d * K * ((p + 1) * 2 ^ (p + 1)) * (1 + Real.exp μ) := by positivity
+    exact mul_le_mul_of_nonneg_left hs.2 this
+  · have hC : 0 ≤ C := by have := hball x ∅ 0 (by simp); simpa using this
+    exact mul_nonneg hM0 (tsum_nonneg fun n => by positivity)
+
+end BoseHubbardData
+
 end InfiniteBosons
