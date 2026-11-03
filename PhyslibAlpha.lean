@@ -224,6 +224,7 @@ public import PhyslibAlpha.Mathematics.ForMathlib.DataStructures.Matrix.Scalar
 public import PhyslibAlpha.Mathematics.ForMathlib.Fin
 public import PhyslibAlpha.Mathematics.Fourier.Integral
 public import PhyslibAlpha.Mathematics.Geometry.Simplex
+public import PhyslibAlpha.Mathematics.HilbertSpace.TensorPower
 public import PhyslibAlpha.Mathematics.HomogeneousGenerators
 public import PhyslibAlpha.Mathematics.InvariantReduction
 public import PhyslibAlpha.Mathematics.LadderSystem.Basic
@@ -243,6 +244,8 @@ public import PhyslibAlpha.Mathematics.MeasureTheory.RegularMeasure
 public import PhyslibAlpha.Mathematics.Modules.ConjModule
 public import PhyslibAlpha.Mathematics.MultisetAntidiagonal
 public import PhyslibAlpha.Mathematics.MvPolynomialTranslation
+public import PhyslibAlpha.Mathematics.OperatorAlgebra.AsymptoticIntertwiner
+public import PhyslibAlpha.Mathematics.OperatorAlgebra.InverseLimit
 public import PhyslibAlpha.Mathematics.Order.CausalRelation
 public import PhyslibAlpha.Mathematics.Order.Freudenthal
 public import PhyslibAlpha.Mathematics.Order.PositiveDual.Basic
@@ -709,6 +712,12 @@ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.WignerEckart
 public import PhyslibAlpha.QuantumMechanics.AngularMomentum.WignerEckartIrreducible
 public import PhyslibAlpha.QuantumMechanics.AngularMomentum.WignerEckartNormalized
 public import PhyslibAlpha.QuantumMechanics.Blackbody.RayleighJeans
+public import PhyslibAlpha.QuantumMechanics.Boson.BuchholzAlgebra
+public import PhyslibAlpha.QuantumMechanics.Boson.ConnectingMap
+public import PhyslibAlpha.QuantumMechanics.Boson.Covariance
+public import PhyslibAlpha.QuantumMechanics.Boson.FreeDynamics
+public import PhyslibAlpha.QuantumMechanics.Boson.Intertwining
+public import PhyslibAlpha.QuantumMechanics.Boson.SectorAlgebra
 public import PhyslibAlpha.QuantumMechanics.Foundations.OntologicalModel
 public import PhyslibAlpha.QuantumMechanics.Foundations.PBR.Phases
 public import PhyslibAlpha.QuantumMechanics.HarmonicOscillator.LadderSystem
@@ -727,6 +736,10 @@ public import PhyslibAlpha.QuantumMechanics.Hydrogen.RadialFunctions
 public import PhyslibAlpha.QuantumMechanics.Hydrogen.RadialQuantization
 public import PhyslibAlpha.QuantumMechanics.QuantumHarmonicOscillator
 public import PhyslibAlpha.QuantumMechanics.StinespringDilation
+public import PhyslibAlpha.QuantumMechanics.WeylAlgebra.GNS
+public import PhyslibAlpha.QuantumMechanics.WeylAlgebra.QuasiFree
+public import PhyslibAlpha.QuantumMechanics.WeylAlgebra.Thermal
+public import PhyslibAlpha.QuantumMechanics.WeylAlgebra.Weyl
 public import PhyslibAlpha.Relativity.Causality.LightCone
 public import PhyslibAlpha.Relativity.Fermions.Dirac.MinimalDimension
 public import PhyslibAlpha.Relativity.Fermions.Weyl.BoostWeight
