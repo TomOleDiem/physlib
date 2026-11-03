@@ -144,7 +144,7 @@ diagonal blocks do not enter.
 
 section Block
 
-variable {β : Type*}
+variable {β : Type*} [DecidableEq β]
 
 /-- **Schur test** in the form used for the flux bound. -/
 lemma norm_sum_conj_mul_le (A B : Finset β) (h : β → β → ℂ) (u v : β → ℂ) (r : ℝ)
@@ -160,21 +160,20 @@ lemma norm_sum_conj_mul_le (A B : Finset β) (h : β → β → ℂ) (u v : β �
       mul_nonneg (norm_nonneg (h a b)) (sq_nonneg (‖u a‖ - ‖v b‖))]
   refine h1.trans ?_
   have e : ∑ a ∈ A, ∑ b ∈ B, ‖h a b‖ * ((‖u a‖ ^ 2 + ‖v b‖ ^ 2) / 2) =
-      (∑ a ∈ A, ‖u a‖ ^ 2 * ∑ b ∈ B, ‖h a b‖ + ∑ b ∈ B, ‖v b‖ ^ 2 * ∑ a ∈ A, ‖h a b‖) / 2 := by
-    rw [Finset.sum_comm (s := A) (t := B) (f := fun a b => ‖v b‖ ^ 2 * ‖h a b‖) ▸ rfl]
-    simp only [Finset.mul_sum]
-    rw [Finset.sum_comm (s := B) (t := A)]
+      (∑ a ∈ A, ∑ b ∈ B, ‖u a‖ ^ 2 * ‖h a b‖ + ∑ a ∈ A, ∑ b ∈ B, ‖v b‖ ^ 2 * ‖h a b‖) / 2 := by
     rw [← Finset.sum_add_distrib, Finset.sum_div]
     refine Finset.sum_congr rfl fun a _ => ?_
     rw [← Finset.sum_add_distrib, Finset.sum_div]
     exact Finset.sum_congr rfl fun b _ => by ring
-  rw [e]
-  have h2 : ∑ a ∈ A, ‖u a‖ ^ 2 * ∑ b ∈ B, ‖h a b‖ ≤ ∑ a ∈ A, ‖u a‖ ^ 2 * r :=
-    Finset.sum_le_sum fun a ha => mul_le_mul_of_nonneg_left (hrow a ha) (by positivity)
-  have h3 : ∑ b ∈ B, ‖v b‖ ^ 2 * ∑ a ∈ A, ‖h a b‖ ≤ ∑ b ∈ B, ‖v b‖ ^ 2 * r :=
-    Finset.sum_le_sum fun b hb => mul_le_mul_of_nonneg_left (hcol b hb) (by positivity)
-  rw [← Finset.sum_mul, ← Finset.sum_mul] at *
-  nlinarith
+  rw [e, Finset.sum_comm (s := A) (t := B) (f := fun a b => ‖v b‖ ^ 2 * ‖h a b‖)]
+  simp only [← Finset.mul_sum]
+  have h2 : ∑ a ∈ A, ‖u a‖ ^ 2 * ∑ b ∈ B, ‖h a b‖ ≤ (∑ a ∈ A, ‖u a‖ ^ 2) * r := by
+    rw [Finset.sum_mul]
+    exact Finset.sum_le_sum fun a ha => mul_le_mul_of_nonneg_left (hrow a ha) (by positivity)
+  have h3 : ∑ b ∈ B, ‖v b‖ ^ 2 * ∑ a ∈ A, ‖h a b‖ ≤ (∑ b ∈ B, ‖v b‖ ^ 2) * r := by
+    rw [Finset.sum_mul]
+    exact Finset.sum_le_sum fun b hb => mul_le_mul_of_nonneg_left (hcol b hb) (by positivity)
+  linarith
 
 variable (gr : β → ℕ) (S : ℕ → Finset β)
 
