@@ -31,10 +31,22 @@ are the scalar inequalities behind the commutator bound of the moment Grönwall 
 - `InfiniteBosons.mul_pow_le_two_mul`: `(X + Y) X^{p-1} ≤ 2 (X^p + Y^p)`.
 - `InfiniteBosons.abs_succ_pow_sub_le`: the change of `(n + 1)^p` under a unit step.
 - `InfiniteBosons.amp_mul_diff_le`: the amplitude times the change of a moment.
+- `InfiniteBosons.BoseHubbardData.sum_finiteHam_le`: the row bound of `H_Λ` against the weighted
+  moment.
+- `InfiniteBosons.BoseHubbardData.truncated_moment_le`: Grönwall for the weighted moment.
+- `InfiniteBosons.BoseHubbardData.truncated_localMoment_uniform`: the uniform local moment bound.
 
 ## iii. Table of contents
 
 - A. Scalar inequalities
+- B. The weighted moment
+- C. The partners of a basis state under one move
+- D. The row bound of one bond
+- E. Counting bonds
+- F. The row bound of the finite-volume Hamiltonian
+- G. The moment bound in a truncated volume
+- H. Exponential weights on graphs of polynomial growth
+- I. The uniform moment bound in a truncated volume
 
 ## iv. References
 
@@ -751,6 +763,7 @@ lemma summable_growth {μ : ℝ} (hμ : 0 < μ) (C : ℝ) (ν : ℕ) :
   rw [show -μ * ((n : ℝ) + 1) = -μ * n + -μ by ring, Real.exp_add, Real.exp_neg μ]
   field_simp
 
+omit [DecidableEq L] in
 /-- **The total weight of a region is bounded uniformly on graphs of polynomial growth.** If every
 set of vertices within distance `R` of `x₀` has at most `C (R + 1)^ν` elements, then
 `Σ_{x∈Λ} e^{-μ d(x₀, x)}` is bounded by a constant independent of the region `Λ`. -/
@@ -770,5 +783,58 @@ lemma sum_expWeight_le (x₀ : L) {μ : ℝ} (hμ : 0 < μ) {C : ℝ} {ν : ℕ}
     positivity
 
 end Weights
+
+
+/-!
+
+## I. The uniform moment bound in a truncated volume
+
+-/
+
+namespace BoseHubbardData
+
+variable (D : BoseHubbardData L)
+
+omit [DecidableEq L] in
+lemma sum_weightedMoment_le (Λ : Finset L) (w : L → ℝ) (hw : ∀ z, 0 ≤ w z) (p : ℕ)
+    (S : Finset (Occ L)) (ψ : EuclideanSpace ℂ S) {M : ℝ}
+    (hM : ∀ x ∈ Λ, ∑ α, localMoment p x α.1 * ‖ψ α‖ ^ 2 ≤ M) :
+    ∑ α, weightedMoment Λ w p α.1 * ‖ψ α‖ ^ 2 ≤ M * ∑ x ∈ Λ, w x := by
+  simp only [weightedMoment, Finset.sum_mul]
+  rw [Finset.sum_comm, Finset.mul_sum]
+  refine Finset.sum_le_sum fun x hx => ?_
+  simp only [mul_assoc, ← Finset.mul_sum]
+  rw [mul_comm M]
+  exact mul_le_mul_of_nonneg_left (hM x hx) (hw x)
+
+open Classical in
+/-- **Uniform local moment bound (T1, truncated volume).** On a graph of polynomial growth with
+`#{x : d(x₀, x) ≤ R} ≤ C (R + 1)^ν` and degree at most `d`, with hopping and pairing bounded by `K`
+and an arbitrary on-site potential `V`, every local moment along the truncated dynamics satisfies
+`⟨ψ_t, (N_{x₀} + 1)^{p+1} ψ_t⟩ ≤ e^{c t} W M` whenever all initial local moments in `Λ` are at most
+`M`. The rate `c = 8 d K (p + 1) 2^{p+1} (1 + e^μ)` and the constant
+`W = Σ_n C (n + 1)^ν e^{-μ n}` are independent of `Λ`, of the truncation `S` and of `V`. -/
+theorem truncated_localMoment_uniform (V : L → ℕ → ℝ) (Λ : Finset L) (S : Finset (Occ L))
+    {d : ℕ} (hd : ∀ x ∈ Λ, (Λ.filter (D.graph.Adj x)).card ≤ d) {K : ℝ} (hK : 0 ≤ K)
+    (hJ : ∀ x y, |D.J x y| ≤ K) (hΔ : ∀ x y, ‖D.Δ x y‖ ≤ K) (p : ℕ) {x₀ : L} (hx₀ : x₀ ∈ Λ)
+    {μ : ℝ} (hμ : 0 < μ) {C : ℝ} {ν : ℕ}
+    (hball : ∀ (s : Finset L) (R : ℕ), (∀ x ∈ s, D.graph.dist x₀ x ≤ R) →
+      (s.card : ℝ) ≤ C * (R + 1) ^ ν)
+    (ψ : EuclideanSpace ℂ S) {M : ℝ} (hM0 : 0 ≤ M)
+    (hM : ∀ x ∈ Λ, ∑ α, localMoment p x α.1 * ‖ψ α‖ ^ 2 ≤ M) {t : ℝ} (ht : 0 ≤ t) :
+    ∑ α, localMoment p x₀ α.1 *
+        ‖schrodinger (Matrix.toEuclideanCLM (𝕜 := ℂ) (D.truncHam V Λ S)) t ψ α‖ ^ 2 ≤
+      Real.exp (8 * d * K * ((p + 1) * 2 ^ (p + 1)) * (1 + Real.exp μ) * t) *
+        (M * ∑' n : ℕ, C * ((n : ℝ) + 1) ^ ν * Real.exp (-μ * n)) := by
+  set w := expWeight D.graph x₀ μ
+  have hw : ∀ z, 0 ≤ w z := expWeight_nonneg D.graph x₀ μ
+  have h := D.truncated_localMoment_le V Λ S w hw (Real.exp_pos μ).le
+    (fun x y hxy => expWeight_adj_le D.graph x₀ hμ.le hxy) hd hK hJ hΔ p hx₀
+    (expWeight_self D.graph x₀ μ) ψ ht
+  refine h.trans (mul_le_mul_of_nonneg_left ?_ (Real.exp_pos _).le)
+  exact (sum_weightedMoment_le Λ w hw p S ψ hM).trans
+    (mul_le_mul_of_nonneg_left (sum_expWeight_le D.graph x₀ hμ hball Λ) hM0)
+
+end BoseHubbardData
 
 end InfiniteBosons

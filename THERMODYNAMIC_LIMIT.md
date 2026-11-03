@@ -70,7 +70,7 @@ volume Hamiltonian is unbounded below and `e^{-βH_Λ}` is not trace class.
 | 0 | ℓ² no-go: pairing bounded away from zero on infinitely many disjoint bonds gives `hamDomainAlg = ⊥` (`BoseHubbardData.hamDomainAlg_eq_bot`, ModelHamiltonians.lean) | done |
 | 1 | T0: block-Jacobi Carleman criterion (`blockJacobi_no_l2_solution`, JacobiCarleman.lean) and `BoseHubbardData.finiteHam_isEssentiallySelfAdjoint` for arbitrary real on-site `V` (FiniteVolume.lean) | done |
 | 2 | T1: commutator bound: `expect_le_exp_mul`, `norm_commutator_diag_le` (MomentBound.lean); move estimates and `BoseHubbardData.sum_finiteHam_le` (LocalMoments.lean) | done |
-| 3 | T1: moment Grönwall. Truncated version done: `BoseHubbardData.truncated_moment_le` (any finite set `S` of states, rate `8dK(p+1)2^{p+1}(1+ρ)` independent of `V`, `Λ`, `S`). Open: exponential weights on graphs of polynomial growth, extraction of the local moment at the centre, removal of the truncation (strong resolvent convergence via T0) | in progress |
+| 3 | T1: moment Grönwall. Truncated version done: `BoseHubbardData.truncated_moment_le` (any finite set `S` of states, rate `8dK(p+1)2^{p+1}(1+ρ)` independent of `V`, `Λ`, `S`). Uniform local bound done: `BoseHubbardData.truncated_localMoment_uniform` (exponential weights, polynomial growth, constants independent of `V`, `Λ`, `S`). Open: removal of the truncation (strong resolvent convergence via T0) | in progress |
 | 4 | T2: cutoff projections and cutoff error | open |
 | 5 | T2: interaction picture with respect to `D` | open |
 | 6 | T2: Lieb-Robinson bound for the truncated interaction | open |
