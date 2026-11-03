@@ -82,6 +82,21 @@ volume Hamiltonian is unbounded below and `e^{-βH_Λ}` is not trace class.
 
 Milestones 0 to 3 are intermediate. They are not evidence that T2 holds.
 
+## Where Deuchert-Lampart-Lemm use number conservation
+
+Read from arXiv:2505.13170 (graph `d`-dimensional with surface parameter σ, `p > 2d + 2`):
+
+1. Prop. 4.10, eq. (49): the moment Grönwall is run on the regularized state
+   `1_{N ≤ K} ρ 1_{N ≤ K}`, which needs `[H, N] = 0`. The commutator bound (52)-(53) itself does
+   not use conservation. Replacement here: truncate `H_Λ` at `K_max` per site (finite-dimensional),
+   prove the moment bound uniformly in `K_max`, and remove the truncation by strong resolvent
+   convergence on the finite-vector core. This step uses T0.
+2. Lemma 4.11 (cutoff `P_{Y,λ}`, eq. (59)) and Theorem 4.3: the observable `A ∈ R^inv_X` commutes
+   with `N_X`. Replacement: observables of finite occupation transfer; the error terms then pick
+   up a bounded number of extra factors of `(N_x + 1)^{1/2}`, to be absorbed by higher moments.
+3. Their observables live in the invariant resolvent algebra and states on the Buchholz algebra.
+   With pairing the gauge-invariant algebras are not preserved; use `tensorNet (fun _ => ℕ)`.
+
 ## Known risk
 
 T2 with pairing is not in the literature. The published construction uses particle-number
