@@ -454,4 +454,43 @@ theorem norm_leak_sq_le (V : L → ℕ → ℝ) (Λ : Finset L) (n : ℕ) {K : �
 
 end BoseHubbardData
 
+
+/-!
+
+## F. Chebyshev on the boundary of the truncation
+
+-/
+
+section Chebyshev
+
+variable {L : Type*} [DecidableEq L]
+
+omit [DecidableEq L] in
+open Classical in
+/-- **Chebyshev bound for the boundary weight.** The weight of the truncated states with some
+occupation equal to `n` is at most `(n + 1)^{-(p+1)}` times the sum over `Λ` of the local moments
+`Σ_a (a_x + 1)^{p+1} |v_a|²`. -/
+lemma boundary_weight_le (Λ : Finset L) (n p : ℕ) {S : Finset (Occ L)} (v : EuclideanSpace ℂ S) :
+    ∑ a : S, (if ∃ x ∈ Λ, a.1 x = n then ‖v a‖ ^ 2 else 0) ≤
+      ((n : ℝ) + 1)⁻¹ ^ (p + 1) * ∑ x ∈ Λ, ∑ a : S, localMoment p x a.1 * ‖v a‖ ^ 2 := by
+  have hn : (0 : ℝ) < (n : ℝ) + 1 := by positivity
+  rw [Finset.sum_comm, Finset.mul_sum]
+  refine Finset.sum_le_sum fun a _ => ?_
+  split_ifs with h
+  · obtain ⟨x, hx, hax⟩ := h
+    have hloc : localMoment p x a.1 = ((n : ℝ) + 1) ^ (p + 1) := by simp [localMoment, hax]
+    have hle : localMoment p x a.1 * ‖v a‖ ^ 2 ≤ ∑ y ∈ Λ, localMoment p y a.1 * ‖v a‖ ^ 2 :=
+      Finset.single_le_sum (f := fun y => localMoment p y a.1 * ‖v a‖ ^ 2)
+        (fun y _ => mul_nonneg (BoseHubbardData.localMoment_nonneg p y a.1) (sq_nonneg _)) hx
+    rw [hloc] at hle
+    have hinv : ((n : ℝ) + 1)⁻¹ ^ (p + 1) * ((n : ℝ) + 1) ^ (p + 1) = 1 := by
+      rw [← mul_pow, inv_mul_cancel₀ hn.ne', one_pow]
+    calc ‖v a‖ ^ 2 = ((n : ℝ) + 1)⁻¹ ^ (p + 1) * (((n : ℝ) + 1) ^ (p + 1) * ‖v a‖ ^ 2) := by
+          rw [← mul_assoc, hinv, one_mul]
+      _ ≤ _ := mul_le_mul_of_nonneg_left hle (by positivity)
+  · exact mul_nonneg (by positivity) (Finset.sum_nonneg fun y _ =>
+      mul_nonneg (BoseHubbardData.localMoment_nonneg p y a.1) (sq_nonneg _))
+
+end Chebyshev
+
 end InfiniteBosons
