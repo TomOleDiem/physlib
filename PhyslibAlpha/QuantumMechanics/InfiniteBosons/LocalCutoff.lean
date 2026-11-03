@@ -483,7 +483,7 @@ lemma leakOp_pair_single (Y : Finset L) (n : ℕ) {x y : L} (hx : x ∈ Y) (hy :
       (((edgeWeight Y n x β : ℝ) : ℂ) * (((Real.sqrt ((β x : ℝ) + 1) : ℝ) : ℂ) *
         ((Real.sqrt ((β y : ℝ) + 1) : ℝ) : ℂ))) := by
   have hxy : x ≠ y := fun e => hy (e ▸ hx)
-  have hbx : (β + single y 1 : Occ L) x = β x := by simp [Finsupp.single_apply, hxy.symm]
+  have hbx : (β + single y 1 : Occ L) x = β x := by simp [hxy.symm]
   show diagLin _ (cre x (cre y (diagLin (cutWeight Y n) (single β 1)))) = _
   rw [diagLin_single, mul_one, show (single β ((cutWeight Y n β : ℝ) : ℂ) : Occ L →₀ ℂ) =
       ((cutWeight Y n β : ℝ) : ℂ) • single β 1 by simp [Finsupp.smul_single], map_smul,
@@ -492,5 +492,81 @@ lemma leakOp_pair_single (Y : Finset L) (n : ℕ) {x y : L} (hx : x ∈ Y) (hy :
   congr 1
   push_cast
   ring
+
+
+/-- The boundary pairing leakage of a finite vector as a sum over distinct target states. -/
+lemma leakOp_pair_apply (Y : Finset L) (n : ℕ) {x y : L} (hx : x ∈ Y) (hy : y ∉ Y)
+    (f : Occ L →₀ ℂ) :
+    (leakOp Y n (creOp x * creOp y)).1.1 f = ∑ β ∈ f.support, single (β + single y 1 + single x 1)
+      (f β * (((edgeWeight Y n x β : ℝ) : ℂ) * (((Real.sqrt ((β x : ℝ) + 1) : ℝ) : ℂ) *
+        ((Real.sqrt ((β y : ℝ) + 1) : ℝ) : ℂ)))) := by
+  conv_lhs => rw [← Finsupp.sum_single f]
+  rw [Finsupp.sum, map_sum]
+  refine Finset.sum_congr rfl fun β _ => ?_
+  rw [show (single β (f β) : Occ L →₀ ℂ) = f β • single β 1 by simp [Finsupp.smul_single],
+    map_smul, leakOp_pair_single Y n hx hy, Finsupp.smul_single, smul_eq_mul]
+
+/-- **The size of the boundary pairing leakage.** For `x ∈ Y`, `y ∉ Y` and a finite vector `f`,
+`‖P_{Y,n}^⊥ a_x† a_y† P_{Y,n} f‖² = Σ_β 1_{β ∈ P_{Y,n}, β_x = n} (β_x + 1)(β_y + 1) |f_β|²`. The
+weight `β_y + 1` is not bounded. -/
+lemma norm_leakOp_pair_sq (Y : Finset L) (n : ℕ) {x y : L} (hx : x ∈ Y) (hy : y ∉ Y)
+    (f : Occ L →₀ ℂ) :
+    ‖embed ((leakOp Y n (creOp x * creOp y)).1.1 f)‖ ^ 2 = ∑ β ∈ f.support,
+      edgeWeight Y n x β * (((β x : ℝ) + 1) * ((β y : ℝ) + 1)) * ‖f β‖ ^ 2 := by
+  rw [leakOp_pair_apply Y n hx hy, norm_embed_sum_single_sq _ _
+    (fun a b h => add_right_cancel (add_right_cancel h))]
+  refine Finset.sum_congr rfl fun β _ => ?_
+  rw [norm_mul, norm_mul, norm_mul, Complex.norm_real, Complex.norm_real, Complex.norm_real,
+    Real.norm_eq_abs, Real.norm_eq_abs, Real.norm_eq_abs, abs_of_nonneg (Real.sqrt_nonneg _),
+    abs_of_nonneg (Real.sqrt_nonneg _), mul_pow, mul_pow, mul_pow, sq_abs, Real.sq_sqrt
+    (by positivity), Real.sq_sqrt (by positivity)]
+  rcases edgeWeight_mem Y n x β with h | h <;> rw [h] <;> ring
+
+omit [DecidableEq L] in
+/-- On the support of the edge weight, `β_x = n`, so a local moment at `x` controls it. -/
+lemma edgeWeight_mul_le (Y : Finset L) (n k : ℕ) (x : L) (β : Occ L) :
+    edgeWeight Y n x β * ((β x : ℝ) + 1) ≤
+      ((n : ℝ) + 1) * (((β x : ℝ) + 1) / ((n : ℝ) + 1)) ^ k := by
+  unfold edgeWeight
+  split_ifs with h
+  · rw [one_mul, h.2, div_self (by positivity), one_pow, mul_one]
+  · rw [zero_mul]; positivity
+
+/-- **Weighted estimate for the boundary pairing leakage.** For `x ∈ Y`, `y ∉ Y` and a finite
+vector `f` with local moments `Σ_β (β_x + 1)^{2k} |f_β|² ≤ M_x` at `x` and
+`Σ_β (β_y + 1)² |f_β|² ≤ M_y` at `y`,
+`‖P_{Y,n}^⊥ a_x† a_y† P_{Y,n} f‖² ≤ (n + 1)^{1-k} (M_x + M_y) / 2`.
+The operator is unbounded, but on states with moments of order `2k ≥ 4` at `x` and of order `2` at
+`y` its contribution decays in the cutoff level `n`. -/
+lemma norm_leakOp_pair_sq_le (Y : Finset L) (n k : ℕ) {x y : L} (hx : x ∈ Y) (hy : y ∉ Y)
+    (f : Occ L →₀ ℂ) {Mx My : ℝ}
+    (hMx : ∑ β ∈ f.support, ((β x : ℝ) + 1) ^ (2 * k) * ‖f β‖ ^ 2 ≤ Mx)
+    (hMy : ∑ β ∈ f.support, ((β y : ℝ) + 1) ^ 2 * ‖f β‖ ^ 2 ≤ My) :
+    ‖embed ((leakOp Y n (creOp x * creOp y)).1.1 f)‖ ^ 2 ≤
+      ((n : ℝ) + 1) / ((n : ℝ) + 1) ^ k * ((Mx + My) / 2) := by
+  have hn : (0 : ℝ) < ((n : ℝ) + 1) ^ k := by positivity
+  rw [norm_leakOp_pair_sq Y n hx hy]
+  have hpt : ∀ β ∈ f.support, edgeWeight Y n x β * (((β x : ℝ) + 1) * ((β y : ℝ) + 1)) *
+      ‖f β‖ ^ 2 ≤ ((n : ℝ) + 1) / ((n : ℝ) + 1) ^ k *
+        ((((β x : ℝ) + 1) ^ (2 * k) * ‖f β‖ ^ 2 + ((β y : ℝ) + 1) ^ 2 * ‖f β‖ ^ 2) / 2) := by
+    intro β _
+    have h1 := edgeWeight_mul_le Y n k x β
+    have hamgm : ((β x : ℝ) + 1) ^ k * ((β y : ℝ) + 1) ≤
+        (((β x : ℝ) + 1) ^ (2 * k) + ((β y : ℝ) + 1) ^ 2) / 2 := by
+      rw [pow_mul']
+      nlinarith [sq_nonneg (((β x : ℝ) + 1) ^ k - ((β y : ℝ) + 1))]
+    have hy0 : (0 : ℝ) ≤ ((β y : ℝ) + 1) * ‖f β‖ ^ 2 := by positivity
+    calc edgeWeight Y n x β * (((β x : ℝ) + 1) * ((β y : ℝ) + 1)) * ‖f β‖ ^ 2
+        = (edgeWeight Y n x β * ((β x : ℝ) + 1)) * (((β y : ℝ) + 1) * ‖f β‖ ^ 2) := by ring
+      _ ≤ (((n : ℝ) + 1) * (((β x : ℝ) + 1) / ((n : ℝ) + 1)) ^ k) *
+          (((β y : ℝ) + 1) * ‖f β‖ ^ 2) := mul_le_mul_of_nonneg_right h1 hy0
+      _ = ((n : ℝ) + 1) / ((n : ℝ) + 1) ^ k * ((((β x : ℝ) + 1) ^ k * ((β y : ℝ) + 1)) *
+          ‖f β‖ ^ 2) := by rw [div_pow]; field_simp
+      _ ≤ _ := mul_le_mul_of_nonneg_left (by nlinarith [sq_nonneg ‖f β‖]) (by positivity)
+  refine (Finset.sum_le_sum hpt).trans ?_
+  rw [← Finset.mul_sum]
+  refine mul_le_mul_of_nonneg_left ?_ (by positivity)
+  rw [← Finset.sum_div, Finset.sum_add_distrib]
+  linarith
 
 end InfiniteBosons
