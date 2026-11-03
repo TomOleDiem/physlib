@@ -35,6 +35,10 @@ row in the occupation basis.
 - A. Diagonal operators
 - B. The finite-volume Hamiltonian
 - C. Orthogonality and the row equation
+- D. Occupation of the region and elementary matrix elements
+- E. The band structure of the finite-volume Hamiltonian
+- F. The blocks between neighbouring grades
+- G. Essential self-adjointness
 
 ## iv. References
 

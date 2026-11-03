@@ -71,7 +71,7 @@ volume Hamiltonian is unbounded below and `e^{-βH_Λ}` is not trace class.
 | 1 | T0: block-Jacobi Carleman criterion (`blockJacobi_no_l2_solution`, JacobiCarleman.lean) and `BoseHubbardData.finiteHam_isEssentiallySelfAdjoint` for arbitrary real on-site `V` (FiniteVolume.lean) | done |
 | 2 | T1: commutator bound: `expect_le_exp_mul`, `norm_commutator_diag_le` (MomentBound.lean); move estimates and `BoseHubbardData.sum_finiteHam_le` (LocalMoments.lean) | done |
 | 3 | T1 for the true finite-volume dynamics: `BoseHubbardData.localMoment_dynamics_le` (TruncationLimit.lean). For the unitary group of the self-adjoint closure of `polyOp (finiteHam V Λ)` and a finite initial vector supported in `Λ` with local moments `≤ M`, `p ≥ 2`: every local moment of `U_{-t} f` is summable with sum `≤ e^{ct} W M`, `c`, `W` independent of `Λ` and `V`. Via `tendsto_trunc_dynamics` (truncated dynamics → true dynamics as the cutoff grows) | done |
-| 4 | T2: cutoff projections and cutoff error | open |
+| 4 | T2.1 localized cutoff (LocalCutoff.lean): `cutOp` orthogonal projection (`cutOp_mul_self`, `isSelfAdjoint_cutOp`), commutes with occupation-diagonal operators (`cutAdj_mul_diagAdj`); volume-independent tail `tsum_tail_le` / `norm_sub_cutOp_sq_le`; local leakage `leakOp_finiteHam`, `exists_raise_of_leakOp_ne`; boundary pairing `leakOp_pair_single`, `norm_leakOp_pair_sq_le`. T2.2 (dynamics comparison) open | T2.1 done |
 | 5 | T2: interaction picture with respect to `D` | open |
 | 6 | T2: Lieb-Robinson bound for the truncated interaction | open |
 | 7 | T2: assembly with `k = R^α` | open |
@@ -176,6 +176,35 @@ Remaining, in order:
      `α_t^Λ` and `α_t^{X[2mr]}` on observables of finite occupation transfer.
   5. Assembly with `n = R^α`, `α < 1`, and states given by finite-volume density matrices with
      moment bound `M` (not only Fock vectors), as in DLL Theorem 4.3.
+
+### T2.1 record (2026-11-03): statements, assumptions, findings
+
+All in `LocalCutoff.lean`; each depends only on `propext`, `Classical.choice`, `Quot.sound`.
+
+- `cutAdj Y n` (finite vectors) and `cutOp Y n` (bounded on `ℓ²(Occ L)`) are the diagonal operator
+  `Π_{x∈Y} 1_{N_x ≤ n}`, with no condition outside `Y`. `cutOp_mul_self`, `isSelfAdjoint_cutOp`:
+  orthogonal projection. `cutAdj_mul_diagAdj`: commutes with every occupation-diagonal operator,
+  hence with any on-site `D(N)`. It is diagonal, so it preserves all occupations (`cutAdj_single`).
+- Tail. `tsum_tail_le`: for any weight `q ≥ 0` on basis states with `Σ_α q(α) (α_x+1)^k ≤ M` for
+  `x ∈ Y`, `Σ_α q(α) (1 - P_{Y,n}(α)) ≤ |Y| M / (n+1)^k`. Assumption recorded: a density matrix
+  enters only through its diagonal `q(α) = ⟨α|ρ|α⟩`, because `1 - P_{Y,n}` and the local moments are
+  diagonal (`Tr ρ D = Σ_α ρ_{αα} d_α` for diagonal `D`). The density-matrix statement itself (with a
+  trace-class `ρ`) is not formalized; the vector-state version is `norm_sub_cutOp_sq_le`.
+- Leakage. `leakOp Y n T = P^⊥ T P`. `leakOp_bondTerm_eq_zero`: bonds with both ends outside `Y`
+  do not leak. `leakOp_finiteHam`: `P^⊥ H_Λ P` = (bonds inside `Y`) + (bonds crossing `∂Y`); the
+  on-site potential does not leak. `exists_raise_of_leakOp_ne`: every nonzero leakage element has
+  source in the cutoff and raises some site of `Y ∩ {x, y}` from `n` to `n + 1`.
+- Pairing across the boundary (`x ∈ Y`, `y ∉ Y`). Exact: `P^⊥ a_x† a_y† P e_β =
+  1_{β ∈ P, β_x = n} √(β_x+1) √(β_y+1) e_{β+e_x+e_y}` (`leakOp_pair_single`); unbounded, since
+  `β_y` is free. Norm identity `norm_leakOp_pair_sq`. Weighted estimate `norm_leakOp_pair_sq_le`:
+  `‖P^⊥ a_x† a_y† P f‖² ≤ (n+1)^{1-k} (M_x + M_y)/2` with `M_x` the moment of order `2k` at `x` and
+  `M_y` the moment of order `2` at `y`. Finding: the boundary pairing term does NOT obstruct the
+  generalization. It costs one extra moment order: a moment of order `2k` at the inner site buys
+  decay `(n+1)^{1-k}`, and only a second moment is needed at the outer site. For `k ≥ 2` the
+  contribution vanishes as `n → ∞`, uniformly in `Λ`.
+- Not done in T2.1 (left for T2.2): the hopping boundary term with the analogous weighted estimate
+  (same structure, amplitude `√(β_x+1)√β_y`), the observables of finite occupation transfer, and the
+  dynamics comparison `ω((α_t^Λ(A) - α̃_t^{Λ,Y,n}(A)) B)`.
 
 ## Where Deuchert-Lampart-Lemm use number conservation
 

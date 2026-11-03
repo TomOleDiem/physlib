@@ -34,6 +34,7 @@ hopping and pairing is bounded by `A` itself.
 
 - A. The derivative of an expectation
 - B. The Grönwall bound
+- C. Commutators with diagonal operators
 
 ## iv. References
 
@@ -67,7 +68,8 @@ lemma hasDerivAt_schrodinger (H : E →L[ℂ] E) (ψ : E) (t : ℝ) :
   simpa [schrodinger, Function.comp_def] using this
 
 /-- **The derivative of an expectation along the dynamics** is the expectation of `i [H, A]`. -/
-lemma hasDerivAt_expect (H A : E →L[ℂ] E) (hH : ∀ x y : E, inner ℂ (H x) y = inner ℂ x (H y)) (ψ : E) (t : ℝ) :
+lemma hasDerivAt_expect (H A : E →L[ℂ] E) (hH : ∀ x y : E, inner ℂ (H x) y = inner ℂ x (H y))
+    (ψ : E) (t : ℝ) :
     HasDerivAt (fun s => RCLike.re (inner ℂ (schrodinger H s ψ) (A (schrodinger H s ψ))))
       (RCLike.re (inner ℂ (schrodinger H t ψ)
         ((Complex.I • (H * A - A * H)) (schrodinger H t ψ)))) t := by
@@ -98,7 +100,8 @@ lemma hasDerivAt_expect (H A : E →L[ℂ] E) (hH : ∀ x y : E, inner ℂ (H x)
 
 /-- **Grönwall bound for the Heisenberg evolution.** If `Re ⟨φ, i [H, A] φ⟩ ≤ c Re ⟨φ, A φ⟩` for all
 `φ`, then `Re ⟨ψ_t, A ψ_t⟩ ≤ e^{c t} Re ⟨ψ, A ψ⟩` for `t ≥ 0`. -/
-theorem expect_le_exp_mul (H A : E →L[ℂ] E) (hH : ∀ x y : E, inner ℂ (H x) y = inner ℂ x (H y)) (c : ℝ)
+theorem expect_le_exp_mul (H A : E →L[ℂ] E) (hH : ∀ x y : E, inner ℂ (H x) y = inner ℂ x (H y))
+    (c : ℝ)
     (hc : ∀ φ : E, RCLike.re (inner ℂ φ ((Complex.I • (H * A - A * H)) φ)) ≤
       c * RCLike.re (inner ℂ φ (A φ)))
     (ψ : E) {t : ℝ} (ht : 0 ≤ t) :

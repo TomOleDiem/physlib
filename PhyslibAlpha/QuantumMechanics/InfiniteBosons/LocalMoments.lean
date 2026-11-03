@@ -47,6 +47,7 @@ are the scalar inequalities behind the commutator bound of the moment Grönwall 
 - G. The moment bound in a truncated volume
 - H. Exponential weights on graphs of polynomial growth
 - I. The uniform moment bound in a truncated volume
+- J. Plain row sums of the finite-volume Hamiltonian
 
 ## iv. References
 
@@ -609,7 +610,8 @@ theorem expect_diag_le (M : Matrix B B ℂ) (hM : M.IsHermitian) (a : B → ℝ)
       (Complex.I * (M α b * ((a b - a α : ℝ) : ℂ))) * φ b) ≤
       ‖∑ α, ∑ b, starRingEnd ℂ (φ α) * (M α b * ((a b - a α : ℝ) : ℂ)) * φ b‖ := by
     have e : ∑ α, ∑ b, starRingEnd ℂ (φ α) * (Complex.I * (M α b * ((a b - a α : ℝ) : ℂ))) *
-        φ b = Complex.I * ∑ α, ∑ b, starRingEnd ℂ (φ α) * (M α b * ((a b - a α : ℝ) : ℂ)) * φ b := by
+        φ b =
+          Complex.I * ∑ α, ∑ b, starRingEnd ℂ (φ α) * (M α b * ((a b - a α : ℝ) : ℂ)) * φ b := by
       rw [Finset.mul_sum]
       exact Finset.sum_congr rfl fun α _ => by
         rw [Finset.mul_sum]; exact Finset.sum_congr rfl fun b _ => by ring

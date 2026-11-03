@@ -31,10 +31,21 @@ occupation at `y`, controlled by local moments at both sites.
 - `InfiniteBosons.cutAdj`, `InfiniteBosons.cutOp`: the cutoff on finite vectors and on `ℓ²`.
 - `InfiniteBosons.cutOp_mul_self`, `InfiniteBosons.isSelfAdjoint_cutOp`: an orthogonal projection.
 - `InfiniteBosons.cutAdj_mul_diagAdj`: the cutoff commutes with occupation-diagonal operators.
+- `InfiniteBosons.tsum_tail_le`, `InfiniteBosons.norm_sub_cutOp_sq_le`: the tail of the cutoff is
+  at most `|Y| M / (n + 1)^k`, independently of the ambient volume.
+- `InfiniteBosons.BoseHubbardData.leakOp_finiteHam`: only bonds touching `Y` leak, split into bonds
+  inside `Y` and bonds crossing its boundary.
+- `InfiniteBosons.BoseHubbardData.exists_raise_of_leakOp_ne`: leaking moves raise an occupation in
+  `Y` from `n` to `n + 1`.
+- `InfiniteBosons.leakOp_pair_single`, `InfiniteBosons.norm_leakOp_pair_sq_le`: the unbounded
+  boundary pairing leakage, exactly and with a weighted estimate.
 
 ## iii. Table of contents
 
 - A. The localized cutoff
+- B. The tail of the cutoff
+- C. Local leakage of hopping and pairing
+- D. The pairing term across the boundary of `Y`
 
 ## iv. References
 

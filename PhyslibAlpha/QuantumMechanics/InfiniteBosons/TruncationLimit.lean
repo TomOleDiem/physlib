@@ -34,6 +34,12 @@ to the moves that leave the truncation, which are controlled by the truncated mo
 
 - A. Isometry
 - B. The Duhamel estimate
+- C. The truncated space inside the Fock space
+- D. The leakage of the truncated evolution
+- E. The size of the leakage
+- F. Chebyshev on the boundary of the truncation
+- G. The true finite-volume dynamics on truncated vectors
+- H. Removing the truncation
 
 ## iv. References
 
@@ -276,7 +282,8 @@ variable (D : BoseHubbardData L)
 
 lemma toEuclideanCLM_truncHam_apply (V : L → ℕ → ℝ) (Λ : Finset L) (S : Finset (Occ L))
     (v : EuclideanSpace ℂ S) (a : S) :
-    toEuclideanCLM (𝕜 := ℂ) (D.truncHam V Λ S) v a = ∑ b : S, matEl (D.finiteHam V Λ) a.1 b.1 * v b := by
+    toEuclideanCLM (𝕜 := ℂ) (D.truncHam V Λ S) v a =
+      ∑ b : S, matEl (D.finiteHam V Λ) a.1 b.1 * v b := by
   rw [show (toEuclideanCLM (𝕜 := ℂ) (D.truncHam V Λ S) v) a =
     (D.truncHam V Λ S *ᵥ (WithLp.ofLp v)) a from rfl, mulVec, dotProduct]
   rfl
@@ -884,14 +891,14 @@ lemma window_localMoment_le (V : L → ℕ → ℝ) (Λ : Finset L) {d : ℕ}
 
 open Classical in
 /-- **Uniform local moment bound for the true finite-volume dynamics (T1).** Let `H_Λ` be the
-finite-volume Bose-Hubbard Hamiltonian with hopping and pairing bounded by `K`, on a region of degree
-at most `d` in a graph of polynomial growth `#{x : d(x₀, x) ≤ R} ≤ C (R + 1)^ν`, with an arbitrary
-real on-site potential `V`. Let `U_t` be the unitary group of the self-adjoint closure of `H_Λ`
-(essentially self-adjoint by `finiteHam_isEssentiallySelfAdjoint`). For a finite initial vector
-supported in `Λ` whose local moments `Σ_a (a_x + 1)^{p+1} |f_a|²` in `Λ` are at most `M`, with
-`p ≥ 2`, every local moment of `U_{-t} f` at `x₀ ∈ Λ` is finite and at most `e^{c t} W M`, where
-`c = 8 d K (p + 1) 2^{p+1} (1 + e^μ)` and `W = Σ_n C (n + 1)^ν e^{-μ n}` do not depend on `Λ` or `V`.
--/
+finite-volume Bose-Hubbard Hamiltonian with hopping and pairing bounded by `K`, on a region of
+degree at most `d` in a graph of polynomial growth `#{x : d(x₀, x) ≤ R} ≤ C (R + 1)^ν`, with an
+arbitrary real on-site potential `V`. Let `U_t` be the unitary group of the self-adjoint closure of
+`H_Λ` (essentially self-adjoint by `finiteHam_isEssentiallySelfAdjoint`). For a finite initial
+vector supported in `Λ` whose local moments `Σ_a (a_x + 1)^{p+1} |f_a|²` in `Λ` are at most `M`,
+with `p ≥ 2`, every local moment of `U_{-t} f` at `x₀ ∈ Λ` is finite and at most `e^{c t} W M`,
+where `c = 8 d K (p + 1) 2^{p+1} (1 + e^μ)` and `W = Σ_n C (n + 1)^ν e^{-μ n}` do not depend on `Λ`
+or `V`. -/
 theorem localMoment_dynamics_le (V : L → ℕ → ℝ) (Λ : Finset L) {d : ℕ}
     (hd : ∀ x ∈ Λ, (Λ.filter (D.graph.Adj x)).card ≤ d) {K : ℝ} (hK : 0 ≤ K)
     (hJ : ∀ x y, |D.J x y| ≤ K) (hΔ : ∀ x y, ‖D.Δ x y‖ ≤ K) {p : ℕ} (hp : 2 ≤ p) {μ : ℝ}
@@ -901,8 +908,9 @@ theorem localMoment_dynamics_le (V : L → ℕ → ℝ) (Λ : Finset L) {d : ℕ
     {f : Occ L →₀ ℂ} (hf : ∀ a ∈ f.support, ∀ z ∉ Λ, a z = 0) {M : ℝ} (hM0 : 0 ≤ M)
     (hM : ∀ x ∈ Λ, ∑ a ∈ f.support, localMoment p x a * ‖f a‖ ^ 2 ≤ M) {t : ℝ} (ht : 0 ≤ t)
     {x₀ : L} (hx₀ : x₀ ∈ Λ) :
-    let U := (ProbabilisticTheory.QuantumMechanics.unboundedSpectralTheorem_of_essentiallySelfAdjoint
-      (polyOp (D.finiteHam V Λ)) (D.finiteHam_isEssentiallySelfAdjoint V Λ)).expUnitaryGroup
+    let U :=
+      (ProbabilisticTheory.QuantumMechanics.unboundedSpectralTheorem_of_essentiallySelfAdjoint
+        (polyOp (D.finiteHam V Λ)) (D.finiteHam_isEssentiallySelfAdjoint V Λ)).expUnitaryGroup
     Summable (fun γ => localMoment p x₀ γ * ‖(U (-t) (embed f) : HilbertSp (Occ L)) γ‖ ^ 2) ∧
       ∑' γ, localMoment p x₀ γ * ‖(U (-t) (embed f) : HilbertSp (Occ L)) γ‖ ^ 2 ≤
         Real.exp (8 * d * K * ((p + 1) * 2 ^ (p + 1)) * (1 + Real.exp μ) * t) *
