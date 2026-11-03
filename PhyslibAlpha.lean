@@ -771,6 +771,7 @@ public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.SpinBoson
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.SpinBosonLocal
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.TensorAmp
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.TensorNet
+public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.TruncationLimit
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.WeylCStar
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.WeylFlow
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.WeylRegular
