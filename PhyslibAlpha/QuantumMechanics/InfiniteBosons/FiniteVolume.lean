@@ -330,4 +330,102 @@ lemma finiteHam_matEl_ne (V : L → ℕ → ℝ) (Λ : Finset L) {a b : Occ L}
 
 end BoseHubbardData
 
+
+/-!
+
+## F. The blocks between neighbouring grades
+
+-/
+
+section Blocks
+
+variable {L : Type*} [DecidableEq L]
+
+lemma ann_ann_single_apply (u v : L) (b a : Occ L) :
+    ann v (ann u (single b (1 : ℂ))) a = if b - single u 1 - single v 1 = a then
+      ((Real.sqrt ((b - single u 1 : Occ L) v) : ℝ) : ℂ) * (((Real.sqrt (b u) : ℝ) : ℂ) * 1)
+      else 0 := by
+  rw [ann_single, ann_single, Finsupp.single_apply]
+
+lemma le_occIn {Λ : Finset L} {z : L} (hz : z ∈ Λ) (b : Occ L) : b z ≤ occIn Λ b :=
+  Finset.single_le_sum (f := fun x => b x) (fun _ _ => Nat.zero_le _) hz
+
+lemma sqrt_mul_sqrt_le {m k M : ℝ} (hm : 0 ≤ m) (hk : 0 ≤ k) (hmM : m ≤ M) (hkM : k ≤ M) :
+    Real.sqrt m * Real.sqrt k ≤ M := by
+  nlinarith [sq_nonneg (Real.sqrt m - Real.sqrt k), Real.sq_sqrt hm, Real.sq_sqrt hk]
+
+/-- The amplitude of pair annihilation inside the region is at most the occupation of the region. -/
+lemma norm_ann_ann_le {Λ : Finset L} {u v : L} (hu : u ∈ Λ) (hv : v ∈ Λ) (b a : Occ L) :
+    ‖ann v (ann u (single b (1 : ℂ))) a‖ ≤ occIn Λ b := by
+  rw [ann_ann_single_apply]
+  split_ifs
+  · rw [mul_one, ← Complex.ofReal_mul, Complex.norm_real, Real.norm_eq_abs,
+      abs_of_nonneg (by positivity)]
+    have h1 : ((b - single u 1 : Occ L) v : ℝ) ≤ occIn Λ b := by
+      have : (b - single u 1 : Occ L) v ≤ b v := by simp
+      exact_mod_cast this.trans (le_occIn hv b)
+    have h2 : (b u : ℝ) ≤ occIn Λ b := by exact_mod_cast le_occIn hu b
+    exact sqrt_mul_sqrt_le (by positivity) (by positivity) h1 h2
+  · simp
+
+/-- Pair annihilation is injective: the source state is the target with the pair added. -/
+lemma eq_add_of_ann_ann_ne {u v : L} {a b : Occ L} (h : ann v (ann u (single b (1 : ℂ))) a ≠ 0) :
+    b = a + single v 1 + single u 1 := by
+  rw [ann_ann_single_apply] at h
+  split_ifs at h with he
+  · have hc : ((Real.sqrt ((b - single u 1 : Occ L) v) : ℝ) : ℂ) ≠ 0 ∧
+        ((Real.sqrt (b u) : ℝ) : ℂ) ≠ 0 := by
+      constructor
+      · intro h0; apply h; rw [h0, zero_mul]
+      · intro h0; apply h; rw [h0, zero_mul, mul_zero]
+    have hbu : 1 ≤ b u := by
+      by_contra h0; apply hc.2; simp [show b u = 0 by omega]
+    have hbv : 1 ≤ (b - single u 1 : Occ L) v := by
+      by_contra h0; apply hc.1; simp [show (b - single u 1 : Occ L) v = 0 by omega]
+    rw [← he, tsub_add_cancel_of_le ((single_le_iff' v _).mpr hbv),
+      tsub_add_cancel_of_le ((single_le_iff' u b).mpr hbu)]
+  · exact absurd rfl h
+
+end Blocks
+
+namespace BoseHubbardData
+
+variable (D : BoseHubbardData L)
+
+/-- Between states whose occupations of the region differ by two, only pair annihilation acts. -/
+lemma matEl_bondTerm_of_occ {Λ : Finset L} {x y : L} (hx : x ∈ Λ) (hy : y ∈ Λ) {a b : Occ L}
+    (hab : occIn Λ b = occIn Λ a + 2) :
+    ‖matEl (D.bondTerm x y) a b‖ ≤ ‖D.Δ x y‖ * ‖ann y (ann x (single b (1 : ℂ))) a‖ := by
+  rw [matEl_bondTerm]
+  split_ifs
+  · have h1 : cre x (ann y (single b (1 : ℂ))) a = 0 := by
+      by_contra h; have := (cre_ann_apply_ne hx hy h).1; omega
+    have h2 : cre y (ann x (single b (1 : ℂ))) a = 0 := by
+      by_contra h; have := (cre_ann_apply_ne hy hx h).1; omega
+    have h3 : cre x (cre y (single b (1 : ℂ))) a = 0 := by
+      by_contra h; have := (cre_cre_apply_ne hx hy h).1; omega
+    simp only [h1, h2, h3, add_zero, mul_zero, zero_add]
+    rw [norm_mul, RCLike.norm_conj]
+  · calc ‖(0 : ℂ)‖ = 0 := norm_zero
+      _ ≤ _ := by positivity
+
+/-- **Block bound.** Between grades `n` and `n + 1` the matrix elements of the finite-volume
+Hamiltonian are bounded by the pair-annihilation amplitudes. -/
+lemma norm_matEl_finiteHam_le (V : L → ℕ → ℝ) (Λ : Finset L) {a b : Occ L}
+    (hab : occIn Λ a / 2 + 1 = occIn Λ b / 2) :
+    ‖matEl (D.finiteHam V Λ) a b‖ ≤
+      ∑ p ∈ Λ ×ˢ Λ, ‖D.Δ p.1 p.2‖ * ‖ann p.2 (ann p.1 (single b (1 : ℂ))) a‖ := by
+  by_cases h0 : matEl (D.finiteHam V Λ) a b = 0
+  · rw [h0, norm_zero]; positivity
+  have hocc : occIn Λ b = occIn Λ a + 2 := by
+    rcases (D.finiteHam_matEl_ne V Λ h0).1 with h | h | h <;> omega
+  have hne : b ≠ a := fun h => by rw [h] at hocc; omega
+  unfold finiteHam
+  rw [matEl_add, matEl_sum, matEl_diagAdj, if_neg hne, zero_add]
+  refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun p hp => ?_)
+  obtain ⟨hx, hy⟩ := Finset.mem_product.mp hp
+  exact D.matEl_bondTerm_of_occ hx hy hocc
+
+end BoseHubbardData
+
 end InfiniteBosons
