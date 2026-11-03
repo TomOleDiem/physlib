@@ -493,4 +493,87 @@ lemma boundary_weight_le (Λ : Finset L) (n p : ℕ) {S : Finset (Occ L)} (v : E
 
 end Chebyshev
 
+
+/-!
+
+## G. The true finite-volume dynamics on truncated vectors
+
+-/
+
+section TrueDynamics
+
+open Finsupp Matrix
+
+variable {B : Type*} [DecidableEq B]
+
+lemma embed_mem_closure_domain (P : Adjointable B) (f : B →₀ ℂ) :
+    embed f ∈ (polyOp P).closure.domain :=
+  (polyOp P).le_closure.1 (LinearMap.mem_range_self embed f)
+
+/-- The closure of `polyOp P` acts on finite vectors as `P`. -/
+lemma closure_polyOp_embed (P : Adjointable B) (f : B →₀ ℂ) :
+    (polyOp P).closure ⟨embed f, embed_mem_closure_domain P f⟩ = embed (P.1.1 f) := by
+  rw [← polyOp_embed P f]
+  exact ((polyOp P).le_closure.2 (x := ⟨embed f, LinearMap.mem_range_self embed f⟩)
+    (y := ⟨embed f, embed_mem_closure_domain P f⟩) rfl).symm
+
+variable {L : Type*} [DecidableEq L]
+
+/-- The embedding of the truncated space into `ℓ²(Occ L)` as a continuous linear map. -/
+def truncEmbed (S : Finset (Occ L)) : EuclideanSpace ℂ S →L[ℂ] HilbertSp (Occ L) :=
+  LinearMap.toContinuousLinearMap (embed ∘ₗ truncVec S)
+
+lemma truncEmbed_apply (S : Finset (Occ L)) (v : EuclideanSpace ℂ S) :
+    truncEmbed S v = embed (truncVec S v) := rfl
+
+end TrueDynamics
+
+
+namespace BoseHubbardData
+
+open Finsupp Matrix
+
+variable {L : Type*} [DecidableEq L] (D : BoseHubbardData L)
+
+/-- The true dynamics solves the truncated evolution equation up to the leakage. -/
+lemma truncEmbed_deriv_add (V : L → ℕ → ℝ) (Λ : Finset L) (S : Finset (Occ L))
+    (ψ : EuclideanSpace ℂ S) :
+    truncEmbed S (-(Complex.I • toEuclideanCLM (𝕜 := ℂ) (D.truncHam V Λ S)) ψ) +
+      Complex.I • (polyOp (D.finiteHam V Λ)).closure
+        ⟨truncEmbed S ψ, embed_mem_closure_domain _ (truncVec S ψ)⟩ =
+      Complex.I • embed (D.leak V Λ S ψ) := by
+  rw [show (⟨truncEmbed S ψ, embed_mem_closure_domain _ (truncVec S ψ)⟩ :
+      (polyOp (D.finiteHam V Λ)).closure.domain) =
+      ⟨embed (truncVec S ψ), embed_mem_closure_domain _ (truncVec S ψ)⟩ from rfl,
+    closure_polyOp_embed, leak, map_sub, smul_sub, truncEmbed_apply]
+  simp only [ContinuousLinearMap.neg_apply, ContinuousLinearMap.smul_apply, map_neg, map_smul]
+  abel
+
+/-- **Comparison of the true and the truncated finite-volume dynamics.** If the leakage of the
+truncated evolution stays below `ε` on `[0, t]`, the true unitary group and the truncated evolution
+differ by at most `ε t`. -/
+theorem norm_true_sub_trunc_le (V : L → ℕ → ℝ) (Λ : Finset L) (S : Finset (Occ L))
+    {μS : ProbabilisticTheory.QuantumMechanics.WOTSpectralMeasure ℝ (HilbertSp (Occ L))}
+    (Dsp : ProbabilisticTheory.QuantumMechanics.DomainAwareSelfAdjointSpectralTheorem
+      (polyOp (D.finiteHam V Λ)).closure μS)
+    (v : EuclideanSpace ℂ S) {t : ℝ} (ht : 0 ≤ t) {ε : ℝ}
+    (hε : ∀ s ∈ Set.Icc 0 t, ‖embed (D.leak V Λ S
+      (schrodinger (toEuclideanCLM (𝕜 := ℂ) (D.truncHam V Λ S)) s v))‖ ≤ ε) :
+    ‖Dsp.expUnitaryGroup (-t) (truncEmbed S v) -
+      truncEmbed S (schrodinger (toEuclideanCLM (𝕜 := ℂ) (D.truncHam V Λ S)) t v)‖ ≤ ε * t := by
+  set G := toEuclideanCLM (𝕜 := ℂ) (D.truncHam V Λ S)
+  have hφ : ∀ s, HasDerivAt (fun r => truncEmbed S (schrodinger G r v))
+      (truncEmbed S (-(Complex.I • G) (schrodinger G s v))) s := fun s =>
+    ((truncEmbed S).restrictScalars ℝ).hasFDerivAt.comp_hasDerivAt s
+      (hasDerivAt_schrodinger G v s)
+  have h0 : truncEmbed S (schrodinger G 0 v) = truncEmbed S v := by simp [schrodinger]
+  have := norm_unitaryGroup_neg_sub_le Dsp ht hφ
+    (fun s => embed_mem_closure_domain _ (truncVec S (schrodinger G s v))) (ε := ε)
+    (fun s hs => by
+      rw [D.truncEmbed_deriv_add V Λ S, norm_smul, Complex.norm_I, one_mul]
+      exact hε s hs)
+  rwa [h0] at this
+
+end BoseHubbardData
+
 end InfiniteBosons
