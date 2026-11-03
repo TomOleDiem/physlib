@@ -183,17 +183,31 @@ def gradeLe (N : ℕ) : Finset β := (range (N + 1)).biUnion S
 
 variable {gr S}
 
-lemma mem_gradeLe (hS : ∀ a n, a ∈ S n ↔ gr a = n) {a : β} {N : ℕ} :
-    a ∈ gradeLe S N ↔ gr a ≤ N := by
-  simp only [gradeLe, Finset.mem_biUnion, Finset.mem_range, hS]
-  exact ⟨fun ⟨n, hn, h⟩ => by omega, fun h => ⟨gr a, by omega, rfl⟩⟩
+lemma mem_gradeLe (hS : ∀ a n, a ∈ S n → gr a = n) {a : β} {N : ℕ} (ha : a ∈ gradeLe S N) :
+    gr a ≤ N := by
+  simp only [gradeLe, Finset.mem_biUnion, Finset.mem_range] at ha
+  obtain ⟨n, hn, h⟩ := ha
+  rw [hS a n h]; omega
 
-lemma gradeLe_succ (hS : ∀ a n, a ∈ S n ↔ gr a = n) (N : ℕ) :
+lemma subset_gradeLe {n N : ℕ} (h : n ≤ N) : S n ⊆ gradeLe S N := fun a ha =>
+  Finset.mem_biUnion.mpr ⟨n, Finset.mem_range.mpr (by omega), ha⟩
+
+lemma gradeLe_mono {M N : ℕ} (h : M ≤ N) : gradeLe S M ⊆ gradeLe S N := fun a ha => by
+  simp only [gradeLe, Finset.mem_biUnion, Finset.mem_range] at ha ⊢
+  obtain ⟨n, hn, h'⟩ := ha
+  exact ⟨n, by omega, h'⟩
+
+lemma exists_mem_of_mem_gradeLe {a : β} {N : ℕ} (ha : a ∈ gradeLe S N) : ∃ n ≤ N, a ∈ S n := by
+  simp only [gradeLe, Finset.mem_biUnion, Finset.mem_range] at ha
+  obtain ⟨n, hn, h⟩ := ha
+  exact ⟨n, by omega, h⟩
+
+lemma gradeLe_succ (hS : ∀ a n, a ∈ S n → gr a = n) (N : ℕ) :
     gradeLe S (N + 1) = gradeLe S N ∪ S (N + 1) ∧ Disjoint (gradeLe S N) (S (N + 1)) := by
   constructor
-  · ext a; simp only [Finset.mem_union, mem_gradeLe hS, hS]; omega
+  · rw [gradeLe, Finset.range_add_one, Finset.biUnion_insert, Finset.union_comm]; rfl
   · rw [Finset.disjoint_left]; intro a h1 h2
-    rw [mem_gradeLe hS] at h1; rw [hS] at h2; omega
+    have := mem_gradeLe hS h1; rw [hS a _ h2] at this; omega
 
 omit [DecidableEq β] in
 /-- The sum over a Hermitian block is real. -/
@@ -212,22 +226,24 @@ lemma im_sum_hermitian_eq_zero (A : Finset β) (h : β → β → ℂ)
 
 /-- **Flux identity for block Jacobi matrices.** If `H g = i c g` row by row, the weight of the
 grades up to `N` times `c` is the imaginary part of the coupling between grades `N` and `N + 1`. -/
-lemma blockJacobi_flux (hS : ∀ a n, a ∈ S n ↔ gr a = n) (h : β → β → ℂ)
+lemma blockJacobi_flux (hS : ∀ a n, a ∈ S n → gr a = n) (h : β → β → ℂ)
     (hherm : ∀ a b, h b a = starRingEnd ℂ (h a b))
     (hband : ∀ a b, h a b ≠ 0 → gr b ≤ gr a + 1 ∧ gr a ≤ gr b + 1) (c : ℝ) (g : β → ℂ)
-    (heq : ∀ a, ∑ b ∈ gradeLe S (gr a + 1), h a b * g b = Complex.I * c * g a) (N : ℕ) :
+    (heq : ∀ a, a ∈ S (gr a) →
+      ∑ b ∈ gradeLe S (gr a + 1), h a b * g b = Complex.I * c * g a) (N : ℕ) :
     c * ∑ a ∈ gradeLe S N, ‖g a‖ ^ 2 =
       (∑ a ∈ S N, ∑ b ∈ S (N + 1), starRingEnd ℂ (g a) * h a b * g b).im := by
   -- each row may be summed over all grades up to `N + 1`
   have hrow : ∀ a ∈ gradeLe S N, ∑ b ∈ gradeLe S (N + 1), h a b * g b = Complex.I * c * g a := by
     intro a ha
-    rw [← heq a]
-    have ha' := (mem_gradeLe hS).mp ha
-    refine (Finset.sum_subset (fun b hb => (mem_gradeLe hS).mpr
-      (((mem_gradeLe hS).mp hb).trans (by omega))) fun b _ hb => ?_).symm
+    obtain ⟨n, hn, han⟩ := exists_mem_of_mem_gradeLe ha
+    have hga := hS a n han
+    rw [← heq a (hga ▸ han)]
+    refine (Finset.sum_subset (gradeLe_mono (by omega)) fun b hb hb' => ?_).symm
     by_contra hne
-    have := (hband a b (left_ne_zero_of_mul hne)).1
-    exact hb ((mem_gradeLe hS).mpr this)
+    have h1 := (hband a b (left_ne_zero_of_mul hne)).1
+    obtain ⟨m, hm, hbm⟩ := exists_mem_of_mem_gradeLe hb
+    exact hb' (subset_gradeLe (by rw [← hS b m hbm]; exact h1) hbm)
   have htot : ∑ a ∈ gradeLe S N, ∑ b ∈ gradeLe S (N + 1), starRingEnd ℂ (g a) * h a b * g b =
       Complex.I * c * ∑ a ∈ gradeLe S N, (‖g a‖ ^ 2 : ℂ) := by
     rw [Finset.mul_sum]
@@ -239,12 +255,13 @@ lemma blockJacobi_flux (hS : ∀ a n, a ∈ S n ↔ gr a = n) (h : β → β →
   -- only grade `N` couples to grade `N + 1`
   have hbd : ∑ a ∈ gradeLe S N, ∑ b ∈ S (N + 1), starRingEnd ℂ (g a) * h a b * g b =
       ∑ a ∈ S N, ∑ b ∈ S (N + 1), starRingEnd ℂ (g a) * h a b * g b := by
-    refine (Finset.sum_subset (fun a ha => (mem_gradeLe hS).mpr ((hS a N).mp ha).le)
+    refine (Finset.sum_subset (subset_gradeLe le_rfl)
       fun a ha haN => Finset.sum_eq_zero fun b hb => ?_).symm
     by_contra hne
     have h1 := (hband a b (right_ne_zero_of_mul (left_ne_zero_of_mul hne))).1
-    have := (mem_gradeLe hS).mp ha
-    rw [hS] at hb haN
+    obtain ⟨n, hn, han⟩ := exists_mem_of_mem_gradeLe ha
+    have hn' : n ≠ N := fun h => haN (h ▸ han)
+    rw [hS b _ hb, hS a n han] at h1
     omega
   rw [hbd] at htot
   have := congrArg Complex.im htot
@@ -253,7 +270,7 @@ lemma blockJacobi_flux (hS : ∀ a n, a ∈ S n ↔ gr a = n) (h : β → β →
   simp [← Complex.ofReal_pow, ← Complex.ofReal_sum]
 
 /-- Grade sums of a square-summable vector are summable. -/
-lemma summable_gradeSum (hS : ∀ a n, a ∈ S n ↔ gr a = n) (f : β → ℝ) (hf0 : ∀ a, 0 ≤ f a)
+lemma summable_gradeSum (hS : ∀ a n, a ∈ S n → gr a = n) (f : β → ℝ) (hf0 : ∀ a, 0 ≤ f a)
     (hf : Summable f) : Summable fun n => ∑ a ∈ S n, f a := by
   refine summable_of_sum_range_le (fun n => Finset.sum_nonneg fun a _ => hf0 a)
     (c := ∑' a, f a) fun M => ?_
@@ -262,20 +279,21 @@ lemma summable_gradeSum (hS : ∀ a n, a ∈ S n ↔ gr a = n) (f : β → ℝ) 
   · intro n _ m _ hnm
     rw [Function.onFun, Finset.disjoint_left]
     intro a h1 h2
-    rw [hS] at h1 h2
-    exact hnm (h1.symm.trans h2)
+    exact hnm ((hS a n h1).symm.trans (hS a m h2))
 
 /-- **Carleman's criterion for block Jacobi matrices.** Let `H` be a Hermitian matrix coupling only
 neighbouring grades, with finite grades, arbitrary diagonal blocks, and off-diagonal blocks between
 grades `n` and `n + 1` whose row and column sums are bounded by `r n`. If `Σ 1 / r n` diverges, the
 equation `H g = i c g` with `c ≠ 0` has no nonzero square-summable solution. -/
-theorem blockJacobi_no_l2_solution (hS : ∀ a n, a ∈ S n ↔ gr a = n) (h : β → β → ℂ)
+theorem blockJacobi_no_l2_solution (hS : ∀ a n, a ∈ S n → gr a = n) (h : β → β → ℂ)
     (hherm : ∀ a b, h b a = starRingEnd ℂ (h a b))
     (hband : ∀ a b, h a b ≠ 0 → gr b ≤ gr a + 1 ∧ gr a ≤ gr b + 1) (r : ℕ → ℝ)
     (hr : ∀ n, 0 < r n) (hrow : ∀ n, ∀ a ∈ S n, ∑ b ∈ S (n + 1), ‖h a b‖ ≤ r n)
     (hcol : ∀ n, ∀ b ∈ S (n + 1), ∑ a ∈ S n, ‖h a b‖ ≤ r n) (hdiv : ¬ Summable fun n => 1 / r n)
     {c : ℝ} (hc : c ≠ 0) (g : β → ℂ) (hg : Summable fun a => ‖g a‖ ^ 2)
-    (heq : ∀ a, ∑ b ∈ gradeLe S (gr a + 1), h a b * g b = Complex.I * c * g a) (a : β) :
+    (hcov : ∀ a, g a ≠ 0 → a ∈ S (gr a))
+    (heq : ∀ a, a ∈ S (gr a) →
+      ∑ b ∈ gradeLe S (gr a + 1), h a b * g b = Complex.I * c * g a) (a : β) :
     g a = 0 := by
   by_contra ha
   set G : ℕ → ℝ := fun n => ∑ a ∈ S n, ‖g a‖ ^ 2
@@ -287,7 +305,7 @@ theorem blockJacobi_no_l2_solution (hS : ∀ a n, a ∈ S n ↔ gr a = n) (h : �
     have hflux := blockJacobi_flux hS h hherm hband c g heq N
     have hW : ε ≤ ∑ b ∈ gradeLe S N, ‖g b‖ ^ 2 :=
       Finset.single_le_sum (f := fun b => ‖g b‖ ^ 2) (fun b _ => by positivity)
-        ((mem_gradeLe hS).mpr hN)
+        (subset_gradeLe hN (hcov a ha))
     have hsch := norm_sum_conj_mul_le (S N) (S (N + 1)) h g g (r N) (hrow N) (hcol N)
     have h1 : |c| * ε ≤ r N * (G N + G (N + 1)) / 2 := by
       calc |c| * ε ≤ |c * ∑ b ∈ gradeLe S N, ‖g b‖ ^ 2| := by

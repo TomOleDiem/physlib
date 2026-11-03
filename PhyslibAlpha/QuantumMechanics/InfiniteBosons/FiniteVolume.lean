@@ -250,4 +250,84 @@ lemma ann_ann_apply_ne {Λ : Finset L} {u v : L} (hu : u ∈ Λ) (hv : v ∈ Λ)
 
 end Occupation
 
+
+/-!
+
+## E. The band structure of the finite-volume Hamiltonian
+
+-/
+
+section Band
+
+variable {B : Type*} [DecidableEq B]
+
+lemma matEl_add (p q : Adjointable B) (a b : B) : matEl (p + q) a b = matEl p a b + matEl q a b :=
+  rfl
+
+lemma matEl_sum {ι : Type*} (s : Finset ι) (p : ι → Adjointable B) (a b : B) :
+    matEl (∑ i ∈ s, p i) a b = ∑ i ∈ s, matEl (p i) a b := by
+  classical
+  induction s using Finset.induction_on with
+  | empty => rfl
+  | insert i s hi ih => rw [Finset.sum_insert hi, Finset.sum_insert hi, matEl_add, ih]
+
+lemma matEl_diagAdj (c : B → ℝ) (a b : B) :
+    matEl (diagAdj c) a b = if b = a then ((c b : ℝ) : ℂ) else 0 := by
+  unfold matEl
+  rw [diagAdj_single, Finsupp.single_apply]
+
+end Band
+
+variable {L : Type*} [DecidableEq L]
+
+namespace BoseHubbardData
+
+variable (D : BoseHubbardData L)
+
+open Classical in
+lemma matEl_bondTerm (x y : L) (a b : Occ L) :
+    matEl (D.bondTerm x y) a b = if D.graph.Adj x y then
+      ((-D.J x y : ℝ) : ℂ) * (cre x (ann y (single b (1 : ℂ))) a + cre y (ann x (single b 1)) a) +
+        D.Δ x y * cre x (cre y (single b 1)) a +
+        starRingEnd ℂ (D.Δ x y) * ann y (ann x (single b 1)) a else 0 := by
+  unfold matEl bondTerm
+  split_ifs
+  · show (((-D.J x y : ℝ) : ℂ) • (cre x (ann y (single b (1 : ℂ))) + cre y (ann x (single b 1))) +
+      D.Δ x y • cre x (cre y (single b 1)) + starRingEnd ℂ (D.Δ x y) • ann y (ann x (single b 1))) a
+      = _
+    simp only [Finsupp.coe_add, Pi.add_apply, Finsupp.coe_smul, Pi.smul_apply, smul_eq_mul]
+  · rfl
+
+/-- **Band structure.** A nonzero matrix element of the finite-volume Hamiltonian connects states
+that agree outside the region and whose occupations of the region differ by `0` or `2`. -/
+lemma finiteHam_matEl_ne (V : L → ℕ → ℝ) (Λ : Finset L) {a b : Occ L}
+    (h : matEl (D.finiteHam V Λ) a b ≠ 0) :
+    (occIn Λ a = occIn Λ b ∨ occIn Λ a = occIn Λ b + 2 ∨ occIn Λ a + 2 = occIn Λ b) ∧
+      ∀ z ∉ Λ, a z = b z := by
+  unfold finiteHam at h
+  rw [matEl_add, matEl_sum, matEl_diagAdj] at h
+  by_cases hd : b = a
+  · subst hd; exact ⟨Or.inl rfl, fun _ _ => rfl⟩
+  rw [if_neg hd, zero_add] at h
+  obtain ⟨⟨x, y⟩, hp, hne⟩ := Finset.exists_ne_zero_of_sum_ne_zero h
+  obtain ⟨hx, hy⟩ := Finset.mem_product.mp hp
+  rw [matEl_bondTerm] at hne
+  split_ifs at hne with hadj
+  · by_cases h1 : cre x (ann y (single b (1 : ℂ))) a = 0
+    · by_cases h2 : cre y (ann x (single b (1 : ℂ))) a = 0
+      · by_cases h3 : cre x (cre y (single b (1 : ℂ))) a = 0
+        · have h4 : ann y (ann x (single b (1 : ℂ))) a ≠ 0 := by
+            intro h4; apply hne; simp [h1, h2, h3, h4]
+          obtain ⟨e, ho⟩ := ann_ann_apply_ne hx hy h4
+          exact ⟨Or.inr (Or.inr e), ho⟩
+        · obtain ⟨e, ho⟩ := cre_cre_apply_ne hx hy h3
+          exact ⟨Or.inr (Or.inl e), ho⟩
+      · obtain ⟨e, ho⟩ := cre_ann_apply_ne hy hx h2
+        exact ⟨Or.inl e, ho⟩
+    · obtain ⟨e, ho⟩ := cre_ann_apply_ne hx hy h1
+      exact ⟨Or.inl e, ho⟩
+  · exact absurd rfl hne
+
+end BoseHubbardData
+
 end InfiniteBosons
