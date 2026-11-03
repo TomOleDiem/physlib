@@ -42,6 +42,7 @@ No bound on the on-site terms `D_x` and no particle-number conservation is assum
 - `LatticeFermions.Interaction.locallyFinite_of_hasFiniteRange` : finite range implies local
   finiteness.
 - `LatticeFermions.car_dynamics` : the infinite-volume dynamics of lattice fermions.
+- `LatticeFermions.Interaction.lieb_robinson_exp_abs` : the same bound for all times `t`.
 - `LatticeFermions.Interaction.lieb_robinson_exp` : the Lieb–Robinson bound
   `‖[α_t(A), B]‖ ≤ C ‖A‖ ‖B‖ e^{v t - μ d(X, Y)}` on a graph.
 
@@ -270,6 +271,27 @@ lemma lieb_robinson_exp (hR : Φ.HasFiniteRange G R) {J : ℝ} (hJ : Φ.IsBounde
     _ = _ := by
         rw [mul_assoc (max 1 (#X : ℝ)), ← Real.exp_add, sub_eq_add_neg]
         ring_nf
+
+omit [DecidableEq V] in
+lemma HasFiniteRange.neg (hR : Φ.HasFiniteRange G R) : Φ.neg.HasFiniteRange G R :=
+  fun X hX => hR X fun h => hX (by rw [neg_term, h, neg_zero])
+
+/-- The Lieb–Robinson bound on a graph for all times:
+`‖[α_t(A), B]‖ ≤ 2 max(1, |X|) ‖A‖ ‖B‖ e^{v |t| - μ n}`, `v = 2 J e^{μ R}`. Negative times are
+the positive times of the interaction `-Φ`. -/
+lemma lieb_robinson_exp_abs (hR : Φ.HasFiniteRange G R) {J : ℝ} (hJ : Φ.IsBoundedBy J)
+    (hJ0 : 0 ≤ J) (Λ Y : Finset V) {B : 𝔄} (hB : B ∈ N.loc Y) (hBe : N.IsEven B)
+    {X : Finset V} (hX : X ⊆ Λ) {A : 𝔄} (hA : A ∈ N.loc X) {n : ℕ}
+    (hXY : ∀ x ∈ X, ∀ y ∈ Y, (n : ℕ∞) ≤ G.edist x y) {μ : ℝ} (hμ : 0 ≤ μ) (t : ℝ) :
+    ‖evolution (Φ.hamiltonian Λ) t A * B - B * evolution (Φ.hamiltonian Λ) t A‖ ≤
+      2 * max 1 (#X : ℝ) * ‖A‖ * ‖B‖ *
+        Real.exp (2 * J * Real.exp (μ * R) * |t| - μ * n) := by
+  rcases le_total 0 t with ht | ht
+  · rw [abs_of_nonneg ht]
+    exact lieb_robinson_exp hR hJ hJ0 Λ Y hB hBe hX hA hXY hμ ht
+  · have h := lieb_robinson_exp hR.neg hJ.neg hJ0 Λ Y hB hBe hX hA hXY hμ (neg_nonneg.mpr ht)
+    rw [evolution_hamiltonian_neg, neg_neg] at h
+    rwa [abs_of_nonpos ht]
 
 end Interaction
 

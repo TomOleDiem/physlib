@@ -49,7 +49,7 @@ nonzero pairing together.
 | 1 | Finite local CAR algebras `𝒜_X`, inclusions, CAR relations across sites, parity `Θ`, even-odd locality, quasi-local C*-algebra | done: `FockSpace`, `CARNet` (`carNet`, `carLocal`), `GradedLocalNet` (`quasiLocal`, `ofClosure`) |
 | 2 | Interactions `Φ(X) ∈ 𝒜_X`: even, self-adjoint, finite range, norm `J`; on-site `D_x` separate; hopping, pairing, Hubbard, density terms instantiate it | done: `Interaction` (`hamiltonian`, `IsBoundedBy`, `LocallyFinite`), `CARDynamics.HasFiniteRange`, terms `hopTerm`, `pairTerm`, `numOp`, `Hubbard.density` |
 | 3 | Finite-volume dynamics `α_t^Λ`: group law, isometry, parity, Heisenberg equation (finite-dimensional) | done: `FiniteDynamics` (any bounded `H` in a C*-algebra) |
-| 4 | Lieb-Robinson bound `‖[α_t^Λ(A), B]‖ ≤ C e^{v|t| - μ d(X,Y)}` for `B` even, constants independent of `Λ` and of `D` | done in chain form: `LiebRobinson.lieb_robinson`, `‖[α_t A, B]‖ ≤ 2‖A‖‖B‖ Σ_k (2t)^k/k! w_k(X,Y)` (no `D`); metric form is a corollary not needed for 5-6 |
+| 4 | Lieb-Robinson bound `‖[α_t^Λ(A), B]‖ ≤ C e^{v|t| - μ d(X,Y)}` for `B` even, constants independent of `Λ` and of `D` | done in chain form: `LiebRobinson.lieb_robinson`; metric form `CARDynamics.lieb_robinson_exp_abs` (`C e^{v|t| - μ n}`, `v = 2 J e^{μR}`);, `‖[α_t A, B]‖ ≤ 2‖A‖‖B‖ Σ_k (2t)^k/k! w_k(X,Y)` (no `D`); metric form is a corollary not needed for 5-6 |
 | 5 | Duhamel Cauchy estimate, norm convergence and exhaustion independence | done: `ThermodynamicLimit` (`norm_evolution_sub_evolution_le`, `norm_evolution_sub_le_tail_abs`, `uniformCauchySeqOn_evolution`); limits in milestone 6 |
 | 6 | Infinite-volume automorphism group and generator on local elements | done: `InfiniteDynamics` (abstract) and `CARDynamics.car_dynamics` (CAR net, finite range on a locally finite graph, `IsBoundedBy J`, arbitrary on-site terms) |
 | 7 | States and GNS unitary implementation | done: `StateDynamics` (`evolveState`, `gnsEvolution`, unitarity, covariance, strong continuity; Stone: `gnsGenerator`, `isSelfAdjoint_gnsGenerator`, `gnsEvolution_eq_exp`, `Interaction.gnsGenerator_local`) |
@@ -60,8 +60,8 @@ Gibbs states, conditional expectations, spectral flow.
 
 ## Open items
 
-- Metric Lieb-Robinson bound: done for `t ≥ 0` (`CARDynamics.lieb_robinson_exp`); negative
-  times follow from `Interaction.neg` but are not stated.
+- Metric Lieb-Robinson bound on graphs: done for all times (`CARDynamics.lieb_robinson_exp`,
+  `lieb_robinson_exp_abs`).
 - The graded (odd-odd) Lieb-Robinson bound is not needed and not done.
 - The main theorem holds for any locally finite graph and any set of modes; bounded degree and
   finitely many modes per vertex enter only through `IsBoundedBy J` (e.g. `Hubbard.isBoundedBy`).
