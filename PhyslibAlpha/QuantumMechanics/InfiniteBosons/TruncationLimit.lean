@@ -143,4 +143,59 @@ theorem norm_unitaryGroup_sub_le (D : DomainAwareSelfAdjointSpectralTheorem T μ
   rw [hg0, hgt, sub_zero, norm_sub_rev] at hbound
   exact hbound
 
+
+/-- The derivative of `s ↦ U (s - t) φ(s)`: `U (s - t) (φ'(s) + i T φ(s))`. -/
+lemma hasDerivAt_unitaryGroup_comp_neg (D : DomainAwareSelfAdjointSpectralTheorem T μS) (t : ℝ)
+    {φ : ℝ → H} {φ' : H} {s : ℝ} (hφ : HasDerivAt φ φ' s) (hdom : φ s ∈ T.domain) :
+    HasDerivAt (fun r => D.expUnitaryGroup (r - t) (φ r))
+      (D.expUnitaryGroup (s - t) (φ' + Complex.I • T ⟨φ s, hdom⟩)) s := by
+  set U := D.expUnitaryGroup
+  have h1 : HasDerivAt (fun r => U (r - t) (φ s)) (U (s - t) (Complex.I • T ⟨φ s, hdom⟩)) s := by
+    have hU := D.expUnitaryGroup_hasDerivAt ⟨φ s, hdom⟩ (s - t)
+    have hlin : HasDerivAt (fun r : ℝ => r - t) 1 s := by
+      simpa using (hasDerivAt_id s).sub_const t
+    have := hU.scomp s hlin
+    simpa [Function.comp_def] using this
+  have h2 : HasDerivAt (fun r => U (r - t) (φ r - φ s)) (U (s - t) φ') s := by
+    rw [hasDerivAt_iff_isLittleO]
+    have hb : (fun r => U (r - t) (φ r - φ s - (r - s) • φ')) =O[𝓝 s]
+        (fun r => φ r - φ s - (r - s) • φ') :=
+      Asymptotics.IsBigO.of_bound 1 (Filter.Eventually.of_forall fun r => by
+        rw [norm_unitaryGroup_apply, one_mul])
+    have hc : Filter.Tendsto (fun r => U (r - t) φ' - U (s - t) φ') (𝓝 s) (𝓝 0) := by
+      have hcont := (D.expUnitaryGroup_continuous_apply φ').comp (continuous_sub_right t)
+      have := (hcont.tendsto s).sub_const (U (s - t) φ')
+      convert this using 2 <;> first | rfl | exact (sub_self (U (s - t) φ')).symm
+    have hd : (fun r => (r - s) • (U (r - t) φ' - U (s - t) φ')) =o[𝓝 s] (fun r => r - s) := by
+      have := (Asymptotics.isBigO_refl (fun r : ℝ => r - s) (𝓝 s)).smul_isLittleO
+        ((Asymptotics.isLittleO_one_iff ℝ).mpr hc)
+      simpa using this
+    refine ((hb.trans_isLittleO hφ.isLittleO).add hd).congr_left fun r => ?_
+    simp only [sub_self, map_zero, sub_zero, map_sub, wot_real_smul, smul_sub]
+    abel
+  have hsum := h1.add h2
+  convert hsum using 1
+  · funext r
+    simp only [Pi.add_apply]
+    rw [← map_add, add_sub_cancel]
+  · rw [map_add]; abel
+
+/-- **Duhamel estimate backwards in time.** If `φ` solves `φ' = -i T φ` up to an error of norm at
+most `ε` on `[0, t]`, then `‖U (-t) φ(0) - φ(t)‖ ≤ ε t`. -/
+theorem norm_unitaryGroup_neg_sub_le (D : DomainAwareSelfAdjointSpectralTheorem T μS) {t : ℝ}
+    (ht : 0 ≤ t) {φ φ' : ℝ → H} (hφ : ∀ s, HasDerivAt φ (φ' s) s) (hdom : ∀ s, φ s ∈ T.domain)
+    {ε : ℝ} (hε : ∀ s ∈ Set.Icc 0 t, ‖φ' s + Complex.I • T ⟨φ s, hdom s⟩‖ ≤ ε) :
+    ‖D.expUnitaryGroup (-t) (φ 0) - φ t‖ ≤ ε * t := by
+  set g : ℝ → H := fun r => D.expUnitaryGroup (r - t) (φ r)
+  have hg : ∀ s, HasDerivAt g (D.expUnitaryGroup (s - t)
+      (φ' s + Complex.I • T ⟨φ s, hdom s⟩)) s := fun s =>
+    hasDerivAt_unitaryGroup_comp_neg D t (hφ s) (hdom s)
+  have hbound := norm_image_sub_le_of_norm_deriv_le_segment' (f := g) (C := ε)
+    (fun s _ => (hg s).hasDerivWithinAt) (fun s hs => by
+      rw [norm_unitaryGroup_apply]; exact hε s ⟨hs.1, hs.2.le⟩) t ⟨ht, le_rfl⟩
+  have hg0 : g 0 = D.expUnitaryGroup (-t) (φ 0) := by simp [g]
+  have hgt : g t = φ t := by simp [g, D.expUnitaryGroup_zero]
+  rw [hg0, hgt, sub_zero, norm_sub_rev] at hbound
+  exact hbound
+
 end InfiniteBosons
