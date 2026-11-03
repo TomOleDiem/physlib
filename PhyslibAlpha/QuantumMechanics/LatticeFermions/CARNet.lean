@@ -237,6 +237,14 @@ lemma ann_mem_carLocal {X : Finset V} {m : M} (hm : site m ∈ X) : ann m ∈ ca
 lemma cre_mem_carLocal {X : Finset V} {m : M} (hm : site m ∈ X) : cre m ∈ carLocal site X :=
   carGen_le_carLocal X (cre_mem_carGen hm)
 
+/-- The CAR net is genuinely graded: creators at different sites lie in the local algebras of
+disjoint regions but do not commute. Only even elements commute with disjoint local algebras. -/
+lemma not_commute_cre_of_site_ne {m n : M} (h : site m ≠ site n) :
+    cre m ∈ carLocal site {site m} ∧ cre n ∈ carLocal site {site n} ∧
+      Disjoint ({site m} : Finset V) {site n} ∧ ¬Commute (cre m) (cre n) :=
+  ⟨cre_mem_carLocal (Finset.mem_singleton_self _), cre_mem_carLocal (Finset.mem_singleton_self _),
+    Finset.disjoint_singleton.mpr h, not_commute_cre_cre fun hmn => h (congrArg site hmn)⟩
+
 lemma carNet_parity : (carNet site).parity = parityAut M := rfl
 
 end LatticeFermions

@@ -60,11 +60,15 @@ Gibbs states, conditional expectations, spectral flow.
 
 ## Open items
 
-- Metric form of the Lieb-Robinson bound `C e^{v|t| - μ d(X,Y)}` on a graph: a corollary of
-  `lieb_robinson` by counting chains; not needed for milestones 5-8.
+- Metric Lieb-Robinson bound: done for `t ≥ 0` (`CARDynamics.lieb_robinson_exp`); negative
+  times follow from `Interaction.neg` but are not stated.
 - The graded (odd-odd) Lieb-Robinson bound is not needed and not done.
 - The main theorem holds for any locally finite graph and any set of modes; bounded degree and
   finitely many modes per vertex enter only through `IsBoundedBy J` (e.g. `Hubbard.isBoundedBy`).
+
+## Next physics targets (not started)
+
+Infinite-volume ground states, KMS states, translation covariance, symmetry breaking.
 
 ## Design notes (milestones 1-4)
 

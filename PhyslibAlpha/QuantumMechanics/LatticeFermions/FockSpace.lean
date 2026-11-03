@@ -105,6 +105,19 @@ lemma add_apply (ψ φ : FockSpace M) (F : Finset M) : (ψ + φ) F = ψ F + φ F
 @[simp]
 lemma neg_apply (ψ : FockSpace M) (F : Finset M) : (-ψ) F = -ψ F := rfl
 
+@[simp]
+lemma zero_apply (F : Finset M) : (0 : FockSpace M) F = 0 := rfl
+
+@[simp]
+lemma smul_apply (c : ℂ) (ψ : FockSpace M) (F : Finset M) : (c • ψ) F = c * ψ F := rfl
+
+lemma sum_apply {ι : Type*} (s : Finset ι) (ψ : ι → FockSpace M) (F : Finset M) :
+    (∑ i ∈ s, ψ i) F = ∑ i ∈ s, ψ i F := by
+  classical
+  induction s using Finset.induction_on with
+  | empty => rfl
+  | insert i s hi ih => rw [Finset.sum_insert hi, Finset.sum_insert hi, add_apply, ih]
+
 lemma inner_eq_tsum (ψ φ : FockSpace M) :
     inner ℂ ψ φ = ∑' F, conj (ψ F) * φ F := by
   simp only [← RCLike.inner_apply']
@@ -445,15 +458,56 @@ lemma vacuum_apply (F : Finset M) : vacuum F = if F = ∅ then 1 else 0 := by
 lemma jwSign_ne_zero (F : Finset M) (j : M) : jwSign F j ≠ 0 :=
   norm_ne_zero_iff.mp (by rw [norm_jwSign]; exact one_ne_zero)
 
-/-- The pair creator `c_i* c_j*` of two different modes is not zero. -/
-lemma cre_mul_cre_ne_zero {i j : M} (hij : i ≠ j) : cre i * cre j ≠ 0 := by
-  intro h
-  have h0 : cre i (cre j vacuum) {i, j} = 0 := by
-    change (cre i * cre j) vacuum {i, j} = 0
-    rw [h]; rfl
+/-- The amplitude of the pair state `c_i* c_j* |0⟩` at the configuration `{i, j}`. -/
+lemma cre_cre_vacuum_apply {i j : M} (hij : i ≠ j) :
+    cre i (cre j vacuum) {i, j} = jwSign {i, j} i * jwSign {j} j := by
   rw [cre_apply, ite_eq_left (Finset.mem_insert_self i {j}), cre_apply, Finset.erase_insert
     (by simpa using hij), ite_eq_left (Finset.mem_singleton_self j), Finset.erase_singleton,
-    vacuum_apply, ite_eq_left rfl, mul_one] at h0
-  exact mul_ne_zero (jwSign_ne_zero _ _) (jwSign_ne_zero _ _) h0
+    vacuum_apply, ite_eq_left rfl, mul_one]
+
+lemma cre_cre_vacuum_apply_ne_zero {i j : M} (hij : i ≠ j) : cre i (cre j vacuum) {i, j} ≠ 0 := by
+  rw [cre_cre_vacuum_apply hij]
+  exact mul_ne_zero (jwSign_ne_zero _ _) (jwSign_ne_zero _ _)
+
+/-- The pair creator `c_i* c_j*` of two different modes is not zero. -/
+lemma cre_mul_cre_ne_zero {i j : M} (hij : i ≠ j) : cre i * cre j ≠ 0 := fun h =>
+  cre_cre_vacuum_apply_ne_zero hij (by
+    change (cre i * cre j) vacuum {i, j} = 0
+    rw [h]; rfl)
+
+/-- Creators of different modes do not commute (they anticommute and their product is nonzero):
+odd observables of disjoint regions need not commute. -/
+lemma not_commute_cre_cre {i j : M} (hij : i ≠ j) : ¬Commute (cre i) (cre j) := fun h => by
+  have h1 := cre_mul_cre i j
+  rw [h.eq] at h1
+  have h2 : (2 : ℂ) • (cre j * cre i) = 0 := by
+    rw [two_smul]; nth_rewrite 1 [h1]; exact neg_add_cancel _
+  exact cre_mul_cre_ne_zero hij.symm ((smul_eq_zero.mp h2).resolve_left two_ne_zero)
+
+lemma cre_apply_of_notMem {j : M} {G : Finset M} (hj : j ∉ G) (ψ : FockSpace M) :
+    cre j ψ G = 0 := by
+  rw [cre_apply, ite_eq_right hj]
+
+/-- Annihilators annihilate the vacuum. -/
+lemma ann_vacuum (j : M) : ann j vacuum = 0 :=
+  FockSpace.ext fun F => by
+    rw [ann_apply, vacuum_apply, ite_eq_right (Finset.insert_ne_empty j F)]
+    simp only [mul_zero, ite_self]
+    rfl
+
+lemma numOp_vacuum (j : M) : numOp j vacuum = 0 := by
+  change cre j (ann j vacuum) = 0
+  rw [ann_vacuum, map_zero]
+
+/-- The number operator is diagonal: `(n_j ψ)(F) = ψ(F)` if `j ∈ F` and `0` otherwise. -/
+lemma numOp_apply (j : M) (ψ : FockSpace M) (F : Finset M) :
+    numOp j ψ F = if j ∈ F then ψ F else 0 := by
+  change cre j (ann j ψ) F = _
+  rw [cre_apply]
+  split_ifs with hj
+  · rw [ann_apply, ite_eq_right (Finset.notMem_erase j F), Finset.insert_erase hj,
+      ← jwSign_insert_self (F.erase j), Finset.insert_erase hj, ← mul_assoc, jwSign_mul_self,
+      one_mul]
+  · rfl
 
 end LatticeFermions

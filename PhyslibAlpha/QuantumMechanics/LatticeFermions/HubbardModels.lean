@@ -22,11 +22,12 @@ lexicographically. Along an edge `{x, y}` of the graph the interaction term is
 
 `Φ({x, y}) = Σ_s (t_{xy} c*_{xs} c_{ys} + h.c.) + W_{xy} n_x n_y + (Δ_{xy} c*_{x↑} c*_{y↓} + h.c.)`
 
-with `n_x = n_{x↓} + n_{x↑}`, and the on-site terms are `D_x = U_x n_{x↑} n_{x↓} - μ_x n_x`. All
+with `n_x = n_{x↓} + n_{x↑}`, and the on-site terms are
+`D_x = U_x n_{x↑} n_{x↓} - μ_x n_x + (Δ_x c*_{x↑} c*_{x↓} + h.c.)`. All
 terms are even and self-adjoint; the pairing terms do not conserve the particle number. The
 interaction has range one, and if the degree is at most `d` and `‖t_{xy}‖ ≤ T`, `|W_{xy}| ≤ W`,
 `‖Δ_{xy}‖ ≤ P`, it is bounded by `J = 2 d (4 T + 4 W + 2 P)`. The on-site couplings `U_x` and
-`μ_x` are arbitrary. The main theorem `car_dynamics` therefore applies.
+`μ_x`, `Δ_x` are arbitrary. The main theorem `car_dynamics` therefore applies.
 
 Special cases: the Hubbard model (`t` constant, `W = Δ = 0`), the extended Hubbard model
 (`Δ = 0`), translation-invariant pairing (constant `Δ`), and quartic interaction together with
@@ -41,6 +42,10 @@ pairing.
 - `LatticeFermions.Hubbard.dynamics_exists` : the infinite-volume dynamics.
 - `LatticeFermions.Hubbard.pairing_changes_number` : the pairing terms change the particle
   number.
+- `LatticeFermions.Hubbard.superconductor_dynamics` : the dynamics of the interacting
+  superconductor with on-site pairing.
+- `LatticeFermions.Hubbard.not_commute_totalNumber_superconductor` : it does not conserve the
+  particle number.
 
 ## iii. Table of contents
 
@@ -50,6 +55,7 @@ pairing.
 - D. The interaction on a graph
 - E. Bounds and the dynamics
 - F. Examples
+- G. The interacting superconductor
 
 ## iv. References
 
@@ -210,6 +216,8 @@ structure Couplings (V : Type*) where
   hubbardU : V → ℝ
   /-- The chemical potential `μ_x`. -/
   chemPot : V → ℝ
+  /-- The on-site (s-wave) pairing amplitude `Δ_x`. -/
+  onSitePair : V → ℂ
 
 variable (K : Couplings V)
 
@@ -221,10 +229,10 @@ def Couplings.bond (x y : V) : FockOp (Mode V) :=
     (K.dens x y : ℂ) • (density x * density y) +
     pairTerm (K.pair x y) (mode x true) (mode y false)
 
-/-- The on-site term `D_x = U_x n_{x↑} n_{x↓} - μ_x n_x`. -/
+/-- The on-site term `D_x = U_x n_{x↑} n_{x↓} - μ_x n_x + (Δ_x c*_{x↑} c*_{x↓} + h.c.)`. -/
 def Couplings.onSiteTerm (x : V) : FockOp (Mode V) :=
   (K.hubbardU x : ℂ) • (numOp (mode x true) * numOp (mode x false)) -
-    (K.chemPot x : ℂ) • density x
+    (K.chemPot x : ℂ) • density x + pairTerm (K.onSitePair x) (mode x true) (mode x false)
 
 omit [LinearOrder V] in
 lemma isSelfAdjoint_real_smul_mul {r : ℝ} {a b : FockOp (Mode V)} (ha : IsSelfAdjoint a)
@@ -265,17 +273,20 @@ lemma norm_bond_le (x y : V) :
 lemma isSelfAdjoint_onSiteTerm (x : V) : IsSelfAdjoint (K.onSiteTerm x) :=
   (isSelfAdjoint_real_smul_mul (isSelfAdjoint_numOp _) (isSelfAdjoint_numOp _)
     (commute_numOp _ _)).sub
-    (IsSelfAdjoint.smul (Complex.conj_ofReal _) (isSelfAdjoint_density x))
+    (IsSelfAdjoint.smul (Complex.conj_ofReal _) (isSelfAdjoint_density x)) |>.add
+    (isSelfAdjoint_pairTerm _ _ _)
 
 lemma parityAut_onSiteTerm (x : V) :
     parityAut (Mode V) (K.onSiteTerm x) = K.onSiteTerm x := by
-  rw [Couplings.onSiteTerm, map_sub, map_smul, map_smul, map_mul, parityAut_numOp, parityAut_numOp,
-    parityAut_density]
+  rw [Couplings.onSiteTerm, map_add, map_sub, map_smul, map_smul, map_mul, parityAut_numOp,
+    parityAut_numOp, parityAut_density, parityAut_pairTerm]
 
 lemma onSiteTerm_mem (x : V) : K.onSiteTerm x ∈ carLocal site {x} :=
-  (carLocal site {x}).sub_mem ((carLocal site {x}).smul_mem ((carLocal site {x}).mul_mem
-    (numOp_mem (mem_singleton_self x) _) (numOp_mem (mem_singleton_self x) _)) _)
-    ((carLocal site {x}).smul_mem (density_mem (mem_singleton_self x)) _)
+  (carLocal site {x}).add_mem ((carLocal site {x}).sub_mem ((carLocal site {x}).smul_mem
+    ((carLocal site {x}).mul_mem (numOp_mem (mem_singleton_self x) _)
+      (numOp_mem (mem_singleton_self x) _)) _)
+    ((carLocal site {x}).smul_mem (density_mem (mem_singleton_self x)) _))
+    (pairTerm_mem (mem_singleton_self x) (mem_singleton_self x) _)
 
 /-!
 
@@ -430,22 +441,23 @@ vertex-transitive graph such as `ℤ^d`, and arbitrary on-site couplings.
 -/
 
 /-- The Hubbard model: hopping `t`, on-site interaction `U_x` and chemical potential `μ_x`. -/
-def hubbard (t : ℂ) (U μ : V → ℝ) : Couplings V := ⟨fun _ _ => t, fun _ _ => 0, fun _ _ => 0, U, μ⟩
+def hubbard (t : ℂ) (U μ : V → ℝ) : Couplings V :=
+  ⟨fun _ _ => t, fun _ _ => 0, fun _ _ => 0, U, μ, fun _ => 0⟩
 
 /-- The extended Hubbard model: hopping `t`, nearest-neighbour density interaction `W`, on-site
 interaction `U_x` and chemical potential `μ_x`. -/
 def extendedHubbard (t : ℂ) (W : ℝ) (U μ : V → ℝ) : Couplings V :=
-  ⟨fun _ _ => t, fun _ _ => W, fun _ _ => 0, U, μ⟩
+  ⟨fun _ _ => t, fun _ _ => W, fun _ _ => 0, U, μ, fun _ => 0⟩
 
 /-- Free fermions with translation-invariant pairing `Δ c*_{x↑} c*_{y↓} + h.c.` along the edges:
 a model without particle-number conservation. -/
 def pairing (t Δ : ℂ) (μ : V → ℝ) : Couplings V :=
-  ⟨fun _ _ => t, fun _ _ => 0, fun _ _ => Δ, fun _ => 0, μ⟩
+  ⟨fun _ _ => t, fun _ _ => 0, fun _ _ => Δ, fun _ => 0, μ, fun _ => 0⟩
 
 /-- Quartic interactions together with pairing: the extended Hubbard model with translation
 invariant pairing `Δ`. -/
 def hubbardPairing (t : ℂ) (W : ℝ) (Δ : ℂ) (U μ : V → ℝ) : Couplings V :=
-  ⟨fun _ _ => t, fun _ _ => W, fun _ _ => Δ, U, μ⟩
+  ⟨fun _ _ => t, fun _ _ => W, fun _ _ => Δ, U, μ, fun _ => 0⟩
 
 omit [LinearOrder V] in
 lemma isBounded_hubbard (t : ℂ) (U μ : V → ℝ) : (hubbard t U μ).IsBounded ‖t‖ 0 0 :=
@@ -477,6 +489,132 @@ lemma pairing_changes_number (x y : V) :
       (2 : ℂ) • (cre (mode x true) * cre (mode y false)) ∧
     cre (mode x true) * cre (mode y false) ≠ 0 :=
   ⟨numOp_add_numOp_commutator_cre_mul_cre (mode_ne x y), cre_mul_cre_ne_zero (mode_ne x y)⟩
+
+/-!
+
+## G. The interacting superconductor
+
+The acceptance test of the main theorem: the Hubbard model with on-site s-wave pairing,
+
+`H_Λ = -t Σ_{⟨x,y⟩,σ} (c*_{xσ} c_{yσ} + h.c.) + U Σ_x n_{x↑} n_{x↓}`
+`      + Δ Σ_x (c*_{x↑} c*_{x↓} + h.c.)`.
+
+It satisfies the hypotheses of `car_dynamics` for all `t`, `U`, `Δ` on a graph of bounded
+degree, and for `Δ ≠ 0` it does not conserve the particle number: `H_Λ |0⟩` has a nonzero
+two-particle component, while `N_Λ |0⟩ = 0`.
+
+-/
+
+/-- The couplings of the interacting superconductor with hopping `t`, on-site interaction `U` and
+on-site pairing `Δ`. -/
+def superconductor (t : ℂ) (U : ℝ) (Δ : ℂ) : Couplings V :=
+  ⟨fun _ _ => -t, fun _ _ => 0, fun _ _ => 0, fun _ => U, fun _ => 0, fun _ => Δ⟩
+
+omit [LinearOrder V] in
+lemma isBounded_superconductor (t : ℂ) (U : ℝ) (Δ : ℂ) :
+    (superconductor (V := V) t U Δ).IsBounded ‖t‖ 0 0 :=
+  ⟨fun _ _ => by simp [superconductor], fun _ _ => by simp [superconductor],
+    fun _ _ => by simp [superconductor]⟩
+
+/-- The infinite-volume dynamics of the interacting superconductor on a graph of degree at most
+`d`: the conclusions of `car_dynamics`. -/
+theorem superconductor_dynamics [G.LocallyFinite] {d : ℕ} (hdeg : ∀ v, G.degree v ≤ d)
+    (t : ℂ) (U : ℝ) (Δ : ℂ) {X : Finset V} {A : FockOp (Mode V)} (hA : A ∈ carLocal site X) :
+    let Φ := interaction (superconductor t U Δ) G
+    (∀ T : ℝ, TendstoUniformlyOn (fun Λ t => evolution (Φ.hamiltonian Λ) t A)
+      (fun t => Φ.dynamics t A) Filter.atTop (Set.Icc (-T) T)) ∧
+    (∀ Λs : ℕ → Finset V, Monotone Λs → (∀ x, ∃ n, x ∈ Λs n) → ∀ T : ℝ,
+      TendstoUniformlyOn (fun n t => evolution (Φ.hamiltonian (Λs n)) t A)
+        (fun t => Φ.dynamics t A) Filter.atTop (Set.Icc (-T) T)) ∧
+    (∀ t, parityAut (Mode V) (Φ.dynamics t A) = Φ.dynamics t (parityAut (Mode V) A)) ∧
+    HasDerivAt (fun t => Φ.dynamics t A)
+      (I • (∑ Z ∈ Interaction.touching (Interaction.reachStep
+          (Interaction.locallyFinite_of_hasFiniteRange
+            (hasFiniteRange (superconductor t U Δ) G)) X) X,
+          (Φ.term Z * A - A * Φ.term Z) + ∑ x ∈ X, (Φ.onSite x * A - A * Φ.onSite x))) 0 :=
+  dynamics_exists (superconductor t U Δ) G hdeg (isBounded_superconductor t U Δ) hA
+
+/-- The total particle number `N_Λ = Σ_{x ∈ Λ} n_x` of a region. -/
+def totalNumber (Λ : Finset V) : FockOp (Mode V) := ∑ x ∈ Λ, density x
+
+lemma density_vacuum (x : V) : density x vacuum = 0 := by
+  simp [density, numOp_vacuum]
+
+lemma totalNumber_vacuum (Λ : Finset V) : totalNumber Λ vacuum = 0 := by
+  simp [totalNumber, density_vacuum]
+
+lemma hopTerm_vacuum (z : ℂ) (a b : Mode V) : hopTerm z a b vacuum = 0 := by
+  simp [hopTerm, mul_apply_eq_comp, ann_vacuum]
+
+lemma pairTerm_vacuum (z : ℂ) (a b : Mode V) :
+    pairTerm z a b vacuum = z • cre a (cre b vacuum) := by
+  simp [pairTerm, mul_apply_eq_comp, ann_vacuum]
+
+lemma bond_superconductor_vacuum (t : ℂ) (U : ℝ) (Δ : ℂ) (x y : V) :
+    (superconductor t U Δ).bond x y vacuum = 0 := by
+  simp [Couplings.bond, superconductor, hopTerm_vacuum, pairTerm_vacuum]
+
+lemma term_superconductor_vacuum (t : ℂ) (U : ℝ) (Δ : ℂ) (Z : Finset V) :
+    term (superconductor t U Δ) G Z vacuum = 0 := by
+  unfold term
+  split_ifs
+  · exact bond_superconductor_vacuum t U Δ _ _
+  · rfl
+
+lemma onSiteTerm_superconductor_vacuum (t : ℂ) (U : ℝ) (Δ : ℂ) (x : V) :
+    (superconductor t U Δ).onSiteTerm x vacuum =
+      Δ • cre (mode x true) (cre (mode x false) vacuum) := by
+  simp [Couplings.onSiteTerm, superconductor, mul_apply_eq_comp, numOp_vacuum, pairTerm_vacuum]
+
+/-- The Hamiltonian of the superconductor creates pairs from the vacuum:
+`H_Λ |0⟩ = Δ Σ_{x ∈ Λ} c*_{x↑} c*_{x↓} |0⟩`. -/
+lemma hamiltonian_superconductor_vacuum (t : ℂ) (U : ℝ) (Δ : ℂ) (Λ : Finset V) :
+    ((interaction (superconductor t U Δ) G).hamiltonian Λ : FockOp (Mode V)) vacuum =
+      ∑ x ∈ Λ, Δ • cre (mode x true) (cre (mode x false) vacuum) := by
+  rw [Interaction.hamiltonian_coe, Interaction.onSiteSum, _root_.add_apply,
+    _root_.sum_apply, _root_.sum_apply]
+  simp only [interaction, term_superconductor_vacuum, sum_const_zero, add_zero,
+    onSiteTerm_superconductor_vacuum]
+
+omit [LinearOrder V] in
+lemma mode_eq_mode {x y : V} {s s' : Bool} : mode x s = mode y s' ↔ x = y ∧ s = s' := by
+  simp [mode, Prod.ext_iff]
+
+/-- The configuration with both spins occupied at `x₀`. -/
+def pairConfig (x₀ : V) : Finset (Mode V) := {mode x₀ true, mode x₀ false}
+
+lemma mem_pairConfig {x₀ x : V} {s : Bool} : mode x s ∈ pairConfig x₀ ↔ x = x₀ := by
+  cases s <;> simp [pairConfig, mode_eq_mode]
+
+lemma pairs_vacuum_apply_pairConfig {Λ : Finset V} {x₀ : V} (hx₀ : x₀ ∈ Λ) (Δ : ℂ) :
+    (∑ x ∈ Λ, Δ • cre (mode x true) (cre (mode x false) vacuum)) (pairConfig x₀) =
+      Δ * cre (mode x₀ true) (cre (mode x₀ false) vacuum) (pairConfig x₀) := by
+  rw [FockSpace.sum_apply, sum_eq_single x₀ (fun x _ hx => by
+    rw [FockSpace.smul_apply, cre_apply_of_notMem (fun hm => hx (mem_pairConfig.mp hm)),
+      mul_zero]) (fun h => (h hx₀).elim), FockSpace.smul_apply]
+
+lemma totalNumber_apply_pairConfig {Λ : Finset V} {x₀ : V} (hx₀ : x₀ ∈ Λ)
+    (ψ : FockSpace (Mode V)) : totalNumber Λ ψ (pairConfig x₀) = 2 * ψ (pairConfig x₀) := by
+  simp only [totalNumber, _root_.sum_apply, density, _root_.add_apply]
+  rw [FockSpace.sum_apply]
+  simp only [FockSpace.add_apply, numOp_apply, mem_pairConfig]
+  rw [sum_eq_single x₀ (fun x _ hx => by simp [hx]) (fun h => (h hx₀).elim)]
+  simp only [ite_true]
+  ring
+
+/-- The interacting superconductor with `Δ ≠ 0` does not conserve the particle number:
+`N_Λ` and `H_Λ` do not commute. -/
+lemma not_commute_totalNumber_superconductor (t : ℂ) (U : ℝ) {Δ : ℂ} (hΔ : Δ ≠ 0)
+    {Λ : Finset V} {x₀ : V} (hx₀ : x₀ ∈ Λ) :
+    ¬Commute (totalNumber Λ)
+      ((interaction (superconductor t U Δ) G).hamiltonian Λ : FockOp (Mode V)) := by
+  intro hc
+  have h := congrArg (fun T : FockOp (Mode V) => T vacuum (pairConfig x₀)) hc.eq
+  simp only [mul_apply_eq_comp, totalNumber_vacuum, map_zero, FockSpace.zero_apply] at h
+  rw [totalNumber_apply_pairConfig hx₀, hamiltonian_superconductor_vacuum,
+    pairs_vacuum_apply_pairConfig hx₀] at h
+  have hne := cre_cre_vacuum_apply_ne_zero (mode_ne x₀ x₀)
+  exact hne (by simpa [pairConfig, hΔ] using h)
 
 end Hubbard
 
