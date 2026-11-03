@@ -58,6 +58,16 @@ nonzero pairing together.
 Not needed initially: infinite-volume Fock operators, formal Hamiltonians, occupation cutoffs,
 Gibbs states, conditional expectations, spectral flow.
 
+## Open items
+
+- Stone's theorem (self-adjoint generator of the GNS unitary group `U_t`) is not in Mathlib; the
+  unitary group, covariance and strong continuity are proved (`StateDynamics`).
+- Metric form of the Lieb-Robinson bound `C e^{v|t| - μ d(X,Y)}` on a graph: a corollary of
+  `lieb_robinson` by counting chains; not needed for milestones 5-8.
+- The graded (odd-odd) Lieb-Robinson bound is not needed and not done.
+- The main theorem holds for any locally finite graph and any set of modes; bounded degree and
+  finitely many modes per vertex enter only through `IsBoundedBy J` (e.g. `Hubbard.isBoundedBy`).
+
 ## Design notes (milestones 1-4)
 
 - Local algebras are norm closed (`GradedLocalNet.isClosed_loc`); the CAR local algebra is the
