@@ -384,4 +384,230 @@ lemma bond_sum_le (M : Finset L) (N : L → Finset L) (d : ℕ) (hcard : ∀ x, 
   nlinarith [h1, h2]
 
 
+
+/-!
+
+## D. The sector form bound
+
+-/
+
+namespace AtomPhotonData
+
+variable (D : AtomPhotonData L)
+
+lemma qform_photon_eq_zero {M : Finset L} {φ : SBBasis L →₀ ℂ}
+    (hM : ∀ α ∈ φ.support, sbModes α ⊆ M) {x : L} (hx : x ∉ M) :
+    (qform (photonNumber x) φ).re = 0 := by
+  rw [qform_photon_re]
+  refine Finset.sum_eq_zero fun α hα => ?_
+  have : α.1 x = 0 := by
+    by_contra h
+    exact hx (hM α hα (Finset.mem_union_left _ (Finsupp.mem_support_iff.mpr h)))
+  simp [this]
+
+lemma qform_atom_eq_zero {M : Finset L} {φ : SBBasis L →₀ ℂ}
+    (hM : ∀ α ∈ φ.support, sbModes α ⊆ M) {x : L} (hx : x ∉ M) :
+    (qform (atomNumber x) φ).re = 0 := by
+  rw [qform_atom_re]
+  refine Finset.sum_eq_zero fun α hα => ?_
+  have : x ∉ α.2 := fun h => hx (hM α hα (Finset.mem_union_right _ h))
+  simp [this]
+
+/-- A cavity term is bounded in absolute value by a uniform multiple of the charge of the
+cavity. -/
+lemma abs_siteTerm_le {Ω E G : ℝ} (hω : ∀ x, |D.ω x| ≤ Ω) (hε : ∀ x, |D.ε x| ≤ E)
+    (hg : ∀ x, ‖D.g x‖ ≤ G) (x : L) (φ : SBBasis L →₀ ℂ) :
+    |(qform (D.siteTerm x) φ).re| ≤ (Ω + E + G ^ 2 + 1) *
+      ((qform (photonNumber x) φ).re + (qform (atomNumber x) φ).re) := by
+  have hp := qform_photonNumber_nonneg x φ
+  have ha := qform_atomNumber_nonneg x φ
+  have hG : Complex.normSq (D.g x) ≤ G ^ 2 := by
+    rw [Complex.normSq_eq_norm_sq]
+    exact pow_le_pow_left₀ (norm_nonneg _) (hg x) 2
+  have hΩ : 0 ≤ Ω := (abs_nonneg _).trans (hω x)
+  have hE : 0 ≤ E := (abs_nonneg _).trans (hε x)
+  have h1 : (|D.ω x| + 1) * (qform (photonNumber x) φ).re ≤
+      (Ω + E + G ^ 2 + 1) * (qform (photonNumber x) φ).re :=
+    mul_le_mul_of_nonneg_right (by nlinarith [hω x, sq_nonneg G]) hp
+  have h2 : (|D.ε x| + Complex.normSq (D.g x)) * (qform (atomNumber x) φ).re ≤
+      (Ω + E + G ^ 2 + 1) * (qform (atomNumber x) φ).re :=
+    mul_le_mul_of_nonneg_right (by nlinarith [hε x]) ha
+  rw [abs_le]
+  constructor
+  · nlinarith [D.siteTerm_ge x φ]
+  · nlinarith [D.siteTerm_le x φ]
+
+open Classical in
+/-- A bond term is bounded in absolute value by a uniform multiple of the photon numbers of its
+two cavities, and it vanishes unless the cavities are adjacent. -/
+lemma abs_bondTerm_le {K : ℝ} (hJ : ∀ x y, |D.J x y| ≤ K) (x y : L) (φ : SBBasis L →₀ ℂ) :
+    |(qform (D.bondTerm x y) φ).re| ≤ if D.graph.Adj x y then
+      K * ((qform (photonNumber x) φ).re + (qform (photonNumber y) φ).re) else 0 := by
+  split_ifs with hadj
+  · have hpos := add_nonneg (qform_photonNumber_nonneg x φ) (qform_photonNumber_nonneg y φ)
+    have h := mul_le_mul_of_nonneg_right (hJ x y) hpos
+    have hl := D.bondTerm_le x y φ
+    have hr := D.bondTerm_ge x y φ
+    rw [qform_add, Complex.add_re] at hl hr
+    rw [abs_le]; constructor <;> linarith
+  · have h0 : D.bondTerm x y = 0 := by unfold bondTerm; rw [if_neg hadj]
+    have : qform (0 : Adjointable (SBBasis L)) φ = 0 := by
+      simpa using qform_smul 0 (0 : Adjointable (SBBasis L)) φ
+    rw [h0, this]; simp
+
+open Classical in
+/-- Weight dominating the absolute value of the form of a term of the atom-photon
+Hamiltonian. -/
+def termWeight (C K : ℝ) (φ : SBBasis L →₀ ℂ) : L ⊕ (L × L) → ℝ :=
+  Sum.elim (fun x => C * ((qform (photonNumber x) φ).re + (qform (atomNumber x) φ).re))
+    (fun p => if D.graph.Adj p.1 p.2 then
+      K * ((qform (photonNumber p.1) φ).re + (qform (photonNumber p.2) φ).re) else 0)
+
+lemma termWeight_nonneg {C K : ℝ} (hC : 0 ≤ C) (hK : 0 ≤ K) (φ : SBBasis L →₀ ℂ)
+    (i : L ⊕ (L × L)) : 0 ≤ D.termWeight C K φ i := by
+  rcases i with x | p
+  · exact mul_nonneg hC (add_nonneg (qform_photonNumber_nonneg x φ) (qform_atomNumber_nonneg x φ))
+  · simp only [termWeight, Sum.elim_inr]
+    split_ifs
+    · exact mul_nonneg hK
+        (add_nonneg (qform_photonNumber_nonneg _ φ) (qform_photonNumber_nonneg _ φ))
+    · exact le_rfl
+
+/-- The finite neighbourhood of a cavity. -/
+def nbhd (x : L) : Finset L := (D.locallyFinite x).toFinset
+
+/-- The bonds that touch a finite set of cavities. -/
+def bondsAt (M : Finset L) : Finset (L × L) :=
+  M.biUnion (fun x => (D.nbhd x).image (fun y => (x, y))) ∪
+    M.biUnion (fun x => (D.nbhd x).image (fun y => (y, x)))
+
+/-- The terms that touch a finite set of cavities. -/
+def termsAt (M : Finset L) : Finset (L ⊕ (L × L)) :=
+  M.disjSum (D.bondsAt M)
+
+/-- The term weight vanishes outside the terms touching the occupied cavities. -/
+lemma termWeight_eq_zero {C K : ℝ} {M : Finset L} {φ : SBBasis L →₀ ℂ}
+    (hM : ∀ α ∈ φ.support, sbModes α ⊆ M) {i : L ⊕ (L × L)} (hi : i ∉ D.termsAt M) :
+    D.termWeight C K φ i = 0 := by
+  rcases i with x | p
+  · have hx : x ∉ M := by simpa [termsAt] using hi
+    simp [termWeight, qform_photon_eq_zero hM hx, qform_atom_eq_zero hM hx]
+  · simp only [termWeight, Sum.elim_inr]
+    split_ifs with hadj
+    · have hp : p ∉ D.bondsAt M := by simpa [termsAt] using hi
+      have h1 : p.1 ∉ M := fun h => hp (Finset.mem_union_left _ (Finset.mem_biUnion.mpr
+        ⟨p.1, h, Finset.mem_image.mpr ⟨p.2, by simpa [nbhd] using hadj, rfl⟩⟩))
+      have h2 : p.2 ∉ M := fun h => hp (Finset.mem_union_right _ (Finset.mem_biUnion.mpr
+        ⟨p.2, h, Finset.mem_image.mpr ⟨p.1, by simpa [nbhd] using hadj.symm, rfl⟩⟩))
+      simp [qform_photon_eq_zero hM h1, qform_photon_eq_zero hM h2]
+    · rfl
+
+open Classical in
+/-- The bond weights touching `M` are bounded by `2 d K` times the photon number in `M`. -/
+lemma sum_bond_weight_le {K : ℝ} (hK : 0 ≤ K) {d : ℕ} (hd : ∀ x, (D.nbhd x).card ≤ d)
+    {M : Finset L} {φ : SBBasis L →₀ ℂ} (hM : ∀ α ∈ φ.support, sbModes α ⊆ M) :
+    ∑ p ∈ D.bondsAt M, D.termWeight 0 K φ (Sum.inr p) ≤
+      2 * d * K * ∑ x ∈ M, (qform (photonNumber x) φ).re := by
+  set n : L → ℝ := fun x => (qform (photonNumber x) φ).re
+  have hsum : ∑ p ∈ D.bondsAt M, D.termWeight 0 K φ (Sum.inr p) =
+      K * ∑ p ∈ (D.bondsAt M).filter (fun p => D.graph.Adj p.1 p.2), (n p.1 + n p.2) := by
+    rw [Finset.mul_sum, Finset.sum_filter]
+    refine Finset.sum_congr rfl fun p _ => ?_
+    simp only [termWeight, Sum.elim_inr, n]
+    split_ifs <;> simp
+  have hb := bond_sum_le M D.nbhd d hd n (fun x => qform_photonNumber_nonneg x φ)
+    (fun x hx => qform_photon_eq_zero hM hx) ((D.bondsAt M).filter (fun p => D.graph.Adj p.1 p.2))
+    (fun p hp => by
+      have hadj := (Finset.mem_filter.mp hp).2
+      exact ⟨by simpa [nbhd] using hadj, by simpa [nbhd] using hadj.symm⟩)
+  rw [hsum]
+  nlinarith [mul_le_mul_of_nonneg_left hb hK]
+
+/-- The absolute value of the form of a single term is bounded by its weight. -/
+lemma abs_term_le_weight {Ω E G K : ℝ} (hω : ∀ x, |D.ω x| ≤ Ω) (hε : ∀ x, |D.ε x| ≤ E)
+    (hg : ∀ x, ‖D.g x‖ ≤ G) (hJ : ∀ x y, |D.J x y| ≤ K) (φ : SBBasis L →₀ ℂ)
+    (i : L ⊕ (L × L)) :
+    |(qform (D.interaction.Φ i) φ).re| ≤ D.termWeight (Ω + E + G ^ 2 + 1) K φ i := by
+  rcases i with x | p
+  · exact D.abs_siteTerm_le hω hε hg x φ
+  · exact D.abs_bondTerm_le hJ p.1 p.2 φ
+
+/-- **The sector form bound.** For uniformly bounded parameters on a graph of degree at most `d`,
+the quadratic form of the atom-photon Hamiltonian on a finite vector with at most `m` photons and
+excited atoms is bounded by `(|Ω| + |E| + G² + 1 + 2 d |K|) m ‖φ‖²`. -/
+theorem abs_form_le {Ω E G K : ℝ} (hω : ∀ x, |D.ω x| ≤ Ω) (hε : ∀ x, |D.ε x| ≤ E)
+    (hg : ∀ x, ‖D.g x‖ ≤ G) (hJ : ∀ x y, |D.J x y| ≤ K) {d : ℕ}
+    (hd : ∀ x, (D.nbhd x).card ≤ d) {m : ℕ} {φ : SBBasis L →₀ ℂ}
+    (hm : ∀ α ∈ φ.support, sbDeg α ≤ m) :
+    |(pairF φ (D.formalHam φ)).re| ≤
+      (|Ω| + |E| + G ^ 2 + 1 + 2 * d * |K|) * m * ‖embed φ‖ ^ 2 := by
+  set C := |Ω| + |E| + G ^ 2 + 1
+  set M : Finset L := φ.support.biUnion sbModes
+  set w := D.termWeight C |K| φ
+  have hM : ∀ α ∈ φ.support, sbModes α ⊆ M := fun α hα => Finset.subset_biUnion_of_mem _ hα
+  have hC : 0 ≤ C := by positivity
+  have hw0 : ∀ i, 0 ≤ w i := D.termWeight_nonneg hC (abs_nonneg K) φ
+  -- the form of the Hamiltonian is a finite sum of forms of terms, each dominated by its weight
+  obtain ⟨T, -, -, heq⟩ := pairF_formalH_eq_sum D.interaction.Φ D.rowFinite φ
+  have h1 : |(pairF φ (D.formalHam φ)).re| ≤ ∑ i ∈ T, w i := by
+    rw [show D.formalHam = formalH D.interaction.Φ D.rowFinite from rfl, heq, Complex.re_sum]
+    refine (Finset.abs_sum_le_sum_abs _ _).trans (Finset.sum_le_sum fun i _ => ?_)
+    exact D.abs_term_le_weight (fun x => (hω x).trans (le_abs_self _))
+      (fun x => (hε x).trans (le_abs_self _)) hg (fun x y => (hJ x y).trans (le_abs_self _)) φ i
+  -- only the terms touching the occupied cavities have nonzero weight
+  have h2 : ∑ i ∈ T, w i ≤ ∑ i ∈ D.termsAt M, w i := by
+    rw [← Finset.sum_filter_of_ne (p := fun i => i ∈ D.termsAt M)
+      (fun i _ hi => by_contra fun h => hi (D.termWeight_eq_zero hM h))]
+    exact Finset.sum_le_sum_of_subset_of_nonneg (fun i hi => (Finset.mem_filter.mp hi).2)
+      (fun i _ _ => hw0 i)
+  -- split into cavity and bond terms
+  have h3 : ∑ i ∈ D.termsAt M, w i ≤ C * ∑ x ∈ M, ((qform (photonNumber x) φ).re +
+      (qform (atomNumber x) φ).re) + 2 * d * |K| * ∑ x ∈ M, (qform (photonNumber x) φ).re := by
+    rw [termsAt, Finset.sum_disj_sum, Finset.mul_sum]
+    exact add_le_add le_rfl (D.sum_bond_weight_le (abs_nonneg K) hd hM)
+  have hn : ∑ x ∈ M, (qform (photonNumber x) φ).re ≤ ∑ x ∈ M, ((qform (photonNumber x) φ).re +
+      (qform (atomNumber x) φ).re) :=
+    Finset.sum_le_sum fun x _ => le_add_of_nonneg_right (qform_atomNumber_nonneg x φ)
+  have hq := sum_charge_forms hM hm
+  have hK : 0 ≤ 2 * d * |K| := by positivity
+  calc _ ≤ C * ∑ x ∈ M, ((qform (photonNumber x) φ).re + (qform (atomNumber x) φ).re) +
+        2 * d * |K| * ∑ x ∈ M, ((qform (photonNumber x) φ).re + (qform (atomNumber x) φ).re) :=
+        by nlinarith [mul_le_mul_of_nonneg_left hn hK]
+    _ = (C + 2 * d * |K|) *
+        ∑ x ∈ M, ((qform (photonNumber x) φ).re + (qform (atomNumber x) φ).re) := by ring
+    _ ≤ (C + 2 * d * |K|) * (m * ‖embed φ‖ ^ 2) := mul_le_mul_of_nonneg_left hq (by positivity)
+    _ = _ := by ring
+
+/-!
+
+## E. Essential self-adjointness
+
+-/
+
+/-- **The Jaynes-Cummings-Hubbard Hamiltonian is essentially self-adjoint** on an infinite lattice
+of bounded degree with uniformly bounded frequencies, couplings and hopping amplitudes. Every finite
+vector is an entire analytic vector. -/
+theorem hamOp_isEssentiallySelfAdjoint {Ω E G K : ℝ} (hω : ∀ x, |D.ω x| ≤ Ω)
+    (hε : ∀ x, |D.ε x| ≤ E) (hg : ∀ x, ‖D.g x‖ ≤ G) (hJ : ∀ x y, |D.J x y| ≤ K) {d : ℕ}
+    (hd : ∀ x, (D.nbhd x).card ≤ d) : D.hamOp.IsEssentiallySelfAdjoint :=
+  hamPMap_ess_of_form D.interaction.Φ D.rowFinite D.interaction.star_eq D.formalHam_basis_finite
+    sbDeg (fun _ _ h => D.formalHam_deg h) fun m =>
+      ⟨(|Ω| + |E| + G ^ 2 + 1 + 2 * d * |K|) * m, by positivity,
+        fun _ hφ => D.abs_form_le hω hε hg hJ hd hφ⟩
+
+/-- **Dynamics of the coupled atom-photon lattice.** Under the hypotheses of
+`hamOp_isEssentiallySelfAdjoint` the Hamiltonian generates a strongly continuous unitary group. -/
+theorem dynamics_coupled {Ω E G K : ℝ} (hω : ∀ x, |D.ω x| ≤ Ω) (hε : ∀ x, |D.ε x| ≤ E)
+    (hg : ∀ x, ‖D.g x‖ ≤ G) (hJ : ∀ x y, |D.J x y| ≤ K) {d : ℕ}
+    (hd : ∀ x, (D.nbhd x).card ≤ d) :
+    ∃ U : ProbabilisticTheory.QuantumMechanics.WOTSpectralMeasure.StrongUnitaryOneParameterGroup
+        (HilbertSp (SBBasis L)),
+      (∀ t s, U (t + s) = U t * U s) ∧ U 0 = 1 ∧
+      ∀ f : hamDomainAlg D.interaction.Φ D.rowFinite,
+        HasDerivAt (fun t : ℝ => U t (embed f.1))
+          (Complex.I • (hamVec D.interaction.Φ D.rowFinite f : HilbertSp (SBBasis L))) 0 :=
+  D.dynamics_of_essentiallySelfAdjoint (D.hamOp_isEssentiallySelfAdjoint hω hε hg hJ hd)
+
+end AtomPhotonData
+
 end InfiniteBosons
