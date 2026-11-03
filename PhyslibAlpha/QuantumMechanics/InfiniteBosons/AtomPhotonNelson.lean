@@ -514,7 +514,6 @@ lemma sum_bond_weight_le {K : ℝ} (hK : 0 ≤ K) {d : ℕ} (hd : ∀ x, (D.nbhd
     rw [Finset.mul_sum, Finset.sum_filter]
     refine Finset.sum_congr rfl fun p _ => ?_
     simp only [termWeight, Sum.elim_inr, n]
-    split_ifs <;> simp
   have hb := bond_sum_le M D.nbhd d hd n (fun x => qform_photonNumber_nonneg x φ)
     (fun x hx => qform_photon_eq_zero hM hx) ((D.bondsAt M).filter (fun p => D.graph.Adj p.1 p.2))
     (fun p hp => by
@@ -563,7 +562,7 @@ theorem abs_form_le {Ω E G K : ℝ} (hω : ∀ x, |D.ω x| ≤ Ω) (hε : ∀ x
   -- split into cavity and bond terms
   have h3 : ∑ i ∈ D.termsAt M, w i ≤ C * ∑ x ∈ M, ((qform (photonNumber x) φ).re +
       (qform (atomNumber x) φ).re) + 2 * d * |K| * ∑ x ∈ M, (qform (photonNumber x) φ).re := by
-    rw [termsAt, Finset.sum_disj_sum, Finset.mul_sum]
+    rw [termsAt, Finset.sum_disjSum, Finset.mul_sum]
     exact add_le_add le_rfl (D.sum_bond_weight_le (abs_nonneg K) hd hM)
   have hn : ∑ x ∈ M, (qform (photonNumber x) φ).re ≤ ∑ x ∈ M, ((qform (photonNumber x) φ).re +
       (qform (atomNumber x) φ).re) :=
