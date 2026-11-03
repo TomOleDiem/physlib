@@ -495,3 +495,7 @@ unitaryForm_of_general_e
 stinespringOp_gram
 stinespringForm_eq
 PhyslibAlpha.Hydrogen.PauliSystem.exists_energyLevel
+LatticeFermions.Interaction.lieb_robinson
+LatticeFermions.Interaction.tendstoUniformlyOn_dynamics
+LatticeFermions.Interaction.hasDerivAt_dynamics
+LatticeFermions.car_dynamics

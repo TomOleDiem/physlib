@@ -199,7 +199,7 @@ theorem tendstoUniformlyOn_dynamics {B : 𝔄} (hB : B ∈ N.quasiLocal) (T : �
 
 include hJ hfin in
 /-- The finite-volume dynamics of a quasi-local element converge in norm. -/
-theorem tendsto_dynamics {B : 𝔄} (hB : B ∈ N.quasiLocal) (t : ℝ) :
+lemma tendsto_dynamics {B : 𝔄} (hB : B ∈ N.quasiLocal) (t : ℝ) :
     Tendsto (fun Λ : Finset V => evolution (Φ.hamiltonian Λ) t B) atTop
       (𝓝 (Φ.dynamics t B)) :=
   (tendstoUniformlyOn_dynamics hJ hfin hB |t|).tendsto_at
@@ -320,7 +320,7 @@ def dynamicsGroup : ProbabilisticTheory.AutomorphismGroup N.quasiLocal where
 
 include hJ hfin in
 /-- Strong continuity: `t ↦ α_t(a)` is norm continuous for every quasi-local `a`. -/
-theorem continuous_dynamics {a : 𝔄} (ha : a ∈ N.quasiLocal) :
+lemma continuous_dynamics {a : 𝔄} (ha : a ∈ N.quasiLocal) :
     Continuous fun t => Φ.dynamics t a := by
   refine continuous_iff_continuousAt.2 fun t => ?_
   have h := (tendstoUniformlyOn_dynamics hJ hfin ha (|t| + 1)).continuousOn
@@ -333,7 +333,7 @@ lemma continuous_dynamicsAut (a : N.quasiLocal) :
 
 include hJ hfin in
 /-- The dynamics commutes with the parity. -/
-theorem parity_dynamics {a : 𝔄} (ha : a ∈ N.quasiLocal) (t : ℝ) :
+lemma parity_dynamics {a : 𝔄} (ha : a ∈ N.quasiLocal) (t : ℝ) :
     N.parity (Φ.dynamics t a) = Φ.dynamics t (N.parity a) :=
   tendsto_nhds_unique (((StarAlgEquiv.isometry N.parity).continuous.tendsto _).comp
     (tendsto_dynamics hJ hfin ha t))
@@ -349,14 +349,14 @@ lemma isEven_dynamics {a : 𝔄} (ha : a ∈ N.quasiLocal) (hae : N.IsEven a) (t
 include hJ hfin in
 /-- Independence of the exhaustion: along any family of regions tending to the whole lattice,
 the finite-volume dynamics converge to the same limit. -/
-theorem tendsto_dynamics_of_tendsto {ι : Type*} {l : Filter ι} {Λs : ι → Finset V}
+lemma tendsto_dynamics_of_tendsto {ι : Type*} {l : Filter ι} {Λs : ι → Finset V}
     (hΛ : Tendsto Λs l atTop) {a : 𝔄} (ha : a ∈ N.quasiLocal) (t : ℝ) :
     Tendsto (fun i => evolution (Φ.hamiltonian (Λs i)) t a) l (𝓝 (Φ.dynamics t a)) :=
   (tendsto_dynamics hJ hfin ha t).comp hΛ
 
 include hJ hfin in
 /-- Independence of the exhaustion, uniformly for `t ∈ [-T, T]`. -/
-theorem tendstoUniformlyOn_dynamics_of_tendsto {ι : Type*} {l : Filter ι}
+lemma tendstoUniformlyOn_dynamics_of_tendsto {ι : Type*} {l : Filter ι}
     {Λs : ι → Finset V} (hΛ : Tendsto Λs l atTop) {a : 𝔄} (ha : a ∈ N.quasiLocal) (T : ℝ) :
     TendstoUniformlyOn (fun i t => evolution (Φ.hamiltonian (Λs i)) t a)
       (fun t => Φ.dynamics t a) l (Set.Icc (-T) T) :=
@@ -422,7 +422,7 @@ def generator (X : Finset V) (a : 𝔄) : 𝔄 :=
 /-- The generator on `A ∈ 𝔄_X`: `δ(A) = i Σ_{Z ∩ X ≠ ∅} [Φ(Z), A] + i Σ_{x ∈ X} [D_x, A]`, where
 the first sum runs over the subregions of the sites reached from `X` in one step, which include
 every `Z` meeting `X` with `Φ(Z) ≠ 0`. -/
-theorem generator_eq {X : Finset V} {a : 𝔄} (ha : a ∈ N.loc X) :
+lemma generator_eq {X : Finset V} {a : 𝔄} (ha : a ∈ N.loc X) :
     Φ.generator hfin X a = I • (∑ Z ∈ touching (reachStep hfin X) X, (Φ.term Z * a - a * Φ.term Z) +
       ∑ x ∈ X, (Φ.onSite x * a - a * Φ.onSite x)) := by
   have hsplit := Φ.hamiltonian_sub_interactionAt (subset_reachStep hfin X)
