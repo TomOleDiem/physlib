@@ -52,7 +52,7 @@ nonzero pairing together.
 | 4 | Lieb-Robinson bound `‖[α_t^Λ(A), B]‖ ≤ C e^{v|t| - μ d(X,Y)}` for `B` even, constants independent of `Λ` and of `D` | done in chain form: `LiebRobinson.lieb_robinson`, `‖[α_t A, B]‖ ≤ 2‖A‖‖B‖ Σ_k (2t)^k/k! w_k(X,Y)` (no `D`); metric form is a corollary not needed for 5-6 |
 | 5 | Duhamel Cauchy estimate, norm convergence and exhaustion independence | done: `ThermodynamicLimit` (`norm_evolution_sub_evolution_le`, `norm_evolution_sub_le_tail_abs`, `uniformCauchySeqOn_evolution`); limits in milestone 6 |
 | 6 | Infinite-volume automorphism group and generator on local elements | done: `InfiniteDynamics` (abstract) and `CARDynamics.car_dynamics` (CAR net, finite range on a locally finite graph, `IsBoundedBy J`, arbitrary on-site terms) |
-| 7 | States and GNS unitary implementation | open |
+| 7 | States and GNS unitary implementation | done except Stone: `StateDynamics` (`evolveState`, `gnsEvolution`, `gnsEvolution_mem_unitary`, `gnsEvolution_covariant`, `continuous_gnsEvolution`, `Interaction.continuous_gnsEvolution_dynamics`). Blocked: Stone's theorem (self-adjoint generator of `U_t`) is not in Mathlib |
 | 8 | Physical model instances, including a non-number-conserving one | open |
 
 Not needed initially: infinite-volume Fock operators, formal Hamiltonians, occupation cutoffs,

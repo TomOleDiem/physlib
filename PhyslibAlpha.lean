@@ -749,6 +749,7 @@ public import PhyslibAlpha.QuantumMechanics.LatticeFermions.GradedLocalNet
 public import PhyslibAlpha.QuantumMechanics.LatticeFermions.InfiniteDynamics
 public import PhyslibAlpha.QuantumMechanics.LatticeFermions.Interaction
 public import PhyslibAlpha.QuantumMechanics.LatticeFermions.LiebRobinson
+public import PhyslibAlpha.QuantumMechanics.LatticeFermions.StateDynamics
 public import PhyslibAlpha.QuantumMechanics.LatticeFermions.ThermodynamicLimit
 public import PhyslibAlpha.QuantumMechanics.LatticeFermions.WeightedComposition
 public import PhyslibAlpha.QuantumMechanics.QuantumHarmonicOscillator
