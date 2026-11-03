@@ -546,7 +546,7 @@ lemma truncEmbed_deriv_add (V : L → ℕ → ℝ) (Λ : Finset L) (S : Finset (
       (polyOp (D.finiteHam V Λ)).closure.domain) =
       ⟨embed (truncVec S ψ), embed_mem_closure_domain _ (truncVec S ψ)⟩ from rfl,
     closure_polyOp_embed, leak, map_sub, smul_sub, truncEmbed_apply]
-  simp only [ContinuousLinearMap.neg_apply, ContinuousLinearMap.smul_apply, map_neg, map_smul]
+  simp only [ContinuousLinearMap.smul_apply, map_neg, map_smul]
   abel
 
 /-- **Comparison of the true and the truncated finite-volume dynamics.** If the leakage of the
@@ -674,5 +674,54 @@ lemma tendsto_truncation_error {p : ℕ} (hp : 2 ≤ p) {R A : ℝ} (hR : 0 ≤ 
   exact Real.sqrt_le_sqrt (sq_mul_inv_pow_le n hp hA)
 
 end Limit
+
+
+section Representative
+
+open Finsupp
+
+variable {L : Type*} [DecidableEq L]
+
+/-- A finite vector as a vector of the truncated space, by restriction to `S`. -/
+def truncOf (S : Finset (Occ L)) (f : Occ L →₀ ℂ) : EuclideanSpace ℂ S :=
+  WithLp.toLp 2 (fun a : S => f a.1)
+
+omit [DecidableEq L] in
+lemma truncOf_apply (S : Finset (Occ L)) (f : Occ L →₀ ℂ) (a : S) : truncOf S f a = f a.1 := rfl
+
+lemma truncVec_truncOf {S : Finset (Occ L)} {f : Occ L →₀ ℂ} (hS : ∀ a ∈ f.support, a ∈ S) :
+    truncVec S (truncOf S f) = f := by
+  ext γ
+  rw [truncVec_apply]
+  split_ifs with h
+  · rfl
+  · by_contra hne
+    exact h (hS γ (Finsupp.mem_support_iff.mpr (Ne.symm hne)))
+
+lemma sum_truncOf_le (S : Finset (Occ L)) (f : Occ L →₀ ℂ) (G : Occ L → ℝ) (hG : ∀ a, 0 ≤ G a) :
+    ∑ a : S, G a.1 * ‖truncOf S f a‖ ^ 2 ≤ ∑ a ∈ f.support, G a * ‖f a‖ ^ 2 := by
+  classical
+  simp only [truncOf_apply]
+  rw [Finset.sum_coe_sort S (fun a => G a * ‖f a‖ ^ 2)]
+  calc ∑ a ∈ S, G a * ‖f a‖ ^ 2 = ∑ a ∈ S.filter (· ∈ f.support), G a * ‖f a‖ ^ 2 := by
+        rw [Finset.sum_filter]
+        refine Finset.sum_congr rfl fun a _ => ?_
+        split_ifs with h
+        · rfl
+        · rw [Finsupp.notMem_support_iff.mp h]; simp
+    _ ≤ _ := Finset.sum_le_sum_of_subset_of_nonneg (fun a ha => (Finset.mem_filter.mp ha).2)
+        fun a _ _ => mul_nonneg (hG a) (sq_nonneg _)
+
+/-- A finite vector supported in `Λ` lies in every truncation above its largest occupation. -/
+lemma support_subset_truncSet {Λ : Finset L} {f : Occ L →₀ ℂ}
+    (hf : ∀ a ∈ f.support, ∀ z ∉ Λ, a z = 0) {n : ℕ}
+    (hn : f.support.sup (fun a => Λ.sup a) ≤ n) : ∀ a ∈ f.support, a ∈ truncSet Λ n :=
+  fun a ha => mem_truncSet.mpr ⟨hf a ha, fun x hx => by
+    have h1 : a x ≤ Λ.sup a := Finset.le_sup (f := a) hx
+    have h2 : Λ.sup a ≤ f.support.sup (fun a => Λ.sup a) :=
+      Finset.le_sup (f := fun a : Occ L => Λ.sup a) ha
+    omega⟩
+
+end Representative
 
 end InfiniteBosons
