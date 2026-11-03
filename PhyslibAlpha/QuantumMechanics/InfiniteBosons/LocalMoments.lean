@@ -844,6 +844,7 @@ end BoseHubbardData
 
 -/
 
+omit [DecidableEq L] in
 /-- A move with a unique partner contributes at most its amplitude bound to a plain row sum. -/
 lemma sum_move_norm_le (S : Finset (Occ L)) {x y : L} (α β0 : Occ L) (f : Occ L → ℂ)
     (hf : ∀ β, f β ≠ 0 → β = β0 ∧ IsMove x y α β ‖f β‖) :

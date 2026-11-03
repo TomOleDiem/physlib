@@ -292,4 +292,44 @@ end BoseHubbardData
 
 end Leakage
 
+
+/-!
+
+## E. The size of the leakage
+
+-/
+
+section LeakageBound
+
+open Finsupp Matrix
+
+variable {L : Type*} [DecidableEq L]
+
+lemma norm_embed_sq_eq_sum {B : Type*} [DecidableEq B] (v : B →₀ ℂ) :
+    ‖embed v‖ ^ 2 = ∑ γ ∈ v.support, ‖v γ‖ ^ 2 := by
+  rw [← inner_self_eq_norm_sq (𝕜 := ℂ), inner_embed]
+  unfold pair
+  rw [Finsupp.sum, map_sum]
+  refine Finset.sum_congr rfl fun γ _ => ?_
+  rw [Complex.conj_mul', ← Complex.ofReal_pow]; exact Complex.ofReal_re _
+
+/-- Cauchy-Schwarz for one row: `|Σ_a m_a v_a|² ≤ (Σ_a |m_a|) (Σ_a |m_a| |v_a|²)`. -/
+lemma norm_sum_mul_sq_le {ι : Type*} (s : Finset ι) (m v : ι → ℂ) :
+    ‖∑ a ∈ s, m a * v a‖ ^ 2 ≤ (∑ a ∈ s, ‖m a‖) * ∑ a ∈ s, ‖m a‖ * ‖v a‖ ^ 2 := by
+  have h1 : ‖∑ a ∈ s, m a * v a‖ ≤ ∑ a ∈ s, Real.sqrt ‖m a‖ * (Real.sqrt ‖m a‖ * ‖v a‖) := by
+    refine (norm_sum_le _ _).trans (le_of_eq (Finset.sum_congr rfl fun a _ => ?_))
+    rw [norm_mul, ← mul_assoc, Real.mul_self_sqrt (norm_nonneg _)]
+  have h2 := Finset.sum_mul_sq_le_sq_mul_sq s (fun a => Real.sqrt ‖m a‖)
+    (fun a => Real.sqrt ‖m a‖ * ‖v a‖)
+  have e1 : ∀ a, Real.sqrt ‖m a‖ ^ 2 = ‖m a‖ := fun a => Real.sq_sqrt (norm_nonneg _)
+  have e2 : ∀ a, (Real.sqrt ‖m a‖ * ‖v a‖) ^ 2 = ‖m a‖ * ‖v a‖ ^ 2 := fun a => by
+    rw [mul_pow, e1]
+  simp only [e1, e2] at h2
+  calc ‖∑ a ∈ s, m a * v a‖ ^ 2
+      ≤ (∑ a ∈ s, Real.sqrt ‖m a‖ * (Real.sqrt ‖m a‖ * ‖v a‖)) ^ 2 :=
+        pow_le_pow_left₀ (norm_nonneg _) h1 2
+    _ ≤ _ := h2
+
+end LeakageBound
+
 end InfiniteBosons
