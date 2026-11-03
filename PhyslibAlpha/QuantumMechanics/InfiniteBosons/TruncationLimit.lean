@@ -776,4 +776,75 @@ lemma moments_along (V : L → ℕ → ℝ) (Λ : Finset L) (S : Finset (Occ L))
 
 end BoseHubbardData
 
+
+namespace BoseHubbardData
+
+open Finsupp Matrix
+
+variable {L : Type*} [DecidableEq L] (D : BoseHubbardData L)
+
+open Classical in
+/-- The distance between the true and the truncated dynamics at a truncation level above the
+largest occupation of the initial vector. -/
+lemma norm_true_sub_trunc_le_of_moments (V : L → ℕ → ℝ) (Λ : Finset L) {d : ℕ}
+    (hd : ∀ x ∈ Λ, (Λ.filter (D.graph.Adj x)).card ≤ d) {K : ℝ} (hK : 0 ≤ K)
+    (hJ : ∀ x y, |D.J x y| ≤ K) (hΔ : ∀ x y, ‖D.Δ x y‖ ≤ K) (p : ℕ) {μ : ℝ}
+    (hμ : 0 < μ) {C : ℝ} {ν : ℕ}
+    (hball : ∀ x₀ (s : Finset L) (R : ℕ), (∀ x ∈ s, D.graph.dist x₀ x ≤ R) →
+      (s.card : ℝ) ≤ C * (R + 1) ^ ν)
+    {f : Occ L →₀ ℂ} (hf : ∀ a ∈ f.support, ∀ z ∉ Λ, a z = 0) {M : ℝ} (hM0 : 0 ≤ M)
+    (hM : ∀ x ∈ Λ, ∑ a ∈ f.support, localMoment p x a * ‖f a‖ ^ 2 ≤ M)
+    {μS : ProbabilisticTheory.QuantumMechanics.WOTSpectralMeasure ℝ (HilbertSp (Occ L))}
+    (Dsp : ProbabilisticTheory.QuantumMechanics.DomainAwareSelfAdjointSpectralTheorem
+      (polyOp (D.finiteHam V Λ)).closure μS) {t : ℝ} (ht : 0 ≤ t) {n : ℕ}
+    (hn : f.support.sup (fun a => Λ.sup a) ≤ n) :
+    ‖Dsp.expUnitaryGroup (-t) (embed f) - truncEmbed (truncSet Λ n)
+        (schrodinger (toEuclideanCLM (𝕜 := ℂ) (D.truncHam V Λ (truncSet Λ n))) t
+          (truncOf (truncSet Λ n) f))‖ ≤
+      8 * K * (Λ.card : ℝ) ^ 2 * (n + 2) * Real.sqrt (((n : ℝ) + 1)⁻¹ ^ (p + 1) *
+        (Λ.card * max (Real.exp (8 * d * K * ((p + 1) * 2 ^ (p + 1)) * (1 + Real.exp μ) * t) *
+          (M * ∑' n : ℕ, C * ((n : ℝ) + 1) ^ ν * Real.exp (-μ * n))) 0)) * t := by
+  set S := truncSet Λ n
+  have hS := support_subset_truncSet hf hn
+  have hemb : truncEmbed S (truncOf S f) = embed f := by
+    rw [truncEmbed_apply, truncVec_truncOf hS]
+  have hMn : ∀ x ∈ Λ, ∑ a : S, localMoment p x a.1 * ‖truncOf S f a‖ ^ 2 ≤ M := fun x hx =>
+    (sum_truncOf_le S f _ (fun a => localMoment_nonneg p x a)).trans (hM x hx)
+  have hmom := D.moments_along V Λ S hd hK hJ hΔ p hμ hball (truncOf S f) hM0 hMn (t := t)
+  rw [← hemb]
+  refine D.norm_true_sub_trunc_le V Λ S Dsp (truncOf S f) ht fun s hs => ?_
+  exact D.norm_leak_le_of_moments V Λ n p hK hJ hΔ _ fun x hx =>
+    (hmom x hx s hs).trans (le_max_left _ _)
+
+open Classical in
+/-- **The truncated dynamics converges to the true finite-volume dynamics.** For a finite initial
+vector supported in `Λ` with bounded local moments of order `p + 1 ≥ 3`, the truncated evolutions
+converge in `ℓ²` to the unitary group of the closure of `H_Λ` as the truncation level grows. -/
+theorem tendsto_trunc_dynamics (V : L → ℕ → ℝ) (Λ : Finset L) {d : ℕ}
+    (hd : ∀ x ∈ Λ, (Λ.filter (D.graph.Adj x)).card ≤ d) {K : ℝ} (hK : 0 ≤ K)
+    (hJ : ∀ x y, |D.J x y| ≤ K) (hΔ : ∀ x y, ‖D.Δ x y‖ ≤ K) {p : ℕ} (hp : 2 ≤ p) {μ : ℝ}
+    (hμ : 0 < μ) {C : ℝ} {ν : ℕ}
+    (hball : ∀ x₀ (s : Finset L) (R : ℕ), (∀ x ∈ s, D.graph.dist x₀ x ≤ R) →
+      (s.card : ℝ) ≤ C * (R + 1) ^ ν)
+    {f : Occ L →₀ ℂ} (hf : ∀ a ∈ f.support, ∀ z ∉ Λ, a z = 0) {M : ℝ} (hM0 : 0 ≤ M)
+    (hM : ∀ x ∈ Λ, ∑ a ∈ f.support, localMoment p x a * ‖f a‖ ^ 2 ≤ M)
+    {μS : ProbabilisticTheory.QuantumMechanics.WOTSpectralMeasure ℝ (HilbertSp (Occ L))}
+    (Dsp : ProbabilisticTheory.QuantumMechanics.DomainAwareSelfAdjointSpectralTheorem
+      (polyOp (D.finiteHam V Λ)).closure μS) {t : ℝ} (ht : 0 ≤ t) :
+    Filter.Tendsto (fun n : ℕ => truncEmbed (truncSet Λ n)
+        (schrodinger (toEuclideanCLM (𝕜 := ℂ) (D.truncHam V Λ (truncSet Λ n))) t
+          (truncOf (truncSet Λ n) f))) Filter.atTop (𝓝 (Dsp.expUnitaryGroup (-t) (embed f))) := by
+  rw [tendsto_iff_norm_sub_tendsto_zero]
+  have herr := (tendsto_truncation_error hp (R := 8 * K * (Λ.card : ℝ) ^ 2)
+    (A := Λ.card * max (Real.exp (8 * d * K * ((p + 1) * 2 ^ (p + 1)) * (1 + Real.exp μ) * t) *
+      (M * ∑' n : ℕ, C * ((n : ℝ) + 1) ^ ν * Real.exp (-μ * n))) 0) (by positivity)
+      (by positivity)).mul_const t
+  rw [zero_mul] at herr
+  refine squeeze_zero' (Filter.Eventually.of_forall fun _ => norm_nonneg _) ?_ herr
+  filter_upwards [Filter.eventually_ge_atTop (f.support.sup (fun a => Λ.sup a))] with n hn
+  rw [norm_sub_rev]
+  exact D.norm_true_sub_trunc_le_of_moments V Λ hd hK hJ hΔ p hμ hball hf hM0 hM Dsp ht hn
+
+end BoseHubbardData
+
 end InfiniteBosons
