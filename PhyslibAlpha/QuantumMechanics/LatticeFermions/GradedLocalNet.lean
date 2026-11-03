@@ -278,6 +278,16 @@ lemma ofClosure_loc (loc : Finset V → StarSubalgebra ℂ 𝔄) (loc_mono : Mon
       Commute a b) (X : Finset V) :
     (ofClosure θ loc loc_mono hθ hmem hcomm).loc X = (loc X).topologicalClosure := rfl
 
+variable (N : GradedLocalNet V 𝔄)
+
+lemma parity_mem_localUnion {a : 𝔄} (ha : a ∈ N.localUnion) : N.parity a ∈ N.localUnion := by
+  obtain ⟨X, hX⟩ := N.mem_localUnion_iff.mp ha
+  exact N.mem_localUnion_iff.mpr ⟨X, N.parity_mem hX⟩
+
+/-- The parity preserves the quasi-local algebra. -/
+lemma parity_mem_quasiLocal {a : 𝔄} (ha : a ∈ N.quasiLocal) : N.parity a ∈ N.quasiLocal :=
+  map_mem_topologicalClosure N.parity (fun _ hb => N.parity_mem_localUnion hb) ha
+
 end closure
 
 end GradedLocalNet
