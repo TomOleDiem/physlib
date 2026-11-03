@@ -146,6 +146,7 @@ section Block
 
 variable {β : Type*} [DecidableEq β]
 
+omit [DecidableEq β] in
 /-- **Schur test** in the form used for the flux bound. -/
 lemma norm_sum_conj_mul_le (A B : Finset β) (h : β → β → ℂ) (u v : β → ℂ) (r : ℝ)
     (hrow : ∀ a ∈ A, ∑ b ∈ B, ‖h a b‖ ≤ r) (hcol : ∀ b ∈ B, ∑ a ∈ A, ‖h a b‖ ≤ r) :
@@ -161,9 +162,9 @@ lemma norm_sum_conj_mul_le (A B : Finset β) (h : β → β → ℂ) (u v : β �
   refine h1.trans ?_
   have e : ∑ a ∈ A, ∑ b ∈ B, ‖h a b‖ * ((‖u a‖ ^ 2 + ‖v b‖ ^ 2) / 2) =
       (∑ a ∈ A, ∑ b ∈ B, ‖u a‖ ^ 2 * ‖h a b‖ + ∑ a ∈ A, ∑ b ∈ B, ‖v b‖ ^ 2 * ‖h a b‖) / 2 := by
-    rw [← Finset.sum_add_distrib, Finset.sum_div]
+    rw [eq_div_iff two_ne_zero, Finset.sum_mul, ← Finset.sum_add_distrib]
     refine Finset.sum_congr rfl fun a _ => ?_
-    rw [← Finset.sum_add_distrib, Finset.sum_div]
+    rw [Finset.sum_mul, ← Finset.sum_add_distrib]
     exact Finset.sum_congr rfl fun b _ => by ring
   rw [e, Finset.sum_comm (s := A) (t := B) (f := fun a b => ‖v b‖ ^ 2 * ‖h a b‖)]
   simp only [← Finset.mul_sum]
@@ -194,6 +195,7 @@ lemma gradeLe_succ (hS : ∀ a n, a ∈ S n ↔ gr a = n) (N : ℕ) :
   · rw [Finset.disjoint_left]; intro a h1 h2
     rw [mem_gradeLe hS] at h1; rw [hS] at h2; omega
 
+omit [DecidableEq β] in
 /-- The sum over a Hermitian block is real. -/
 lemma im_sum_hermitian_eq_zero (A : Finset β) (h : β → β → ℂ)
     (hherm : ∀ a b, h b a = starRingEnd ℂ (h a b)) (g : β → ℂ) :
@@ -240,7 +242,7 @@ lemma blockJacobi_flux (hS : ∀ a n, a ∈ S n ↔ gr a = n) (h : β → β →
     refine (Finset.sum_subset (fun a ha => (mem_gradeLe hS).mpr ((hS a N).mp ha).le)
       fun a ha haN => Finset.sum_eq_zero fun b hb => ?_).symm
     by_contra hne
-    have h1 := (hband a b (right_ne_zero_of_mul (left_ne_zero_of_mul hne))).2
+    have h1 := (hband a b (right_ne_zero_of_mul (left_ne_zero_of_mul hne))).1
     have := (mem_gradeLe hS).mp ha
     rw [hS] at hb haN
     omega
@@ -289,7 +291,8 @@ theorem blockJacobi_no_l2_solution (hS : ∀ a n, a ∈ S n ↔ gr a = n) (h : �
     have hsch := norm_sum_conj_mul_le (S N) (S (N + 1)) h g g (r N) (hrow N) (hcol N)
     have h1 : |c| * ε ≤ r N * (G N + G (N + 1)) / 2 := by
       calc |c| * ε ≤ |c * ∑ b ∈ gradeLe S N, ‖g b‖ ^ 2| := by
-            rw [abs_mul, abs_of_nonneg (Finset.sum_nonneg fun _ _ => by positivity)]
+            rw [abs_mul, abs_of_nonneg (a := ∑ b ∈ gradeLe S N, ‖g b‖ ^ 2)
+              (Finset.sum_nonneg fun _ _ => by positivity)]
             exact mul_le_mul_of_nonneg_left hW (abs_nonneg c)
         _ ≤ _ := by rw [hflux]; exact (Complex.abs_im_le_norm _).trans hsch
     rw [div_le_iff₀ (hr N)]
@@ -303,10 +306,12 @@ theorem blockJacobi_no_l2_solution (hS : ∀ a n, a ∈ S n ↔ gr a = n) (h : �
     (((summable_nat_add_iff (gr a)).mpr hsum2).mul_left (1 / (2 * (|c| * ε))))
   have := hbound (N + gr a) (by omega)
   rw [div_le_iff₀ (hr _)] at this
+  show 1 / r (N + gr a) ≤ 1 / (2 * (|c| * ε)) * (G (N + gr a) + G (N + gr a + 1))
   rw [div_le_iff₀ (hr _)]
-  simp only
-  field_simp
-  nlinarith [hr (N + gr a)]
+  calc (1 : ℝ) = 1 / (2 * (|c| * ε)) * (2 * (|c| * ε)) := by field_simp
+    _ ≤ 1 / (2 * (|c| * ε)) * ((G (N + gr a) + G (N + gr a + 1)) * r (N + gr a)) :=
+        mul_le_mul_of_nonneg_left this (by positivity)
+    _ = _ := by ring
 
 end Block
 
