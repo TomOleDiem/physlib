@@ -198,4 +198,54 @@ theorem norm_unitaryGroup_neg_sub_le (D : DomainAwareSelfAdjointSpectralTheorem 
   rw [hg0, hgt, sub_zero, norm_sub_rev] at hbound
   exact hbound
 
+
+/-!
+
+## C. The truncated space inside the Fock space
+
+-/
+
+section Embedding
+
+open Finsupp
+
+variable {L : Type*} [DecidableEq L]
+
+/-- The states supported in `Λ` with every occupation at most `K`. -/
+def truncSet (Λ : Finset L) (K : ℕ) : Finset (Occ L) :=
+  Finset.univ.image (fun φ : Λ → Fin (K + 1) => fillIn Λ 0 (fun x => (φ x : ℕ)))
+
+lemma mem_truncSet {Λ : Finset L} {K : ℕ} {a : Occ L} :
+    a ∈ truncSet Λ K ↔ (∀ z ∉ Λ, a z = 0) ∧ ∀ x ∈ Λ, a x ≤ K := by
+  constructor
+  · intro h
+    obtain ⟨φ, -, rfl⟩ := Finset.mem_image.mp h
+    refine ⟨fun z hz => ?_, fun x hx => ?_⟩
+    · rw [fillIn_apply_not_mem _ _ _ hz]; rfl
+    · rw [fillIn_apply_mem _ _ _ hx]; exact Nat.lt_succ_iff.mp (φ ⟨x, hx⟩).2
+  · rintro ⟨hout, hin⟩
+    refine Finset.mem_image.mpr ⟨fun x => ⟨a x.1, Nat.lt_succ_of_le (hin x.1 x.2)⟩,
+      Finset.mem_univ _, Finsupp.ext fun z => ?_⟩
+    by_cases hz : z ∈ Λ
+    · rw [fillIn_apply_mem _ _ _ hz]
+    · rw [fillIn_apply_not_mem _ _ _ hz, hout z hz]; rfl
+
+/-- The finite vector of a vector of the truncated space. -/
+def truncVec (S : Finset (Occ L)) : EuclideanSpace ℂ S →ₗ[ℂ] (Occ L →₀ ℂ) where
+  toFun v := ∑ a : S, single a.1 (v a)
+  map_add' v w := by simp [Finset.sum_add_distrib, single_add]
+  map_smul' c v := by simp [Finset.smul_sum, smul_single]
+
+lemma truncVec_apply (S : Finset (Occ L)) (v : EuclideanSpace ℂ S) (γ : Occ L) :
+    truncVec S v γ = if h : γ ∈ S then v ⟨γ, h⟩ else 0 := by
+  simp only [truncVec, LinearMap.coe_mk, AddHom.coe_mk, Finsupp.finsetSum_apply,
+    Finsupp.single_apply]
+  split_ifs with h
+  · rw [Finset.sum_eq_single ⟨γ, h⟩ (fun b _ hb => if_neg fun e => hb (Subtype.ext e))
+      (by simp)]
+    simp
+  · exact Finset.sum_eq_zero fun b _ => if_neg fun (e : b.1 = γ) => h (e ▸ b.2)
+
+end Embedding
+
 end InfiniteBosons
