@@ -230,11 +230,12 @@ theorem hamOp_isSymmetric : D.hamOp.IsSymmetric :=
 
 -/
 
+omit [DecidableEq L] in
 /-- A linear map evaluated on a finite vector is the sum of its values on the basis vectors. -/
 lemma linearMap_apply_eq_sum (T : FockPre L →ₗ[ℂ] FockPre L) (f : FockPre L) (γ : Occ L) :
     T f γ = ∑ b ∈ f.support, f b * T (single b 1) γ := by
   conv_lhs => rw [← Finsupp.sum_single f]
-  rw [Finsupp.sum, map_sum, Finsupp.finset_sum_apply]
+  rw [Finsupp.sum, map_sum, Finsupp.finsetSum_apply]
   refine Finset.sum_congr rfl fun b _ => ?_
   rw [show (single b (f b) : FockPre L) = f b • single b 1 by simp [Finsupp.smul_single],
     map_smul, Finsupp.smul_apply, smul_eq_mul]
@@ -255,8 +256,8 @@ lemma cre_ann_single_apply_eq_zero (u v : L) : cre u (ann v (single b (1 : ℂ))
     Finsupp.single_apply, zero_tsub, zero_add] at h1 h2
   split_ifs at h1 h2 with h3 h4
   · exact hxy (h3.symm.trans h4)
-  all_goals omega
 
+omit hxy hby hγy in
 /-- Pair annihilation cannot put a boson on an empty mode. -/
 lemma ann_ann_single_apply_eq_zero (u v : L) : ann v (ann u (single b (1 : ℂ))) γ = 0 := by
   rw [ann_single, ann_single, Finsupp.single_apply, if_neg]
@@ -274,8 +275,9 @@ lemma cre_cre_single_apply_eq_zero {u v : L} (huv : ¬ (u = x ∧ v = y) ∧ ¬ 
   have h2 := congrArg (· y) h
   simp only [Finsupp.coe_add, Pi.add_apply, hbx, hby, hγx, hγy, Finsupp.single_apply,
     zero_add] at h1 h2
-  split_ifs at h1 h2 <;> simp_all <;> omega
+  split_ifs at h1 h2 <;> simp_all
 
+omit hxy hby hγy in
 /-- A site term cannot put a boson on an empty mode. -/
 lemma siteTerm_single_apply_eq_zero (D : BoseHubbardData L) (z : L) :
     (D.siteTerm z).1.1 (single b 1) γ = 0 := by
@@ -289,8 +291,9 @@ lemma siteTerm_single_apply_eq_zero (D : BoseHubbardData L) (z : L) :
       ((numberOp z * numberOp z).1.1 (single b 1) - (numberOp z).1.1 (single b 1)) -
       ((D.μ z : ℝ) : ℂ) • (numberOp z).1.1 (single b 1) := rfl
   rw [e, hNN, hN]
-  simp [Finsupp.single_apply, hne]
+  simp [hne]
 
+open Classical in
 /-- The bond term applied to a basis state, read off at a state with one more boson at each of two
 empty modes: only pair creation contributes. -/
 lemma bondTerm_single_apply (D : BoseHubbardData L) (u v : L) :
@@ -301,7 +304,7 @@ lemma bondTerm_single_apply (D : BoseHubbardData L) (u v : L) :
   · show (((-D.J u v : ℝ) : ℂ) • (cre u (ann v (single b (1 : ℂ))) + cre v (ann u (single b 1))) +
       D.Δ u v • cre u (cre v (single b 1)) + starRingEnd ℂ (D.Δ u v) • ann v (ann u (single b 1))) γ = _
     simp only [Finsupp.coe_add, Pi.add_apply, Finsupp.coe_smul, Pi.smul_apply, smul_eq_mul,
-      cre_ann_single_apply_eq_zero hxy hbx hby hγx hγy, ann_ann_single_apply_eq_zero hxy hbx hby hγx hγy]
+      cre_ann_single_apply_eq_zero hxy hbx hby hγx hγy, ann_ann_single_apply_eq_zero hbx hγx]
     ring
   · rfl
 
@@ -311,10 +314,11 @@ end PairTarget
 lemma cre_cre_single_of_empty {x y : L} (hxy : x ≠ y) {b : Occ L} (hbx : b x = 0) (hby : b y = 0) :
     cre x (cre y (single b (1 : ℂ))) = single (b + single x 1 + single y 1) 1 := by
   rw [cre_single, cre_single]
-  have : (b + single y 1) x = 0 := by simp [Finsupp.single_apply, hbx, Ne.symm hxy]
+  have : (b + single y 1 : Occ L) x = 0 := by simp [hbx, Ne.symm hxy]
   rw [this, hby, add_assoc, add_comm (single y 1), ← add_assoc]
   simp
 
+open Classical in
 /-- **The formal image of a finite vector at a created pair.** Let `x ~ y` be a bond whose modes
 are empty in every basis state of `f`. Then the formal Hamiltonian at `α + e_x + e_y` is
 `(Δ_xy + Δ_yx) f(α)`. -/
@@ -323,8 +327,8 @@ lemma formalHam_apply_pair (D : BoseHubbardData L) {x y : L} (hadj : D.graph.Adj
     D.formalHam f (α + single x 1 + single y 1) = (D.Δ x y + D.Δ y x) * f α := by
   have hxy : x ≠ y := hadj.ne
   set γ := α + single x 1 + single y 1 with hγ
-  have hγx : γ x = 1 := by simp [hγ, Finsupp.single_apply, hα.1, hxy.symm]
-  have hγy : γ y = 1 := by simp [hγ, Finsupp.single_apply, hα.2, hxy]
+  have hγx : γ x = 1 := by simp [hγ, hα.1, hxy.symm]
+  have hγy : γ y = 1 := by simp [hγ, hα.2, hxy]
   -- the value of each term
   have hterm : ∀ i, (D.interaction.Φ i).1.1 f γ =
       if i = Sum.inr (x, y) then D.Δ x y * f α else if i = Sum.inr (y, x) then D.Δ y x * f α
@@ -332,19 +336,19 @@ lemma formalHam_apply_pair (D : BoseHubbardData L) {x y : L} (hadj : D.graph.Adj
     intro i
     rw [linearMap_apply_eq_sum]
     rcases i with z | ⟨u, v⟩
-    · simp only [reduceCtorEq, if_false]
+    · simp only [reduceCtorEq, ite_false]
       exact Finset.sum_eq_zero fun b hb =>
         by rw [show D.interaction.Φ (Sum.inl z) = D.siteTerm z from rfl,
-          siteTerm_single_apply_eq_zero hxy (hS b hb).1 (hS b hb).2 hγx hγy, mul_zero]
+          siteTerm_single_apply_eq_zero (hS b hb).1 hγx, mul_zero]
     · have hb' : ∀ b ∈ f.support, (D.interaction.Φ (Sum.inr (u, v))).1.1 (single b 1) γ =
           if D.graph.Adj u v then D.Δ u v * cre u (cre v (single b (1 : ℂ))) γ else 0 :=
         fun b hb => bondTerm_single_apply hxy (hS b hb).1 (hS b hb).2 hγx hγy D u v
       rw [Finset.sum_congr rfl fun b hb => by rw [hb' b hb]]
       by_cases h1 : u = x ∧ v = y
       · obtain ⟨rfl, rfl⟩ := h1
-        simp only [if_pos hadj, if_true]
+        simp only [if_pos hadj, ite_true]
         rw [Finset.sum_eq_single α]
-        · rw [cre_cre_single_of_empty hxy hα.1 hα.2]; simp; ring
+        · rw [cre_cre_single_of_empty hxy hα.1 hα.2, ← hγ, Finsupp.single_eq_same]; ring
         · intro b hb hne
           rw [cre_cre_single_of_empty hxy (hS b hb).1 (hS b hb).2, Finsupp.single_apply, if_neg
             (fun h => hne (by simpa [hγ] using h))]
@@ -353,10 +357,10 @@ lemma formalHam_apply_pair (D : BoseHubbardData L) {x y : L} (hadj : D.graph.Adj
       by_cases h2 : u = y ∧ v = x
       · obtain ⟨rfl, rfl⟩ := h2
         have hne : (Sum.inr (u, v) : L ⊕ (L × L)) ≠ Sum.inr (v, u) := by simp [hxy.symm]
-        simp only [if_pos hadj.symm, if_neg hne, if_true]
+        simp only [if_pos hadj.symm, if_neg hne, ite_true]
         rw [Finset.sum_eq_single α]
         · rw [cre_cre_single_of_empty hxy.symm hα.2 hα.1]
-          simp [hγ, add_right_comm]
+          simp [hγ, add_right_comm, mul_comm]
         · intro b hb hne
           rw [cre_cre_single_of_empty hxy.symm (hS b hb).2 (hS b hb).1, Finsupp.single_apply,
             if_neg (fun h => hne (by simpa [hγ, add_right_comm] using h))]
@@ -378,7 +382,7 @@ lemma formalHam_apply_pair (D : BoseHubbardData L) {x y : L} (hadj : D.graph.Adj
     simp only [Function.mem_support] at hi
     simp only [Finset.coe_insert, Finset.coe_singleton, Set.mem_insert_iff, Set.mem_singleton_iff]
     by_contra h
-    push_neg at h
+    push Not at h
     exact hi (by rw [if_neg h.1, if_neg h.2])
 
 /-- **Pairing on infinitely many disjoint bonds leaves no finite vector in the domain.** Let
@@ -399,7 +403,11 @@ theorem hamDomainAlg_eq_bot (D : BoseHubbardData L) (x y : ℕ → L)
   have hfar : ∀ᶠ n in Filter.atTop, x n ∉ S ∧ y n ∉ S := by
     rw [← Nat.cofinite_eq_atTop]
     exact ((S.finite_toSet.preimage hx.injOn).union (S.finite_toSet.preimage hy.injOn)).subset
-      (fun n hn => by simpa [not_and_or] using hn)
+      (fun n hn => by
+        have hn' : ¬ (x n ∉ S ∧ y n ∉ S) := hn
+        by_cases h : x n ∈ S
+        · exact Or.inl h
+        · exact Or.inr (by by_contra h'; exact hn' ⟨h, h'⟩))
   have hzero : ∀ {z : L}, z ∉ S → ∀ b ∈ f.support, b z = 0 := fun hz b hb => by
     by_contra h
     exact hz (Finset.mem_biUnion.mpr ⟨b, hb, Finsupp.mem_support_iff.mpr h⟩)
@@ -407,7 +415,7 @@ theorem hamDomainAlg_eq_bot (D : BoseHubbardData L) (x y : ℕ → L)
   have hγinj : Function.Injective γ := fun n m h => by
     by_contra hnm
     have := congrArg (· (x n)) h
-    simp [γ, Finsupp.single_apply, hx.ne hnm, hxy n n, hxy n m] at this
+    simp [γ, hx.ne hnm, hxy n n, hxy n m] at this
   -- the formal image is square summable, so it tends to zero along the injective sequence `γ`
   have hlim : Filter.Tendsto (fun n => D.formalHam f (γ n)) Filter.atTop (nhds 0) := by
     have hm : Memℓp (D.formalHam f) 2 := hf
@@ -423,14 +431,13 @@ theorem hamDomainAlg_eq_bot (D : BoseHubbardData L) (x y : ℕ → L)
     exact h1.comp hγinj.tendsto_cofinite
   -- but at far away bonds its value is `(Δ + Δ') f(α)`, bounded away from zero
   have hval : ∀ᶠ n in Filter.atTop, δ * ‖f α‖ ≤ ‖D.formalHam f (γ n)‖ := hfar.mono fun n hn => by
-    have hα0 : α x n = 0 ∧ α y n = 0 := ⟨hzero hn.1 α hα, hzero hn.2 α hα⟩
+    have hα0 : α (x n) = 0 ∧ α (y n) = 0 := ⟨hzero hn.1 α hα, hzero hn.2 α hα⟩
     rw [formalHam_apply_pair D (hadj n) (fun b hb => ⟨hzero hn.1 b hb, hzero hn.2 b hb⟩) α hα0,
       norm_mul]
     exact mul_le_mul_of_nonneg_right (hΔ n) (norm_nonneg _)
   have hpos : 0 < δ * ‖f α‖ := mul_pos hδ (norm_pos_iff.mpr (Finsupp.mem_support_iff.mp hα))
-  have := (hlim.norm.eventually (gt_mem_nhds (a := 0) (b := δ * ‖f α‖) (by simpa using hpos)))
+  have := hlim.norm.eventually (gt_mem_nhds (show ‖(0 : ℂ)‖ < δ * ‖f α‖ by rw [norm_zero]; exact hpos))
   obtain ⟨n, hn1, hn2⟩ := (this.and hval).exists
-  simp only [norm_zero] at hn1
   linarith
 
 end BoseHubbardData
