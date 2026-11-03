@@ -28,7 +28,10 @@ unbounded, since the occupation at `y` is not restricted; its size is a weighted
 occupation at `y`, controlled by local moments at both sites. The hopping `a_x† a_y` into `Y` has
 the same structure, with amplitude `√(β_x + 1) √β_y`; hopping out of `Y` and pair annihilation do
 not leak. The tail estimate holds for positive trace-class density matrices, whose moments enter
-through the diagonal `⟨α|ρ|α⟩`.
+through the diagonal `⟨α|ρ|α⟩`. The compressed Hamiltonian `P H_Λ P` is dominated entrywise by
+`H_Λ`, hence essentially self-adjoint for every on-site potential. For the Duhamel comparison the
+reverse leakage `P H_Λ P^⊥` matters too: across the boundary it is pair annihilation and hopping out
+of `Y` from states with `n + 1` bosons at the inner site, with the same weighted estimate.
 
 ## ii. Key results
 
@@ -48,6 +51,10 @@ through the diagonal `⟨α|ρ|α⟩`.
 - `InfiniteBosons.BoseHubbardData.leakOp_bondTerm_boundary`,
   `InfiniteBosons.BoseHubbardData.leakOp_bondTerm_inside`: the leakage of a bond term as a sum of
   the hopping and pairing leakages.
+- `InfiniteBosons.BoseHubbardData.cutHam_isEssentiallySelfAdjoint`: the compressed Hamiltonian
+  `P_{Y,n} H_Λ P_{Y,n}` is essentially self-adjoint.
+- `InfiniteBosons.norm_revLeakOp_pair_sq_le`, `InfiniteBosons.norm_revLeakOp_hop_sq_le`: weighted
+  estimates for the reverse leakage `P_{Y,n} H_Λ P_{Y,n}^⊥` across the boundary.
 - `InfiniteBosons.trace_tail_le`: the tail `Tr ρ (1 - P_{Y,n}) ≤ |Y| M / (n + 1)^k` for a density
   matrix.
 
@@ -60,6 +67,8 @@ through the diagonal `⟨α|ρ|α⟩`.
 - E. The hopping term into `Y`
 - F. The leakage of a bond term
 - G. The tail in a density matrix
+- H. The compressed Hamiltonian
+- I. The reverse leakage across the boundary of `Y`
 
 ## iv. References
 
@@ -559,28 +568,28 @@ lemma edgeWeight_mul_le (Y : Finset L) (n k : ℕ) (x : L) (β : Occ L) :
   · rw [zero_mul]; positivity
 
 omit [DecidableEq L] in
-/-- The weighted sum that controls the leakage across the boundary: on the support of the edge
-weight `β_x = n`, so by the arithmetic-geometric mean inequality
-`1_{β_x = n} (β_x + 1)(β_y + 1) ≤ (n + 1)^{1-k} ((β_x + 1)^{2k} + (β_y + 1)²) / 2`. -/
-lemma sum_edgeWeight_le (Y : Finset L) (n k : ℕ) (x y : L) (s : Finset (Occ L)) (f : Occ L → ℂ)
+/-- The weighted sum that controls the leakage across the boundary. If `w(β) a(β)` is at most
+`(n + 1) ((β_x + 1) / (n + 1))^k`, then by the arithmetic-geometric mean inequality
+`Σ_β w(β) a(β) (β_y + 1) |f_β|² ≤ (n + 1)^{1-k} (M_x + M_y) / 2`. -/
+lemma sum_weight_mul_le (n k : ℕ) (x y : L) (s : Finset (Occ L)) (f : Occ L → ℂ)
+    (w a : Occ L → ℝ) (hw : ∀ β, w β * a β ≤ ((n : ℝ) + 1) * (((β x : ℝ) + 1) / ((n : ℝ) + 1)) ^ k)
     {Mx My : ℝ} (hMx : ∑ β ∈ s, ((β x : ℝ) + 1) ^ (2 * k) * ‖f β‖ ^ 2 ≤ Mx)
     (hMy : ∑ β ∈ s, ((β y : ℝ) + 1) ^ 2 * ‖f β‖ ^ 2 ≤ My) :
-    ∑ β ∈ s, edgeWeight Y n x β * (((β x : ℝ) + 1) * ((β y : ℝ) + 1)) * ‖f β‖ ^ 2 ≤
+    ∑ β ∈ s, w β * (a β * ((β y : ℝ) + 1)) * ‖f β‖ ^ 2 ≤
       ((n : ℝ) + 1) / ((n : ℝ) + 1) ^ k * ((Mx + My) / 2) := by
-  have hpt : ∀ β ∈ s, edgeWeight Y n x β * (((β x : ℝ) + 1) * ((β y : ℝ) + 1)) *
-      ‖f β‖ ^ 2 ≤ ((n : ℝ) + 1) / ((n : ℝ) + 1) ^ k *
+  have hpt : ∀ β ∈ s, w β * (a β * ((β y : ℝ) + 1)) * ‖f β‖ ^ 2 ≤
+      ((n : ℝ) + 1) / ((n : ℝ) + 1) ^ k *
         ((((β x : ℝ) + 1) ^ (2 * k) * ‖f β‖ ^ 2 + ((β y : ℝ) + 1) ^ 2 * ‖f β‖ ^ 2) / 2) := by
     intro β _
-    have h1 := edgeWeight_mul_le Y n k x β
     have hamgm : ((β x : ℝ) + 1) ^ k * ((β y : ℝ) + 1) ≤
         (((β x : ℝ) + 1) ^ (2 * k) + ((β y : ℝ) + 1) ^ 2) / 2 := by
       rw [pow_mul']
       nlinarith [sq_nonneg (((β x : ℝ) + 1) ^ k - ((β y : ℝ) + 1))]
     have hy0 : (0 : ℝ) ≤ ((β y : ℝ) + 1) * ‖f β‖ ^ 2 := by positivity
-    calc edgeWeight Y n x β * (((β x : ℝ) + 1) * ((β y : ℝ) + 1)) * ‖f β‖ ^ 2
-        = (edgeWeight Y n x β * ((β x : ℝ) + 1)) * (((β y : ℝ) + 1) * ‖f β‖ ^ 2) := by ring
+    calc w β * (a β * ((β y : ℝ) + 1)) * ‖f β‖ ^ 2
+        = (w β * a β) * (((β y : ℝ) + 1) * ‖f β‖ ^ 2) := by ring
       _ ≤ (((n : ℝ) + 1) * (((β x : ℝ) + 1) / ((n : ℝ) + 1)) ^ k) *
-          (((β y : ℝ) + 1) * ‖f β‖ ^ 2) := mul_le_mul_of_nonneg_right h1 hy0
+          (((β y : ℝ) + 1) * ‖f β‖ ^ 2) := mul_le_mul_of_nonneg_right (hw β) hy0
       _ = ((n : ℝ) + 1) / ((n : ℝ) + 1) ^ k * ((((β x : ℝ) + 1) ^ k * ((β y : ℝ) + 1)) *
           ‖f β‖ ^ 2) := by rw [div_pow]; field_simp
       _ ≤ _ := mul_le_mul_of_nonneg_left (by nlinarith [sq_nonneg ‖f β‖]) (by positivity)
@@ -589,6 +598,15 @@ lemma sum_edgeWeight_le (Y : Finset L) (n k : ℕ) (x y : L) (s : Finset (Occ L)
   refine mul_le_mul_of_nonneg_left ?_ (by positivity)
   rw [← Finset.sum_div, Finset.sum_add_distrib]
   linarith
+
+omit [DecidableEq L] in
+/-- The weighted sum for the edge weight: on its support `β_x = n`. -/
+lemma sum_edgeWeight_le (Y : Finset L) (n k : ℕ) (x y : L) (s : Finset (Occ L)) (f : Occ L → ℂ)
+    {Mx My : ℝ} (hMx : ∑ β ∈ s, ((β x : ℝ) + 1) ^ (2 * k) * ‖f β‖ ^ 2 ≤ Mx)
+    (hMy : ∑ β ∈ s, ((β y : ℝ) + 1) ^ 2 * ‖f β‖ ^ 2 ≤ My) :
+    ∑ β ∈ s, edgeWeight Y n x β * (((β x : ℝ) + 1) * ((β y : ℝ) + 1)) * ‖f β‖ ^ 2 ≤
+      ((n : ℝ) + 1) / ((n : ℝ) + 1) ^ k * ((Mx + My) / 2) :=
+  sum_weight_mul_le n k x y s f _ _ (edgeWeight_mul_le Y n k x) hMx hMy
 
 /-- **Weighted estimate for the boundary pairing leakage.** For `x ∈ Y`, `y ∉ Y` and a finite
 vector `f` with local moments `Σ_β (β_x + 1)^{2k} |f_β|² ≤ M_x` at `x` and
@@ -999,5 +1017,253 @@ lemma trace_tail_le {ρ : HilbertSp (Occ L) →L[ℂ] HilbertSp (Occ L)} (hρ : 
   exact h
 
 end DensityMatrix
+
+
+/-!
+
+## H. The compressed Hamiltonian
+
+-/
+
+namespace BoseHubbardData
+
+variable (D : BoseHubbardData L)
+
+/-- **The compressed Hamiltonian** `P_{Y,n} H_Λ P_{Y,n}`. It commutes with `P_{Y,n}` and vanishes
+on the range of `1 - P_{Y,n}`, so it is `H_P ⊕ 0` with `H_P` the restriction of `P H_Λ P` to the
+range of the cutoff, and `e^{-it P H P} P = e^{-it H_P} P`. -/
+def cutHam (V : L → ℕ → ℝ) (Λ Y : Finset L) (n : ℕ) : adjointable L :=
+  cutAdj Y n * D.finiteHam V Λ * cutAdj Y n
+
+lemma star_cutHam (V : L → ℕ → ℝ) (Λ Y : Finset L) (n : ℕ) :
+    star (D.cutHam V Λ Y n) = D.cutHam V Λ Y n := by
+  rw [cutHam, star_mul, star_mul, star_cutAdj, D.star_finiteHam, mul_assoc]
+
+lemma matEl_cutHam (V : L → ℕ → ℝ) (Λ Y : Finset L) (n : ℕ) (α β : Occ L) :
+    matEl (D.cutHam V Λ Y n) α β =
+      ((cutWeight Y n α : ℝ) : ℂ) * matEl (D.finiteHam V Λ) α β * ((cutWeight Y n β : ℝ) : ℂ) := by
+  rw [cutHam, cutAdj, matEl_mul_diagAdj, matEl_diagAdj_mul]
+
+/-- The compressed Hamiltonian is dominated entrywise by `H_Λ`. -/
+lemma norm_matEl_cutHam_le (V : L → ℕ → ℝ) (Λ Y : Finset L) (n : ℕ) (α β : Occ L) :
+    ‖matEl (D.cutHam V Λ Y n) α β‖ ≤ ‖matEl (D.finiteHam V Λ) α β‖ := by
+  rw [matEl_cutHam]
+  rcases cutWeight_mem Y n α with ha | ha <;> rcases cutWeight_mem Y n β with hb | hb <;>
+    simp [ha, hb]
+
+/-- **The compressed Hamiltonian is essentially self-adjoint** on the finite vectors, for every
+real on-site potential, every finite region `Y` and every cutoff level `n`. -/
+lemma cutHam_isEssentiallySelfAdjoint (V : L → ℕ → ℝ) (Λ Y : Finset L) (n : ℕ) :
+    (polyOp (D.cutHam V Λ Y n)).IsEssentiallySelfAdjoint :=
+  D.isEssentiallySelfAdjoint_of_dominated V Λ (D.star_cutHam V Λ Y n)
+    (D.norm_matEl_cutHam_le V Λ Y n)
+
+/-- The compressed Hamiltonian commutes with the cutoff. -/
+lemma cutAdj_mul_cutHam (V : L → ℕ → ℝ) (Λ Y : Finset L) (n : ℕ) :
+    cutAdj Y n * D.cutHam V Λ Y n = D.cutHam V Λ Y n ∧
+      D.cutHam V Λ Y n * cutAdj Y n = D.cutHam V Λ Y n := by
+  refine ⟨?_, ?_⟩ <;> rw [cutHam]
+  · rw [← mul_assoc, ← mul_assoc, cutAdj_mul_self]
+  · rw [mul_assoc, cutAdj_mul_self]
+
+end BoseHubbardData
+
+
+/-!
+
+## I. The reverse leakage across the boundary of `Y`
+
+-/
+
+/-- **The reverse leakage** `P_{Y,n} T P_{Y,n}^⊥` of an operator into the range of the cutoff. -/
+def revLeakOp (Y : Finset L) (n : ℕ) (T : adjointable L) : adjointable L :=
+  cutAdj Y n * T * cutComplAdj Y n
+
+/-- The weight of the states that a lowering move at `x` brings back into the cutoff: `n + 1`
+bosons at `x` and at most `n` at the other sites of `Y`. -/
+def revWeight (Y : Finset L) (n : ℕ) (x : L) (β : Occ L) : ℝ :=
+  if (∀ z ∈ Y, z ≠ x → β z ≤ n) ∧ β x = n + 1 then 1 else 0
+
+lemma revWeight_mem (Y : Finset L) (n : ℕ) (x : L) (β : Occ L) :
+    revWeight Y n x β = 0 ∨ revWeight Y n x β = 1 := by
+  unfold revWeight; split_ifs <;> simp
+
+/-- A state `γ` with `γ_z = β_z - [z = x]` on `Y`, `x ∈ Y`, `β_x ≥ 1`: the cutoff weight of `γ`
+times that of the complement of `β` is the reverse weight. -/
+lemma cutWeight_mul_one_sub_lower (Y : Finset L) (n : ℕ) {x : L} (hx : x ∈ Y) {β γ : Occ L}
+    (hβ : 1 ≤ β x) (hγ : ∀ z ∈ Y, γ z = β z - if x = z then 1 else 0) :
+    cutWeight Y n γ * (1 - cutWeight Y n β) = revWeight Y n x β := by
+  unfold cutWeight revWeight
+  by_cases hr : (∀ z ∈ Y, z ≠ x → β z ≤ n) ∧ β x = n + 1
+  · rw [if_pos hr, if_pos, if_neg]
+    · norm_num
+    · intro h; have := h x hx; omega
+    · intro z hz
+      rw [hγ z hz]
+      by_cases hzx : z = x
+      · subst hzx; rw [if_pos rfl]; omega
+      · rw [if_neg (Ne.symm hzx)]; exact hr.1 z hz hzx
+  · rw [if_neg hr]
+    by_cases hc : ∀ z ∈ Y, γ z ≤ n
+    · rw [if_pos hc]
+      have hb : ∀ z ∈ Y, β z ≤ n := by
+        intro z hz
+        have h1 := hc z hz
+        rw [hγ z hz] at h1
+        by_cases hzx : z = x
+        · subst hzx
+          rw [if_pos rfl] at h1
+          by_contra hlt
+          exact hr ⟨fun w hw hwx => by
+            have := hc w hw; rw [hγ w hw, if_neg (Ne.symm hwx)] at this; exact this, by omega⟩
+        · rw [if_neg (Ne.symm hzx)] at h1; exact h1
+      rw [if_pos hb]; norm_num
+    · rw [if_neg hc, zero_mul]
+
+/-- **Pair annihilation back into the cutoff on basis states.** For `x ∈ Y`, `y ∉ Y`,
+`P_{Y,n} a_y a_x P_{Y,n}^⊥ e_β = 1_{β_x = n+1, β - e_x ∈ P_{Y,n}} √β_x √β_y e_{β - e_x - e_y}`. -/
+lemma revLeakOp_pair_single (Y : Finset L) (n : ℕ) {x y : L} (hx : x ∈ Y) (hy : y ∉ Y)
+    (β : Occ L) :
+    (revLeakOp Y n (annOp y * annOp x)).1.1 (single β 1) = single (β - single x 1 - single y 1)
+      (((revWeight Y n x β : ℝ) : ℂ) * (((Real.sqrt (β x : ℝ) : ℝ) : ℂ) *
+        ((Real.sqrt (β y : ℝ) : ℝ) : ℂ))) := by
+  have hxy : x ≠ y := fun e => hy (e ▸ hx)
+  have hby : (β - single x 1 : Occ L) y = β y := by simp [Finsupp.single_apply, hxy]
+  show diagLin _ (ann y (ann x (diagLin (fun α => 1 - cutWeight Y n α) (single β 1)))) = _
+  rw [diagLin_single, mul_one, show (single β ((1 - cutWeight Y n β : ℝ) : ℂ) : Occ L →₀ ℂ) =
+      ((1 - cutWeight Y n β : ℝ) : ℂ) • single β 1 by simp [Finsupp.smul_single], map_smul,
+    map_smul, ann_single, ann_single, map_smul, diagLin_single, Finsupp.smul_single, smul_eq_mul,
+    hby]
+  rcases Nat.eq_zero_or_pos (β x) with h0 | hpos
+  · simp [h0]
+  rcases Nat.eq_zero_or_pos (β y) with h0 | _
+  · simp [h0]
+  rw [← cutWeight_mul_one_sub_lower Y n hx hpos (γ := β - single x 1 - single y 1) fun z hz => by
+    simp [Finsupp.single_apply, show y ≠ z from fun e => hy (e ▸ hz)]]
+  congr 1
+  push_cast
+  ring
+
+/-- **Hopping out of `Y` back into the cutoff on basis states.** For `x ∈ Y`, `y ∉ Y`,
+`P_{Y,n} a_y† a_x P_{Y,n}^⊥ e_β = 1_{β_x = n+1, β - e_x ∈ P_{Y,n}} √β_x √(β_y+1) e_{β-e_x+e_y}`. -/
+lemma revLeakOp_hop_single (Y : Finset L) (n : ℕ) {x y : L} (hx : x ∈ Y) (hy : y ∉ Y)
+    (β : Occ L) :
+    (revLeakOp Y n (creOp y * annOp x)).1.1 (single β 1) = single (β - single x 1 + single y 1)
+      (((revWeight Y n x β : ℝ) : ℂ) * (((Real.sqrt (β x : ℝ) : ℝ) : ℂ) *
+        ((Real.sqrt ((β y : ℝ) + 1) : ℝ) : ℂ))) := by
+  have hxy : x ≠ y := fun e => hy (e ▸ hx)
+  have hby : (β - single x 1 : Occ L) y = β y := by simp [Finsupp.single_apply, hxy]
+  show diagLin _ (cre y (ann x (diagLin (fun α => 1 - cutWeight Y n α) (single β 1)))) = _
+  rw [diagLin_single, mul_one, show (single β ((1 - cutWeight Y n β : ℝ) : ℂ) : Occ L →₀ ℂ) =
+      ((1 - cutWeight Y n β : ℝ) : ℂ) • single β 1 by simp [Finsupp.smul_single], map_smul,
+    map_smul, ann_single, cre_single, map_smul, diagLin_single, Finsupp.smul_single, smul_eq_mul,
+    hby]
+  rcases Nat.eq_zero_or_pos (β x) with h0 | hpos
+  · simp [h0]
+  rw [← cutWeight_mul_one_sub_lower Y n hx hpos (γ := β - single x 1 + single y 1) fun z hz => by
+    simp [Finsupp.single_apply, show y ≠ z from fun e => hy (e ▸ hz)]]
+  congr 1
+  push_cast
+  ring
+
+section Apply
+
+variable {B : Type*} [DecidableEq B]
+
+/-- An operator acting on basis states by `e_β ↦ w(β) e_{τ(β)}`, applied to a finite vector. -/
+lemma apply_eq_sum_single (T : Adjointable B) (τ : B → B) (w : B → ℂ)
+    (hT : ∀ β, T.1.1 (single β 1) = single (τ β) (w β)) (f : B →₀ ℂ) :
+    T.1.1 f = ∑ β ∈ f.support, single (τ β) (f β * w β) := by
+  conv_lhs => rw [← Finsupp.sum_single f]
+  rw [Finsupp.sum, map_sum]
+  refine Finset.sum_congr rfl fun β _ => ?_
+  rw [show (single β (f β) : B →₀ ℂ) = f β • single β 1 by simp [Finsupp.smul_single],
+    map_smul, hT, Finsupp.smul_single, smul_eq_mul]
+
+/-- **The square norm of such an operator applied to a finite vector**, if `τ` is injective on the
+states with `w(β) ≠ 0`. -/
+lemma norm_apply_sq_eq (T : Adjointable B) (τ : B → B) (w : B → ℂ)
+    (hT : ∀ β, T.1.1 (single β 1) = single (τ β) (w β))
+    (hτ : ∀ a b, w a ≠ 0 → w b ≠ 0 → τ a = τ b → a = b) (f : B →₀ ℂ) :
+    ‖embed (T.1.1 f)‖ ^ 2 = ∑ β ∈ f.support, ‖w β‖ ^ 2 * ‖f β‖ ^ 2 := by
+  classical
+  rw [apply_eq_sum_single T τ w hT, ← Finset.sum_filter_of_ne (p := fun β => w β ≠ 0)
+      (fun β _ hne h0 => hne (by simp [h0])),
+    norm_embed_sum_single_sq _ _ (fun a ha b hb => hτ a b (Finset.mem_filter.mp ha).2
+      (Finset.mem_filter.mp hb).2), ← Finset.sum_filter_of_ne (s := f.support)
+      (p := fun β => w β ≠ 0) (fun β _ hne h0 => hne (by simp [h0]))]
+  exact Finset.sum_congr rfl fun β _ => by rw [norm_mul, mul_pow, mul_comm]
+
+end Apply
+
+/-- On the support of the reverse weight `β_x = n + 1`. -/
+lemma revWeight_mul_le (Y : Finset L) (n k : ℕ) (x : L) (β : Occ L) :
+    revWeight Y n x β * (β x : ℝ) ≤ ((n : ℝ) + 1) * (((β x : ℝ) + 1) / ((n : ℝ) + 1)) ^ k := by
+  unfold revWeight
+  split_ifs with h
+  · rw [one_mul, h.2]
+    push_cast
+    have : (1 : ℝ) ≤ (((n : ℝ) + 1 + 1) / ((n : ℝ) + 1)) ^ k :=
+      one_le_pow₀ (by rw [le_div_iff₀ (by positivity)]; linarith)
+    nlinarith
+  · rw [zero_mul]; positivity
+
+lemma revWeight_nonneg (Y : Finset L) (n : ℕ) (x : L) (β : Occ L) : 0 ≤ revWeight Y n x β := by
+  rcases revWeight_mem Y n x β with h | h <;> rw [h] <;> norm_num
+
+/-- **Weighted estimate for pair annihilation back into the cutoff.** For `x ∈ Y`, `y ∉ Y` and
+every finite vector `g` with local moments of order `2k` at `x` and `2` at `y`,
+`‖P_{Y,n} a_y a_x P_{Y,n}^⊥ g‖² ≤ (n + 1)^{1-k} (M_x + M_y) / 2`. -/
+lemma norm_revLeakOp_pair_sq_le (Y : Finset L) (n k : ℕ) {x y : L} (hx : x ∈ Y) (hy : y ∉ Y)
+    (g : Occ L →₀ ℂ) {Mx My : ℝ}
+    (hMx : ∑ β ∈ g.support, ((β x : ℝ) + 1) ^ (2 * k) * ‖g β‖ ^ 2 ≤ Mx)
+    (hMy : ∑ β ∈ g.support, ((β y : ℝ) + 1) ^ 2 * ‖g β‖ ^ 2 ≤ My) :
+    ‖embed ((revLeakOp Y n (annOp y * annOp x)).1.1 g)‖ ^ 2 ≤
+      ((n : ℝ) + 1) / ((n : ℝ) + 1) ^ k * ((Mx + My) / 2) := by
+  rw [norm_apply_sq_eq _ _ _ (revLeakOp_pair_single Y n hx hy) (fun a b ha hb h => ?_)]
+  · refine (Finset.sum_le_sum fun β _ => ?_).trans (sum_weight_mul_le n k x y g.support g
+      (revWeight Y n x) (fun β => (β x : ℝ)) (revWeight_mul_le Y n k x) hMx hMy)
+    rw [norm_mul, norm_mul, Complex.norm_real, Complex.norm_real, Complex.norm_real,
+      Real.norm_eq_abs, Real.norm_eq_abs, Real.norm_eq_abs, abs_of_nonneg (Real.sqrt_nonneg _),
+      abs_of_nonneg (Real.sqrt_nonneg _), mul_pow, mul_pow, Real.sq_sqrt (by positivity),
+      Real.sq_sqrt (by positivity), sq_abs]
+    rcases revWeight_mem Y n x β with h | h <;> rw [h]
+    · simp
+    · nlinarith [sq_nonneg ‖g β‖, (Nat.cast_nonneg (β x) : (0 : ℝ) ≤ β x)]
+  · have h1 : single x 1 ≤ a := (single_le_iff' x a).mpr (Nat.one_le_iff_ne_zero.mpr fun h0 =>
+      ha (by simp [h0]))
+    have h2 : single x 1 ≤ b := (single_le_iff' x b).mpr (Nat.one_le_iff_ne_zero.mpr fun h0 =>
+      hb (by simp [h0]))
+    have hxy : x ≠ y := fun e => hy (e ▸ hx)
+    have hay : a y ≠ 0 := fun h0 => ha (by simp [h0])
+    have hby : b y ≠ 0 := fun h0 => hb (by simp [h0])
+    have h3 : single y 1 ≤ a - single x 1 := (single_le_iff' y _).mpr (by
+      simp only [Finsupp.tsub_apply, Finsupp.single_apply, if_neg hxy]; omega)
+    have h4 : single y 1 ≤ b - single x 1 := (single_le_iff' y _).mpr (by
+      simp only [Finsupp.tsub_apply, Finsupp.single_apply, if_neg hxy]; omega)
+    exact (tsub_left_inj h1 h2).mp ((tsub_left_inj h3 h4).mp h)
+
+/-- **Weighted estimate for hopping out of `Y` back into the cutoff.** For `x ∈ Y`, `y ∉ Y` and
+every finite vector `g` with local moments of order `2k` at `x` and `2` at `y`,
+`‖P_{Y,n} a_y† a_x P_{Y,n}^⊥ g‖² ≤ (n + 1)^{1-k} (M_x + M_y) / 2`. -/
+lemma norm_revLeakOp_hop_sq_le (Y : Finset L) (n k : ℕ) {x y : L} (hx : x ∈ Y) (hy : y ∉ Y)
+    (g : Occ L →₀ ℂ) {Mx My : ℝ}
+    (hMx : ∑ β ∈ g.support, ((β x : ℝ) + 1) ^ (2 * k) * ‖g β‖ ^ 2 ≤ Mx)
+    (hMy : ∑ β ∈ g.support, ((β y : ℝ) + 1) ^ 2 * ‖g β‖ ^ 2 ≤ My) :
+    ‖embed ((revLeakOp Y n (creOp y * annOp x)).1.1 g)‖ ^ 2 ≤
+      ((n : ℝ) + 1) / ((n : ℝ) + 1) ^ k * ((Mx + My) / 2) := by
+  rw [norm_apply_sq_eq _ _ _ (revLeakOp_hop_single Y n hx hy) (fun a b ha hb h => ?_)]
+  · refine (Finset.sum_le_sum fun β _ => ?_).trans (sum_weight_mul_le n k x y g.support g
+      (revWeight Y n x) (fun β => (β x : ℝ)) (revWeight_mul_le Y n k x) hMx hMy)
+    rw [norm_mul, norm_mul, Complex.norm_real, Complex.norm_real, Complex.norm_real,
+      Real.norm_eq_abs, Real.norm_eq_abs, Real.norm_eq_abs, abs_of_nonneg (Real.sqrt_nonneg _),
+      abs_of_nonneg (Real.sqrt_nonneg _), mul_pow, mul_pow, Real.sq_sqrt (by positivity),
+      Real.sq_sqrt (by positivity), sq_abs]
+    rcases revWeight_mem Y n x β with h | h <;> rw [h] <;> ring_nf <;> simp
+  · have h1 : single x 1 ≤ a := (single_le_iff' x a).mpr (Nat.one_le_iff_ne_zero.mpr fun h0 =>
+      ha (by simp [h0]))
+    have h2 : single x 1 ≤ b := (single_le_iff' x b).mpr (Nat.one_le_iff_ne_zero.mpr fun h0 =>
+      hb (by simp [h0]))
+    exact (tsub_left_inj h1 h2).mp (add_right_cancel h)
 
 end InfiniteBosons

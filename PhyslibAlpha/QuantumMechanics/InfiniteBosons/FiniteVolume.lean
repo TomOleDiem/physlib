@@ -29,6 +29,8 @@ row in the occupation basis.
 - `InfiniteBosons.diagAdj`: the diagonal operator with real eigenvalues.
 - `InfiniteBosons.BoseHubbardData.finiteHam`: the finite-volume Hamiltonian.
 - `InfiniteBosons.row_eq_of_orth`: orthogonality to the range of `H + i c` as a row equation.
+- `InfiniteBosons.BoseHubbardData.isEssentiallySelfAdjoint_of_dominated`: every symmetric operator
+  dominated entrywise by `H_Λ` is essentially self-adjoint.
 
 ## iii. Table of contents
 
@@ -591,22 +593,31 @@ lemma mem_gradeLe_of_matEl_ne (V : L → ℕ → ℝ) (Λ : Finset L) {a b : Occ
   refine subset_gradeLe (S := fibreGrade Λ a) (n := occIn Λ b / 2) (by omega)
     (mem_fibreGrade.mpr ⟨fun z hz => (hout z hz).symm, rfl⟩)
 
-/-- **Orthogonality to the range of `H_Λ + i c` forces the vector to vanish.** -/
-lemma eq_zero_of_orth (V : L → ℕ → ℝ) (Λ : Finset L) {c : ℝ} (hc : c ≠ 0)
-    (g : HilbertSp (Occ L))
-    (hg : ∀ α, inner ℂ g (shiftMap (D.finiteHam V Λ).1.1 c (single α 1)) = 0) (a0 : Occ L) :
+/-- A nonzero matrix element of an operator dominated by `H_Λ` is a nonzero element of `H_Λ`. -/
+lemma matEl_ne_of_dominated (V : L → ℕ → ℝ) (Λ : Finset L) {H : adjointable L}
+    (hle : ∀ a b, ‖matEl H a b‖ ≤ ‖matEl (D.finiteHam V Λ) a b‖) {a b : Occ L}
+    (h : matEl H a b ≠ 0) : matEl (D.finiteHam V Λ) a b ≠ 0 := fun h0 =>
+  h (norm_eq_zero.mp (le_antisymm ((hle a b).trans (by rw [h0, norm_zero])) (norm_nonneg _)))
+
+/-- **Orthogonality to the range of `H + i c` forces the vector to vanish**, for every symmetric `H`
+whose matrix elements are dominated by those of `H_Λ`, in particular for `H_Λ` itself and for its
+compressions by diagonal projections. -/
+lemma eq_zero_of_orth_of_dominated (V : L → ℕ → ℝ) (Λ : Finset L) {H : adjointable L}
+    (hH : star H = H) (hle : ∀ a b, ‖matEl H a b‖ ≤ ‖matEl (D.finiteHam V Λ) a b‖) {c : ℝ}
+    (hc : c ≠ 0) (g : HilbertSp (Occ L))
+    (hg : ∀ α, inner ℂ g (shiftMap H.1.1 c (single α 1)) = 0) (a0 : Occ L) :
     g a0 = 0 := by
   classical
-  set H := D.finiteHam V Λ
-  have hH : star H = H := D.star_finiteHam V Λ
   set fib : Occ L → Prop := fun a => ∀ z ∉ Λ, a z = a0 z
   set g' : Occ L → ℂ := fun a => if fib a then g a else 0
   have hrowEq := row_eq_of_orth H hH c g hg
   have key := blockJacobi_no_l2_solution (gr := fun a => occIn Λ a / 2) (S := fibreGrade Λ a0)
     (fun a n ha => (mem_fibreGrade.mp ha).2) (matEl H) (fun a b => matEl_conj H hH a b)
-    (fun a b h => by have := (D.finiteHam_matEl_ne V Λ h).1; omega) (D.blockBound Λ)
-    (D.blockBound_pos Λ) (fun n a ha => D.rowSum_le V Λ a0 n ha)
-    (fun n b hb => D.colSum_le V Λ a0 n hb)
+    (fun a b h => by
+      have := (D.finiteHam_matEl_ne V Λ (D.matEl_ne_of_dominated V Λ hle h)).1; omega)
+    (D.blockBound Λ) (D.blockBound_pos Λ)
+    (fun n a ha => (Finset.sum_le_sum fun b _ => hle a b).trans (D.rowSum_le V Λ a0 n ha))
+    (fun n b hb => (Finset.sum_le_sum fun a _ => hle a b).trans (D.colSum_le V Λ a0 n hb))
     (by simpa [blockBound, mul_comm] using (not_summable_inv_linear
       (C := ∑ p ∈ Λ ×ˢ Λ, ‖D.Δ p.1 p.2‖ + 1) (by positivity))) hc g' ?_ ?_ ?_ a0
   · simpa [g', fib] using key
@@ -634,7 +645,7 @@ lemma eq_zero_of_orth (V : L → ℕ → ℝ) (Λ : Finset L) {c : ℝ} (hc : c 
         apply Finsupp.mem_support_iff.mp hb
         show matEl H b a = 0
         rw [matEl_conj H hH, h0, map_zero]
-      rw [← hfib]; exact D.mem_gradeLe_of_matEl_ne V Λ hne
+      rw [← hfib]; exact D.mem_gradeLe_of_matEl_ne V Λ (D.matEl_ne_of_dominated V Λ hle hne)
     rw [show g' a = g a by simp [g', hfa], ← hrowEq a]
     refine (Finset.sum_congr rfl fun b hb => ?_).trans
       (Finset.sum_subset hsub fun b _ hb => ?_).symm
@@ -646,12 +657,34 @@ lemma eq_zero_of_orth (V : L → ℕ → ℝ) (Λ : Finset L) {c : ℝ} (hc : c 
       rw [matEl_conj H hH] at this
       rw [(map_eq_zero _).mp this, zero_mul]
 
+/-- **Orthogonality to the range of `H_Λ + i c` forces the vector to vanish.** -/
+lemma eq_zero_of_orth (V : L → ℕ → ℝ) (Λ : Finset L) {c : ℝ} (hc : c ≠ 0)
+    (g : HilbertSp (Occ L))
+    (hg : ∀ α, inner ℂ g (shiftMap (D.finiteHam V Λ).1.1 c (single α 1)) = 0) (a0 : Occ L) :
+    g a0 = 0 :=
+  D.eq_zero_of_orth_of_dominated V Λ (D.star_finiteHam V Λ) (fun _ _ => le_rfl) hc g hg a0
+
+/-- The range of `H + i c` is dense for a symmetric `H` dominated by `H_Λ`. -/
+lemma dense_range_of_dominated (V : L → ℕ → ℝ) (Λ : Finset L) {H : adjointable L}
+    (hH : star H = H) (hle : ∀ a b, ‖matEl H a b‖ ≤ ‖matEl (D.finiteHam V Λ) a b‖) {c : ℝ}
+    (hc : c ≠ 0) :
+    Dense (LinearMap.range (shiftMap H.1.1 c) : Set (HilbertSp (Occ L))) := by
+  refine dense_of_orth _ fun g hg => lp.ext (funext fun a0 => ?_)
+  rw [D.eq_zero_of_orth_of_dominated V Λ hH hle hc g (fun α => hg _ ⟨single α 1, rfl⟩) a0]
+  rfl
+
 /-- The range of `H_Λ + i c` is dense. -/
 lemma finiteHam_dense_range (V : L → ℕ → ℝ) (Λ : Finset L) {c : ℝ} (hc : c ≠ 0) :
-    Dense (LinearMap.range (shiftMap (D.finiteHam V Λ).1.1 c) : Set (HilbertSp (Occ L))) := by
-  refine dense_of_orth _ fun g hg => lp.ext (funext fun a0 => ?_)
-  rw [D.eq_zero_of_orth V Λ hc g (fun α => hg _ ⟨single α 1, rfl⟩) a0]
-  rfl
+    Dense (LinearMap.range (shiftMap (D.finiteHam V Λ).1.1 c) : Set (HilbertSp (Occ L))) :=
+  D.dense_range_of_dominated V Λ (D.star_finiteHam V Λ) (fun _ _ => le_rfl) hc
+
+/-- **Every symmetric operator dominated by `H_Λ` entrywise is essentially self-adjoint** on the
+finite vectors. -/
+lemma isEssentiallySelfAdjoint_of_dominated (V : L → ℕ → ℝ) (Λ : Finset L) {H : adjointable L}
+    (hH : star H = H) (hle : ∀ a b, ‖matEl H a b‖ ≤ ‖matEl (D.finiteHam V Λ) a b‖) :
+    (polyOp H).IsEssentiallySelfAdjoint :=
+  polyOp_isEssentiallySelfAdjoint _ hH (D.dense_range_of_dominated V Λ hH hle one_ne_zero)
+    (D.dense_range_of_dominated V Λ hH hle (by norm_num))
 
 /-- **The finite-volume Bose-Hubbard Hamiltonian with pairing is essentially self-adjoint** on the
 finite vectors, for an arbitrary real on-site potential `V`. No sign or growth condition on `V` is

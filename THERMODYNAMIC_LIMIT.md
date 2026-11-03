@@ -221,16 +221,31 @@ All in `LocalCutoff.lean`; each depends only on `propext`, `Classical.choice`, `
 - Left for T2.2: moments under the cutoff dynamics, the Duhamel comparison, observables of finite
   occupation transfer.
 
-### T2.2 plan (review, 2026-11-03)
+### T2.2 plan (decision, 2026-11-03)
 
-1. Hopping boundary estimate: done in T2.1 (`norm_leakOp_hop_sq_le`).
-2. Moments under the localized cutoff dynamics `Ũ_s`, uniformly in `Λ` and in `n`, including the
-   sites just outside `Y`: `sup_{x ∈ Y ∪ ∂Y} ⟨f_s, (N_x+1)^p f_s⟩ ≤ C_{p,T} M`. This is the critical
-   new lemma: T1 covers the true dynamics only. Generator to be fixed first (below).
-3. Duhamel comparison in the state-dependent topology, for finite-volume density matrices with the
-   moment assumptions; no arbitrary bounded test operator `B` yet.
-4. Observables of finite occupation transfer and their weighted estimates.
-5. Only then: spatial locality, truncated Lieb-Robinson bound, `n = R^α`.
+Primary construction: the compression `H_P = P H_Λ P` on `ran P` (`P = P_{Y,n}`), realized on the
+full space as `cutHam = P H_Λ P = H_P ⊕ 0`; then `e^{-it cutHam} P = e^{-it H_P} P`. No
+self-adjointness of a `Q H Q` block is needed. Following DLL Lemma 4.11, the comparison uses T1
+moment propagation for the true dynamics; Cauchy-Schwarz puts the leakage on a truly evolved
+state, which needs the reverse leakage `P H Q g` (pair annihilation and hopping out of `Y` from
+`N_x = n + 1`). Moment propagation under `H_P` only if the comparison needs it; if so, the
+compression of the T1 commutator bound, `±i[H_P, F_x] ≤ C_p Σ_{y ∈ {x} ∪ N(x)} P F_y P` (all `F_y`
+diagonal), is the route. For spatial locality later: nested `X ⊂ Z ⊂ Y ⊂ Λ` with a buffer (DLL
+Lemma 4.12).
+
+1. Self-adjoint realization of `H_P`, arbitrary on-site potential: done.
+   `isEssentiallySelfAdjoint_of_dominated` (FiniteVolume): any symmetric operator dominated
+   entrywise by `H_Λ` is essentially self-adjoint (the T0 block-Jacobi argument, reused).
+   `cutHam_isEssentiallySelfAdjoint`, `cutAdj_mul_cutHam` (LocalCutoff).
+2. Reverse leakage: done for the boundary. `revLeakOp Y n T = P T Q`. Exact:
+   `revLeakOp_pair_single` (`P a_y a_x Q e_β = 1_{β_x = n+1, β - e_x ∈ P} √β_x √β_y e_{β-e_x-e_y}`),
+   `revLeakOp_hop_single` (`a_y† a_x`, amplitude `√β_x √(β_y+1)`). Weighted:
+   `norm_revLeakOp_pair_sq_le`, `norm_revLeakOp_hop_sq_le`, both
+   `≤ (n+1)^{1-k} (M_x + M_y)/2` with moments of order `2k` at `x ∈ Y` and `2` at `y ∉ Y`, for an
+   arbitrary finite vector `g`. Inside `Y` the reverse leakage is bounded (amplitudes `O(n)`).
+3. State-dependent Duhamel comparison with T1 moment propagation: next.
+4. Modified moment propagation: only if 3 requires it.
+5. Observables of finite occupation transfer, then spatial locality with a buffer.
 
 ## Where Deuchert-Lampart-Lemm use number conservation
 
