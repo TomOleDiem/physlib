@@ -62,6 +62,7 @@ variable {B : Type*} [DecidableEq B]
 def diagLin (c : B → ℝ) : (B →₀ ℂ) →ₗ[ℂ] (B →₀ ℂ) :=
   Finsupp.lsum ℂ fun α => ((c α : ℝ) : ℂ) • Finsupp.lsingle α
 
+omit [DecidableEq B] in
 lemma diagLin_single (c : B → ℝ) (α : B) (z : ℂ) :
     diagLin c (single α z) = single α (((c α : ℝ) : ℂ) * z) := by
   simp [diagLin, Finsupp.lsum_single, Finsupp.smul_single]
@@ -160,7 +161,7 @@ lemma row_eq_of_orth (p : Adjointable B) (hp : star p = p) (c : ℝ) (g : Hilber
     simp only [shiftMap, LinearMap.comp_apply, LinearMap.add_apply, LinearMap.smul_apply,
       LinearMap.id_apply, map_add, map_smul]
   rw [e, inner_add_right, inner_smul_right, inner_embed_right, inner_embed_right,
-    Finsupp.support_single_ne_zero _ one_ne_zero, Finset.sum_singleton,
+    Finsupp.support_single _ one_ne_zero, Finset.sum_singleton,
     Finsupp.single_eq_same, mul_one] at hα
   have hc := congrArg (starRingEnd ℂ) hα
   simp only [map_add, map_sum, map_mul, Complex.conj_conj, map_zero, Complex.conj_I,
@@ -186,11 +187,13 @@ variable {L : Type*} [DecidableEq L]
 /-- The number of bosons in the region `Λ`. -/
 def occIn (Λ : Finset L) (a : Occ L) : ℕ := ∑ x ∈ Λ, a x
 
+omit [DecidableEq L] in
 lemma occIn_add (Λ : Finset L) (a b : Occ L) : occIn Λ (a + b) = occIn Λ a + occIn Λ b := by
   simp [occIn, Finset.sum_add_distrib]
 
+omit [DecidableEq L] in
 lemma occIn_single (Λ : Finset L) {u : L} (hu : u ∈ Λ) : occIn Λ (single u 1) = 1 := by
-  rw [occIn, Finset.sum_eq_single u (fun x _ hx => by simp [Finsupp.single_apply, Ne.symm hx])
+  rw [occIn, Finset.sum_eq_single u (fun x _ hx => by simp [Ne.symm hx])
     (fun h => absurd hu h)]
   simp
 
@@ -210,10 +213,9 @@ lemma cre_ann_apply_ne {Λ : Finset L} {u v : L} (hu : u ∈ Λ) (hv : v ∈ Λ)
     rw [occIn_add, occIn_single Λ hu]
     omega
   · intro z hz
-    have := congrArg (· z) e
     have hu' : u ≠ z := fun h => hz (h ▸ hu)
     have hv' : v ≠ z := fun h => hz (h ▸ hv)
-    simpa [Finsupp.single_apply, hu', hv'] using this
+    simp [hu', hv']
 
 /-- Pair creation inside the region adds two bosons and leaves the outside unchanged. -/
 lemma cre_cre_apply_ne {Λ : Finset L} {u v : L} (hu : u ∈ Λ) (hv : v ∈ Λ) {a b : Occ L}
@@ -243,10 +245,9 @@ lemma ann_ann_apply_ne {Λ : Finset L} {u v : L} (hu : u ∈ Λ) (hv : v ∈ Λ)
     rw [occIn_add, occIn_add, occIn_single Λ hu, occIn_single Λ hv] at this
     omega
   · intro z hz
-    have := congrArg (· z) e
     have hu' : u ≠ z := fun h => hz (h ▸ hu)
     have hv' : v ≠ z := fun h => hz (h ▸ hv)
-    simpa [Finsupp.single_apply, hu', hv'] using this
+    simp [hu', hv']
 
 end Occupation
 
@@ -347,6 +348,7 @@ lemma ann_ann_single_apply (u v : L) (b a : Occ L) :
       else 0 := by
   rw [ann_single, ann_single, Finsupp.single_apply]
 
+omit [DecidableEq L] in
 lemma le_occIn {Λ : Finset L} {z : L} (hz : z ∈ Λ) (b : Occ L) : b z ≤ occIn Λ b :=
   Finset.single_le_sum (f := fun x => b x) (fun _ _ => Nat.zero_le _) hz
 
@@ -425,6 +427,147 @@ lemma norm_matEl_finiteHam_le (V : L → ℕ → ℝ) (Λ : Finset L) {a b : Occ
   refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun p hp => ?_)
   obtain ⟨hx, hy⟩ := Finset.mem_product.mp hp
   exact D.matEl_bondTerm_of_occ hx hy hocc
+
+end BoseHubbardData
+
+
+/-!
+
+## G. Essential self-adjointness
+
+-/
+
+section Fibres
+
+variable {L : Type*} [DecidableEq L]
+
+/-- The state equal to `ρ` outside `Λ` and to `φ` on `Λ`. -/
+def fillIn (Λ : Finset L) (ρ : Occ L) (φ : Λ → ℕ) : Occ L :=
+  Finsupp.filter (· ∉ Λ) ρ + ∑ x : Λ, single x.1 (φ x)
+
+lemma fillIn_apply_mem (Λ : Finset L) (ρ : Occ L) (φ : Λ → ℕ) {z : L} (hz : z ∈ Λ) :
+    fillIn Λ ρ φ z = φ ⟨z, hz⟩ := by
+  rw [fillIn, Finsupp.add_apply, Finsupp.filter_apply, if_neg (not_not.mpr hz), zero_add,
+    Finsupp.finsetSum_apply, Finset.sum_eq_single ⟨z, hz⟩]
+  · simp
+  · intro x _ hx
+    rw [Finsupp.single_apply, if_neg (fun h => hx (Subtype.ext h))]
+  · simp
+
+lemma fillIn_apply_not_mem (Λ : Finset L) (ρ : Occ L) (φ : Λ → ℕ) {z : L} (hz : z ∉ Λ) :
+    fillIn Λ ρ φ z = ρ z := by
+  rw [fillIn, Finsupp.add_apply, Finsupp.filter_apply, if_pos hz, Finsupp.finsetSum_apply,
+    Finset.sum_eq_zero fun x _ => ?_, add_zero]
+  rw [Finsupp.single_apply, if_neg (fun h : (x : L) = z => hz (h ▸ x.2))]
+
+/-- The states agreeing with `ρ` outside `Λ` with `⌊N_Λ / 2⌋ = n` form a finite set. -/
+lemma finite_fibreGrade (Λ : Finset L) (ρ : Occ L) (n : ℕ) :
+    {a : Occ L | (∀ z ∉ Λ, a z = ρ z) ∧ occIn Λ a / 2 = n}.Finite := by
+  refine (Set.finite_range (fun φ : Λ → Fin (2 * n + 2) => fillIn Λ ρ (fun x => (φ x : ℕ)))).subset
+    fun a ⟨hout, hn⟩ => ?_
+  have hle : ∀ x : Λ, a x.1 < 2 * n + 2 := fun x => by
+    have := le_occIn x.2 a; omega
+  refine ⟨fun x => ⟨a x.1, hle x⟩, Finsupp.ext fun z => ?_⟩
+  by_cases hz : z ∈ Λ
+  · rw [fillIn_apply_mem _ _ _ hz]
+  · rw [fillIn_apply_not_mem _ _ _ hz, hout z hz]
+
+/-- The states of grade `n` in the fibre of `ρ`. -/
+def fibreGrade (Λ : Finset L) (ρ : Occ L) (n : ℕ) : Finset (Occ L) :=
+  (finite_fibreGrade Λ ρ n).toFinset
+
+lemma mem_fibreGrade {Λ : Finset L} {ρ a : Occ L} {n : ℕ} :
+    a ∈ fibreGrade Λ ρ n ↔ (∀ z ∉ Λ, a z = ρ z) ∧ occIn Λ a / 2 = n := by
+  simp [fibreGrade]
+
+/-- A sum with at most one nonzero nonnegative term is bounded by that term. -/
+lemma sum_le_of_eq_zero {β : Type*} (s : Finset β) (f : β → ℝ) (hf : ∀ x, 0 ≤ f x) (x0 : β)
+    (h : ∀ x ∈ s, x ≠ x0 → f x = 0) : ∑ x ∈ s, f x ≤ f x0 := by
+  classical
+  by_cases hx0 : x0 ∈ s
+  · rw [Finset.sum_eq_single_of_mem x0 hx0 h]
+  · rw [Finset.sum_eq_zero fun x hx => h x hx fun e => hx0 (e ▸ hx)]; exact hf x0
+
+/-- The harmonic-type series `Σ 1 / (C (2 n + 3))` diverges. -/
+lemma not_summable_inv_linear {C : ℝ} (hC : 0 < C) :
+    ¬ Summable fun n : ℕ => 1 / (C * (2 * n + 3)) := by
+  intro hs
+  apply Real.not_summable_one_div_natCast
+  rw [← summable_nat_add_iff 1]
+  refine Summable.of_nonneg_of_le (fun n => by positivity) (fun n => ?_) (hs.mul_left (3 * C))
+  push_cast
+  rw [div_le_iff₀ (by positivity)]
+  field_simp
+  nlinarith
+
+end Fibres
+
+namespace BoseHubbardData
+
+variable (D : BoseHubbardData L)
+
+/-- The bound on the blocks between grades `n` and `n + 1`. -/
+def blockBound (Λ : Finset L) (n : ℕ) : ℝ :=
+  (∑ p ∈ Λ ×ˢ Λ, ‖D.Δ p.1 p.2‖ + 1) * (2 * n + 3)
+
+omit [DecidableEq L] in
+lemma blockBound_pos (Λ : Finset L) (n : ℕ) : 0 < D.blockBound Λ n := by
+  unfold blockBound; positivity
+
+omit [DecidableEq L] in
+lemma sum_Δ_le (Λ : Finset L) (n : ℕ) (f : L × L → ℝ)
+    (hf : ∀ p ∈ Λ ×ˢ Λ, f p ≤ 2 * n + 3) :
+    ∑ p ∈ Λ ×ˢ Λ, ‖D.Δ p.1 p.2‖ * f p ≤ D.blockBound Λ n := by
+  unfold blockBound
+  calc ∑ p ∈ Λ ×ˢ Λ, ‖D.Δ p.1 p.2‖ * f p ≤ ∑ p ∈ Λ ×ˢ Λ, ‖D.Δ p.1 p.2‖ * (2 * n + 3) :=
+        Finset.sum_le_sum fun p hp => mul_le_mul_of_nonneg_left (hf p hp) (norm_nonneg _)
+    _ ≤ _ := by rw [← Finset.sum_mul]; nlinarith [Finset.sum_nonneg fun p (_ : p ∈ Λ ×ˢ Λ) =>
+        norm_nonneg (D.Δ p.1 p.2)]
+
+/-- Row sums of the block from grade `n` to grade `n + 1`. -/
+lemma rowSum_le (V : L → ℕ → ℝ) (Λ : Finset L) (ρ : Occ L) (n : ℕ) {a : Occ L}
+    (ha : a ∈ fibreGrade Λ ρ n) :
+    ∑ b ∈ fibreGrade Λ ρ (n + 1), ‖matEl (D.finiteHam V Λ) a b‖ ≤ D.blockBound Λ n := by
+  have hga := (mem_fibreGrade.mp ha).2
+  calc _ ≤ ∑ b ∈ fibreGrade Λ ρ (n + 1),
+        ∑ p ∈ Λ ×ˢ Λ, ‖D.Δ p.1 p.2‖ * ‖ann p.2 (ann p.1 (single b (1 : ℂ))) a‖ :=
+        Finset.sum_le_sum fun b hb => D.norm_matEl_finiteHam_le V Λ (by
+          rw [(mem_fibreGrade.mp hb).2, hga])
+    _ = ∑ p ∈ Λ ×ˢ Λ, ‖D.Δ p.1 p.2‖ *
+        ∑ b ∈ fibreGrade Λ ρ (n + 1), ‖ann p.2 (ann p.1 (single b (1 : ℂ))) a‖ := by
+        rw [Finset.sum_comm]; simp only [Finset.mul_sum]
+    _ ≤ _ := D.sum_Δ_le Λ n _ fun p hp => by
+        obtain ⟨hx, hy⟩ := Finset.mem_product.mp hp
+        refine (sum_le_of_eq_zero _ _ (fun _ => norm_nonneg _) (a + single p.2 1 + single p.1 1)
+          fun b _ hb => ?_).trans ?_
+        · by_contra h
+          exact hb (eq_add_of_ann_ann_ne (norm_ne_zero_iff.mp h))
+        · refine (norm_ann_ann_le hx hy _ _).trans ?_
+          rw [occIn_add, occIn_add, occIn_single Λ hy, occIn_single Λ hx]
+          push_cast
+          have : (occIn Λ a : ℝ) ≤ 2 * n + 1 := by exact_mod_cast (show occIn Λ a ≤ 2 * n + 1 by omega)
+          linarith
+
+/-- Column sums of the block from grade `n` to grade `n + 1`. -/
+lemma colSum_le (V : L → ℕ → ℝ) (Λ : Finset L) (ρ : Occ L) (n : ℕ) {b : Occ L}
+    (hb : b ∈ fibreGrade Λ ρ (n + 1)) :
+    ∑ a ∈ fibreGrade Λ ρ n, ‖matEl (D.finiteHam V Λ) a b‖ ≤ D.blockBound Λ n := by
+  have hgb := (mem_fibreGrade.mp hb).2
+  calc _ ≤ ∑ a ∈ fibreGrade Λ ρ n,
+        ∑ p ∈ Λ ×ˢ Λ, ‖D.Δ p.1 p.2‖ * ‖ann p.2 (ann p.1 (single b (1 : ℂ))) a‖ :=
+        Finset.sum_le_sum fun a ha => D.norm_matEl_finiteHam_le V Λ (by
+          rw [(mem_fibreGrade.mp ha).2, hgb])
+    _ = ∑ p ∈ Λ ×ˢ Λ, ‖D.Δ p.1 p.2‖ *
+        ∑ a ∈ fibreGrade Λ ρ n, ‖ann p.2 (ann p.1 (single b (1 : ℂ))) a‖ := by
+        rw [Finset.sum_comm]; simp only [Finset.mul_sum]
+    _ ≤ _ := D.sum_Δ_le Λ n _ fun p hp => by
+        obtain ⟨hx, hy⟩ := Finset.mem_product.mp hp
+        refine (sum_le_of_eq_zero _ _ (fun _ => norm_nonneg _) (b - single p.1 1 - single p.2 1)
+          fun a _ ha => ?_).trans ?_
+        · rw [ann_ann_single_apply, if_neg (fun h => ha h.symm), norm_zero]
+        · refine (norm_ann_ann_le hx hy _ _).trans ?_
+          have : occIn Λ b ≤ 2 * n + 3 := by omega
+          exact_mod_cast this
 
 end BoseHubbardData
 
