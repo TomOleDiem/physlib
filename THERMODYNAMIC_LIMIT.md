@@ -156,6 +156,27 @@ Remaining, in order:
   `sup_{ω ∈ S_{p,M}, |t| ≤ T} |ω(α_t^{Λ'}(A) - α_t^Λ(A))| → 0` (with a bounded test operator) as
   `d(supp A, Λᶜ) → ∞`, uniformly in `Λ' ⊇ Λ`. Do not refine the fixed-volume cutoff further.
 
+### T2 design after the review (2026-11-03)
+
+- Global row sums of `H_Λ` cannot be made uniform in `|Λ|` with pairing: pair annihilation links
+  every state `α` to `α + e_x + e_y` for every bond, so a row sum over all partners is
+  `Θ(d |Λ| K)` already at the vacuum. Graph locality does help the leakage: only moves raising a
+  site from `n` to `n + 1` leak, and a site has `≤ 2d` bonds, so splitting the leakage by site gives
+  `‖leak‖ ≤ Σ_x ‖leak_x‖ ≤ |Λ| · 16 d K (n + 2) √(m / (n + 1)^{p+1})`. This is still extensive,
+  which is unavoidable for a cutoff on all of `Λ`.
+- Hence T2 follows DLL Lemma 4.11: the cutoff `P_{Y,λ}` acts only on `Y = X[2mr]` around the
+  support of the observable, so every error carries `|Y| ≤ C (2mr + 1)^ν |X|`, never `|Λ|`.
+  Plan, in order:
+  1. Localized truncation: `truncSetY Λ Y n` = states with occupations `≤ n` on `Y` (no condition
+     on `Λ \ Y`). It is infinite-dimensional, so the comparison runs on the full `ℓ²` with the
+     bounded operator `P_Y H_Λ P_Y` replaced by `H_Λ` with the `Y`-bonds cut off, not by a matrix.
+  2. Site-split leakage bound for the cutoff region: `‖leak‖ ≤ |Y| · 16 d K (n + 2) √(m / (n+1)^{p+1})`.
+  3. Interaction picture with respect to `D_Λ(N)` (on-site, commutes with `P_Y`).
+  4. Lieb-Robinson bound for the cut-off interaction in `Y` (bounded, strength `O(n)`) to compare
+     `α_t^Λ` and `α_t^{X[2mr]}` on observables of finite occupation transfer.
+  5. Assembly with `n = R^α`, `α < 1`, and states given by finite-volume density matrices with
+     moment bound `M` (not only Fock vectors), as in DLL Theorem 4.3.
+
 ## Where Deuchert-Lampart-Lemm use number conservation
 
 Read from arXiv:2505.13170 (graph `d`-dimensional with surface parameter σ, `p > 2d + 2`):
