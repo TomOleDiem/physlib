@@ -7,6 +7,7 @@ module
 
 public import Mathlib.Analysis.CStarAlgebra.Classes
 public import Mathlib.Topology.Algebra.StarSubalgebra
+public import Mathlib.Analysis.CStarAlgebra.Spectrum
 
 /-!
 
@@ -44,6 +45,7 @@ in a third.
 - `LatticeFermions.GradedLocalNet.localUnion` : the star subalgebra of local elements.
 - `LatticeFermions.GradedLocalNet.quasiLocal` : the quasi-local C⋆-algebra.
 - `LatticeFermions.GradedLocalNet.ofCommute` : a spin system, with the trivial parity.
+- `LatticeFermions.GradedLocalNet.ofClosure` : the graded local net of the norm closures.
 
 ## iii. Table of contents
 
@@ -51,6 +53,7 @@ in a third.
 - B. Even elements
 - C. The local and quasi-local algebras
 - D. Spin systems
+- E. Graded local nets from norm closures
 
 ## iv. References
 
@@ -73,14 +76,16 @@ namespace LatticeFermions
 
 -/
 
-/-- A graded local net over the sites `V` in a C⋆-algebra `𝔄`: monotone local star subalgebras
-of the finite regions, an involutive parity automorphism preserving them, and even-odd
+/-- A graded local net over the sites `V` in a C⋆-algebra `𝔄`: monotone, norm closed local star
+subalgebras of the finite regions, an involutive parity automorphism preserving them, and even-odd
 locality. -/
 structure GradedLocalNet (V : Type*) (𝔄 : Type*) [CStarAlgebra 𝔄] where
   /-- The local algebra of a finite region. -/
   loc : Finset V → StarSubalgebra ℂ 𝔄
   /-- A larger region has a larger local algebra. -/
   loc_mono : Monotone loc
+  /-- The local algebras are norm closed. -/
+  isClosed_loc : ∀ X, IsClosed (loc X : Set 𝔄)
   /-- The parity automorphism. -/
   parity : 𝔄 ≃⋆ₐ[ℂ] 𝔄
   /-- The parity is an involution. -/
@@ -185,18 +190,95 @@ lemma isClosed_quasiLocal : IsClosed (N.quasiLocal : Set 𝔄) :=
 
 /-- A spin system: local algebras of disjoint regions commute, and the parity is trivial. -/
 def ofCommute (loc : Finset V → StarSubalgebra ℂ 𝔄) (loc_mono : Monotone loc)
+    (isClosed_loc : ∀ X, IsClosed (loc X : Set 𝔄))
     (hcomm : ∀ {X Y : Finset V}, Disjoint X Y → ∀ {a b : 𝔄}, a ∈ loc X → b ∈ loc Y →
       Commute a b) : GradedLocalNet V 𝔄 where
   loc := loc
   loc_mono := loc_mono
+  isClosed_loc := isClosed_loc
   parity := StarAlgEquiv.refl ℂ 𝔄
   parity_parity _ := rfl
   parity_mem h := h
   commute_of_disjoint hXY _ _ ha hb _ := hcomm hXY ha hb
 
 lemma isEven_ofCommute (loc : Finset V → StarSubalgebra ℂ 𝔄) (loc_mono : Monotone loc)
+    (isClosed_loc : ∀ X, IsClosed (loc X : Set 𝔄))
     (hcomm : ∀ {X Y : Finset V}, Disjoint X Y → ∀ {a b : 𝔄}, a ∈ loc X → b ∈ loc Y →
-      Commute a b) (a : 𝔄) : (ofCommute loc loc_mono hcomm).IsEven a := rfl
+      Commute a b) (a : 𝔄) : (ofCommute loc loc_mono isClosed_loc hcomm).IsEven a := rfl
+
+/-!
+
+## E. Graded local nets from norm closures
+
+A net of local star subalgebras which is not closed gives a graded local net by passing to the
+norm closures. The parity is continuous, and even-odd locality passes to limits: an element of
+the closure of `𝔄_Y` is a limit of elements of `𝔄_Y`, whose even parts converge to its even part.
+
+-/
+
+section closure
+
+variable (θ : 𝔄 ≃⋆ₐ[ℂ] 𝔄)
+
+/-- The even part `(a + θ a) / 2` of an element for an automorphism `θ`. -/
+def evenPartOf (a : 𝔄) : 𝔄 := (1 / 2 : ℂ) • (a + θ a)
+
+lemma continuous_evenPartOf : Continuous (evenPartOf θ) :=
+  (continuous_id.add (StarAlgEquiv.isometry θ).continuous).const_smul _
+
+lemma evenPartOf_of_eq {a : 𝔄} (ha : θ a = a) : evenPartOf θ a = a := by
+  rw [evenPartOf, ha, ← two_smul ℂ a, smul_smul]; norm_num
+
+lemma map_evenPartOf (hθ : ∀ a, θ (θ a) = a) (a : 𝔄) : θ (evenPartOf θ a) = evenPartOf θ a := by
+  simp only [evenPartOf, map_smul, map_add, hθ, add_comm]
+
+lemma evenPartOf_mem {T : StarSubalgebra ℂ 𝔄} (hT : ∀ b ∈ T, θ b ∈ T) {a : 𝔄} (ha : a ∈ T) :
+    evenPartOf θ a ∈ T :=
+  T.smul_mem (T.add_mem ha (hT a ha)) _
+
+/-- Even-odd locality passes to the norm closures. -/
+lemma commute_of_mem_topologicalClosure (hθ : ∀ a, θ (θ a) = a) {S T : StarSubalgebra ℂ 𝔄}
+    (hT : ∀ b ∈ T, θ b ∈ T) (h : ∀ a ∈ S, ∀ b ∈ T, θ b = b → Commute a b) {a b : 𝔄}
+    (ha : a ∈ S.topologicalClosure) (hb : b ∈ T.topologicalClosure) (hbe : θ b = b) :
+    Commute a b := by
+  have h1 : ∀ c ∈ T, Commute a (evenPartOf θ c) := fun c hc =>
+    closure_minimal (s := (S : Set 𝔄)) (t := {a' | Commute a' (evenPartOf θ c)})
+      (fun a' ha' => h a' ha' _ (evenPartOf_mem θ hT hc) (map_evenPartOf θ hθ c))
+      (isClosed_eq (continuous_id.mul continuous_const) (continuous_const.mul continuous_id)) ha
+  have h2 := closure_minimal (s := (T : Set 𝔄)) (t := {c | Commute a (evenPartOf θ c)}) h1
+    ((isClosed_eq (continuous_const.mul continuous_id)
+      (continuous_id.mul continuous_const)).preimage (continuous_evenPartOf θ)) hb
+  simpa [evenPartOf_of_eq θ hbe] using h2
+
+lemma map_mem_topologicalClosure {T : StarSubalgebra ℂ 𝔄} (hT : ∀ b ∈ T, θ b ∈ T) {b : 𝔄}
+    (hb : b ∈ T.topologicalClosure) : θ b ∈ T.topologicalClosure :=
+  closure_minimal (s := (T : Set 𝔄)) (t := θ ⁻¹' (T.topologicalClosure : Set 𝔄))
+    (fun c hc => T.le_topologicalClosure (hT c hc))
+    ((T.isClosed_topologicalClosure).preimage (StarAlgEquiv.isometry θ).continuous) hb
+
+/-- The graded local net of the norm closures of a monotone net of local star subalgebras with
+an involutive parity preserving them and even-odd locality. -/
+def ofClosure (loc : Finset V → StarSubalgebra ℂ 𝔄) (loc_mono : Monotone loc)
+    (hθ : ∀ a, θ (θ a) = a) (hmem : ∀ X, ∀ b ∈ loc X, θ b ∈ loc X)
+    (hcomm : ∀ {X Y : Finset V}, Disjoint X Y → ∀ a ∈ loc X, ∀ b ∈ loc Y, θ b = b →
+      Commute a b) : GradedLocalNet V 𝔄 where
+  loc X := (loc X).topologicalClosure
+  loc_mono _ _ h := StarSubalgebra.topologicalClosure_mono (loc_mono h)
+  isClosed_loc X := (loc X).isClosed_topologicalClosure
+  parity := θ
+  parity_parity := hθ
+  parity_mem h := map_mem_topologicalClosure θ (hmem _) h
+  commute_of_disjoint hXY _ _ ha hb hbe :=
+    commute_of_mem_topologicalClosure θ hθ (hmem _) (fun a ha b hb => hcomm hXY a ha b hb) ha hb
+      hbe
+
+lemma ofClosure_loc (loc : Finset V → StarSubalgebra ℂ 𝔄) (loc_mono : Monotone loc)
+    (hθ : ∀ a, θ (θ a) = a) (hmem : ∀ X, ∀ b ∈ loc X, θ b ∈ loc X)
+    (hcomm : ∀ {X Y : Finset V}, Disjoint X Y → ∀ a ∈ loc X, ∀ b ∈ loc Y, θ b = b →
+      Commute a b) (X : Finset V) :
+    (ofClosure θ loc loc_mono hθ hmem hcomm).loc X = (loc X).topologicalClosure := rfl
+
+end closure
 
 end GradedLocalNet
 

@@ -46,6 +46,9 @@ subalgebra, so does `α_t(A)`, since `e^{itH}` is a norm limit of polynomials in
 - `LatticeFermions.hasDerivAt_evolution` : the Heisenberg equation.
 - `LatticeFermions.evolution_mem` : closed star subalgebras containing `H` are invariant.
 - `LatticeFermions.map_evolution` : automorphisms fixing `H` commute with the dynamics.
+- `LatticeFermions.evolution_neg_hamiltonian` : reversing `H` reverses time.
+- `LatticeFermions.evolution_add_of_commute` : a term commuting with `H` and `A` does not change
+  the dynamics of `A`.
 
 ## iii. Table of contents
 
@@ -53,6 +56,7 @@ subalgebra, so does `α_t(A)`, since `e^{itH}` is a norm limit of polynomials in
 - B. The Heisenberg dynamics
 - C. The Heisenberg equation
 - D. Invariant subalgebras and symmetries
+- E. Inverse, time reversal and commuting Hamiltonians
 
 ## iv. References
 
@@ -150,21 +154,34 @@ lemma hasDerivAt_propagator (H : selfAdjoint 𝔄) (t : ℝ) :
   rw [hfun, propagator_coe, Complex.coe_smul]
   exact h
 
+lemma hasDerivAt_propagator_neg (H : selfAdjoint 𝔄) (t : ℝ) :
+    HasDerivAt (fun s : ℝ => (propagator H (-s) : 𝔄))
+      (-((I • (H : 𝔄)) * (propagator H (-t) : 𝔄))) t := by
+  have hc : (propagator H (-t) : 𝔄) * (I • (H : 𝔄)) = (I • (H : 𝔄)) * propagator H (-t) :=
+    ((commute_propagator H (-t)).smul_left I).eq.symm
+  rw [← hc]
+  simpa [Function.comp_def] using (hasDerivAt_propagator H (-t)).scomp t (hasDerivAt_neg t)
+
+/-- The Heisenberg equation for a time dependent observable:
+`d/dt α_t(A(t)) = α_t(i[H, A(t)] + A'(t))`. -/
+lemma hasDerivAt_evolution_comp (H : selfAdjoint 𝔄) {g : ℝ → 𝔄} {g' : 𝔄} {t : ℝ}
+    (hg : HasDerivAt g g' t) :
+    HasDerivAt (fun s => evolution H s (g s))
+      (evolution H t (I • ((H : 𝔄) * g t - g t * H) + g')) t := by
+  have h := ((hasDerivAt_propagator H t).mul hg).mul (hasDerivAt_propagator_neg H t)
+  simp only [evolution_apply]
+  convert h using 1
+  simp only [sub_eq_add_neg, add_mul, mul_add, neg_mul, mul_neg, smul_mul_assoc, mul_smul_comm,
+    mul_assoc, smul_add, smul_neg, add_assoc, Pi.mul_apply]
+  abel
+
 /-- The Heisenberg equation `d/dt α_t(A) = α_t(i[H, A])`. -/
 lemma hasDerivAt_evolution (H : selfAdjoint 𝔄) (a : 𝔄) (t : ℝ) :
     HasDerivAt (fun s => evolution H s a) (evolution H t (I • ((H : 𝔄) * a - a * H))) t := by
-  have h1 := hasDerivAt_propagator H t
-  have h2 : HasDerivAt (fun s : ℝ => (propagator H (-s) : 𝔄))
-      (-((propagator H (-t) : 𝔄) * (I • (H : 𝔄)))) t := by
-    simpa [Function.comp_def] using (hasDerivAt_propagator H (-t)).scomp t (hasDerivAt_neg t)
-  have h := (h1.mul_const a).mul h2
-  simp only [evolution_apply]
-  convert h using 1
-  have hc : (propagator H (-t) : 𝔄) * (I • (H : 𝔄)) = (I • (H : 𝔄)) * propagator H (-t) :=
-    ((commute_propagator H (-t)).smul_left I).eq.symm
-  rw [hc]
-  simp only [sub_eq_add_neg, add_mul, mul_add, neg_mul, mul_neg, smul_mul_assoc, mul_smul_comm,
-    mul_assoc, smul_add, smul_neg]
+  simpa using hasDerivAt_evolution_comp H (hasDerivAt_const t a)
+
+lemma continuous_evolution (H : selfAdjoint 𝔄) (a : 𝔄) : Continuous fun t => evolution H t a :=
+  continuous_iff_continuousAt.2 fun t => (hasDerivAt_evolution H a t).continuousAt
 
 /-!
 
@@ -194,5 +211,59 @@ lemma map_evolution (H : selfAdjoint 𝔄) (θ : 𝔄 ≃⋆ₐ[ℂ] 𝔄) (hθ 
     (a : 𝔄) : θ (evolution H t a) = evolution H t (θ a) := by
   rw [evolution_apply, evolution_apply, map_mul, map_mul, map_propagator H θ hθ,
     map_propagator H θ hθ]
+
+/-!
+
+## E. Inverse, time reversal and commuting Hamiltonians
+
+-/
+
+lemma evolution_neg_evolution (H : selfAdjoint 𝔄) (t : ℝ) (a : 𝔄) :
+    evolution H (-t) (evolution H t a) = a := by
+  rw [← evolution_add, neg_add_cancel, evolution_zero]
+
+lemma evolution_evolution_neg (H : selfAdjoint 𝔄) (t : ℝ) (a : 𝔄) :
+    evolution H t (evolution H (-t) a) = a := by
+  rw [← evolution_add, add_neg_cancel, evolution_zero]
+
+lemma propagator_neg_hamiltonian (H : selfAdjoint 𝔄) (t : ℝ) :
+    propagator (-H) t = propagator H (-t) := by
+  rw [propagator, propagator, smul_neg, neg_smul]
+
+/-- Reversing the sign of the Hamiltonian reverses time. -/
+lemma evolution_neg_hamiltonian (H : selfAdjoint 𝔄) (t : ℝ) (a : 𝔄) :
+    evolution (-H) t a = evolution H (-t) a := by
+  rw [evolution_apply, evolution_apply, propagator_neg_hamiltonian, propagator_neg_hamiltonian]
+
+lemma propagator_add_of_commute (H K : selfAdjoint 𝔄) (h : Commute (H : 𝔄) K) (t : ℝ) :
+    propagator (H + K) t = propagator H t * propagator K t := by
+  rw [propagator, smul_add]
+  refine Commute.expUnitary_add ?_
+  simp only [selfAdjoint.val_smul]
+  exact (h.smul_left t).smul_right t
+
+lemma commute_propagator_of_commute (H : selfAdjoint 𝔄) {a : 𝔄} (h : Commute (H : 𝔄) a)
+    (t : ℝ) : Commute (propagator H t : 𝔄) a := by
+  rw [propagator_coe]
+  exact ((h.smul_left I).smul_left (t : ℂ)).exp_left
+
+/-- A Hamiltonian term `K` commuting with `H` and with `A` does not change the dynamics of
+`A`. -/
+lemma evolution_add_of_commute (H K : selfAdjoint 𝔄) (hHK : Commute (H : 𝔄) K) {a : 𝔄}
+    (hK : Commute (K : 𝔄) a) (t : ℝ) : evolution (H + K) t a = evolution H t a := by
+  have c1 := commute_propagator_of_commute K hK t
+  have c2 := commute_propagator_of_commute K
+    (commute_propagator_of_commute H hHK (-t)).symm t
+  have hK1 : (propagator K t : 𝔄) * propagator K (-t) = 1 := by
+    rw [← Submonoid.coe_mul, ← propagator_add, add_neg_cancel, propagator_zero,
+      OneMemClass.coe_one]
+  rw [evolution_apply, evolution_apply, propagator_add_of_commute H K hHK,
+    propagator_add_of_commute H K hHK, Submonoid.coe_mul, Submonoid.coe_mul]
+  calc (propagator H t : 𝔄) * propagator K t * a * (propagator H (-t) * propagator K (-t))
+      = propagator H t * a * propagator H (-t) * (propagator K t * propagator K (-t)) := by
+        rw [mul_assoc (propagator H t : 𝔄), c1.eq]
+        simp only [mul_assoc]
+        rw [← mul_assoc (propagator K t : 𝔄) (propagator H (-t) : 𝔄), c2.eq, mul_assoc]
+    _ = _ := by rw [hK1, mul_one]
 
 end LatticeFermions
