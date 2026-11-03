@@ -924,4 +924,43 @@ lemma sum_norm_finiteHam_le (V : L → ℕ → ℝ) (Λ : Finset L) (S : Finset 
 
 end BoseHubbardData
 
+
+namespace BoseHubbardData
+
+variable (D : BoseHubbardData L)
+
+/-- **Unit steps.** A nonzero matrix element of the finite-volume Hamiltonian changes every
+occupation by at most one and leaves the sites outside `Λ` unchanged. -/
+lemma step_of_matEl_ne (V : L → ℕ → ℝ) (Λ : Finset L) {α β : Occ L}
+    (h : matEl (D.finiteHam V Λ) α β ≠ 0) :
+    (∀ z, β z ≤ α z + 1 ∧ α z ≤ β z + 1) ∧ ∀ z ∉ Λ, α z = β z := by
+  refine ⟨fun z => ?_, (D.finiteHam_matEl_ne V Λ h).2⟩
+  by_cases hd : β = α
+  · subst hd; omega
+  unfold finiteHam at h
+  rw [matEl_add, matEl_sum, matEl_diagAdj, if_neg hd, zero_add] at h
+  obtain ⟨⟨x, y⟩, -, hne⟩ := Finset.exists_ne_zero_of_sum_ne_zero h
+  rw [matEl_bondTerm] at hne
+  split_ifs at hne with hadj
+  · have hxy : x ≠ y := hadj.ne
+    have key : ∀ {amp : ℝ} {u v : L}, IsMove u v α β amp → β z ≤ α z + 1 ∧ α z ≤ β z + 1 :=
+      fun {amp u v} hm => by
+        by_cases hzu : z = u
+        · subst hzu; exact hm.step_x
+        by_cases hzv : z = v
+        · subst hzv; exact hm.step_y
+        rw [hm.out z hzu hzv]; omega
+    by_cases h1 : cre x (ann y (single β (1 : ℂ))) α = 0
+    · by_cases h2 : cre y (ann x (single β (1 : ℂ))) α = 0
+      · by_cases h3 : cre x (cre y (single β (1 : ℂ))) α = 0
+        · have h4 : ann y (ann x (single β (1 : ℂ))) α ≠ 0 := by
+            intro h4; apply hne; simp [h1, h2, h3, h4]
+          exact key (isMove_ann_ann hxy h4).2
+        · exact key (isMove_cre_cre hxy h3).2
+      · exact key (isMove_cre_ann hxy.symm h2).2
+    · exact key (isMove_cre_ann hxy h1).2
+  · exact absurd rfl hne
+
+end BoseHubbardData
+
 end InfiniteBosons
