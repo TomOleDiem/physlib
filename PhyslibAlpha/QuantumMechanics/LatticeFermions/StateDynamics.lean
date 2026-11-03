@@ -8,6 +8,7 @@ module
 public import PhyslibAlpha.QuantumMechanics.LatticeFermions.InfiniteDynamics
 public import Mathlib.Analysis.CStarAlgebra.GelfandNaimarkSegal
 public import Mathlib.Analysis.CStarAlgebra.PositiveLinearMap
+public import PhyslibAlpha.ProbabilisticTheory.HilbertSpace.Unbounded.Existence.StoneReconstruction
 
 /-!
 
@@ -32,8 +33,9 @@ continuous, so is `U`: on the dense set of vectors `[a]`, `t ↦ [α_t(a)]` is c
 The results are applied to the infinite-volume dynamics of a graded local net, on the quasi-local
 algebra with its spectral order.
 
-Stone's theorem, which would identify the self-adjoint generator of `U_t`, is not available in
-Mathlib; the generator is therefore not constructed here.
+By Stone's theorem (`ProbabilisticTheory.QuantumMechanics.stoneCandidateGenerator_reconstruction`)
+`U_t = exp(i t H_ω)` for the self-adjoint closure `H_ω` of the candidate generator. The GNS
+vectors of local observables lie in its domain, with `H_ω [A] = -i [δ(A)]`.
 
 ## ii. Key results
 
@@ -42,6 +44,8 @@ Mathlib; the generator is therefore not constructed here.
 - `LatticeFermions.gnsEvolution_mem_unitary` : `U_t` is unitary.
 - `LatticeFermions.gnsEvolution_covariant` : `π(α_t(a)) U_t = U_t π(a)`.
 - `LatticeFermions.continuous_gnsEvolution` : strong continuity of `U_t`.
+- `LatticeFermions.gnsGenerator` : the self-adjoint generator `H_ω` of `U_t` (Stone).
+- `LatticeFermions.Interaction.gnsGenerator_local` : `H_ω [A] = -i [δ(A)]` for local `A`.
 - `LatticeFermions.Interaction.continuous_gnsEvolution_dynamics` : the lattice dynamics.
 
 ## iii. Table of contents
@@ -49,7 +53,8 @@ Mathlib; the generator is therefore not constructed here.
 - A. Evolution of states
 - B. The unitary implementation on the GNS space
 - C. Strong continuity
-- D. The dynamics of a graded local net
+- D. The self-adjoint generator
+- E. The dynamics of a graded local net
 
 ## iv. References
 
@@ -202,15 +207,26 @@ lemma gnsEvolution_one (t : ℝ) :
 -/
 
 omit [StarOrderedRing 𝔅] in
-lemma continuous_toPreGNS (ω : 𝔅 →ₚ[ℂ] ℂ) [StarOrderedRing 𝔅] :
-    Continuous fun a : 𝔅 => ω.toPreGNS a := by
-  let ωL : 𝔅 →L[ℂ] ℂ := ⟨ω.toLinearMap, map_continuous ω⟩
-  have hb : ∀ a : 𝔅, ‖ω.toPreGNS.toLinearMap a‖ ≤ √‖ωL‖ * ‖a‖ := fun a => by
-    rw [LinearEquiv.coe_coe, preGNS_norm_def', ofPreGNS_toPreGNS]
-    calc √‖ω (star a * a)‖ ≤ √(‖ωL‖ * ‖a‖ ^ 2) := Real.sqrt_le_sqrt
-          ((ωL.le_opNorm (star a * a)).trans (by rw [CStarRing.norm_star_mul_self, sq]))
-      _ = √‖ωL‖ * ‖a‖ := by rw [Real.sqrt_mul (norm_nonneg _), Real.sqrt_sq (norm_nonneg _)]
-  exact (ω.toPreGNS.toLinearMap.mkContinuous _ hb).continuous
+lemma norm_toPreGNS_le (ω : 𝔅 →ₚ[ℂ] ℂ) [StarOrderedRing 𝔅] (a : 𝔅) :
+    ‖ω.toPreGNS.toLinearMap a‖ ≤
+      √‖(⟨ω.toLinearMap, map_continuous ω⟩ : 𝔅 →L[ℂ] ℂ)‖ * ‖a‖ := by
+  rw [LinearEquiv.coe_coe, preGNS_norm_def', ofPreGNS_toPreGNS]
+  calc √‖ω (star a * a)‖
+      ≤ √(‖(⟨ω.toLinearMap, map_continuous ω⟩ : 𝔅 →L[ℂ] ℂ)‖ * ‖a‖ ^ 2) := Real.sqrt_le_sqrt
+        (((⟨ω.toLinearMap, map_continuous ω⟩ : 𝔅 →L[ℂ] ℂ).le_opNorm (star a * a)).trans
+          (by rw [CStarRing.norm_star_mul_self, sq]))
+    _ = _ := by rw [Real.sqrt_mul (norm_nonneg _), Real.sqrt_sq (norm_nonneg _)]
+
+/-- The bounded map `a ↦ [a]` from the algebra to the GNS space. -/
+def toGNSL (ω : 𝔅 →ₚ[ℂ] ℂ) : 𝔅 →L[ℂ] ω.GNS :=
+  Completion.toComplL.comp (ω.toPreGNS.toLinearMap.mkContinuous _ (norm_toPreGNS_le ω))
+
+lemma toGNSL_apply (ω : 𝔅 →ₚ[ℂ] ℂ) (a : 𝔅) :
+    toGNSL ω a = ((ω.toPreGNS a : ω.PreGNS) : ω.GNS) := rfl
+
+lemma gnsEvolution_toGNSL (t : ℝ) (a : 𝔅) :
+    gnsEvolution hω t (toGNSL ω a) = toGNSL ω (α.toFun t a) := by
+  rw [toGNSL_apply, gnsEvolution_coe, ofPreGNS_toPreGNS]; rfl
 
 /-- Strong continuity of the unitary implementation, for a strongly continuous dynamics. -/
 lemma continuous_gnsEvolution (hα : ∀ a, Continuous fun t => α.toFun t a) (ψ : ω.GNS) :
@@ -220,13 +236,60 @@ lemma continuous_gnsEvolution (hα : ∀ a, Continuous fun t => α.toFun t a) (�
   obtain ⟨x, hx⟩ := Completion.denseRange_coe.exists_dist_lt ψ hε
   refine ⟨fun t => gnsEvolution hω t (x : ω.GNS), ?_, fun t => hεu ?_⟩
   · simp only [gnsEvolution_coe]
-    exact Completion.continuous_coe _ |>.comp ((continuous_toPreGNS ω).comp (hα _))
+    exact (toGNSL ω).continuous.comp (hα _)
   · rw [dist_eq_norm, ← map_sub, norm_gnsEvolution, ← dist_eq_norm]
     exact hx
 
+
 /-!
 
-## D. The dynamics of a graded local net
+## D. The self-adjoint generator
+
+By Stone's theorem the strongly continuous unitary group `U_t` is `exp(i t H_ω)` for a
+self-adjoint operator `H_ω`, the closure of its candidate generator `-i d/dt U_t|_{t=0}`. The
+GNS vector `[a]` of every `a` with `t ↦ α_t(a)` differentiable at zero lies in the domain.
+
+-/
+
+/-- The generator `H_ω` of the unitary implementation: the closure of `ψ ↦ -i d/dt U_t ψ|_{t=0}`
+on the vectors with differentiable orbit. -/
+def gnsGenerator : ω.GNS →ₗ.[ℂ] ω.GNS :=
+  (QuantumMechanics.stoneCandidateGenerator (U := gnsEvolution hω) (gnsEvolution_add hω)).closure
+
+/-- The generator of the unitary implementation is self-adjoint (Stone's theorem). -/
+lemma isSelfAdjoint_gnsGenerator (hα : ∀ a, Continuous fun t => α.toFun t a) :
+    IsSelfAdjoint (gnsGenerator hω) :=
+  QuantumMechanics.stoneCandidateGenerator_isEssentiallySelfAdjoint (gnsEvolution_add hω)
+    (gnsEvolution_zero hω) (gnsEvolution_mem_unitary hω) (continuous_gnsEvolution hω hα)
+
+/-- Stone's theorem: `U_t = exp(i t H_ω)`, the unitary group of the self-adjoint generator. -/
+lemma gnsEvolution_eq_exp (hα : ∀ a, Continuous fun t => α.toFun t a) (t : ℝ) (ψ : ω.GNS) :
+    gnsEvolution hω t ψ = QuantumMechanics.stoneReconstructionUnitaryGroup (gnsEvolution_zero hω)
+      (gnsEvolution_add hω) (gnsEvolution_mem_unitary hω) (continuous_gnsEvolution hω hα) t ψ :=
+  QuantumMechanics.stoneCandidateGenerator_reconstruction _ _ _ _ ψ t
+
+/-- If `t ↦ α_t(a)` has derivative `d` at zero, then `[a]` lies in the domain of the generator and
+`H_ω [a] = -i [d]`. -/
+lemma gnsGenerator_toGNSL {a d : 𝔅} (h : HasDerivAt (fun t => α.toFun t a) d 0) :
+    ∃ ha : toGNSL ω a ∈ (gnsGenerator hω).domain,
+      gnsGenerator hω ⟨toGNSL ω a, ha⟩ = (-Complex.I) • toGNSL ω d := by
+  have hd : HasDerivAt (fun t => gnsEvolution hω t (toGNSL ω a)) (toGNSL ω d) 0 := by
+    have h' := (((toGNSL ω).restrictScalars ℝ).hasFDerivAt (x := α.toFun 0 a)).comp_hasDerivAt
+      (0 : ℝ) h
+    simp only [gnsEvolution_toGNSL]
+    convert h' using 1 <;> rfl
+  let T := QuantumMechanics.stoneCandidateGenerator (U := gnsEvolution hω) (gnsEvolution_add hω)
+  let ψ : T.domain := ⟨toGNSL ω a, ⟨_, hd⟩⟩
+  have hle := T.le_closure
+  refine ⟨hle.1 ψ.2, ?_⟩
+  change T.closure ⟨toGNSL ω a, hle.1 ψ.2⟩ = _
+  rw [← hle.2 (x := ψ) rfl, QuantumMechanics.stoneCandidateGenerator_apply]
+  congr 1
+  exact (QuantumMechanics.stoneCandidateDeriv_spec (gnsEvolution_add hω) ψ).unique hd
+
+/-!
+
+## E. The dynamics of a graded local net
 
 The quasi-local algebra is a closed star subalgebra, hence a C⋆-algebra, ordered by its spectral
 order.
@@ -269,6 +332,36 @@ lemma continuous_gnsEvolution_dynamics {ω : N.quasiLocal →ₚ[ℂ] ℂ}
     (hω : IsInvariantState (dynamicsGroup hJ hfin) ω) (ψ : ω.GNS) :
     Continuous fun t => gnsEvolution hω t ψ :=
   continuous_gnsEvolution hω (continuous_dynamicsAut hJ hfin) ψ
+
+/-- The generator of the GNS unitary group of an invariant positive functional is self-adjoint,
+and `U_t = exp(i t H_ω)` (Stone's theorem). -/
+lemma isSelfAdjoint_gnsGenerator_dynamics {ω : N.quasiLocal →ₚ[ℂ] ℂ}
+    (hω : IsInvariantState (dynamicsGroup hJ hfin) ω) : IsSelfAdjoint (gnsGenerator hω) :=
+  isSelfAdjoint_gnsGenerator hω (continuous_dynamicsAut hJ hfin)
+
+lemma generator_mem_quasiLocal {X : Finset V} {a : 𝔄} (ha : a ∈ N.loc X) :
+    Φ.generator hfin X a ∈ N.quasiLocal :=
+  N.loc_le_quasiLocal _ (generator_mem hfin ha)
+
+/-- The orbit of a local observable in the quasi-local algebra is differentiable at zero, with
+derivative the generator. -/
+lemma hasDerivAt_dynamicsAut {X : Finset V} {a : 𝔄} (ha : a ∈ N.loc X) :
+    HasDerivAt (fun t => dynamicsAut hJ hfin t ⟨a, N.loc_le_quasiLocal X ha⟩)
+      ⟨Φ.generator hfin X a, generator_mem_quasiLocal hfin ha⟩ 0 := by
+  have h := hasDerivAt_dynamics hJ hfin ha
+  rw [hasDerivAt_iff_isLittleO_nhds_zero, ← Asymptotics.isLittleO_norm_left] at h ⊢
+  convert h using 2 with t
+  simp only [zero_add]
+  rfl
+
+/-- The GNS vector `[A]` of a local observable lies in the domain of the self-adjoint generator,
+and `H_ω [A] = -i [δ(A)]`, with `δ(A) = i Σ_{Z ∩ X ≠ ∅} [Φ(Z), A] + i Σ_{x ∈ X} [D_x, A]`. -/
+lemma gnsGenerator_local {ω : N.quasiLocal →ₚ[ℂ] ℂ}
+    (hω : IsInvariantState (dynamicsGroup hJ hfin) ω) {X : Finset V} {a : 𝔄} (ha : a ∈ N.loc X) :
+    ∃ h : toGNSL ω ⟨a, N.loc_le_quasiLocal X ha⟩ ∈ (gnsGenerator hω).domain,
+      gnsGenerator hω ⟨_, h⟩ =
+        (-Complex.I) • toGNSL ω ⟨Φ.generator hfin X a, generator_mem_quasiLocal hfin ha⟩ :=
+  gnsGenerator_toGNSL hω (hasDerivAt_dynamicsAut hJ hfin ha)
 
 end Interaction
 
