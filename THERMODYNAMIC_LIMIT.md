@@ -67,8 +67,8 @@ volume Hamiltonian is unbounded below and `e^{-βH_Λ}` is not trace class.
 
 | # | Content | Status |
 |---|---|---|
-| 0 | ℓ² no-go: if `Σ|Δ_xy|² = ∞` the Fock-space domain `hamDomainAlg` is `{0}` | open |
-| 1 | T0: block-Jacobi Carleman criterion and finite-volume essential self-adjointness | open |
+| 0 | ℓ² no-go: pairing bounded away from zero on infinitely many disjoint bonds gives `hamDomainAlg = ⊥` (`BoseHubbardData.hamDomainAlg_eq_bot`, ModelHamiltonians.lean) | done |
+| 1 | T0: block-Jacobi Carleman criterion (`blockJacobi_no_l2_solution`, JacobiCarleman.lean) and `BoseHubbardData.finiteHam_isEssentiallySelfAdjoint` for arbitrary real on-site `V` (FiniteVolume.lean) | done |
 | 2 | T1: commutator bound | open |
 | 3 | T1: moment Grönwall | open |
 | 4 | T2: cutoff projections and cutoff error | open |

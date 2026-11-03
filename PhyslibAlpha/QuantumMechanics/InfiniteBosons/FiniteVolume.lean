@@ -8,6 +8,7 @@ module
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.ModelHamiltonians
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.JacobiCarleman
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.EssentialSelfAdjoint
+public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.QuadratureSelfAdjoint
 /-!
 
 # The finite-volume Bose-Hubbard Hamiltonian with pairing
@@ -568,6 +569,92 @@ lemma colSum_le (V : L → ℕ → ℝ) (Λ : Finset L) (ρ : Occ L) (n : ℕ) {
         · refine (norm_ann_ann_le hx hy _ _).trans ?_
           have : occIn Λ b ≤ 2 * n + 3 := by omega
           exact_mod_cast this
+
+end BoseHubbardData
+
+
+namespace BoseHubbardData
+
+variable (D : BoseHubbardData L)
+
+/-- A row of the finite-volume Hamiltonian lies in the fibre of its state and in grades at most one
+above it. -/
+lemma mem_gradeLe_of_matEl_ne (V : L → ℕ → ℝ) (Λ : Finset L) {a b : Occ L}
+    (h : matEl (D.finiteHam V Λ) a b ≠ 0) :
+    b ∈ gradeLe (fibreGrade Λ a) (occIn Λ a / 2 + 1) := by
+  obtain ⟨hocc, hout⟩ := D.finiteHam_matEl_ne V Λ h
+  refine subset_gradeLe (S := fibreGrade Λ a) (n := occIn Λ b / 2) (by omega)
+    (mem_fibreGrade.mpr ⟨fun z hz => (hout z hz).symm, rfl⟩)
+
+/-- **Orthogonality to the range of `H_Λ + i c` forces the vector to vanish.** -/
+lemma eq_zero_of_orth (V : L → ℕ → ℝ) (Λ : Finset L) {c : ℝ} (hc : c ≠ 0)
+    (g : HilbertSp (Occ L))
+    (hg : ∀ α, inner ℂ g (shiftMap (D.finiteHam V Λ).1.1 c (single α 1)) = 0) (a0 : Occ L) :
+    g a0 = 0 := by
+  classical
+  set H := D.finiteHam V Λ
+  have hH : star H = H := D.star_finiteHam V Λ
+  set fib : Occ L → Prop := fun a => ∀ z ∉ Λ, a z = a0 z
+  set g' : Occ L → ℂ := fun a => if fib a then g a else 0
+  have hrowEq := row_eq_of_orth H hH c g hg
+  have key := blockJacobi_no_l2_solution (gr := fun a => occIn Λ a / 2) (S := fibreGrade Λ a0)
+    (fun a n ha => (mem_fibreGrade.mp ha).2) (matEl H) (fun a b => matEl_conj H hH a b)
+    (fun a b h => by have := (D.finiteHam_matEl_ne V Λ h).1; omega) (D.blockBound Λ)
+    (D.blockBound_pos Λ) (fun n a ha => D.rowSum_le V Λ a0 n ha)
+    (fun n b hb => D.colSum_le V Λ a0 n hb)
+    (by simpa [blockBound, mul_comm] using (not_summable_inv_linear
+      (C := ∑ p ∈ Λ ×ˢ Λ, ‖D.Δ p.1 p.2‖ + 1) (by positivity))) hc g' ?_ ?_ ?_ a0
+  · simpa [g', fib] using key
+  · -- square summability
+    have hm : Summable fun a => ‖g a‖ ^ (2 : ℝ) := (lp.memℓp g).summable (by norm_num)
+    refine Summable.of_nonneg_of_le (fun _ => by positivity) (fun a => ?_) hm
+    rw [Real.rpow_two]
+    by_cases ha : fib a <;> simp [g', ha]
+  · -- the support of `g'` lies in the fibre
+    intro a ha
+    by_cases hf : fib a
+    · exact mem_fibreGrade.mpr ⟨hf, rfl⟩
+    · exact absurd (by simp [g', hf]) ha
+  · -- the row equation on the fibre
+    intro a ha
+    have hfa : fib a := (mem_fibreGrade.mp ha).1
+    have hfib : fibreGrade Λ a = fibreGrade Λ a0 := by
+      ext b; simp only [mem_fibreGrade]
+      exact ⟨fun ⟨h1, h2⟩ => ⟨fun z hz => (h1 z hz).trans (hfa z hz), h2⟩,
+        fun ⟨h1, h2⟩ => ⟨fun z hz => (h1 z hz).trans (hfa z hz).symm, h2⟩⟩
+    have hsub : (H.1.1 (single a 1)).support ⊆ gradeLe (fibreGrade Λ a0) (occIn Λ a / 2 + 1) := by
+      intro b hb
+      have hne : matEl H a b ≠ 0 := by
+        intro h0
+        apply Finsupp.mem_support_iff.mp hb
+        show matEl H b a = 0
+        rw [matEl_conj H hH, h0, map_zero]
+      rw [← hfib]; exact D.mem_gradeLe_of_matEl_ne V Λ hne
+    rw [show g' a = g a by simp [g', hfa], ← hrowEq a]
+    refine (Finset.sum_congr rfl fun b hb => ?_).trans (Finset.sum_subset hsub fun b _ hb => ?_).symm
+    · obtain ⟨n, -, hbn⟩ := exists_mem_of_mem_gradeLe hb
+      have hfb : fib b := (mem_fibreGrade.mp hbn).1
+      show matEl H a b * (if fib b then g b else 0) = _
+      rw [if_pos hfb]
+    · have : matEl H b a = 0 := Finsupp.notMem_support_iff.mp hb
+      rw [matEl_conj H hH] at this
+      rw [(map_eq_zero _).mp this, zero_mul]
+
+/-- The range of `H_Λ + i c` is dense. -/
+lemma finiteHam_dense_range (V : L → ℕ → ℝ) (Λ : Finset L) {c : ℝ} (hc : c ≠ 0) :
+    Dense (LinearMap.range (shiftMap (D.finiteHam V Λ).1.1 c) : Set (HilbertSp (Occ L))) := by
+  refine dense_of_orth _ fun g hg => lp.ext (funext fun a0 => ?_)
+  rw [D.eq_zero_of_orth V Λ hc g (fun α => hg _ ⟨single α 1, rfl⟩) a0]
+  rfl
+
+/-- **The finite-volume Bose-Hubbard Hamiltonian with pairing is essentially self-adjoint** on the
+finite vectors, for an arbitrary real on-site potential `V`. No sign or growth condition on `V` is
+needed: pairing couples the grades `⌊N_Λ / 2⌋` like a block Jacobi matrix with off-diagonal blocks
+of size `O(n)`, and Carleman's criterion applies. -/
+theorem finiteHam_isEssentiallySelfAdjoint (V : L → ℕ → ℝ) (Λ : Finset L) :
+    (polyOp (D.finiteHam V Λ)).IsEssentiallySelfAdjoint :=
+  polyOp_isEssentiallySelfAdjoint _ (D.star_finiteHam V Λ) (D.finiteHam_dense_range V Λ one_ne_zero)
+    (D.finiteHam_dense_range V Λ (by norm_num))
 
 end BoseHubbardData
 
