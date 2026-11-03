@@ -302,7 +302,8 @@ lemma bondTerm_single_apply (D : BoseHubbardData L) (u v : L) :
   unfold BoseHubbardData.bondTerm
   split_ifs with hadj
   · show (((-D.J u v : ℝ) : ℂ) • (cre u (ann v (single b (1 : ℂ))) + cre v (ann u (single b 1))) +
-      D.Δ u v • cre u (cre v (single b 1)) + starRingEnd ℂ (D.Δ u v) • ann v (ann u (single b 1))) γ = _
+      D.Δ u v • cre u (cre v (single b 1)) +
+        starRingEnd ℂ (D.Δ u v) • ann v (ann u (single b 1))) γ = _
     simp only [Finsupp.coe_add, Pi.add_apply, Finsupp.coe_smul, Pi.smul_apply, smul_eq_mul,
       cre_ann_single_apply_eq_zero hxy hbx hby hγx hγy, ann_ann_single_apply_eq_zero hbx hγx]
     ring
@@ -366,8 +367,10 @@ lemma formalHam_apply_pair (D : BoseHubbardData L) {x y : L} (hadj : D.graph.Adj
             if_neg (fun h => hne (by simpa [hγ, add_right_comm] using h))]
           ring
         · intro hα'; rw [Finsupp.notMem_support_iff.mp hα']; ring
-      · have hne1 : (Sum.inr (u, v) : L ⊕ (L × L)) ≠ Sum.inr (x, y) := fun h => h1 (by simpa using h)
-        have hne2 : (Sum.inr (u, v) : L ⊕ (L × L)) ≠ Sum.inr (y, x) := fun h => h2 (by simpa using h)
+      · have hne1 : (Sum.inr (u, v) : L ⊕ (L × L)) ≠ Sum.inr (x, y) :=
+          fun h => h1 (by simpa using h)
+        have hne2 : (Sum.inr (u, v) : L ⊕ (L × L)) ≠ Sum.inr (y, x) :=
+          fun h => h2 (by simpa using h)
         rw [if_neg hne1, if_neg hne2]
         refine Finset.sum_eq_zero fun b hb => ?_
         split_ifs
@@ -392,7 +395,8 @@ vector fails to be square summable: pairs are created on all far away bonds with
 do not decay. This covers translation-invariant pairing on an infinite lattice. -/
 theorem hamDomainAlg_eq_bot (D : BoseHubbardData L) (x y : ℕ → L)
     (hadj : ∀ n, D.graph.Adj (x n) (y n)) (hx : Function.Injective x) (hy : Function.Injective y)
-    (hxy : ∀ n m, x n ≠ y m) {δ : ℝ} (hδ : 0 < δ) (hΔ : ∀ n, δ ≤ ‖D.Δ (x n) (y n) + D.Δ (y n) (x n)‖) :
+    (hxy : ∀ n m, x n ≠ y m) {δ : ℝ} (hδ : 0 < δ)
+    (hΔ : ∀ n, δ ≤ ‖D.Δ (x n) (y n) + D.Δ (y n) (x n)‖) :
     hamDomainAlg D.interaction.Φ D.rowFinite = ⊥ := by
   rw [eq_bot_iff]
   intro f hf
@@ -436,7 +440,8 @@ theorem hamDomainAlg_eq_bot (D : BoseHubbardData L) (x y : ℕ → L)
       norm_mul]
     exact mul_le_mul_of_nonneg_right (hΔ n) (norm_nonneg _)
   have hpos : 0 < δ * ‖f α‖ := mul_pos hδ (norm_pos_iff.mpr (Finsupp.mem_support_iff.mp hα))
-  have := hlim.norm.eventually (gt_mem_nhds (show ‖(0 : ℂ)‖ < δ * ‖f α‖ by rw [norm_zero]; exact hpos))
+  have h0 : ‖(0 : ℂ)‖ < δ * ‖f α‖ := by rw [norm_zero]; exact hpos
+  have := hlim.norm.eventually (gt_mem_nhds h0)
   obtain ⟨n, hn1, hn2⟩ := (this.and hval).exists
   linarith
 

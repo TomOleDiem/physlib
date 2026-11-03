@@ -97,6 +97,13 @@ Read from arXiv:2505.13170 (graph `d`-dimensional with surface parameter σ, `p 
 3. Their observables live in the invariant resolvent algebra and states on the Buchholz algebra.
    With pairing the gauge-invariant algebras are not preserved; use `tensorNet (fun _ => ℕ)`.
 
+## Cleanup
+
+- `alphaPythonLinters.sh` reports about 60 lines over 100 characters and 3 non-terminal `simp`
+  calls in pre-existing `InfiniteBosons` files (AtomPhoton*, BoseHubbard*, Field*, Fock*, GraphNorm,
+  EssentialSelfAdjoint, ...). The files added for T0 pass. To be fixed before a PR.
+- `lake exe runPhyslibAlphaLinters` needs a full PhyslibAlpha build; not yet run.
+
 ## Known risk
 
 T2 with pairing is not in the literature. The published construction uses particle-number

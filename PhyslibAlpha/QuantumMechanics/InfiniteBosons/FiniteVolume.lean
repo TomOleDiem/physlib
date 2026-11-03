@@ -546,7 +546,8 @@ lemma rowSum_le (V : L → ℕ → ℝ) (Λ : Finset L) (ρ : Occ L) (n : ℕ) {
         · refine (norm_ann_ann_le hx hy _ _).trans ?_
           rw [occIn_add, occIn_add, occIn_single Λ hy, occIn_single Λ hx]
           push_cast
-          have : (occIn Λ a : ℝ) ≤ 2 * n + 1 := by exact_mod_cast (show occIn Λ a ≤ 2 * n + 1 by omega)
+          have : (occIn Λ a : ℝ) ≤ 2 * n + 1 := by
+            exact_mod_cast (show occIn Λ a ≤ 2 * n + 1 by omega)
           linarith
 
 /-- Column sums of the block from grade `n` to grade `n + 1`. -/
@@ -631,7 +632,8 @@ lemma eq_zero_of_orth (V : L → ℕ → ℝ) (Λ : Finset L) {c : ℝ} (hc : c 
         rw [matEl_conj H hH, h0, map_zero]
       rw [← hfib]; exact D.mem_gradeLe_of_matEl_ne V Λ hne
     rw [show g' a = g a by simp [g', hfa], ← hrowEq a]
-    refine (Finset.sum_congr rfl fun b hb => ?_).trans (Finset.sum_subset hsub fun b _ hb => ?_).symm
+    refine (Finset.sum_congr rfl fun b hb => ?_).trans
+      (Finset.sum_subset hsub fun b _ hb => ?_).symm
     · obtain ⟨n, -, hbn⟩ := exists_mem_of_mem_gradeLe hb
       have hfb : fib b := (mem_fibreGrade.mp hbn).1
       show matEl H a b * (if fib b then g b else 0) = _
