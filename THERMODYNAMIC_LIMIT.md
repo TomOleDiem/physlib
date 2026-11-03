@@ -71,7 +71,7 @@ volume Hamiltonian is unbounded below and `e^{-βH_Λ}` is not trace class.
 | 1 | T0: block-Jacobi Carleman criterion (`blockJacobi_no_l2_solution`, JacobiCarleman.lean) and `BoseHubbardData.finiteHam_isEssentiallySelfAdjoint` for arbitrary real on-site `V` (FiniteVolume.lean) | done |
 | 2 | T1: commutator bound: `expect_le_exp_mul`, `norm_commutator_diag_le` (MomentBound.lean); move estimates and `BoseHubbardData.sum_finiteHam_le` (LocalMoments.lean) | done |
 | 3 | T1 for the true finite-volume dynamics: `BoseHubbardData.localMoment_dynamics_le` (TruncationLimit.lean). For the unitary group of the self-adjoint closure of `polyOp (finiteHam V Λ)` and a finite initial vector supported in `Λ` with local moments `≤ M`, `p ≥ 2`: every local moment of `U_{-t} f` is summable with sum `≤ e^{ct} W M`, `c`, `W` independent of `Λ` and `V`. Via `tendsto_trunc_dynamics` (truncated dynamics → true dynamics as the cutoff grows) | done |
-| 4 | T2.1 localized cutoff (LocalCutoff.lean): `cutOp` orthogonal projection (`cutOp_mul_self`, `isSelfAdjoint_cutOp`), commutes with occupation-diagonal operators (`cutAdj_mul_diagAdj`); volume-independent tail `tsum_tail_le` / `norm_sub_cutOp_sq_le`; local leakage `leakOp_finiteHam`, `exists_raise_of_leakOp_ne`; boundary pairing `leakOp_pair_single`, `norm_leakOp_pair_sq_le`. T2.2 (dynamics comparison) open | T2.1 done |
+| 4 | T2.1 localized cutoff (LocalCutoff.lean): `cutOp` orthogonal projection (`cutOp_mul_self`, `isSelfAdjoint_cutOp`), commutes with occupation-diagonal operators (`cutAdj_mul_diagAdj`); volume-independent tail `tsum_tail_le` / `norm_sub_cutOp_sq_le`; local leakage `leakOp_finiteHam`, `exists_raise_of_leakOp_ne`; boundary pairing `leakOp_pair_single`, `norm_leakOp_pair_sq_le`; hopping `leakOp_hop_single`, `norm_leakOp_hop_sq_le`; bond decomposition `leakOp_bondTerm_boundary`, `leakOp_bondTerm_inside`; density matrix `trace_tail_le`. T2.2 (moments under cutoff dynamics, then comparison) open | T2.1 done |
 | 5 | T2: interaction picture with respect to `D` | open |
 | 6 | T2: Lieb-Robinson bound for the truncated interaction | open |
 | 7 | T2: assembly with `k = R^α` | open |
@@ -186,10 +186,15 @@ All in `LocalCutoff.lean`; each depends only on `propext`, `Classical.choice`, `
   orthogonal projection. `cutAdj_mul_diagAdj`: commutes with every occupation-diagonal operator,
   hence with any on-site `D(N)`. It is diagonal, so it preserves all occupations (`cutAdj_single`).
 - Tail. `tsum_tail_le`: for any weight `q ≥ 0` on basis states with `Σ_α q(α) (α_x+1)^k ≤ M` for
-  `x ∈ Y`, `Σ_α q(α) (1 - P_{Y,n}(α)) ≤ |Y| M / (n+1)^k`. Assumption recorded: a density matrix
-  enters only through its diagonal `q(α) = ⟨α|ρ|α⟩`, because `1 - P_{Y,n}` and the local moments are
-  diagonal (`Tr ρ D = Σ_α ρ_{αα} d_α` for diagonal `D`). The density-matrix statement itself (with a
-  trace-class `ρ`) is not formalized; the vector-state version is `norm_sub_cutOp_sq_le`.
+  `x ∈ Y`, `Σ_α q(α) (1 - P_{Y,n}(α)) ≤ |Y| M / (n+1)^k`. Density matrices: `trace_tail_le` for a
+  positive trace-class `ρ` (the `TraceClass` library of `ProbabilisticTheory`):
+  `Re Tr ρ (1 - P_{Y,n}) ≤ |Y| M / (n+1)^k`, via the exact identity `trace_mul_sub_cutOp`
+  `Tr ρ (1 - P_{Y,n}) = Σ_α ⟨α|ρ|α⟩ (1 - P_{Y,n}(α))`. Assumption recorded: the local moment
+  `Tr ρ (N_x+1)^k` of the unbounded diagonal operator is defined as its diagonal sum
+  `Σ_α ⟨α|ρ|α⟩ (α_x+1)^k` (the standard value in `[0, ∞]` for `ρ ≥ 0`); it is a hypothesis, stated
+  with summability. Vector-state version: `norm_sub_cutOp_sq_le`. Caveat (review): the tail controls
+  diagonal probabilities only; amplitudes in the Duhamel argument are controlled by the exact
+  leakage norms below, not by the tail.
 - Leakage. `leakOp Y n T = P^⊥ T P`. `leakOp_bondTerm_eq_zero`: bonds with both ends outside `Y`
   do not leak. `leakOp_finiteHam`: `P^⊥ H_Λ P` = (bonds inside `Y`) + (bonds crossing `∂Y`); the
   on-site potential does not leak. `exists_raise_of_leakOp_ne`: every nonzero leakage element has
@@ -202,9 +207,30 @@ All in `LocalCutoff.lean`; each depends only on `propext`, `Classical.choice`, `
   generalization. It costs one extra moment order: a moment of order `2k` at the inner site buys
   decay `(n+1)^{1-k}`, and only a second moment is needed at the outer site. For `k ≥ 2` the
   contribution vanishes as `n → ∞`, uniformly in `Λ`.
-- Not done in T2.1 (left for T2.2): the hopping boundary term with the analogous weighted estimate
-  (same structure, amplitude `√(β_x+1)√β_y`), the observables of finite occupation transfer, and the
-  dynamics comparison `ω((α_t^Λ(A) - α̃_t^{Λ,Y,n}(A)) B)`.
+- Hopping (`x ∈ Y`, `x ≠ y`, `y` inside or outside `Y`). Exact: `P^⊥ a_x† a_y P e_β =
+  1_{β ∈ P, β_x = n} √(β_x+1) √β_y e_{β-e_y+e_x}` (`leakOp_hop_single`); norm identity
+  `norm_leakOp_hop_sq`; the same weighted estimate as pairing, `norm_leakOp_hop_sq_le`. For `y ∉ Y`
+  it is unbounded; for `y ∈ Y`, `β_y ≤ n` on the cutoff.
+- Bond terms. `leakOp_eq_zero_of_le`: a term not raising any occupation in `Y` does not leak; so
+  pair annihilation (`leakOp_annOp_mul_annOp`) and hopping out of `Y`
+  (`leakOp_creOp_mul_annOp_of_not_mem`) do not leak. Boundary bond, either orientation
+  (`leakOp_bondTerm_boundary`, `leakOp_bondTerm_boundary'`): `P^⊥ h_{xy} P = -J P^⊥ a_x† a_y P +
+  Δ P^⊥ a_x† a_y† P`. Inside bond (`leakOp_bondTerm_inside`): both hoppings plus pair creation;
+  pair creation inside `Y` exactly (`leakOp_pair_single_inside`), leaking from `β_x = n` or
+  `β_y = n` with amplitude at most `n + 1` (bounded).
+- Left for T2.2: moments under the cutoff dynamics, the Duhamel comparison, observables of finite
+  occupation transfer.
+
+### T2.2 plan (review, 2026-11-03)
+
+1. Hopping boundary estimate: done in T2.1 (`norm_leakOp_hop_sq_le`).
+2. Moments under the localized cutoff dynamics `Ũ_s`, uniformly in `Λ` and in `n`, including the
+   sites just outside `Y`: `sup_{x ∈ Y ∪ ∂Y} ⟨f_s, (N_x+1)^p f_s⟩ ≤ C_{p,T} M`. This is the critical
+   new lemma: T1 covers the true dynamics only. Generator to be fixed first (below).
+3. Duhamel comparison in the state-dependent topology, for finite-volume density matrices with the
+   moment assumptions; no arbitrary bounded test operator `B` yet.
+4. Observables of finite occupation transfer and their weighted estimates.
+5. Only then: spatial locality, truncated Lieb-Robinson bound, `n = R^α`.
 
 ## Where Deuchert-Lampart-Lemm use number conservation
 

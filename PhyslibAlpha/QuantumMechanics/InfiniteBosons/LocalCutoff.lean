@@ -6,6 +6,7 @@ Authors: Tom Diem
 module
 
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.TruncationLimit
+public import PhyslibAlpha.ProbabilisticTheory.HilbertSpace.TraceClass.Pairing
 /-!
 
 # Localized occupation cutoffs
@@ -24,7 +25,10 @@ bond `x ~ y` changes only the occupations at `x` and `y`, so it commutes with `P
 bond touches `Y`. A term leaving the range of the cutoff raises an occupation in `Y` from `n` to
 `n + 1`. For a pairing bond with `x ∈ Y` and `y ∉ Y` the leakage `P_{Y,n}^⊥ a_x† a_y† P_{Y,n}` is
 unbounded, since the occupation at `y` is not restricted; its size is a weighted sum involving the
-occupation at `y`, controlled by local moments at both sites.
+occupation at `y`, controlled by local moments at both sites. The hopping `a_x† a_y` into `Y` has
+the same structure, with amplitude `√(β_x + 1) √β_y`; hopping out of `Y` and pair annihilation do
+not leak. The tail estimate holds for positive trace-class density matrices, whose moments enter
+through the diagonal `⟨α|ρ|α⟩`.
 
 ## ii. Key results
 
@@ -39,6 +43,13 @@ occupation at `y`, controlled by local moments at both sites.
   `Y` from `n` to `n + 1`.
 - `InfiniteBosons.leakOp_pair_single`, `InfiniteBosons.norm_leakOp_pair_sq_le`: the unbounded
   boundary pairing leakage, exactly and with a weighted estimate.
+- `InfiniteBosons.leakOp_hop_single`, `InfiniteBosons.norm_leakOp_hop_sq_le`: the hopping leakage
+  into `Y`, exactly and with the same weighted estimate.
+- `InfiniteBosons.BoseHubbardData.leakOp_bondTerm_boundary`,
+  `InfiniteBosons.BoseHubbardData.leakOp_bondTerm_inside`: the leakage of a bond term as a sum of
+  the hopping and pairing leakages.
+- `InfiniteBosons.trace_tail_le`: the tail `Tr ρ (1 - P_{Y,n}) ≤ |Y| M / (n + 1)^k` for a density
+  matrix.
 
 ## iii. Table of contents
 
@@ -46,6 +57,9 @@ occupation at `y`, controlled by local moments at both sites.
 - B. The tail of the cutoff
 - C. Local leakage of hopping and pairing
 - D. The pairing term across the boundary of `Y`
+- E. The hopping term into `Y`
+- F. The leakage of a bond term
+- G. The tail in a density matrix
 
 ## iv. References
 
@@ -430,14 +444,15 @@ variable {B : Type*} [DecidableEq B]
 
 /-- Finite vectors with coefficients on distinct basis states: the square norm is the sum of the
 squares of the coefficients. -/
-lemma norm_embed_sum_single_sq (s : Finset B) (τ : B → B) (hτ : Function.Injective τ)
+lemma norm_embed_sum_single_sq (s : Finset B) (τ : B → B) (hτ : Set.InjOn τ s)
     (w : B → ℂ) :
     ‖embed (∑ β ∈ s, single (τ β) (w β))‖ ^ 2 = ∑ β ∈ s, ‖w β‖ ^ 2 := by
   classical
   set v := ∑ β ∈ s, single (τ β) (w β)
   have hv : ∀ β ∈ s, v (τ β) = w β := fun β hβ => by
-    simp only [v, Finsupp.finsetSum_apply, Finsupp.single_apply, hτ.eq_iff]
-    rw [Finset.sum_eq_single β (fun b _ hb => if_neg hb) (fun h => absurd hβ h), if_pos rfl]
+    simp only [v, Finsupp.finsetSum_apply, Finsupp.single_apply]
+    rw [Finset.sum_eq_single β (fun b hb hne => if_neg fun e => hne (hτ hb hβ e))
+      (fun h => absurd hβ h), if_pos rfl]
   have hsupp : v.support ⊆ s.image τ := fun γ hγ => by
     by_contra h
     apply Finsupp.mem_support_iff.mp hγ
@@ -445,7 +460,7 @@ lemma norm_embed_sum_single_sq (s : Finset B) (τ : B → B) (hτ : Function.Inj
     exact Finset.sum_eq_zero fun β hβ => if_neg fun e => h (Finset.mem_image.mpr ⟨β, hβ, e⟩)
   rw [norm_embed_sq_eq_sum, Finset.sum_subset hsupp fun γ _ hγ => by
       rw [Finsupp.notMem_support_iff.mp hγ, norm_zero]; ring,
-    Finset.sum_image fun a _ b _ h => hτ h]
+    Finset.sum_image fun a ha b hb h => hτ ha hb h]
   exact Finset.sum_congr rfl fun β hβ => by rw [hv β hβ]
 
 end Orthogonal
@@ -525,7 +540,7 @@ lemma norm_leakOp_pair_sq (Y : Finset L) (n : ℕ) {x y : L} (hx : x ∈ Y) (hy 
     ‖embed ((leakOp Y n (creOp x * creOp y)).1.1 f)‖ ^ 2 = ∑ β ∈ f.support,
       edgeWeight Y n x β * (((β x : ℝ) + 1) * ((β y : ℝ) + 1)) * ‖f β‖ ^ 2 := by
   rw [leakOp_pair_apply Y n hx hy, norm_embed_sum_single_sq _ _
-    (fun a b h => add_right_cancel (add_right_cancel h))]
+    (fun a _ b _ h => add_right_cancel (add_right_cancel h))]
   refine Finset.sum_congr rfl fun β _ => ?_
   rw [norm_mul, norm_mul, norm_mul, Complex.norm_real, Complex.norm_real, Complex.norm_real,
     Real.norm_eq_abs, Real.norm_eq_abs, Real.norm_eq_abs, abs_of_nonneg (Real.sqrt_nonneg _),
@@ -543,21 +558,16 @@ lemma edgeWeight_mul_le (Y : Finset L) (n k : ℕ) (x : L) (β : Occ L) :
   · rw [one_mul, h.2, div_self (by positivity), one_pow, mul_one]
   · rw [zero_mul]; positivity
 
-/-- **Weighted estimate for the boundary pairing leakage.** For `x ∈ Y`, `y ∉ Y` and a finite
-vector `f` with local moments `Σ_β (β_x + 1)^{2k} |f_β|² ≤ M_x` at `x` and
-`Σ_β (β_y + 1)² |f_β|² ≤ M_y` at `y`,
-`‖P_{Y,n}^⊥ a_x† a_y† P_{Y,n} f‖² ≤ (n + 1)^{1-k} (M_x + M_y) / 2`.
-The operator is unbounded, but on states with moments of order `2k ≥ 4` at `x` and of order `2` at
-`y` its contribution decays in the cutoff level `n`. -/
-lemma norm_leakOp_pair_sq_le (Y : Finset L) (n k : ℕ) {x y : L} (hx : x ∈ Y) (hy : y ∉ Y)
-    (f : Occ L →₀ ℂ) {Mx My : ℝ}
-    (hMx : ∑ β ∈ f.support, ((β x : ℝ) + 1) ^ (2 * k) * ‖f β‖ ^ 2 ≤ Mx)
-    (hMy : ∑ β ∈ f.support, ((β y : ℝ) + 1) ^ 2 * ‖f β‖ ^ 2 ≤ My) :
-    ‖embed ((leakOp Y n (creOp x * creOp y)).1.1 f)‖ ^ 2 ≤
+omit [DecidableEq L] in
+/-- The weighted sum that controls the leakage across the boundary: on the support of the edge
+weight `β_x = n`, so by the arithmetic-geometric mean inequality
+`1_{β_x = n} (β_x + 1)(β_y + 1) ≤ (n + 1)^{1-k} ((β_x + 1)^{2k} + (β_y + 1)²) / 2`. -/
+lemma sum_edgeWeight_le (Y : Finset L) (n k : ℕ) (x y : L) (s : Finset (Occ L)) (f : Occ L → ℂ)
+    {Mx My : ℝ} (hMx : ∑ β ∈ s, ((β x : ℝ) + 1) ^ (2 * k) * ‖f β‖ ^ 2 ≤ Mx)
+    (hMy : ∑ β ∈ s, ((β y : ℝ) + 1) ^ 2 * ‖f β‖ ^ 2 ≤ My) :
+    ∑ β ∈ s, edgeWeight Y n x β * (((β x : ℝ) + 1) * ((β y : ℝ) + 1)) * ‖f β‖ ^ 2 ≤
       ((n : ℝ) + 1) / ((n : ℝ) + 1) ^ k * ((Mx + My) / 2) := by
-  have hn : (0 : ℝ) < ((n : ℝ) + 1) ^ k := by positivity
-  rw [norm_leakOp_pair_sq Y n hx hy]
-  have hpt : ∀ β ∈ f.support, edgeWeight Y n x β * (((β x : ℝ) + 1) * ((β y : ℝ) + 1)) *
+  have hpt : ∀ β ∈ s, edgeWeight Y n x β * (((β x : ℝ) + 1) * ((β y : ℝ) + 1)) *
       ‖f β‖ ^ 2 ≤ ((n : ℝ) + 1) / ((n : ℝ) + 1) ^ k *
         ((((β x : ℝ) + 1) ^ (2 * k) * ‖f β‖ ^ 2 + ((β y : ℝ) + 1) ^ 2 * ‖f β‖ ^ 2) / 2) := by
     intro β _
@@ -579,5 +589,415 @@ lemma norm_leakOp_pair_sq_le (Y : Finset L) (n k : ℕ) {x y : L} (hx : x ∈ Y)
   refine mul_le_mul_of_nonneg_left ?_ (by positivity)
   rw [← Finset.sum_div, Finset.sum_add_distrib]
   linarith
+
+/-- **Weighted estimate for the boundary pairing leakage.** For `x ∈ Y`, `y ∉ Y` and a finite
+vector `f` with local moments `Σ_β (β_x + 1)^{2k} |f_β|² ≤ M_x` at `x` and
+`Σ_β (β_y + 1)² |f_β|² ≤ M_y` at `y`,
+`‖P_{Y,n}^⊥ a_x† a_y† P_{Y,n} f‖² ≤ (n + 1)^{1-k} (M_x + M_y) / 2`.
+The operator is unbounded, but on states with moments of order `2k ≥ 4` at `x` and of order `2` at
+`y` its contribution decays in the cutoff level `n`. -/
+lemma norm_leakOp_pair_sq_le (Y : Finset L) (n k : ℕ) {x y : L} (hx : x ∈ Y) (hy : y ∉ Y)
+    (f : Occ L →₀ ℂ) {Mx My : ℝ}
+    (hMx : ∑ β ∈ f.support, ((β x : ℝ) + 1) ^ (2 * k) * ‖f β‖ ^ 2 ≤ Mx)
+    (hMy : ∑ β ∈ f.support, ((β y : ℝ) + 1) ^ 2 * ‖f β‖ ^ 2 ≤ My) :
+    ‖embed ((leakOp Y n (creOp x * creOp y)).1.1 f)‖ ^ 2 ≤
+      ((n : ℝ) + 1) / ((n : ℝ) + 1) ^ k * ((Mx + My) / 2) := by
+  rw [norm_leakOp_pair_sq Y n hx hy]
+  exact sum_edgeWeight_le Y n k x y f.support f hMx hMy
+
+
+/-!
+
+## E. The hopping term into `Y`
+
+-/
+
+/-- The cutoff weight of `β - e_y + e_x` when `x ∈ Y`, `x ≠ y` and `β_y ≥ 1`. The site `y` may lie
+inside or outside `Y`. -/
+lemma cutWeight_mul_one_sub_hop (Y : Finset L) (n : ℕ) {x y : L} (hx : x ∈ Y) (hxy : x ≠ y)
+    {β : Occ L} (hβ : 1 ≤ β y) :
+    (1 - cutWeight Y n (β - single y 1 + single x 1)) * cutWeight Y n β = edgeWeight Y n x β := by
+  have hcoord : ∀ z, (β - single y 1 + single x 1 : Occ L) z =
+      β z - (if y = z then 1 else 0) + if x = z then 1 else 0 := fun z => by
+    simp [Finsupp.single_apply]
+  unfold cutWeight edgeWeight
+  by_cases hβY : ∀ z ∈ Y, β z ≤ n
+  · rw [if_pos hβY, mul_one]
+    by_cases hbx : β x = n
+    · rw [if_neg, if_pos ⟨hβY, hbx⟩]
+      · norm_num
+      · intro h; have := h x hx; rw [hcoord x, if_pos rfl, if_neg hxy.symm] at this; omega
+    · rw [if_pos, if_neg (fun h => hbx h.2)]
+      · norm_num
+      · intro z hz
+        rw [hcoord z]
+        have := hβY z hz
+        split_ifs with h1 h2 h2
+        · exact absurd (h1.trans h2.symm) hxy.symm
+        · omega
+        · subst h2; omega
+        · omega
+  · rw [if_neg hβY, if_neg (show ¬((∀ z ∈ Y, β z ≤ n) ∧ β x = n) from fun h => hβY h.1),
+      mul_zero]
+
+/-- **The hopping leakage on basis states.** For `x ∈ Y` and `x ≠ y`,
+`P_{Y,n}^⊥ a_x† a_y P_{Y,n} e_β = 1_{β ∈ P_{Y,n}, β_x = n} √(β_x+1) √(β_y) e_{β - e_y + e_x}`.
+For `y ∉ Y` the occupation `β_y` is not restricted and the operator is unbounded; for `y ∈ Y` it is
+at most `n` on the range of the cutoff. -/
+lemma leakOp_hop_single (Y : Finset L) (n : ℕ) {x y : L} (hx : x ∈ Y) (hxy : x ≠ y)
+    (β : Occ L) :
+    (leakOp Y n (creOp x * annOp y)).1.1 (single β 1) = single (β - single y 1 + single x 1)
+      (((edgeWeight Y n x β : ℝ) : ℂ) * (((Real.sqrt ((β x : ℝ) + 1) : ℝ) : ℂ) *
+        ((Real.sqrt (β y : ℝ) : ℝ) : ℂ))) := by
+  have hbx : (β - single y 1 : Occ L) x = β x := by simp [Finsupp.single_apply, hxy.symm]
+  show diagLin _ (cre x (ann y (diagLin (cutWeight Y n) (single β 1)))) = _
+  rw [diagLin_single, mul_one, show (single β ((cutWeight Y n β : ℝ) : ℂ) : Occ L →₀ ℂ) =
+      ((cutWeight Y n β : ℝ) : ℂ) • single β 1 by simp [Finsupp.smul_single], map_smul,
+    map_smul, ann_single, cre_single, map_smul, diagLin_single, Finsupp.smul_single, smul_eq_mul,
+    hbx]
+  rcases Nat.eq_zero_or_pos (β y) with h0 | hpos
+  · simp [h0]
+  · rw [← cutWeight_mul_one_sub_hop Y n hx hxy hpos]
+    congr 1
+    push_cast
+    ring
+
+/-- The hopping leakage of a finite vector as a sum over basis states. -/
+lemma leakOp_hop_apply (Y : Finset L) (n : ℕ) {x y : L} (hx : x ∈ Y) (hxy : x ≠ y)
+    (f : Occ L →₀ ℂ) :
+    (leakOp Y n (creOp x * annOp y)).1.1 f = ∑ β ∈ f.support, single (β - single y 1 + single x 1)
+      (f β * (((edgeWeight Y n x β : ℝ) : ℂ) * (((Real.sqrt ((β x : ℝ) + 1) : ℝ) : ℂ) *
+        ((Real.sqrt (β y : ℝ) : ℝ) : ℂ)))) := by
+  conv_lhs => rw [← Finsupp.sum_single f]
+  rw [Finsupp.sum, map_sum]
+  refine Finset.sum_congr rfl fun β _ => ?_
+  rw [show (single β (f β) : Occ L →₀ ℂ) = f β • single β 1 by simp [Finsupp.smul_single],
+    map_smul, leakOp_hop_single Y n hx hxy, Finsupp.smul_single, smul_eq_mul]
+
+/-- The hopping move `β ↦ β - e_y + e_x` is injective on the states with `β_y ≥ 1`. -/
+lemma injOn_hop (s : Finset (Occ L)) (x y : L) :
+    Set.InjOn (fun β : Occ L => β - single y 1 + single x 1) ↑(s.filter fun β => β y ≠ 0) :=
+  fun a ha b hb h => by
+    have ha' : single y 1 ≤ a := (single_le_iff' y a).mpr
+      (Nat.one_le_iff_ne_zero.mpr (Finset.mem_filter.mp ha).2)
+    have hb' : single y 1 ≤ b := (single_le_iff' y b).mpr
+      (Nat.one_le_iff_ne_zero.mpr (Finset.mem_filter.mp hb).2)
+    exact (tsub_left_inj ha' hb').mp (add_right_cancel h)
+
+/-- **The size of the hopping leakage.** For `x ∈ Y`, `x ≠ y` and a finite vector `f`,
+`‖P_{Y,n}^⊥ a_x† a_y P_{Y,n} f‖² = Σ_β 1_{β ∈ P_{Y,n}, β_x = n} (β_x + 1) β_y |f_β|²`. -/
+lemma norm_leakOp_hop_sq (Y : Finset L) (n : ℕ) {x y : L} (hx : x ∈ Y) (hxy : x ≠ y)
+    (f : Occ L →₀ ℂ) :
+    ‖embed ((leakOp Y n (creOp x * annOp y)).1.1 f)‖ ^ 2 = ∑ β ∈ f.support,
+      edgeWeight Y n x β * (((β x : ℝ) + 1) * (β y : ℝ)) * ‖f β‖ ^ 2 := by
+  rw [leakOp_hop_apply Y n hx hxy, ← Finset.sum_filter_of_ne (p := fun β => β y ≠ 0)
+      (fun β _ hne h0 => hne (by simp [h0])),
+    norm_embed_sum_single_sq _ _ (injOn_hop _ x y), ← Finset.sum_filter_of_ne
+      (s := f.support) (p := fun β => β y ≠ 0) (fun β _ hne h0 => hne (by simp [h0]))]
+  refine Finset.sum_congr rfl fun β _ => ?_
+  rw [norm_mul, norm_mul, norm_mul, Complex.norm_real, Complex.norm_real, Complex.norm_real,
+    Real.norm_eq_abs, Real.norm_eq_abs, Real.norm_eq_abs, abs_of_nonneg (Real.sqrt_nonneg _),
+    abs_of_nonneg (Real.sqrt_nonneg _), mul_pow, mul_pow, mul_pow, sq_abs, Real.sq_sqrt
+    (by positivity), Real.sq_sqrt (by positivity)]
+  rcases edgeWeight_mem Y n x β with h | h <;> rw [h] <;> ring
+
+omit [DecidableEq L] in
+lemma edgeWeight_nonneg (Y : Finset L) (n : ℕ) (x : L) (β : Occ L) : 0 ≤ edgeWeight Y n x β := by
+  rcases edgeWeight_mem Y n x β with h | h <;> rw [h] <;> norm_num
+
+/-- **Weighted estimate for the hopping leakage.** For `x ∈ Y`, `x ≠ y` and a finite vector `f`
+with local moments of order `2k` at `x` and of order `2` at `y`, as for pairing,
+`‖P_{Y,n}^⊥ a_x† a_y P_{Y,n} f‖² ≤ (n + 1)^{1-k} (M_x + M_y) / 2`. -/
+lemma norm_leakOp_hop_sq_le (Y : Finset L) (n k : ℕ) {x y : L} (hx : x ∈ Y) (hxy : x ≠ y)
+    (f : Occ L →₀ ℂ) {Mx My : ℝ}
+    (hMx : ∑ β ∈ f.support, ((β x : ℝ) + 1) ^ (2 * k) * ‖f β‖ ^ 2 ≤ Mx)
+    (hMy : ∑ β ∈ f.support, ((β y : ℝ) + 1) ^ 2 * ‖f β‖ ^ 2 ≤ My) :
+    ‖embed ((leakOp Y n (creOp x * annOp y)).1.1 f)‖ ^ 2 ≤
+      ((n : ℝ) + 1) / ((n : ℝ) + 1) ^ k * ((Mx + My) / 2) := by
+  rw [norm_leakOp_hop_sq Y n hx hxy]
+  refine (Finset.sum_le_sum fun β _ => ?_).trans (sum_edgeWeight_le Y n k x y f.support f hMx hMy)
+  exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left
+    (by linarith) (by positivity)) (edgeWeight_nonneg Y n x β)) (by positivity)
+
+
+/-!
+
+## F. The leakage of a bond term
+
+-/
+
+/-- An operator whose matrix elements never raise an occupation in `Y` does not leak. -/
+lemma leakOp_eq_zero_of_le (Y : Finset L) (n : ℕ) (T : adjointable L)
+    (hT : ∀ α β, matEl T α β ≠ 0 → ∀ z ∈ Y, α z ≤ β z) : leakOp Y n T = 0 := by
+  refine adjointable_ext_matEl fun α β => ?_
+  rw [matEl_leakOp, show matEl (0 : adjointable L) α β = 0 from rfl]
+  by_cases h : matEl T α β = 0
+  · rw [h]; ring
+  · rcases cutWeight_mem Y n β with hb | hb
+    · simp [hb]
+    · have ha : cutWeight Y n α = 1 := by
+        unfold cutWeight at hb ⊢
+        split_ifs at hb with hc
+        · exact if_pos fun z hz => (hT α β h z hz).trans (hc z hz)
+        · exact absurd hb (by norm_num)
+      simp [ha]
+
+lemma leakOp_smul (Y : Finset L) (n : ℕ) (c : ℂ) (T : adjointable L) :
+    leakOp Y n (c • T) = c • leakOp Y n T := by
+  unfold leakOp; rw [mul_smul_comm, smul_mul_assoc]
+
+/-- **Pair annihilation does not leak.** -/
+lemma leakOp_annOp_mul_annOp (Y : Finset L) (n : ℕ) (a b : L) :
+    leakOp Y n (annOp a * annOp b) = 0 :=
+  leakOp_eq_zero_of_le Y n _ fun α β h z _ => by
+    change ann a (ann b (single β 1)) α ≠ 0 at h
+    rw [ann_single, ann_single, Finsupp.single_apply] at h
+    split_ifs at h with he
+    · rw [← he]; simp only [Finsupp.tsub_apply]; omega
+    · exact absurd rfl h
+
+/-- **Hopping out of `Y` does not leak:** `a_a† a_b` with `a ∉ Y` lowers the occupations in `Y`. -/
+lemma leakOp_creOp_mul_annOp_of_not_mem (Y : Finset L) (n : ℕ) {a : L} (b : L) (ha : a ∉ Y) :
+    leakOp Y n (creOp a * annOp b) = 0 :=
+  leakOp_eq_zero_of_le Y n _ fun α β h z hz => by
+    change cre a (ann b (single β 1)) α ≠ 0 at h
+    rw [ann_single, cre_single, Finsupp.single_apply] at h
+    split_ifs at h with he
+    · rw [← he]
+      simp only [Finsupp.add_apply, Finsupp.tsub_apply, Finsupp.single_apply,
+        if_neg (show a ≠ z from fun e => ha (e ▸ hz))]
+      omega
+    · exact absurd rfl h
+
+namespace BoseHubbardData
+
+variable (D : BoseHubbardData L)
+
+open Classical in
+/-- **The leakage of a bond crossing the boundary of `Y`.** For `x ∈ Y` and `y ∉ Y`, only the
+hopping `a_x† a_y` into `Y` and the pair creation `a_x† a_y†` leak; both are unbounded. -/
+lemma leakOp_bondTerm_boundary (Y : Finset L) (n : ℕ) {x y : L} (hy : y ∉ Y) :
+    leakOp Y n (D.bondTerm x y) = if D.graph.Adj x y then
+      ((-D.J x y : ℝ) : ℂ) • leakOp Y n (creOp x * annOp y) +
+        D.Δ x y • leakOp Y n (creOp x * creOp y) else 0 := by
+  unfold bondTerm
+  split_ifs
+  · rw [leakOp_add, leakOp_add, leakOp_smul, leakOp_smul, leakOp_smul, leakOp_add,
+      leakOp_creOp_mul_annOp_of_not_mem Y n x hy, leakOp_annOp_mul_annOp, add_zero, smul_zero,
+      add_zero]
+  · unfold leakOp; rw [mul_zero, zero_mul]
+
+open Classical in
+/-- **The same bond, in the other orientation.** For `x ∈ Y` and `y ∉ Y`. -/
+lemma leakOp_bondTerm_boundary' (Y : Finset L) (n : ℕ) {x y : L} (hy : y ∉ Y) :
+    leakOp Y n (D.bondTerm y x) = if D.graph.Adj y x then
+      ((-D.J y x : ℝ) : ℂ) • leakOp Y n (creOp x * annOp y) +
+        D.Δ y x • leakOp Y n (creOp x * creOp y) else 0 := by
+  unfold bondTerm
+  split_ifs
+  · rw [leakOp_add, leakOp_add, leakOp_smul, leakOp_smul, leakOp_smul, leakOp_add,
+      leakOp_creOp_mul_annOp_of_not_mem Y n x hy, leakOp_annOp_mul_annOp, zero_add, smul_zero,
+      add_zero, creOp_comm_creOp]
+  · unfold leakOp; rw [mul_zero, zero_mul]
+
+open Classical in
+/-- **The leakage of a bond inside `Y`.** Both hoppings and the pair creation can leak, and pair
+annihilation cannot. -/
+lemma leakOp_bondTerm_inside (Y : Finset L) (n : ℕ) (x y : L) :
+    leakOp Y n (D.bondTerm x y) = if D.graph.Adj x y then
+      ((-D.J x y : ℝ) : ℂ) • (leakOp Y n (creOp x * annOp y) + leakOp Y n (creOp y * annOp x)) +
+        D.Δ x y • leakOp Y n (creOp x * creOp y) else 0 := by
+  unfold bondTerm
+  split_ifs
+  · rw [leakOp_add, leakOp_add, leakOp_smul, leakOp_smul, leakOp_smul, leakOp_add,
+      leakOp_annOp_mul_annOp, smul_zero, add_zero]
+  · unfold leakOp; rw [mul_zero, zero_mul]
+
+end BoseHubbardData
+
+/-- The cutoff weight of `β + e_y + e_x` when `x, y ∈ Y` and `x ≠ y`: the pair creation leaks
+from the states of the cutoff with `n` bosons at `x` or at `y`. -/
+lemma cutWeight_mul_one_sub_add_pair_inside (Y : Finset L) (n : ℕ) {x y : L} (hx : x ∈ Y)
+    (hy : y ∈ Y) (hxy : x ≠ y) (β : Occ L) :
+    (1 - cutWeight Y n (β + single y 1 + single x 1)) * cutWeight Y n β =
+      if (∀ z ∈ Y, β z ≤ n) ∧ (β x = n ∨ β y = n) then 1 else 0 := by
+  have hcoord : ∀ z, (β + single y 1 + single x 1 : Occ L) z =
+      β z + (if y = z then 1 else 0) + if x = z then 1 else 0 := fun z => by
+    simp [Finsupp.single_apply]
+  unfold cutWeight
+  by_cases hβY : ∀ z ∈ Y, β z ≤ n
+  · rw [if_pos hβY, mul_one]
+    by_cases hb : β x = n ∨ β y = n
+    · rw [if_neg, if_pos ⟨hβY, hb⟩]
+      · norm_num
+      · intro h
+        rcases hb with hb | hb
+        · have := h x hx; rw [hcoord x, if_pos rfl] at this; omega
+        · have := h y hy; rw [hcoord y, if_pos rfl] at this; omega
+    · rw [if_pos, if_neg (fun h => hb h.2)]
+      · norm_num
+      · intro z hz
+        rw [hcoord z]
+        have := hβY z hz
+        push Not at hb
+        split_ifs with h1 h2 h2
+        · exact absurd (h2.trans h1.symm) hxy
+        · subst h1; omega
+        · subst h2; omega
+        · omega
+  · rw [if_neg hβY, if_neg (show ¬((∀ z ∈ Y, β z ≤ n) ∧ (β x = n ∨ β y = n)) from
+      fun h => hβY h.1), mul_zero]
+
+/-- **The pair creation inside `Y` on basis states.** For `x, y ∈ Y`, `x ≠ y`, the leakage
+`P_{Y,n}^⊥ a_x† a_y† P_{Y,n} e_β` is `√(β_x+1) √(β_y+1) e_{β + e_x + e_y}` if `β` is in the cutoff
+with `β_x = n` or `β_y = n`, and zero otherwise. Its amplitude is at most `n + 1`: inside `Y` the
+leakage is bounded. -/
+lemma leakOp_pair_single_inside (Y : Finset L) (n : ℕ) {x y : L} (hx : x ∈ Y) (hy : y ∈ Y)
+    (hxy : x ≠ y) (β : Occ L) :
+    (leakOp Y n (creOp x * creOp y)).1.1 (single β 1) = single (β + single y 1 + single x 1)
+      (((if (∀ z ∈ Y, β z ≤ n) ∧ (β x = n ∨ β y = n) then 1 else 0 : ℝ) : ℂ) *
+        (((Real.sqrt ((β x : ℝ) + 1) : ℝ) : ℂ) * ((Real.sqrt ((β y : ℝ) + 1) : ℝ) : ℂ))) := by
+  have hbx : (β + single y 1 : Occ L) x = β x := by simp [hxy.symm]
+  show diagLin _ (cre x (cre y (diagLin (cutWeight Y n) (single β 1)))) = _
+  rw [diagLin_single, mul_one, show (single β ((cutWeight Y n β : ℝ) : ℂ) : Occ L →₀ ℂ) =
+      ((cutWeight Y n β : ℝ) : ℂ) • single β 1 by simp [Finsupp.smul_single], map_smul,
+    map_smul, cre_single, cre_single, map_smul, diagLin_single, Finsupp.smul_single, smul_eq_mul,
+    hbx, ← cutWeight_mul_one_sub_add_pair_inside Y n hx hy hxy β]
+  congr 1
+  push_cast
+  ring
+
+
+/-!
+
+## G. The tail in a density matrix
+
+-/
+
+section DensityMatrix
+
+open ProbabilisticTheory
+open scoped InnerProductSpace
+
+omit [DecidableEq L] in
+/-- The occupation basis `e_α` of `ℓ²(Occ L)`. -/
+def occBasis : HilbertBasis (Occ L) ℂ (HilbertSp (Occ L)) :=
+  HilbertBasis.ofRepr (LinearIsometryEquiv.refl ℂ _)
+
+lemma occBasis_apply (α : Occ L) : occBasis α = lp.single 2 α (1 : ℂ) := by
+  rw [← HilbertBasis.repr_symm_single]; rfl
+
+omit [DecidableEq L] in
+lemma occBasis_injective : Function.Injective (occBasis (L := L)) :=
+  occBasis.orthonormal.linearIndependent.injective
+
+omit [DecidableEq L] in
+/-- The occupation basis indexed by its range, the form used by the trace-class library. -/
+def occBasisSet : HilbertBasis (Set.range (occBasis (L := L))) ℂ (HilbertSp (Occ L)) :=
+  HilbertBasis.mk (v := Subtype.val) ((orthonormal_subtype_range occBasis_injective).mpr
+    occBasis.orthonormal) (by rw [Subtype.range_coe]; exact occBasis.dense_span.ge)
+
+omit [DecidableEq L] in
+lemma tsum_occBasisSet (F : HilbertSp (Occ L) → ℂ) :
+    ∑' i, F (occBasisSet i) = ∑' α, F (occBasis α) := by
+  rw [occBasisSet, HilbertBasis.coe_mk]
+  exact (Equiv.tsum_eq (Equiv.ofInjective _ occBasis_injective) fun i => F i.1).symm
+
+lemma sub_cutOp_occBasis (Y : Finset L) (n : ℕ) (α : Occ L) :
+    (1 - cutOp Y n) (occBasis α) = ((1 - cutWeight Y n α : ℝ) : ℂ) • occBasis α := by
+  refine Subtype.ext (funext fun β => ?_)
+  show (occBasis α : HilbertSp (Occ L)) β - (cutOp Y n (occBasis α) : HilbertSp (Occ L)) β = _
+  rw [cutOp_apply, occBasis_apply, lp.coeFn_smul, Pi.smul_apply, lp.single_apply]
+  by_cases h : β = α
+  · subst h; simp
+  · simp [Pi.single_apply, h]
+
+omit [DecidableEq L] in
+/-- The diagonal `⟨α|ρ|α⟩` of a positive operator is real. -/
+lemma inner_occBasis_eq_re {ρ : HilbertSp (Occ L) →L[ℂ] HilbertSp (Occ L)} (hρ : 0 ≤ ρ)
+    (α : Occ L) :
+    ⟪occBasis α, ρ (occBasis α)⟫_ℂ = (((⟪occBasis α, ρ (occBasis α)⟫_ℂ).re : ℝ) : ℂ) := by
+  have h := ((ContinuousLinearMap.isPositive_iff_complex ρ).mp
+    (ρ.nonneg_iff_isPositive.mp hρ) (occBasis α)).1
+  rw [← inner_conj_symm, ← h, Complex.conj_ofReal, Complex.ofReal_inj, ← h, Complex.ofReal_re]
+
+omit [DecidableEq L] in
+lemma isTraceClass_mul_right {ρ : HilbertSp (Occ L) →L[ℂ] HilbertSp (Occ L)}
+    (h : IsTraceClass ρ) (B : HilbertSp (Occ L) →L[ℂ] HilbertSp (Occ L)) :
+    IsTraceClass (ρ * B) := by
+  simpa using isTraceClass_mul_mul (A := 1) (B := B) h
+
+omit [DecidableEq L] in
+lemma sub_cutOp_mul_self (Y : Finset L) (n : ℕ) :
+    (1 - cutOp Y n) * (1 - cutOp Y n) = 1 - cutOp Y n := by
+  rw [sub_mul, mul_sub, mul_sub, cutOp_mul_self, one_mul, mul_one, one_mul, sub_self, sub_zero]
+
+omit [DecidableEq L] in
+/-- The trace of `ρ Q` for a positive trace-class `ρ` and a self-adjoint idempotent `Q` that is
+diagonal in the occupation basis with eigenvalues `c α ∈ {0, 1}`. -/
+lemma trace_mul_diag_proj {ρ : HilbertSp (Occ L) →L[ℂ] HilbertSp (Occ L)} (hρ : 0 ≤ ρ)
+    (htr : IsTraceClass ρ) {Q : HilbertSp (Occ L) →L[ℂ] HilbertSp (Occ L)} (hQ : IsSelfAdjoint Q)
+    (hQQ : Q * Q = Q) {c : Occ L → ℝ} (hc : ∀ α, Q (occBasis α) = (c α : ℂ) • occBasis α)
+    (hcc : ∀ α, c α * c α = c α) :
+    trace (ρ * Q) (isTraceClass_mul_right htr Q) =
+      ((∑' α, (⟪occBasis α, ρ (occBasis α)⟫_ℂ).re * c α : ℝ) : ℂ) := by
+  have key : ∀ {X Z : HilbertSp (Occ L) →L[ℂ] HilbertSp (Occ L)} (hXZ : X = Z) hX hZ,
+      trace X hX = trace Z hZ := by intro X Z h hX hZ; subst h; rfl
+  have hT := isTraceClass_mul_right htr Q
+  have hX : IsTraceClass (Q * ρ * Q) := isTraceClass_mul_mul htr
+  have hX0 : 0 ≤ Q * ρ * Q := by
+    have h := star_left_conjugate_nonneg hρ Q
+    rwa [hQ.star_eq] at h
+  have hQT : IsTraceClass (Q * (ρ * Q)) := mul_assoc Q ρ Q ▸ hX
+  have hcyc := trace_mul_cycle (A := Q) hT
+  calc trace (ρ * Q) (isTraceClass_mul_right htr Q)
+        = trace (ρ * Q * Q) (isTraceClass_mul_right hT Q) := key (by rw [mul_assoc, hQQ]) _ _
+    _ = trace (Q * (ρ * Q)) hQT := trace_congr.trans (hcyc.symm.trans trace_congr)
+    _ = trace (Q * ρ * Q) hX := key (mul_assoc Q ρ Q).symm _ _
+    _ = _ := by
+      rw [trace_eq_of_hilbertBasis_of_nonneg hX0 hX occBasisSet,
+        tsum_occBasisSet (fun v => ⟪v, (Q * ρ * Q) v⟫_ℂ), Complex.ofReal_tsum]
+      refine tsum_congr fun α => ?_
+      have hsa : ⟪occBasis α, Q (ρ (Q (occBasis α)))⟫_ℂ =
+          ⟪Q (occBasis α), ρ (Q (occBasis α))⟫_ℂ := by
+        rw [← ContinuousLinearMap.adjoint_inner_left, ← ContinuousLinearMap.star_eq_adjoint,
+          hQ.star_eq]
+      show ⟪occBasis α, Q (ρ (Q (occBasis α)))⟫_ℂ = _
+      rw [hsa, hc, map_smul, inner_smul_left, inner_smul_right, inner_occBasis_eq_re hρ α,
+        Complex.conj_ofReal, ← mul_assoc, ← Complex.ofReal_mul, hcc, ← Complex.ofReal_mul,
+        mul_comm, Complex.ofReal_re]
+
+/-- **The trace of a density matrix against the complement of the cutoff** is the diagonal sum
+`Tr ρ (1 - P_{Y,n}) = Σ_α ⟨α|ρ|α⟩ (1 - P_{Y,n}(α))`. -/
+lemma trace_mul_sub_cutOp {ρ : HilbertSp (Occ L) →L[ℂ] HilbertSp (Occ L)} (hρ : 0 ≤ ρ)
+    (htr : IsTraceClass ρ) (Y : Finset L) (n : ℕ) :
+    trace (ρ * (1 - cutOp Y n)) (isTraceClass_mul_right htr _) =
+      ((∑' α, (⟪occBasis α, ρ (occBasis α)⟫_ℂ).re * (1 - cutWeight Y n α) : ℝ) : ℂ) := by
+  have hQ : IsSelfAdjoint (1 - cutOp Y n) := by
+    have h := isSelfAdjoint_cutOp Y n
+    rw [IsSelfAdjoint, ContinuousLinearMap.star_eq_adjoint] at h ⊢
+    rw [map_sub, h, ← ContinuousLinearMap.star_eq_adjoint, star_one]
+  exact trace_mul_diag_proj hρ htr hQ (sub_cutOp_mul_self Y n) (sub_cutOp_occBasis Y n)
+    fun α => by rcases cutWeight_mem Y n α with h | h <;> simp [h]
+
+/-- **The tail of the localized cutoff in a density matrix**, independently of the ambient volume.
+For a positive trace-class `ρ` whose local moments `Tr ρ (N_x + 1)^k = Σ_α ⟨α|ρ|α⟩ (α_x + 1)^k` are
+at most `M` at the sites of `Y`, `Re Tr ρ (1 - P_{Y,n}) ≤ |Y| M / (n + 1)^k`. The moments of the
+unbounded diagonal `(N_x + 1)^k` are defined by their diagonal sum, which is the standard value
+in `[0, ∞]` for a positive `ρ`. -/
+lemma trace_tail_le {ρ : HilbertSp (Occ L) →L[ℂ] HilbertSp (Occ L)} (hρ : 0 ≤ ρ)
+    (htr : IsTraceClass ρ) (Y : Finset L) (n k : ℕ) {M : ℝ}
+    (hsum : ∀ x ∈ Y, Summable fun α => (⟪occBasis α, ρ (occBasis α)⟫_ℂ).re * ((α x : ℝ) + 1) ^ k)
+    (hM : ∀ x ∈ Y, ∑' α, (⟪occBasis α, ρ (occBasis α)⟫_ℂ).re * ((α x : ℝ) + 1) ^ k ≤ M) :
+    (trace (ρ * (1 - cutOp Y n)) (isTraceClass_mul_right htr _)).re ≤
+      Y.card * M / ((n : ℝ) + 1) ^ k := by
+  rw [trace_mul_sub_cutOp hρ htr, Complex.ofReal_re]
+  refine (tsum_tail_le Y n k _ (fun α => ?_) hsum hM).2
+  have h := ((ContinuousLinearMap.isPositive_iff_complex ρ).mp
+    (ρ.nonneg_iff_isPositive.mp hρ) (occBasis α)).2
+  rw [← inner_conj_symm, RCLike.conj_re] at h
+  exact h
+
+end DensityMatrix
 
 end InfiniteBosons
