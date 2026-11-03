@@ -82,6 +82,32 @@ volume Hamiltonian is unbounded below and `e^{-βH_Λ}` is not trace class.
 
 Milestones 0 to 3 are intermediate. They are not evidence that T2 holds.
 
+## T1 working plan (next steps, in order)
+
+1. Done: `expect_le_exp_mul` (MomentBound.lean). If `Re⟨φ, i[H,A]φ⟩ ≤ c Re⟨φ,Aφ⟩` for all `φ`
+   (bounded `H`, `A`), then `⟨ψ_t, A ψ_t⟩ ≤ e^{ct} ⟨ψ, A ψ⟩` for `t ≥ 0`. Linear in the state, so it
+   passes to density matrices and locally normal states.
+2. Weighted moment. For a centre `x₀` take `A = Σ_{x∈Λ} w_x (N_x+1)^p` with
+   `w_x = e^{-μ d(x, x₀)}`, so `w_x ≤ e^μ w_y` for `x ~ y` and `w_{x₀} = 1`. Then
+   `ν_{x₀}(t) ≤ ⟨ψ_t, A ψ_t⟩ ≤ e^{ct} Σ_x w_x ν_x(0) ≤ e^{ct} M W`, where
+   `W = sup_{x₀} Σ_x e^{-μ d(x,x₀)} < ∞` on graphs of polynomial growth (any `μ > 0`). This avoids
+   Grönwall for a supremum over sites; the factor `W` is harmless.
+3. Commutator form bound (pure matrix-element estimate, occupation basis). For a diagonal `F` and
+   a term `T`, `|⟨φ, [T, F] φ⟩| ≤ Σ_{α,β} |T_{αβ}| |F(α) - F(β)| |φ_α| |φ_β|`, then AM-GM and row sums
+   (Schur, as in `norm_sum_conj_mul_le`). For hopping and pairing on `x ~ y` each basis state has at
+   most two partners, and `|T_{αβ}| |F_x(α) - F_x(β)| ≤ C_p (G_x + G_y)` at both `α` and `β`, with
+   `F_x = (N_x+1)^p` and `G_z = (N_z+1)^p`, using `(n+2)^p - (n+1)^p ≤ p (n+2)^{p-1}`, Young, and
+   `G(α) ≤ 2^p G(β)` for states differing by one or two bosons. The on-site `D(N)` commutes with
+   every `F_x`, so it drops out (`c` independent of `D` and `U`).
+4. Bounded model for step 1. Truncate each site of `Λ` at `K_max` (`P_K` diagonal). `P_K H_Λ P_K`
+   acts on the occupations of `Λ` only, the same finite matrix on every outside fibre, so it is a
+   bounded operator; `P_K` commutes with `D` and all `F_x`, and the truncated hopping and pairing
+   terms obey the same matrix-element bounds, so step 3 holds uniformly in `K_max`.
+5. Remove the truncation: `P_K H_Λ P_K → H_Λ` on finite vectors (eventually equal on each finite
+   vector), the finite vectors are a core by T0, so strong resolvent convergence
+   (Reed-Simon VIII.25) gives `e^{-itH_{Λ,K}} → e^{-itH_Λ}` strongly; moments pass to the limit by
+   lower semicontinuity (regularized moments, as DLL eq. (57)).
+
 ## Where Deuchert-Lampart-Lemm use number conservation
 
 Read from arXiv:2505.13170 (graph `d`-dimensional with surface parameter σ, `p > 2d + 2`):
