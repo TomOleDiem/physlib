@@ -224,7 +224,8 @@ lemma lrCoeff_mul_chainWeight_le_exp (hR : Φ.HasFiniteRange G R) {J : ℝ}
   by_cases hw : Φ.chainWeight Λ k X Y = 0
   · rw [hw, mul_zero]; positivity
   obtain ⟨x, hx, y, hy, hxy⟩ := exists_edist_le_of_chainWeight_ne_zero hR Λ k hw
-  have hn : (n : ℝ) ≤ k * R := by exact_mod_cast (ENat.natCast_le_natCast.mp ((hXY x hx y hy).trans hxy))
+  have hn : (n : ℝ) ≤ k * R := by
+    exact_mod_cast (ENat.natCast_le_natCast.mp ((hXY x hx y hy).trans hxy))
   have hexp : 1 ≤ Real.exp (μ * R) ^ k * Real.exp (-(μ * n)) := by
     rw [← Real.exp_nat_mul, ← Real.exp_add]
     exact Real.one_le_exp (by nlinarith)
