@@ -46,6 +46,9 @@ bookkeeping device for the signs.
 - `LatticeFermions.parityOp` : the parity operator `(-1)^N`.
 - `LatticeFermions.parityOp_mul_ann` : the parity anticommutes with every annihilator.
 - `LatticeFermions.numOp` : the number operator of a mode.
+- `LatticeFermions.numOp_add_numOp_commutator_cre_mul_cre` : pair creators raise the number of
+  particles by two.
+- `LatticeFermions.cre_mul_cre_ne_zero` : pair creators of different modes are not zero.
 
 ## iii. Table of contents
 
@@ -54,6 +57,7 @@ bookkeeping device for the signs.
 - C. The anticommutation relations
 - D. The parity operator
 - E. Number operators
+- F. The vacuum
 
 ## iv. References
 
@@ -392,5 +396,64 @@ lemma commute_numOp (i j : M) : Commute (numOp i) (numOp j) := by
     noncomm_ring
   rw [Commute, SemiconjBy, h1, h2, cre_mul_cre i j, ann_mul_ann i j]
   noncomm_ring
+
+lemma cre_mul_cre_self (j : M) : cre j * cre j = 0 := by
+  have h := cre_mul_cre j j
+  have h2 : (2 : ℂ) • (cre j * cre j) = 0 := by
+    rw [two_smul]; nth_rewrite 1 [h]; exact neg_add_cancel _
+  exact (smul_eq_zero.mp h2).resolve_left two_ne_zero
+
+lemma numOp_mul_cre_self (j : M) : numOp j * cre j = cre j := by
+  have h := ann_mul_cre_add_self j
+  rw [numOp, mul_assoc, eq_sub_of_add_eq h, mul_sub, mul_one, ← mul_assoc, cre_mul_cre_self,
+    zero_mul, sub_zero]
+
+lemma cre_mul_numOp_self (j : M) : cre j * numOp j = 0 := by
+  rw [numOp, ← mul_assoc, cre_mul_cre_self, zero_mul]
+
+lemma numOp_mul_cre_of_ne {i j : M} (hij : i ≠ j) : numOp i * cre j = cre j * numOp i := by
+  rw [numOp, mul_assoc, ann_mul_cre_of_ne hij, mul_neg, ← mul_assoc, cre_mul_cre i j,
+    neg_mul, neg_neg, mul_assoc]
+
+/-- The pair creator `c_i* c_j*` raises the number of particles in the modes `i` and `j` by two:
+`[n_i + n_j, c_i* c_j*] = 2 c_i* c_j*`. -/
+lemma numOp_add_numOp_commutator_cre_mul_cre {i j : M} (hij : i ≠ j) :
+    (numOp i + numOp j) * (cre i * cre j) - cre i * cre j * (numOp i + numOp j) =
+      (2 : ℂ) • (cre i * cre j) := by
+  have h1 : numOp i * (cre i * cre j) = cre i * cre j := by rw [← mul_assoc, numOp_mul_cre_self]
+  have h2 : numOp j * (cre i * cre j) = cre i * cre j := by
+    rw [← mul_assoc, numOp_mul_cre_of_ne hij.symm, mul_assoc, numOp_mul_cre_self]
+  have h3 : cre i * cre j * numOp i = 0 := by
+    rw [mul_assoc, ← numOp_mul_cre_of_ne hij, ← mul_assoc, cre_mul_numOp_self, zero_mul]
+  have h4 : cre i * cre j * numOp j = 0 := by rw [mul_assoc, cre_mul_numOp_self, mul_zero]
+  rw [add_mul, mul_add, h1, h2, h3, h4, two_smul]
+  abel
+
+/-!
+
+## F. The vacuum
+
+-/
+
+/-- The vacuum: the configuration without particles. -/
+def vacuum : FockSpace M := lp.single (E := fun _ : Finset M => ℂ) 2 ∅ 1
+
+lemma vacuum_apply (F : Finset M) : vacuum F = if F = ∅ then 1 else 0 := by
+  change lp.single (E := fun _ : Finset M => ℂ) 2 ∅ 1 F = _
+  rw [lp.single_apply, Pi.single_apply]
+
+lemma jwSign_ne_zero (F : Finset M) (j : M) : jwSign F j ≠ 0 :=
+  norm_ne_zero_iff.mp (by rw [norm_jwSign]; exact one_ne_zero)
+
+/-- The pair creator `c_i* c_j*` of two different modes is not zero. -/
+lemma cre_mul_cre_ne_zero {i j : M} (hij : i ≠ j) : cre i * cre j ≠ 0 := by
+  intro h
+  have h0 : cre i (cre j vacuum) {i, j} = 0 := by
+    change (cre i * cre j) vacuum {i, j} = 0
+    rw [h]; rfl
+  rw [cre_apply, ite_eq_left (Finset.mem_insert_self i {j}), cre_apply, Finset.erase_insert
+    (by simpa using hij), ite_eq_left (Finset.mem_singleton_self j), Finset.erase_singleton,
+    vacuum_apply, ite_eq_left rfl, mul_one] at h0
+  exact mul_ne_zero (jwSign_ne_zero _ _) (jwSign_ne_zero _ _) h0
 
 end LatticeFermions

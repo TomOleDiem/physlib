@@ -39,6 +39,8 @@ pairing.
 - `LatticeFermions.Hubbard.interaction` : the interaction of the CAR net.
 - `LatticeFermions.Hubbard.isBoundedBy` : the bound `J`.
 - `LatticeFermions.Hubbard.dynamics_exists` : the infinite-volume dynamics.
+- `LatticeFermions.Hubbard.pairing_changes_number` : the pairing terms change the particle
+  number.
 
 ## iii. Table of contents
 
@@ -462,6 +464,19 @@ omit [LinearOrder V] in
 lemma isBounded_hubbardPairing (t : ℂ) (W : ℝ) (Δ : ℂ) (U μ : V → ℝ) :
     (hubbardPairing t W Δ U μ).IsBounded ‖t‖ |W| ‖Δ‖ :=
   ⟨fun _ _ => le_rfl, fun _ _ => le_rfl, fun _ _ => le_rfl⟩
+
+omit [LinearOrder V] in
+lemma mode_ne (x y : V) : mode x true ≠ mode y false := fun h =>
+  Bool.true_eq_false_eq_False (congrArg (fun m => (ofLex m).2) h)
+
+/-- The pairing terms do not conserve the particle number: the pair creator `c*_{x↑} c*_{y↓}` of
+the pairing term is nonzero and raises `n_{x↑} + n_{y↓}` by two. -/
+lemma pairing_changes_number (x y : V) :
+    (numOp (mode x true) + numOp (mode y false)) * (cre (mode x true) * cre (mode y false)) -
+        cre (mode x true) * cre (mode y false) * (numOp (mode x true) + numOp (mode y false)) =
+      (2 : ℂ) • (cre (mode x true) * cre (mode y false)) ∧
+    cre (mode x true) * cre (mode y false) ≠ 0 :=
+  ⟨numOp_add_numOp_commutator_cre_mul_cre (mode_ne x y), cre_mul_cre_ne_zero (mode_ne x y)⟩
 
 end Hubbard
 
