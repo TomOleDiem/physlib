@@ -837,4 +837,91 @@ theorem truncated_localMoment_uniform (V : L → ℕ → ℝ) (Λ : Finset L) (S
 
 end BoseHubbardData
 
+
+/-!
+
+## J. Plain row sums of the finite-volume Hamiltonian
+
+-/
+
+/-- A move with a unique partner contributes at most its amplitude bound to a plain row sum. -/
+lemma sum_move_norm_le (S : Finset (Occ L)) {x y : L} (α β0 : Occ L) (f : Occ L → ℂ)
+    (hf : ∀ β, f β ≠ 0 → β = β0 ∧ IsMove x y α β ‖f β‖) :
+    ∑ β ∈ S, ‖f β‖ ≤ ((α x : ℝ) + 1) + ((α y : ℝ) + 1) := by
+  refine (sum_le_of_eq_zero S _ (fun _ => norm_nonneg _) β0 fun β _ hβ => ?_).trans ?_
+  · by_contra hne
+    exact hβ (hf β (fun h0 => hne (by rw [h0, norm_zero]))).1
+  · by_cases h0 : f β0 = 0
+    · rw [h0, norm_zero]; positivity
+    · exact (hf β0 h0).2.amp_le
+
+namespace BoseHubbardData
+
+variable (D : BoseHubbardData L)
+
+/-- **Plain row sum of one bond.** -/
+lemma sum_norm_bondTerm_le (S : Finset (Occ L)) {x y : L} {K : ℝ} (hJ : |D.J x y| ≤ K)
+    (hΔ : ‖D.Δ x y‖ ≤ K) (α : Occ L) :
+    ∑ β ∈ S, ‖matEl (D.bondTerm x y) α β‖ ≤ 4 * K * (((α x : ℝ) + 1) + ((α y : ℝ) + 1)) := by
+  have hK : 0 ≤ K := (abs_nonneg _).trans hJ
+  by_cases hadj : D.graph.Adj x y
+  swap
+  · refine (Finset.sum_eq_zero fun β _ => ?_).le.trans (by positivity)
+    rw [matEl_bondTerm, if_neg hadj, norm_zero]
+  have hxy : x ≠ y := hadj.ne
+  have hR1 := sum_move_norm_le S α _ (fun β => cre x (ann y (single β (1 : ℂ))) α)
+    fun β h => isMove_cre_ann hxy h
+  have hR2 := sum_move_norm_le S α _ (fun β => cre y (ann x (single β (1 : ℂ))) α)
+    fun β h => ⟨(isMove_cre_ann hxy.symm h).1, (isMove_cre_ann hxy.symm h).2.symm⟩
+  have hR3 := sum_move_norm_le S α _ (fun β => cre x (cre y (single β (1 : ℂ))) α)
+    fun β h => isMove_cre_cre hxy h
+  have hR4 := sum_move_norm_le S α _ (fun β => ann y (ann x (single β (1 : ℂ))) α)
+    fun β h => isMove_ann_ann hxy h
+  have hpt : ∀ β ∈ S, ‖matEl (D.bondTerm x y) α β‖ ≤
+      K * ‖cre x (ann y (single β (1 : ℂ))) α‖ + K * ‖cre y (ann x (single β (1 : ℂ))) α‖ +
+        K * ‖cre x (cre y (single β (1 : ℂ))) α‖ + K * ‖ann y (ann x (single β (1 : ℂ))) α‖ := by
+    intro β _
+    rw [matEl_bondTerm, if_pos hadj]
+    refine (norm_add₃_le).trans ?_
+    rw [norm_mul, norm_mul, norm_mul, RCLike.norm_conj, Complex.norm_real, Real.norm_eq_abs,
+      abs_neg]
+    have h1 := norm_add_le (cre x (ann y (single β (1 : ℂ))) α) (cre y (ann x (single β 1)) α)
+    nlinarith [norm_nonneg (cre x (ann y (single β (1 : ℂ))) α),
+      norm_nonneg (cre y (ann x (single β (1 : ℂ))) α),
+      norm_nonneg (cre x (cre y (single β (1 : ℂ))) α),
+      norm_nonneg (ann y (ann x (single β (1 : ℂ))) α), abs_nonneg (D.J x y),
+      norm_nonneg (D.Δ x y)]
+  refine (Finset.sum_le_sum hpt).trans ?_
+  simp only [Finset.sum_add_distrib, ← Finset.mul_sum]
+  nlinarith [mul_le_mul_of_nonneg_left hR1 hK, mul_le_mul_of_nonneg_left hR2 hK,
+    mul_le_mul_of_nonneg_left hR3 hK, mul_le_mul_of_nonneg_left hR4 hK]
+
+/-- **Plain row sum of the finite-volume Hamiltonian off the diagonal.** If every occupation of the
+row state in `Λ` is at most `n`, the off-diagonal row sum over any finite set is at most
+`8 K |Λ|² (n + 1)`. -/
+lemma sum_norm_finiteHam_le (V : L → ℕ → ℝ) (Λ : Finset L) (S : Finset (Occ L)) {K : ℝ}
+    (hK : 0 ≤ K) (hJ : ∀ x y, |D.J x y| ≤ K) (hΔ : ∀ x y, ‖D.Δ x y‖ ≤ K) (α : Occ L) {n : ℕ}
+    (hn : ∀ x ∈ Λ, α x ≤ n) :
+    ∑ β ∈ S.erase α, ‖matEl (D.finiteHam V Λ) α β‖ ≤ 8 * K * (Λ.card : ℝ) ^ 2 * (n + 1) := by
+  have hpt : ∀ β ∈ S.erase α, ‖matEl (D.finiteHam V Λ) α β‖ ≤
+      ∑ q ∈ Λ ×ˢ Λ, ‖matEl (D.bondTerm q.1 q.2) α β‖ := by
+    intro β hβ
+    unfold finiteHam
+    rw [matEl_add, matEl_sum, matEl_diagAdj, if_neg (Finset.ne_of_mem_erase hβ), zero_add]
+    exact norm_sum_le _ _
+  refine (Finset.sum_le_sum hpt).trans ?_
+  rw [Finset.sum_comm]
+  calc ∑ q ∈ Λ ×ˢ Λ, ∑ β ∈ S.erase α, ‖matEl (D.bondTerm q.1 q.2) α β‖
+      ≤ ∑ q ∈ Λ ×ˢ Λ, 4 * K * (((n : ℝ) + 1) + ((n : ℝ) + 1)) :=
+        Finset.sum_le_sum fun q hq => by
+          obtain ⟨hx, hy⟩ := Finset.mem_product.mp hq
+          refine (D.sum_norm_bondTerm_le _ (hJ _ _) (hΔ _ _) α).trans ?_
+          have h1 : (α q.1 : ℝ) ≤ n := by exact_mod_cast hn _ hx
+          have h2 : (α q.2 : ℝ) ≤ n := by exact_mod_cast hn _ hy
+          nlinarith
+    _ = 8 * K * (Λ.card : ℝ) ^ 2 * (n + 1) := by
+        rw [Finset.sum_const, Finset.card_product, nsmul_eq_mul]; push_cast; ring
+
+end BoseHubbardData
+
 end InfiniteBosons
