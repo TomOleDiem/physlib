@@ -5,7 +5,7 @@ Authors: Tom Diem
 -/
 module
 
-public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.LocalMoments
+public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.TruncationLimit
 /-!
 
 # Localized occupation cutoffs
@@ -405,5 +405,92 @@ lemma exists_raise_of_leakOp_ne (Y : Finset L) (n : ℕ) {x y : L} {α β : Occ 
   omega
 
 end BoseHubbardData
+
+
+/-!
+
+## D. The pairing term across the boundary of `Y`
+
+-/
+
+section Orthogonal
+
+variable {B : Type*} [DecidableEq B]
+
+/-- Finite vectors with coefficients on distinct basis states: the square norm is the sum of the
+squares of the coefficients. -/
+lemma norm_embed_sum_single_sq (s : Finset B) (τ : B → B) (hτ : Function.Injective τ)
+    (w : B → ℂ) :
+    ‖embed (∑ β ∈ s, single (τ β) (w β))‖ ^ 2 = ∑ β ∈ s, ‖w β‖ ^ 2 := by
+  classical
+  set v := ∑ β ∈ s, single (τ β) (w β)
+  have hv : ∀ β ∈ s, v (τ β) = w β := fun β hβ => by
+    simp only [v, Finsupp.finsetSum_apply, Finsupp.single_apply, hτ.eq_iff]
+    rw [Finset.sum_eq_single β (fun b _ hb => if_neg hb) (fun h => absurd hβ h), if_pos rfl]
+  have hsupp : v.support ⊆ s.image τ := fun γ hγ => by
+    by_contra h
+    apply Finsupp.mem_support_iff.mp hγ
+    simp only [v, Finsupp.finsetSum_apply, Finsupp.single_apply]
+    exact Finset.sum_eq_zero fun β hβ => if_neg fun e => h (Finset.mem_image.mpr ⟨β, hβ, e⟩)
+  rw [norm_embed_sq_eq_sum, Finset.sum_subset hsupp fun γ _ hγ => by
+      rw [Finsupp.notMem_support_iff.mp hγ, norm_zero]; ring,
+    Finset.sum_image fun a _ b _ h => hτ h]
+  exact Finset.sum_congr rfl fun β hβ => by rw [hv β hβ]
+
+end Orthogonal
+
+/-- The weight of the states that the boundary pairing term pushes out of the cutoff: `β` is in the
+cutoff and has exactly `n` bosons at `x`. -/
+def edgeWeight (Y : Finset L) (n : ℕ) (x : L) (β : Occ L) : ℝ :=
+  if (∀ z ∈ Y, β z ≤ n) ∧ β x = n then 1 else 0
+
+omit [DecidableEq L] in
+lemma edgeWeight_mem (Y : Finset L) (n : ℕ) (x : L) (β : Occ L) :
+    edgeWeight Y n x β = 0 ∨ edgeWeight Y n x β = 1 := by
+  unfold edgeWeight; split_ifs <;> simp
+
+/-- The cutoff weight of `β + e_y + e_x` when `x ∈ Y` and `y ∉ Y`. -/
+lemma cutWeight_mul_one_sub_add_pair (Y : Finset L) (n : ℕ) {x y : L} (hx : x ∈ Y) (hy : y ∉ Y)
+    (β : Occ L) :
+    (1 - cutWeight Y n (β + single y 1 + single x 1)) * cutWeight Y n β = edgeWeight Y n x β := by
+  have hcoord : ∀ z ∈ Y, (β + single y 1 + single x 1 : Occ L) z = β z + if x = z then 1 else 0 :=
+    fun z hz => by simp [Finsupp.single_apply, show y ≠ z from fun e => hy (e ▸ hz)]
+  unfold cutWeight edgeWeight
+  by_cases hβY : ∀ z ∈ Y, β z ≤ n
+  · rw [if_pos hβY, mul_one]
+    by_cases hbx : β x = n
+    · rw [if_neg, if_pos ⟨hβY, hbx⟩]
+      · norm_num
+      · intro h; have := h x hx; rw [hcoord x hx, if_pos rfl] at this; omega
+    · rw [if_pos, if_neg (fun h => hbx h.2)]
+      · norm_num
+      · intro z hz
+        rw [hcoord z hz]
+        have := hβY z hz
+        split_ifs with hzx
+        · subst hzx; omega
+        · omega
+  · rw [if_neg hβY, if_neg (show ¬((∀ z ∈ Y, β z ≤ n) ∧ β x = n) from fun h => hβY h.1),
+      mul_zero]
+
+/-- **The boundary pairing leakage on basis states.** For `x ∈ Y` and `y ∉ Y`,
+`P_{Y,n}^⊥ a_x† a_y† P_{Y,n} e_β = 1_{β ∈ P_{Y,n}, β_x = n} √(β_x+1) √(β_y+1) e_{β + e_x + e_y}`.
+On the support of the indicator `β_x = n`, while `β_y` is arbitrary: the occupation at `y ∉ Y` is
+not restricted and the operator is unbounded. -/
+lemma leakOp_pair_single (Y : Finset L) (n : ℕ) {x y : L} (hx : x ∈ Y) (hy : y ∉ Y)
+    (β : Occ L) :
+    (leakOp Y n (creOp x * creOp y)).1.1 (single β 1) = single (β + single y 1 + single x 1)
+      (((edgeWeight Y n x β : ℝ) : ℂ) * (((Real.sqrt ((β x : ℝ) + 1) : ℝ) : ℂ) *
+        ((Real.sqrt ((β y : ℝ) + 1) : ℝ) : ℂ))) := by
+  have hxy : x ≠ y := fun e => hy (e ▸ hx)
+  have hbx : (β + single y 1 : Occ L) x = β x := by simp [Finsupp.single_apply, hxy.symm]
+  show diagLin _ (cre x (cre y (diagLin (cutWeight Y n) (single β 1)))) = _
+  rw [diagLin_single, mul_one, show (single β ((cutWeight Y n β : ℝ) : ℂ) : Occ L →₀ ℂ) =
+      ((cutWeight Y n β : ℝ) : ℂ) • single β 1 by simp [Finsupp.smul_single], map_smul,
+    map_smul, cre_single, cre_single, map_smul, diagLin_single, Finsupp.smul_single, smul_eq_mul,
+    hbx, ← cutWeight_mul_one_sub_add_pair Y n hx hy β]
+  congr 1
+  push_cast
+  ring
 
 end InfiniteBosons
