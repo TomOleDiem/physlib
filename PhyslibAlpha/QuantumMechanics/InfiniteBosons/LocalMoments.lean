@@ -655,4 +655,55 @@ theorem truncated_moment_le (V : L → ℕ → ℝ) (Λ : Finset L) (S : Finset 
 
 end BoseHubbardData
 
+
+namespace BoseHubbardData
+
+open Matrix
+
+lemma re_inner_momentMat (Λ : Finset L) (w : L → ℝ) (p : ℕ) (S : Finset (Occ L))
+    (ψ : EuclideanSpace ℂ S) :
+    RCLike.re (inner ℂ ψ (toEuclideanCLM (𝕜 := ℂ) (momentMat Λ w p S) ψ)) =
+      ∑ α, weightedMoment Λ w p α.1 * ‖ψ α‖ ^ 2 := by
+  rw [inner_toEuclideanCLM_eq, map_sum]
+  refine Finset.sum_congr rfl fun α _ => ?_
+  have h : ∑ b, starRingEnd ℂ (ψ α) * momentMat Λ w p S α b * ψ b =
+      ((weightedMoment Λ w p α.1 * ‖ψ α‖ ^ 2 : ℝ) : ℂ) := by
+    rw [Finset.sum_eq_single α (fun b _ hb => by
+      simp [momentMat, diagonal_apply_ne _ (Ne.symm hb)]) (by simp)]
+    simp only [momentMat, diagonal_apply_eq]
+    push_cast
+    rw [← Complex.conj_mul']; ring
+  rw [h]; exact RCLike.ofReal_re _
+
+omit [DecidableEq L] in
+lemma localMoment_le_weightedMoment {Λ : Finset L} (w : L → ℝ) (hw : ∀ z, 0 ≤ w z) (p : ℕ)
+    {x₀ : L} (hx₀ : x₀ ∈ Λ) (α : Occ L) :
+    w x₀ * localMoment p x₀ α ≤ weightedMoment Λ w p α :=
+  Finset.single_le_sum (f := fun z => w z * localMoment p z α)
+    (fun z _ => mul_nonneg (hw z) (localMoment_nonneg p z α)) hx₀
+
+variable (D : BoseHubbardData L)
+
+open Classical in
+/-- **The local moment at a site along the truncated dynamics.** With `w_{x₀} = 1`, the local moment
+`⟨ψ_t, (N_{x₀} + 1)^{p+1} ψ_t⟩` is at most `e^{c t}` times the initial weighted moment
+`Σ_{x∈Λ} w_x ⟨ψ, (N_x + 1)^{p+1} ψ⟩`. -/
+theorem truncated_localMoment_le (V : L → ℕ → ℝ) (Λ : Finset L) (S : Finset (Occ L)) (w : L → ℝ)
+    (hw : ∀ z, 0 ≤ w z) {ρ : ℝ} (hρ0 : 0 ≤ ρ) (hρ : ∀ x y, D.graph.Adj x y → w x ≤ ρ * w y)
+    {d : ℕ} (hd : ∀ x ∈ Λ, (Λ.filter (D.graph.Adj x)).card ≤ d) {K : ℝ} (hK : 0 ≤ K)
+    (hJ : ∀ x y, |D.J x y| ≤ K) (hΔ : ∀ x y, ‖D.Δ x y‖ ≤ K) (p : ℕ) {x₀ : L} (hx₀ : x₀ ∈ Λ)
+    (hw₀ : w x₀ = 1) (ψ : EuclideanSpace ℂ S) {t : ℝ} (ht : 0 ≤ t) :
+    ∑ α, localMoment p x₀ α.1 *
+        ‖schrodinger (toEuclideanCLM (𝕜 := ℂ) (D.truncHam V Λ S)) t ψ α‖ ^ 2 ≤
+      Real.exp (8 * d * K * ((p + 1) * 2 ^ (p + 1)) * (1 + ρ) * t) *
+        ∑ α, weightedMoment Λ w p α.1 * ‖ψ α‖ ^ 2 := by
+  have h := D.truncated_moment_le V Λ S w hw hρ0 hρ hd hK hJ hΔ p ψ ht
+  rw [re_inner_momentMat, re_inner_momentMat] at h
+  refine le_trans (Finset.sum_le_sum fun α _ => ?_) h
+  have := localMoment_le_weightedMoment w hw p hx₀ α.1
+  rw [hw₀, one_mul] at this
+  exact mul_le_mul_of_nonneg_right this (sq_nonneg _)
+
+end BoseHubbardData
+
 end InfiniteBosons
