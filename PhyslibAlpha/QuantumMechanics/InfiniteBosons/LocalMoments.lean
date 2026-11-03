@@ -227,7 +227,7 @@ structure IsMove (x y : L) (α β : Occ L) (amp : ℝ) : Prop where
   step_y : β y ≤ α y + 1 ∧ α y ≤ β y + 1
   amp_le : amp ≤ ((α x : ℝ) + 1) + ((α y : ℝ) + 1)
 
-lemma norm_sqrt_mul_sqrt (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) :
+lemma norm_sqrt_mul_sqrt (a b : ℝ) :
     ‖((Real.sqrt a : ℝ) : ℂ) * (((Real.sqrt b : ℝ) : ℂ) * 1)‖ = Real.sqrt a * Real.sqrt b := by
   rw [mul_one, ← Complex.ofReal_mul, Complex.norm_real, Real.norm_eq_abs,
     abs_of_nonneg (by positivity)]
@@ -251,7 +251,7 @@ lemma isMove_cre_ann {x y : L} (hxy : x ≠ y) {α β : Occ L}
   refine ⟨by rw [e, add_tsub_cancel_right], fun z hzx hzy => ?_, by omega, by omega, ?_⟩
   · have := hz z; simp [Ne.symm hzx, Ne.symm hzy] at this; omega
   · rw [ann_single, cre_single, ← hα, Finsupp.single_eq_same,
-      norm_sqrt_mul_sqrt _ _ (by positivity) (by positivity)]
+      norm_sqrt_mul_sqrt]
     have hbx : (β - single y 1 : Occ L) x = β x := by simp [hxy.symm]
     rw [hbx]
     apply sqrt_mul_sqrt_le_add (by positivity) (by positivity)
@@ -275,7 +275,7 @@ lemma isMove_cre_cre {x y : L} (hxy : x ≠ y) {α β : Occ L}
   · rw [hα, add_tsub_cancel_right, add_tsub_cancel_right]
   · have := hz z; simp [Ne.symm hzx, Ne.symm hzy] at this; omega
   · rw [cre_single, cre_single, ← hα, Finsupp.single_eq_same,
-      norm_sqrt_mul_sqrt _ _ (by positivity) (by positivity)]
+      norm_sqrt_mul_sqrt]
     have hbx : (β + single y 1 : Occ L) x = β x := by simp [hxy.symm]
     rw [hbx]
     apply sqrt_mul_sqrt_le_add (by positivity) (by positivity)
@@ -297,7 +297,7 @@ lemma isMove_ann_ann {x y : L} (hxy : x ≠ y) {α β : Occ L}
   · have := hz z; simp [Ne.symm hzx, Ne.symm hzy] at this; omega
   · rw [ann_ann_single_apply]
     split_ifs
-    · rw [norm_sqrt_mul_sqrt _ _ (by positivity) (by positivity)]
+    · rw [norm_sqrt_mul_sqrt]
       have hby : (β - single x 1 : Occ L) y = β y := by simp [hxy]
       rw [hby, add_comm ((α x : ℝ) + 1)]
       apply sqrt_mul_sqrt_le_add (by positivity) (by positivity)
@@ -306,5 +306,94 @@ lemma isMove_ann_ann {x y : L} (hxy : x ≠ y) {α β : Occ L}
       · have : (β x : ℝ) = α x + 1 := by exact_mod_cast (show β x = α x + 1 by omega)
         linarith
     · simp only [norm_zero]; positivity
+
+
+lemma IsMove.symm {x y : L} {α β : Occ L} {amp : ℝ} (h : IsMove y x α β amp) :
+    IsMove x y α β amp :=
+  ⟨fun z hzx hzy => h.out z hzy hzx, h.step_y, h.step_x, by linarith [h.amp_le]⟩
+
+/-!
+
+## D. The row bound of one bond
+
+-/
+
+/-- A move with a unique partner contributes at most the bound of `move_mul_le` to a row sum. -/
+lemma sum_move_le (S : Finset (Occ L)) {Λ : Finset L} (w : L → ℝ) (hw : ∀ z, 0 ≤ w z) (p : ℕ)
+    {x y : L} (hxy : x ≠ y) (hx : x ∈ Λ) (hy : y ∈ Λ) (α β0 : Occ L) (f : Occ L → ℂ)
+    (hf : ∀ β, f β ≠ 0 → β = β0 ∧ IsMove x y α β ‖f β‖) :
+    ∑ β ∈ S, ‖f β‖ * |weightedMoment Λ w p β - weightedMoment Λ w p α| ≤
+      (p + 1) * 2 ^ (p + 1) * (w x + w y) * (localMoment p x α + localMoment p y α) := by
+  refine (sum_le_of_eq_zero S _ (fun _ => by positivity) β0 fun β _ hβ => ?_).trans ?_
+  · by_contra hne
+    have : f β ≠ 0 := fun h0 => hne (by rw [h0, norm_zero, zero_mul])
+    exact hβ (hf β this).1
+  · by_cases h0 : f β0 = 0
+    · rw [h0, norm_zero, zero_mul]
+      unfold localMoment; have := hw x; have := hw y; positivity
+    · obtain ⟨-, hm⟩ := hf β0 h0
+      exact move_mul_le w hw p hxy hx hy hm.out hm.step_x hm.step_y hm.amp_le
+
+namespace BoseHubbardData
+
+variable (D : BoseHubbardData L)
+
+/-- **Row bound of one bond.** The matrix elements of a bond term times the change of the weighted
+moment sum to at most `4 K (p + 1) 2^{p+1} (w_x + w_y) ((n_x + 1)^{p+1} + (n_y + 1)^{p+1})` along
+each row, where `K` bounds the hopping and pairing amplitudes of the bond. -/
+lemma sum_bondTerm_le (S : Finset (Occ L)) {Λ : Finset L} (w : L → ℝ) (hw : ∀ z, 0 ≤ w z)
+    (p : ℕ) {x y : L} (hx : x ∈ Λ) (hy : y ∈ Λ) {K : ℝ} (hJ : |D.J x y| ≤ K)
+    (hΔ : ‖D.Δ x y‖ ≤ K) (α : Occ L) :
+    ∑ β ∈ S, ‖matEl (D.bondTerm x y) α β‖ *
+        |weightedMoment Λ w p β - weightedMoment Λ w p α| ≤
+      4 * K * ((p + 1) * 2 ^ (p + 1) * (w x + w y) * (localMoment p x α + localMoment p y α)) := by
+  classical
+  set R := (p + 1) * 2 ^ (p + 1) * (w x + w y) * (localMoment p x α + localMoment p y α)
+  set dA : Occ L → ℝ := fun β => |weightedMoment Λ w p β - weightedMoment Λ w p α|
+  by_cases hadj : D.graph.Adj x y
+  swap
+  · refine (Finset.sum_eq_zero fun β _ => ?_).le.trans ?_
+    · rw [matEl_bondTerm, if_neg hadj, norm_zero, zero_mul]
+    · have hK : 0 ≤ K := (abs_nonneg _).trans hJ
+      unfold R localMoment; have := hw x; have := hw y; positivity
+  have hxy : x ≠ y := hadj.ne
+  have hK : 0 ≤ K := (abs_nonneg _).trans hJ
+  have hR1 := sum_move_le S w hw p hxy hx hy α _ (fun β => cre x (ann y (single β (1 : ℂ))) α)
+    fun β h => isMove_cre_ann hxy h
+  have hR2 := sum_move_le S w hw p hxy hx hy α _ (fun β => cre y (ann x (single β (1 : ℂ))) α)
+    fun β h => ⟨(isMove_cre_ann hxy.symm h).1, (isMove_cre_ann hxy.symm h).2.symm⟩
+  have hR3 := sum_move_le S w hw p hxy hx hy α _ (fun β => cre x (cre y (single β (1 : ℂ))) α)
+    fun β h => isMove_cre_cre hxy h
+  have hR4 := sum_move_le S w hw p hxy hx hy α _ (fun β => ann y (ann x (single β (1 : ℂ))) α)
+    fun β h => isMove_ann_ann hxy h
+  have hpt : ∀ β ∈ S, ‖matEl (D.bondTerm x y) α β‖ * dA β ≤
+      K * (‖cre x (ann y (single β (1 : ℂ))) α‖ * dA β) +
+        K * (‖cre y (ann x (single β (1 : ℂ))) α‖ * dA β) +
+        K * (‖cre x (cre y (single β (1 : ℂ))) α‖ * dA β) +
+        K * (‖ann y (ann x (single β (1 : ℂ))) α‖ * dA β) := by
+    intro β _
+    have hd : 0 ≤ dA β := abs_nonneg _
+    rw [matEl_bondTerm, if_pos hadj]
+    have hn : ‖((-D.J x y : ℝ) : ℂ) * (cre x (ann y (single β (1 : ℂ))) α +
+        cre y (ann x (single β 1)) α) + D.Δ x y * cre x (cre y (single β 1)) α +
+        starRingEnd ℂ (D.Δ x y) * ann y (ann x (single β 1)) α‖ ≤
+        K * ‖cre x (ann y (single β (1 : ℂ))) α‖ + K * ‖cre y (ann x (single β (1 : ℂ))) α‖ +
+        K * ‖cre x (cre y (single β (1 : ℂ))) α‖ + K * ‖ann y (ann x (single β (1 : ℂ))) α‖ := by
+      refine (norm_add₃_le).trans ?_
+      rw [norm_mul, norm_mul, norm_mul, RCLike.norm_conj, Complex.norm_real, Real.norm_eq_abs,
+        abs_neg]
+      have h1 := norm_add_le (cre x (ann y (single β (1 : ℂ))) α) (cre y (ann x (single β 1)) α)
+      nlinarith [norm_nonneg (cre x (ann y (single β (1 : ℂ))) α),
+        norm_nonneg (cre y (ann x (single β (1 : ℂ))) α),
+        norm_nonneg (cre x (cre y (single β (1 : ℂ))) α),
+        norm_nonneg (ann y (ann x (single β (1 : ℂ))) α), abs_nonneg (D.J x y),
+        norm_nonneg (D.Δ x y)]
+    nlinarith [mul_le_mul_of_nonneg_right hn hd]
+  refine (Finset.sum_le_sum hpt).trans ?_
+  simp only [Finset.sum_add_distrib, ← Finset.mul_sum]
+  nlinarith [mul_le_mul_of_nonneg_left hR1 hK, mul_le_mul_of_nonneg_left hR2 hK,
+    mul_le_mul_of_nonneg_left hR3 hK, mul_le_mul_of_nonneg_left hR4 hK]
+
+end BoseHubbardData
 
 end InfiniteBosons
