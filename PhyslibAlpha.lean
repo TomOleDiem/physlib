@@ -755,6 +755,7 @@ public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.LocalAlgebra
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.Locality
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.MatrixTensor
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.ModelHamiltonians
+public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.MomentBound
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.NumberCalculus
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.OnSiteDynamics
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.OscillatorLattice

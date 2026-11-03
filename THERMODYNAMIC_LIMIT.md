@@ -69,7 +69,7 @@ volume Hamiltonian is unbounded below and `e^{-βH_Λ}` is not trace class.
 |---|---|---|
 | 0 | ℓ² no-go: pairing bounded away from zero on infinitely many disjoint bonds gives `hamDomainAlg = ⊥` (`BoseHubbardData.hamDomainAlg_eq_bot`, ModelHamiltonians.lean) | done |
 | 1 | T0: block-Jacobi Carleman criterion (`blockJacobi_no_l2_solution`, JacobiCarleman.lean) and `BoseHubbardData.finiteHam_isEssentiallySelfAdjoint` for arbitrary real on-site `V` (FiniteVolume.lean) | done |
-| 2 | T1: commutator bound | open |
+| 2 | T1: commutator bound. Abstract Grönwall for the Heisenberg evolution done (`expect_le_exp_mul`, MomentBound.lean); local inequality for hopping and pairing open | in progress |
 | 3 | T1: moment Grönwall | open |
 | 4 | T2: cutoff projections and cutoff error | open |
 | 5 | T2: interaction picture with respect to `D` | open |
@@ -102,7 +102,10 @@ Read from arXiv:2505.13170 (graph `d`-dimensional with surface parameter σ, `p 
 - `alphaPythonLinters.sh` reports about 60 lines over 100 characters and 3 non-terminal `simp`
   calls in pre-existing `InfiniteBosons` files (AtomPhoton*, BoseHubbard*, Field*, Fock*, GraphNorm,
   EssentialSelfAdjoint, ...). The files added for T0 pass. To be fixed before a PR.
-- `lake exe runPhyslibAlphaLinters` needs a full PhyslibAlpha build; not yet run.
+- `lake exe runPhyslibAlphaLinters` (full PhyslibAlpha build, 2026-11-03): 65 findings, all in
+  pre-existing `InfiniteBosons` files (unused `DecidableEq`/section arguments, one missing
+  docstring in `TensorNet.splitEquiv`). None in FiniteVolume, JacobiCarleman, ModelHamiltonians,
+  MomentBound.
 
 ## Known risk
 
