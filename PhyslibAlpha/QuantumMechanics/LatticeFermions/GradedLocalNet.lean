@@ -163,7 +163,7 @@ lemma directed_loc : Directed (· ≤ ·) N.loc := by
 /-- The star subalgebra of local elements: the union of the local algebras. -/
 def localUnion : StarSubalgebra ℂ 𝔄 := ⨆ X, N.loc X
 
-lemma mem_localUnion_iff [Nonempty V] {a : 𝔄} : a ∈ N.localUnion ↔ ∃ X, a ∈ N.loc X := by
+lemma mem_localUnion_iff {a : 𝔄} : a ∈ N.localUnion ↔ ∃ X, a ∈ N.loc X := by
   rw [localUnion, ← SetLike.mem_coe, StarSubalgebra.coe_iSup_of_directed N.directed_loc,
     Set.mem_iUnion]
   rfl

@@ -55,6 +55,7 @@ absorbed (interaction picture), so that they do not enter the Lieb–Robinson ve
 - C. Hamiltonians
 - D. Splitting off the terms meeting a region
 - E. Bounds
+- F. Reversing the sign
 
 ## iv. References
 
@@ -238,6 +239,48 @@ def LocallyFinite : Prop := ∀ x : V, {Z : Finset V | x ∈ Z ∧ Φ.term Z ≠
 lemma nonneg_of_isBoundedBy [Nonempty V] {J : ℝ} (hJ : Φ.IsBoundedBy J) : 0 ≤ J := by
   have h := hJ (Classical.arbitrary V) ∅
   simpa [filter_singleton] using h
+
+/-!
+
+## F. Reversing the sign
+
+The interaction `-Φ` has the Hamiltonians `-H_Λ`, so its dynamics runs backwards in time. This
+reduces statements for negative times to positive times.
+
+-/
+
+/-- The interaction with all terms and on-site terms negated. -/
+def neg : Interaction N where
+  term X := -Φ.term X
+  term_mem X := neg_mem (Φ.term_mem X)
+  isSelfAdjoint_term X := (Φ.isSelfAdjoint_term X).neg
+  isEven_term X := by
+    simp only [GradedLocalNet.IsEven, map_neg]; rw [Φ.isEven_term X]
+  onSite x := -Φ.onSite x
+  onSite_mem x := neg_mem (Φ.onSite_mem x)
+  isSelfAdjoint_onSite x := (Φ.isSelfAdjoint_onSite x).neg
+  isEven_onSite x := by
+    simp only [GradedLocalNet.IsEven, map_neg]; rw [Φ.isEven_onSite x]
+
+omit [DecidableEq V] in
+lemma neg_term (X : Finset V) : Φ.neg.term X = -Φ.term X := rfl
+
+omit [DecidableEq V] in
+lemma hamiltonian_neg (Λ : Finset V) : Φ.neg.hamiltonian Λ = -Φ.hamiltonian Λ :=
+  Subtype.ext (by simp [hamiltonian_coe, onSiteSum, neg, sum_neg_distrib, add_comm])
+
+omit [DecidableEq V] in
+/-- The dynamics of `-Φ` is the dynamics of `Φ` backwards in time. -/
+lemma evolution_hamiltonian_neg (Λ : Finset V) (t : ℝ) (a : 𝔄) :
+    evolution (Φ.neg.hamiltonian Λ) t a = evolution (Φ.hamiltonian Λ) (-t) a := by
+  rw [hamiltonian_neg, evolution_neg_hamiltonian]
+
+lemma IsBoundedBy.neg {J : ℝ} (hJ : Φ.IsBoundedBy J) : Φ.neg.IsBoundedBy J := by
+  simpa [IsBoundedBy, neg_term] using hJ
+
+omit [DecidableEq V] in
+lemma LocallyFinite.neg (hfin : Φ.LocallyFinite) : Φ.neg.LocallyFinite := by
+  simpa [LocallyFinite, neg_term] using hfin
 
 end Interaction
 

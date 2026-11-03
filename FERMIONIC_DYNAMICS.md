@@ -50,7 +50,7 @@ nonzero pairing together.
 | 2 | Interactions `Φ(X) ∈ 𝒜_X`: even, self-adjoint, finite range, norm `J`; on-site `D_x` separate; hopping, pairing, Hubbard, density terms instantiate it | abstract part done: `Interaction` (`hamiltonian`, `IsBoundedBy`, `LocallyFinite`); CAR instances with milestone 8 |
 | 3 | Finite-volume dynamics `α_t^Λ`: group law, isometry, parity, Heisenberg equation (finite-dimensional) | done: `FiniteDynamics` (any bounded `H` in a C*-algebra) |
 | 4 | Lieb-Robinson bound `‖[α_t^Λ(A), B]‖ ≤ C e^{v|t| - μ d(X,Y)}` for `B` even, constants independent of `Λ` and of `D` | done in chain form: `LiebRobinson.lieb_robinson`, `‖[α_t A, B]‖ ≤ 2‖A‖‖B‖ Σ_k (2t)^k/k! w_k(X,Y)` (no `D`); metric form is a corollary not needed for 5-6 |
-| 5 | Duhamel Cauchy estimate, norm convergence and exhaustion independence | open |
+| 5 | Duhamel Cauchy estimate, norm convergence and exhaustion independence | done: `ThermodynamicLimit` (`norm_evolution_sub_evolution_le`, `norm_evolution_sub_le_tail_abs`, `uniformCauchySeqOn_evolution`); limits in milestone 6 |
 | 6 | Infinite-volume automorphism group and generator on local elements | open |
 | 7 | States and GNS unitary implementation | open |
 | 8 | Physical model instances, including a non-number-conserving one | open |
