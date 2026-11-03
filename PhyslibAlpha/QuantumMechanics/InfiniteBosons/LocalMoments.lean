@@ -41,6 +41,8 @@ are the scalar inequalities behind the commutator bound of the moment Grönwall 
 
 @[expose] public section
 
+open Finsupp
+
 noncomputable section
 
 namespace InfiniteBosons
@@ -210,5 +212,99 @@ lemma move_mul_le {Λ : Finset L} (w : L → ℝ) (hw : ∀ z, 0 ≤ w z) (p : �
         add_le_add (mul_le_mul_of_nonneg_left (by simpa [localMoment] using ex) (hw x))
           (mul_le_mul_of_nonneg_left (by simpa [localMoment] using ey) (hw y))
     _ = _ := by unfold localMoment; ring
+
+
+/-!
+
+## C. The partners of a basis state under one move
+
+-/
+
+/-- The properties of a move from `β` to `α` on the bond `x ~ y` used in `move_mul_le`. -/
+structure IsMove (x y : L) (α β : Occ L) (amp : ℝ) : Prop where
+  out : ∀ z, z ≠ x → z ≠ y → β z = α z
+  step_x : β x ≤ α x + 1 ∧ α x ≤ β x + 1
+  step_y : β y ≤ α y + 1 ∧ α y ≤ β y + 1
+  amp_le : amp ≤ ((α x : ℝ) + 1) + ((α y : ℝ) + 1)
+
+lemma norm_sqrt_mul_sqrt (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) :
+    ‖((Real.sqrt a : ℝ) : ℂ) * (((Real.sqrt b : ℝ) : ℂ) * 1)‖ = Real.sqrt a * Real.sqrt b := by
+  rw [mul_one, ← Complex.ofReal_mul, Complex.norm_real, Real.norm_eq_abs,
+    abs_of_nonneg (by positivity)]
+
+/-- Hopping from `y` to `x`: the partner is `α + e_y - e_x`. -/
+lemma isMove_cre_ann {x y : L} (hxy : x ≠ y) {α β : Occ L}
+    (h : cre x (ann y (single β (1 : ℂ))) α ≠ 0) :
+    β = α + single y 1 - single x 1 ∧ IsMove x y α β ‖cre x (ann y (single β (1 : ℂ))) α‖ := by
+  have hval := h
+  rw [ann_single, cre_single] at h
+  obtain ⟨hα, hc⟩ := single_apply_ne' h
+  have hby : 1 ≤ β y := by
+    by_contra h0; apply hc; simp [show β y = 0 by omega]
+  have e : α + single y 1 = β + single x 1 := by
+    rw [hα, add_right_comm, tsub_add_cancel_of_le ((single_le_iff' y β).mpr hby)]
+  have hz : ∀ z, α z + (if y = z then 1 else 0) = β z + (if x = z then 1 else 0) := fun z => by
+    have := congrArg (· z) e
+    simpa [Finsupp.single_apply] using this
+  have hx := hz x; have hy := hz y
+  simp only [hxy, Ne.symm hxy, if_true, if_false, add_zero] at hx hy
+  refine ⟨by rw [e, add_tsub_cancel_right], fun z hzx hzy => ?_, by omega, by omega, ?_⟩
+  · have := hz z; simp [Ne.symm hzx, Ne.symm hzy] at this; omega
+  · rw [ann_single, cre_single, ← hα, Finsupp.single_eq_same,
+      norm_sqrt_mul_sqrt _ _ (by positivity) (by positivity)]
+    have hbx : (β - single y 1 : Occ L) x = β x := by simp [hxy.symm]
+    rw [hbx]
+    apply sqrt_mul_sqrt_le_add (by positivity) (by positivity)
+    · have : (β x : ℝ) + 1 = α x := by exact_mod_cast (show β x + 1 = α x by omega)
+      linarith
+    · have : (β y : ℝ) = α y + 1 := by exact_mod_cast (show β y = α y + 1 by omega)
+      linarith
+
+
+/-- Pair creation on `x`, `y`: the partner is `α - e_x - e_y`. -/
+lemma isMove_cre_cre {x y : L} (hxy : x ≠ y) {α β : Occ L}
+    (h : cre x (cre y (single β (1 : ℂ))) α ≠ 0) :
+    β = α - single x 1 - single y 1 ∧ IsMove x y α β ‖cre x (cre y (single β (1 : ℂ))) α‖ := by
+  rw [cre_single, cre_single] at h
+  obtain ⟨hα, -⟩ := single_apply_ne' h
+  have hz : ∀ z, α z = β z + (if y = z then 1 else 0) + (if x = z then 1 else 0) := fun z => by
+    rw [hα]; simp [Finsupp.single_apply]
+  have hx := hz x; have hy := hz y
+  simp only [hxy, Ne.symm hxy, if_true, if_false, add_zero] at hx hy
+  refine ⟨?_, fun z hzx hzy => ?_, by omega, by omega, ?_⟩
+  · rw [hα, add_tsub_cancel_right, add_tsub_cancel_right]
+  · have := hz z; simp [Ne.symm hzx, Ne.symm hzy] at this; omega
+  · rw [cre_single, cre_single, ← hα, Finsupp.single_eq_same,
+      norm_sqrt_mul_sqrt _ _ (by positivity) (by positivity)]
+    have hbx : (β + single y 1 : Occ L) x = β x := by simp [hxy.symm]
+    rw [hbx]
+    apply sqrt_mul_sqrt_le_add (by positivity) (by positivity)
+    · have : (β x : ℝ) + 1 = α x := by exact_mod_cast (show β x + 1 = α x by omega)
+      linarith
+    · have : (β y : ℝ) + 1 = α y := by exact_mod_cast (show β y + 1 = α y by omega)
+      linarith
+
+/-- Pair annihilation on `x`, `y`: the partner is `α + e_y + e_x`. -/
+lemma isMove_ann_ann {x y : L} (hxy : x ≠ y) {α β : Occ L}
+    (h : ann y (ann x (single β (1 : ℂ))) α ≠ 0) :
+    β = α + single y 1 + single x 1 ∧ IsMove x y α β ‖ann y (ann x (single β (1 : ℂ))) α‖ := by
+  have hβ := eq_add_of_ann_ann_ne h
+  have hz : ∀ z, β z = α z + (if y = z then 1 else 0) + (if x = z then 1 else 0) := fun z => by
+    rw [hβ]; simp [Finsupp.single_apply]
+  have hx := hz x; have hy := hz y
+  simp only [hxy, Ne.symm hxy, if_true, if_false, add_zero] at hx hy
+  refine ⟨hβ, fun z hzx hzy => ?_, by omega, by omega, ?_⟩
+  · have := hz z; simp [Ne.symm hzx, Ne.symm hzy] at this; omega
+  · rw [ann_ann_single_apply]
+    split_ifs
+    · rw [norm_sqrt_mul_sqrt _ _ (by positivity) (by positivity)]
+      have hby : (β - single x 1 : Occ L) y = β y := by simp [hxy]
+      rw [hby, add_comm ((α x : ℝ) + 1)]
+      apply sqrt_mul_sqrt_le_add (by positivity) (by positivity)
+      · have : (β y : ℝ) = α y + 1 := by exact_mod_cast (show β y = α y + 1 by omega)
+        linarith
+      · have : (β x : ℝ) = α x + 1 := by exact_mod_cast (show β x = α x + 1 by omega)
+        linarith
+    · simp only [norm_zero]; positivity
 
 end InfiniteBosons
