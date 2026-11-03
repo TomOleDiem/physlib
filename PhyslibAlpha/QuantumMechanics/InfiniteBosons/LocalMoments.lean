@@ -8,6 +8,8 @@ module
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.FiniteVolume
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.MomentBound
 public import Mathlib.Analysis.CStarAlgebra.Matrix
+public import Mathlib.Combinatorics.SimpleGraph.Metric
+public import Mathlib.Analysis.SpecialFunctions.Exp
 /-!
 
 # Local occupation moments under hopping and pairing
@@ -705,5 +707,68 @@ theorem truncated_localMoment_le (V : L → ℕ → ℝ) (Λ : Finset L) (S : Fi
   exact mul_le_mul_of_nonneg_right this (sq_nonneg _)
 
 end BoseHubbardData
+
+
+/-!
+
+## H. Exponential weights on graphs of polynomial growth
+
+-/
+
+section Weights
+
+variable (G : SimpleGraph L)
+
+/-- The weight `e^{-μ d(x₀, x)}` centred at `x₀`. -/
+def expWeight (x₀ : L) (μ : ℝ) (x : L) : ℝ := Real.exp (-μ * G.dist x₀ x)
+
+omit [DecidableEq L] in
+lemma expWeight_nonneg (x₀ : L) (μ : ℝ) (x : L) : 0 ≤ expWeight G x₀ μ x := (Real.exp_pos _).le
+
+omit [DecidableEq L] in
+lemma expWeight_self (x₀ : L) (μ : ℝ) : expWeight G x₀ μ x₀ = 1 := by simp [expWeight]
+
+omit [DecidableEq L] in
+/-- **Exponential weights are comparable on neighbours.** -/
+lemma expWeight_adj_le (x₀ : L) {μ : ℝ} (hμ : 0 ≤ μ) {x y : L} (h : G.Adj x y) :
+    expWeight G x₀ μ x ≤ Real.exp μ * expWeight G x₀ μ y := by
+  unfold expWeight
+  rw [← Real.exp_add]
+  refine Real.exp_le_exp.mpr ?_
+  have hd : (G.dist x₀ y : ℝ) ≤ G.dist x₀ x + 1 := by
+    rcases h.symm.diff_dist_adj (u := x₀) with h1 | h1 | h1
+    · rw [h1]; linarith
+    · exact_mod_cast (show G.dist x₀ y ≤ G.dist x₀ x + 1 by omega)
+    · exact_mod_cast (show G.dist x₀ y ≤ G.dist x₀ x + 1 by omega)
+  nlinarith
+
+omit [DecidableEq L] in
+lemma summable_growth {μ : ℝ} (hμ : 0 < μ) (C : ℝ) (ν : ℕ) :
+    Summable fun n : ℕ => C * ((n : ℝ) + 1) ^ ν * Real.exp (-μ * n) := by
+  have h := (summable_nat_add_iff 1).mpr (Real.summable_pow_mul_exp_neg_nat_mul ν hμ)
+  refine (h.mul_left (C * Real.exp μ)).congr fun n => ?_
+  push_cast
+  rw [show -μ * ((n : ℝ) + 1) = -μ * n + -μ by ring, Real.exp_add, Real.exp_neg μ]
+  field_simp
+
+/-- **The total weight of a region is bounded uniformly on graphs of polynomial growth.** If every
+set of vertices within distance `R` of `x₀` has at most `C (R + 1)^ν` elements, then
+`Σ_{x∈Λ} e^{-μ d(x₀, x)}` is bounded by a constant independent of the region `Λ`. -/
+lemma sum_expWeight_le (x₀ : L) {μ : ℝ} (hμ : 0 < μ) {C : ℝ} {ν : ℕ}
+    (hball : ∀ (s : Finset L) (R : ℕ), (∀ x ∈ s, G.dist x₀ x ≤ R) → (s.card : ℝ) ≤ C * (R + 1) ^ ν)
+    (Λ : Finset L) :
+    ∑ x ∈ Λ, expWeight G x₀ μ x ≤ ∑' n : ℕ, C * ((n : ℝ) + 1) ^ ν * Real.exp (-μ * n) := by
+  unfold expWeight
+  rw [Finset.sum_comp (fun n : ℕ => Real.exp (-μ * n)) (fun x => G.dist x₀ x)]
+  refine le_trans (Finset.sum_le_sum fun n _ => ?_) ((summable_growth hμ C ν).sum_le_tsum _
+    fun n _ => ?_)
+  · rw [nsmul_eq_mul]
+    refine mul_le_mul_of_nonneg_right ?_ (Real.exp_pos _).le
+    exact hball _ n fun x hx => (Finset.mem_filter.mp hx).2.le
+  · have hC : 0 ≤ C := by
+      have := hball ∅ 0 (by simp); simpa using this
+    positivity
+
+end Weights
 
 end InfiniteBosons
