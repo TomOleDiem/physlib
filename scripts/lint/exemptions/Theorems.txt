@@ -499,3 +499,4 @@ LatticeFermions.Interaction.lieb_robinson
 LatticeFermions.Interaction.tendstoUniformlyOn_dynamics
 LatticeFermions.Interaction.hasDerivAt_dynamics
 LatticeFermions.car_dynamics
+LatticeFermions.Hubbard.dynamics_exists

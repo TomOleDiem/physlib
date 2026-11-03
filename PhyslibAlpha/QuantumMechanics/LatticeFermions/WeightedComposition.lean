@@ -27,6 +27,7 @@ distinct term of `‖ψ‖²`, so `T` is a bounded operator of norm at most one.
 - `LatticeFermions.weightedComp` : the weighted composition operator.
 - `LatticeFermions.weightedComp_apply` : its value at an index.
 - `LatticeFermions.norm_weightedCompVec_le` : it does not increase norms.
+- `LatticeFermions.norm_weightedComp_le` : its norm is at most one.
 
 ## iii. Table of contents
 
@@ -140,6 +141,11 @@ def weightedComp (hw : ∀ a, ‖w a‖ ≤ 1) (hg : {a | w a ≠ 0}.InjOn g) :
           RingHom.id_apply]
         ring) }
     1 (fun ψ => by simpa using norm_weightedCompVec_le hw hg ψ)
+
+/-- The weighted composition operator has norm at most one. -/
+lemma norm_weightedComp_le (hw : ∀ a, ‖w a‖ ≤ 1) (hg : {a | w a ≠ 0}.InjOn g) :
+    ‖weightedComp hw hg‖ ≤ 1 :=
+  LinearMap.mkContinuous_norm_le _ zero_le_one _
 
 @[simp]
 lemma weightedComp_apply (hw : ∀ a, ‖w a‖ ≤ 1) (hg : {a | w a ≠ 0}.InjOn g)

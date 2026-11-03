@@ -45,6 +45,7 @@ bookkeeping device for the signs.
 - `LatticeFermions.ann_mul_cre_add` : the anticommutator of an annihilator and a creator.
 - `LatticeFermions.parityOp` : the parity operator `(-1)^N`.
 - `LatticeFermions.parityOp_mul_ann` : the parity anticommutes with every annihilator.
+- `LatticeFermions.numOp` : the number operator of a mode.
 
 ## iii. Table of contents
 
@@ -52,6 +53,7 @@ bookkeeping device for the signs.
 - B. Annihilation and creation operators
 - C. The anticommutation relations
 - D. The parity operator
+- E. Number operators
 
 ## iv. References
 
@@ -234,6 +236,10 @@ lemma star_ann (j : M) : star (ann j) = cre j := by
 
 lemma star_cre (j : M) : star (cre j) = ann j := by rw [← star_ann, star_star]
 
+lemma norm_ann_le (j : M) : ‖ann j‖ ≤ 1 := norm_weightedComp_le _ _
+
+lemma norm_cre_le (j : M) : ‖cre j‖ ≤ 1 := by rw [← star_ann, norm_star]; exact norm_ann_le j
+
 /-!
 
 ## C. The anticommutation relations
@@ -355,5 +361,36 @@ lemma parityOp_mul_cre (j : M) : parityOp * cre j = -(cre j * parityOp) := by
     _ = star (-(parityOp * ann j)) := by rw [parityOp_mul_ann, neg_neg]
     _ = -star (parityOp * ann j) := star_neg _
     _ = -(cre j * parityOp) := by rw [star_mul, star_ann, star_parityOp]
+
+/-!
+
+## E. Number operators
+
+-/
+
+/-- The number operator `n_j = c_j* c_j` of the mode `j`. -/
+def numOp (j : M) : FockOp M := cre j * ann j
+
+lemma isSelfAdjoint_numOp (j : M) : IsSelfAdjoint (numOp j) := by
+  rw [IsSelfAdjoint, numOp, star_mul, star_cre, star_ann]
+
+lemma norm_numOp_le (j : M) : ‖numOp j‖ ≤ 1 :=
+  (norm_mul_le _ _).trans <| by
+    simpa using mul_le_mul (norm_cre_le j) (norm_ann_le j) (norm_nonneg _) zero_le_one
+
+/-- Number operators commute. -/
+lemma commute_numOp (i j : M) : Commute (numOp i) (numOp j) := by
+  rcases eq_or_ne i j with rfl | hij
+  · exact Commute.refl _
+  have h1 : numOp i * numOp j = -(cre i * cre j * (ann i * ann j)) := by
+    rw [numOp, numOp, show cre i * ann i * (cre j * ann j) = cre i * (ann i * cre j) * ann j by
+      noncomm_ring, ann_mul_cre_of_ne hij]
+    noncomm_ring
+  have h2 : numOp j * numOp i = -(cre j * cre i * (ann j * ann i)) := by
+    rw [numOp, numOp, show cre j * ann j * (cre i * ann i) = cre j * (ann j * cre i) * ann i by
+      noncomm_ring, ann_mul_cre_of_ne hij.symm]
+    noncomm_ring
+  rw [Commute, SemiconjBy, h1, h2, cre_mul_cre i j, ann_mul_ann i j]
+  noncomm_ring
 
 end LatticeFermions

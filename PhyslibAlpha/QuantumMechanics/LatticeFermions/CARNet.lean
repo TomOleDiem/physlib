@@ -126,6 +126,15 @@ lemma parityAut_ann (m : M) : parityAut M (ann m) = -ann m := by
 lemma parityAut_cre (m : M) : parityAut M (cre m) = -cre m := by
   rw [← star_ann, map_star, parityAut_ann, star_neg]
 
+omit [LinearOrder M] in
+/-- A product of two odd elements is even. -/
+lemma parityAut_mul_of_neg {a b : FockOp M} (ha : parityAut M a = -a)
+    (hb : parityAut M b = -b) : parityAut M (a * b) = a * b := by
+  rw [map_mul, ha, hb, neg_mul_neg]
+
+lemma parityAut_numOp (m : M) : parityAut M (numOp m) = numOp m :=
+  parityAut_mul_of_neg (parityAut_cre m) (parityAut_ann m)
+
 lemma parityAut_mem {X : Finset V} {a : FockOp M} (ha : a ∈ carGen site X) :
     parityAut M a ∈ carGen site X := by
   have hle : carGen site X ≤ (carGen site X).comap (StarAlgHom.ofClass (parityAut M)) :=

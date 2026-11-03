@@ -746,6 +746,7 @@ public import PhyslibAlpha.QuantumMechanics.LatticeFermions.CARNet
 public import PhyslibAlpha.QuantumMechanics.LatticeFermions.FiniteDynamics
 public import PhyslibAlpha.QuantumMechanics.LatticeFermions.FockSpace
 public import PhyslibAlpha.QuantumMechanics.LatticeFermions.GradedLocalNet
+public import PhyslibAlpha.QuantumMechanics.LatticeFermions.HubbardModels
 public import PhyslibAlpha.QuantumMechanics.LatticeFermions.InfiniteDynamics
 public import PhyslibAlpha.QuantumMechanics.LatticeFermions.Interaction
 public import PhyslibAlpha.QuantumMechanics.LatticeFermions.LiebRobinson
