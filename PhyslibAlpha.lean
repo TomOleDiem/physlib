@@ -752,6 +752,7 @@ public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.HoppingSelfAdjoint
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.JacobiCarleman
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.JaynesCummingsSelfAdjoint
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.LocalAlgebra
+public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.LocalMoments
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.Locality
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.MatrixTensor
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.ModelHamiltonians
