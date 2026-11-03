@@ -70,7 +70,7 @@ volume Hamiltonian is unbounded below and `e^{-βH_Λ}` is not trace class.
 | 0 | ℓ² no-go: pairing bounded away from zero on infinitely many disjoint bonds gives `hamDomainAlg = ⊥` (`BoseHubbardData.hamDomainAlg_eq_bot`, ModelHamiltonians.lean) | done |
 | 1 | T0: block-Jacobi Carleman criterion (`blockJacobi_no_l2_solution`, JacobiCarleman.lean) and `BoseHubbardData.finiteHam_isEssentiallySelfAdjoint` for arbitrary real on-site `V` (FiniteVolume.lean) | done |
 | 2 | T1: commutator bound: `expect_le_exp_mul`, `norm_commutator_diag_le` (MomentBound.lean); move estimates and `BoseHubbardData.sum_finiteHam_le` (LocalMoments.lean) | done |
-| 3 | T1: moment Grönwall. Truncated version done: `BoseHubbardData.truncated_moment_le` (any finite set `S` of states, rate `8dK(p+1)2^{p+1}(1+ρ)` independent of `V`, `Λ`, `S`). Uniform local bound done: `BoseHubbardData.truncated_localMoment_uniform` (exponential weights, polynomial growth, constants independent of `V`, `Λ`, `S`). Open: removal of the truncation (strong resolvent convergence via T0) | in progress |
+| 3 | T1 for the true finite-volume dynamics: `BoseHubbardData.localMoment_dynamics_le` (TruncationLimit.lean). For the unitary group of the self-adjoint closure of `polyOp (finiteHam V Λ)` and a finite initial vector supported in `Λ` with local moments `≤ M`, `p ≥ 2`: every local moment of `U_{-t} f` is summable with sum `≤ e^{ct} W M`, `c`, `W` independent of `Λ` and `V`. Via `tendsto_trunc_dynamics` (truncated dynamics → true dynamics as the cutoff grows) | done |
 | 4 | T2: cutoff projections and cutoff error | open |
 | 5 | T2: interaction picture with respect to `D` | open |
 | 6 | T2: Lieb-Robinson bound for the truncated interaction | open |
@@ -138,6 +138,23 @@ Remaining, in order:
    for `p ≥ 2`, uniformly for `t ∈ [0, T]`.
 7. Pass the moment bound to the limit with bounded cutoffs `min((N_x+1)^{p+1}, R)` and let
    `R → ∞` (monotone convergence), giving T1 for the true finite-volume dynamics.
+
+### Review after T1 (user, 2026-11-03) and direction for T2
+
+- The truncation removal is at fixed volume: `norm_leak_le_of_moments` is
+  `O(K √m |Λ|^{5/2} n^{-(p-1)/2})`. The `|Λ|²` comes from summing over all pairs of sites in the
+  row sums (`sum_norm_finiteHam_le`). On a bounded-degree graph only `O(d)` bonds touch a site, so
+  the row sums should be `O(d K n)`, uniform in `|Λ|`. Sharpen this before using the cutoff at
+  growing volume (choice `n = R^α`, `α < 1` because the truncated Lieb-Robinson velocity is `O(n)`).
+- T1 is proved for finite vectors of the vacuum Fock space. T2/T3 need locally normal states with
+  positive density everywhere: restate the moment bound and the comparison for finite-volume density
+  matrices (states of `A(Λ)`), not only for vectors.
+- T0 is proved (`finiteHam_isEssentiallySelfAdjoint`), and `localMoment_dynamics_le` instantiates
+  the spectral data from it; the comparison lemmas take the spectral data as an argument only for
+  modularity.
+- Priority now: volume-uniform locality (T2), i.e.
+  `sup_{ω ∈ S_{p,M}, |t| ≤ T} |ω(α_t^{Λ'}(A) - α_t^Λ(A))| → 0` (with a bounded test operator) as
+  `d(supp A, Λᶜ) → ∞`, uniformly in `Λ' ⊇ Λ`. Do not refine the fixed-volume cutoff further.
 
 ## Where Deuchert-Lampart-Lemm use number conservation
 

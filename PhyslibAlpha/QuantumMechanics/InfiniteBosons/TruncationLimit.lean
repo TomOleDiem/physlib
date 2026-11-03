@@ -7,6 +7,7 @@ module
 
 public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.LocalMoments
 public import PhyslibAlpha.ProbabilisticTheory.HilbertSpace.Unbounded.Flow.Stone
+public import PhyslibAlpha.QuantumMechanics.InfiniteBosons.HamiltonianDynamics
 /-!
 
 # Comparison of a unitary group with an approximate evolution
@@ -844,6 +845,75 @@ theorem tendsto_trunc_dynamics (V : L → ℕ → ℝ) (Λ : Finset L) {d : ℕ}
   filter_upwards [Filter.eventually_ge_atTop (f.support.sup (fun a => Λ.sup a))] with n hn
   rw [norm_sub_rev]
   exact D.norm_true_sub_trunc_le_of_moments V Λ hd hK hJ hΔ p hμ hball hf hM0 hM Dsp ht hn
+
+end BoseHubbardData
+
+
+namespace BoseHubbardData
+
+open Finsupp Matrix
+
+variable {L : Type*} [DecidableEq L] (D : BoseHubbardData L)
+
+open Classical in
+/-- Finite windows of the local moment along the true finite-volume dynamics. -/
+lemma window_localMoment_le (V : L → ℕ → ℝ) (Λ : Finset L) {d : ℕ}
+    (hd : ∀ x ∈ Λ, (Λ.filter (D.graph.Adj x)).card ≤ d) {K : ℝ} (hK : 0 ≤ K)
+    (hJ : ∀ x y, |D.J x y| ≤ K) (hΔ : ∀ x y, ‖D.Δ x y‖ ≤ K) {p : ℕ} (hp : 2 ≤ p) {μ : ℝ}
+    (hμ : 0 < μ) {C : ℝ} {ν : ℕ}
+    (hball : ∀ x₀ (s : Finset L) (R : ℕ), (∀ x ∈ s, D.graph.dist x₀ x ≤ R) →
+      (s.card : ℝ) ≤ C * (R + 1) ^ ν)
+    {f : Occ L →₀ ℂ} (hf : ∀ a ∈ f.support, ∀ z ∉ Λ, a z = 0) {M : ℝ} (hM0 : 0 ≤ M)
+    (hM : ∀ x ∈ Λ, ∑ a ∈ f.support, localMoment p x a * ‖f a‖ ^ 2 ≤ M)
+    {μS : ProbabilisticTheory.QuantumMechanics.WOTSpectralMeasure ℝ (HilbertSp (Occ L))}
+    (Dsp : ProbabilisticTheory.QuantumMechanics.DomainAwareSelfAdjointSpectralTheorem
+      (polyOp (D.finiteHam V Λ)).closure μS) {t : ℝ} (ht : 0 ≤ t) {x₀ : L} (hx₀ : x₀ ∈ Λ)
+    (F : Finset (Occ L)) :
+    ∑ γ ∈ F, localMoment p x₀ γ * ‖(Dsp.expUnitaryGroup (-t) (embed f) : HilbertSp (Occ L)) γ‖ ^ 2
+      ≤ Real.exp (8 * d * K * ((p + 1) * 2 ^ (p + 1)) * (1 + Real.exp μ) * t) *
+        (M * ∑' n : ℕ, C * ((n : ℝ) + 1) ^ ν * Real.exp (-μ * n)) := by
+  refine le_of_tendsto (tendsto_window (D.tendsto_trunc_dynamics V Λ hd hK hJ hΔ hp hμ hball hf
+    hM0 hM Dsp ht) F _) ?_
+  filter_upwards [Filter.eventually_ge_atTop (f.support.sup (fun a => Λ.sup a))] with n hn
+  set S := truncSet Λ n
+  have hMn : ∀ x ∈ Λ, ∑ a : S, localMoment p x a.1 * ‖truncOf S f a‖ ^ 2 ≤ M := fun x hx =>
+    (sum_truncOf_le S f _ (fun a => localMoment_nonneg p x a)).trans (hM x hx)
+  exact (sum_truncEmbed_le S _ (fun a => localMoment_nonneg p x₀ a) _ F).trans
+    (D.moments_along V Λ S hd hK hJ hΔ p hμ hball (truncOf S f) hM0 hMn (t := t) x₀ hx₀ t
+      ⟨ht, le_rfl⟩)
+
+open Classical in
+/-- **Uniform local moment bound for the true finite-volume dynamics (T1).** Let `H_Λ` be the
+finite-volume Bose-Hubbard Hamiltonian with hopping and pairing bounded by `K`, on a region of degree
+at most `d` in a graph of polynomial growth `#{x : d(x₀, x) ≤ R} ≤ C (R + 1)^ν`, with an arbitrary
+real on-site potential `V`. Let `U_t` be the unitary group of the self-adjoint closure of `H_Λ`
+(essentially self-adjoint by `finiteHam_isEssentiallySelfAdjoint`). For a finite initial vector
+supported in `Λ` whose local moments `Σ_a (a_x + 1)^{p+1} |f_a|²` in `Λ` are at most `M`, with
+`p ≥ 2`, every local moment of `U_{-t} f` at `x₀ ∈ Λ` is finite and at most `e^{c t} W M`, where
+`c = 8 d K (p + 1) 2^{p+1} (1 + e^μ)` and `W = Σ_n C (n + 1)^ν e^{-μ n}` do not depend on `Λ` or `V`.
+-/
+theorem localMoment_dynamics_le (V : L → ℕ → ℝ) (Λ : Finset L) {d : ℕ}
+    (hd : ∀ x ∈ Λ, (Λ.filter (D.graph.Adj x)).card ≤ d) {K : ℝ} (hK : 0 ≤ K)
+    (hJ : ∀ x y, |D.J x y| ≤ K) (hΔ : ∀ x y, ‖D.Δ x y‖ ≤ K) {p : ℕ} (hp : 2 ≤ p) {μ : ℝ}
+    (hμ : 0 < μ) {C : ℝ} {ν : ℕ}
+    (hball : ∀ x₀ (s : Finset L) (R : ℕ), (∀ x ∈ s, D.graph.dist x₀ x ≤ R) →
+      (s.card : ℝ) ≤ C * (R + 1) ^ ν)
+    {f : Occ L →₀ ℂ} (hf : ∀ a ∈ f.support, ∀ z ∉ Λ, a z = 0) {M : ℝ} (hM0 : 0 ≤ M)
+    (hM : ∀ x ∈ Λ, ∑ a ∈ f.support, localMoment p x a * ‖f a‖ ^ 2 ≤ M) {t : ℝ} (ht : 0 ≤ t)
+    {x₀ : L} (hx₀ : x₀ ∈ Λ) :
+    let U := (ProbabilisticTheory.QuantumMechanics.unboundedSpectralTheorem_of_essentiallySelfAdjoint
+      (polyOp (D.finiteHam V Λ)) (D.finiteHam_isEssentiallySelfAdjoint V Λ)).expUnitaryGroup
+    Summable (fun γ => localMoment p x₀ γ * ‖(U (-t) (embed f) : HilbertSp (Occ L)) γ‖ ^ 2) ∧
+      ∑' γ, localMoment p x₀ γ * ‖(U (-t) (embed f) : HilbertSp (Occ L)) γ‖ ^ 2 ≤
+        Real.exp (8 * d * K * ((p + 1) * 2 ^ (p + 1)) * (1 + Real.exp μ) * t) *
+          (M * ∑' n : ℕ, C * ((n : ℝ) + 1) ^ ν * Real.exp (-μ * n)) := by
+  intro U
+  have hw := D.window_localMoment_le V Λ hd hK hJ hΔ hp hμ hball hf hM0 hM
+    (ProbabilisticTheory.QuantumMechanics.unboundedSpectralTheorem_of_essentiallySelfAdjoint
+      (polyOp (D.finiteHam V Λ)) (D.finiteHam_isEssentiallySelfAdjoint V Λ)) ht hx₀
+  have hnn : ∀ γ, 0 ≤ localMoment p x₀ γ * ‖(U (-t) (embed f) : HilbertSp (Occ L)) γ‖ ^ 2 :=
+    fun γ => mul_nonneg (localMoment_nonneg p x₀ γ) (sq_nonneg _)
+  exact ⟨summable_of_sum_le hnn hw, (summable_of_sum_le hnn hw).tsum_le_of_sum_le hw⟩
 
 end BoseHubbardData
 
