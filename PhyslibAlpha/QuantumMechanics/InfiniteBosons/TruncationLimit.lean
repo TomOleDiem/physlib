@@ -635,4 +635,44 @@ lemma sum_truncEmbed_le (S : Finset (Occ L)) (G : Occ L → ℝ) (hG : ∀ a, 0 
 
 end Window
 
+
+/-!
+
+## H. Removing the truncation
+
+-/
+
+section Limit
+
+lemma sq_mul_inv_pow_le (n : ℕ) {p : ℕ} (hp : 2 ≤ p) {A : ℝ} (hA : 0 ≤ A) :
+    ((n : ℝ) + 2) ^ 2 * (((n : ℝ) + 1)⁻¹ ^ (p + 1) * A) ≤ 4 * A / ((n : ℝ) + 1) := by
+  have h1 : (0 : ℝ) < (n : ℝ) + 1 := by positivity
+  have h2 : ((n : ℝ) + 1)⁻¹ ^ (p + 1) ≤ ((n : ℝ) + 1)⁻¹ ^ 3 :=
+    pow_le_pow_of_le_one (by positivity) (inv_le_one_of_one_le₀ (by linarith)) (by omega)
+  have h3 : ((n : ℝ) + 2) ^ 2 ≤ 4 * ((n : ℝ) + 1) ^ 2 := by nlinarith
+  calc ((n : ℝ) + 2) ^ 2 * (((n : ℝ) + 1)⁻¹ ^ (p + 1) * A)
+      ≤ (4 * ((n : ℝ) + 1) ^ 2) * (((n : ℝ) + 1)⁻¹ ^ 3 * A) :=
+        mul_le_mul h3 (mul_le_mul_of_nonneg_right h2 hA) (by positivity) (by positivity)
+    _ = 4 * A / ((n : ℝ) + 1) := by field_simp
+
+/-- **The truncation error vanishes.** For moment order `p ≥ 2`,
+`R (n + 2) √((n + 1)^{-(p+1)} A) → 0` as the truncation level `n → ∞`. -/
+lemma tendsto_truncation_error {p : ℕ} (hp : 2 ≤ p) {R A : ℝ} (hR : 0 ≤ R) (hA : 0 ≤ A) :
+    Filter.Tendsto (fun n : ℕ => R * ((n : ℝ) + 2) *
+      Real.sqrt (((n : ℝ) + 1)⁻¹ ^ (p + 1) * A)) Filter.atTop (𝓝 0) := by
+  have hlim : Filter.Tendsto (fun n : ℕ => R * Real.sqrt (4 * A / ((n : ℝ) + 1)))
+      Filter.atTop (𝓝 0) := by
+    have h := (tendsto_const_div_atTop_nhds_zero_nat (4 * A)).comp (Filter.tendsto_add_atTop_nat 1)
+    have h' : Filter.Tendsto (fun n : ℕ => 4 * A / ((n : ℝ) + 1)) Filter.atTop (𝓝 0) := by
+      refine h.congr fun n => ?_
+      simp
+    simpa using (Real.continuous_sqrt.tendsto 0 |>.comp h').const_mul R
+  refine squeeze_zero (fun n => by positivity) (fun n => ?_) hlim
+  rw [mul_assoc]
+  refine mul_le_mul_of_nonneg_left ?_ hR
+  rw [← Real.sqrt_sq (by positivity : (0 : ℝ) ≤ (n : ℝ) + 2), ← Real.sqrt_mul (by positivity)]
+  exact Real.sqrt_le_sqrt (sq_mul_inv_pow_le n hp hA)
+
+end Limit
+
 end InfiniteBosons
