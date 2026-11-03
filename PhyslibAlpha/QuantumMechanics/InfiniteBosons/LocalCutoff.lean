@@ -235,4 +235,175 @@ lemma norm_sub_cutOp_sq_le (Y : Finset L) (n k : ℕ) (ψ : HilbertSp (Occ L)) {
   rw [h, tsum_congr hcoord]
   exact (tsum_tail_le Y n k _ (fun _ => by positivity) hsum hM).2
 
+
+/-!
+
+## C. Local leakage of hopping and pairing
+
+-/
+
+section Leakage
+
+variable {B : Type*} [DecidableEq B]
+
+lemma diagLin_apply (c : B → ℝ) (g : B →₀ ℂ) (γ : B) :
+    diagLin c g γ = ((c γ : ℝ) : ℂ) * g γ := by
+  induction g using Finsupp.induction_linear with
+  | zero => simp
+  | add f g hf hg => rw [map_add, Finsupp.add_apply, Finsupp.add_apply, hf, hg, mul_add]
+  | single a z =>
+    rw [diagLin_single, Finsupp.single_apply, Finsupp.single_apply]
+    split_ifs with h
+    · rw [h]
+    · ring
+
+lemma matEl_diagAdj_mul (c : B → ℝ) (P : Adjointable B) (α β : B) :
+    matEl (diagAdj c * P) α β = (c α : ℂ) * matEl P α β := by
+  unfold matEl
+  show diagLin c (P.1.1 (single β 1)) α = _
+  rw [diagLin_apply]
+
+lemma matEl_mul_diagAdj (c : B → ℝ) (P : Adjointable B) (α β : B) :
+    matEl (P * diagAdj c) α β = matEl P α β * (c β : ℂ) := by
+  unfold matEl
+  show P.1.1 (diagLin c (single β 1)) α = _
+  rw [diagLin_single, mul_one, show (single β ((c β : ℝ) : ℂ) : B →₀ ℂ) =
+    ((c β : ℝ) : ℂ) • single β 1 by simp [Finsupp.smul_single], map_smul, Finsupp.smul_apply,
+    smul_eq_mul, mul_comm]
+
+/-- Two formally adjointable operators with the same matrix elements are equal. -/
+lemma adjointable_ext_matEl {P Q : Adjointable B} (h : ∀ α β, matEl P α β = matEl Q α β) :
+    P = Q := by
+  refine adjointable_ext (Finsupp.lhom_ext fun β z => ?_)
+  rw [show (single β z : B →₀ ℂ) = z • single β 1 by simp [Finsupp.smul_single], map_smul,
+    map_smul]
+  exact congrArg _ (Finsupp.ext fun α => h α β)
+
+end Leakage
+
+/-- The complement `1 - P_{Y,n}` of the cutoff on finite vectors. -/
+def cutComplAdj (Y : Finset L) (n : ℕ) : adjointable L :=
+  diagAdj (fun α => 1 - cutWeight Y n α)
+
+/-- **The leakage** `P_{Y,n}^⊥ T P_{Y,n}` of an operator out of the range of the cutoff. -/
+def leakOp (Y : Finset L) (n : ℕ) (T : adjointable L) : adjointable L :=
+  cutComplAdj Y n * T * cutAdj Y n
+
+lemma matEl_leakOp (Y : Finset L) (n : ℕ) (T : adjointable L) (α β : Occ L) :
+    matEl (leakOp Y n T) α β =
+      ((1 - cutWeight Y n α : ℝ) : ℂ) * matEl T α β * ((cutWeight Y n β : ℝ) : ℂ) := by
+  rw [leakOp, cutComplAdj, cutAdj, matEl_mul_diagAdj, matEl_diagAdj_mul]
+
+/-- An operator whose matrix elements never change the occupations in `Y` does not leak. -/
+lemma leakOp_eq_zero (Y : Finset L) (n : ℕ) (T : adjointable L)
+    (hT : ∀ α β, matEl T α β ≠ 0 → ∀ z ∈ Y, α z = β z) : leakOp Y n T = 0 := by
+  refine adjointable_ext_matEl fun α β => ?_
+  rw [matEl_leakOp, show matEl (0 : adjointable L) α β = 0 from rfl]
+  by_cases h : matEl T α β = 0
+  · rw [h]; ring
+  · rw [cutWeight_congr Y n (hT α β h)]
+    rcases cutWeight_mem Y n β with hb | hb <;> simp [hb]
+
+lemma leakOp_add (Y : Finset L) (n : ℕ) (S T : adjointable L) :
+    leakOp Y n (S + T) = leakOp Y n S + leakOp Y n T := by
+  unfold leakOp; rw [mul_add, add_mul]
+
+lemma leakOp_sum {ι : Type*} (Y : Finset L) (n : ℕ) (s : Finset ι) (T : ι → adjointable L) :
+    leakOp Y n (∑ i ∈ s, T i) = ∑ i ∈ s, leakOp Y n (T i) := by
+  unfold leakOp; rw [Finset.mul_sum, Finset.sum_mul]
+
+namespace BoseHubbardData
+
+variable (D : BoseHubbardData L)
+
+/-- A nonzero matrix element of a bond term is one of its four moves. -/
+lemma isMove_of_matEl_bondTerm_ne {x y : L} {α β : Occ L} (h : matEl (D.bondTerm x y) α β ≠ 0) :
+    ∃ amp : ℝ, IsMove x y α β amp := by
+  rw [matEl_bondTerm] at h
+  split_ifs at h with hadj
+  · have hxy : x ≠ y := hadj.ne
+    by_cases h1 : cre x (ann y (single β (1 : ℂ))) α = 0
+    · by_cases h2 : cre y (ann x (single β (1 : ℂ))) α = 0
+      · by_cases h3 : cre x (cre y (single β (1 : ℂ))) α = 0
+        · have h4 : ann y (ann x (single β (1 : ℂ))) α ≠ 0 := by
+            intro h4; apply h; simp [h1, h2, h3, h4]
+          exact ⟨_, (isMove_ann_ann hxy h4).2⟩
+        · exact ⟨_, (isMove_cre_cre hxy h3).2⟩
+      · exact ⟨_, (isMove_cre_ann hxy.symm h2).2.symm⟩
+    · exact ⟨_, (isMove_cre_ann hxy h1).2⟩
+  · exact absurd rfl h
+
+/-- A bond term changes the occupations at its two endpoints only. -/
+lemma matEl_bondTerm_out {x y : L} {α β : Occ L} (h : matEl (D.bondTerm x y) α β ≠ 0) :
+    ∀ z, z ≠ x → z ≠ y → α z = β z := fun z hzx hzy => by
+  obtain ⟨_, hm⟩ := D.isMove_of_matEl_bondTerm_ne h
+  exact (hm.out z hzx hzy).symm
+
+/-- A bond term changes every occupation by at most one. -/
+lemma matEl_bondTerm_step {x y : L} {α β : Occ L} (h : matEl (D.bondTerm x y) α β ≠ 0) (z : L) :
+    α z ≤ β z + 1 ∧ β z ≤ α z + 1 := by
+  obtain ⟨_, hm⟩ := D.isMove_of_matEl_bondTerm_ne h
+  by_cases hzx : z = x
+  · subst hzx; exact ⟨hm.step_x.2, hm.step_x.1⟩
+  by_cases hzy : z = y
+  · subst hzy; exact ⟨hm.step_y.2, hm.step_y.1⟩
+  rw [hm.out z hzx hzy]; omega
+
+/-- **Bonds away from `Y` do not leak.** -/
+lemma leakOp_bondTerm_eq_zero (Y : Finset L) (n : ℕ) {x y : L} (hx : x ∉ Y) (hy : y ∉ Y) :
+    leakOp Y n (D.bondTerm x y) = 0 :=
+  leakOp_eq_zero Y n _ fun _ _ h z hz =>
+    D.matEl_bondTerm_out h z (fun e => hx (e ▸ hz)) fun e => hy (e ▸ hz)
+
+/-- **The leakage of the finite-volume Hamiltonian comes from the bonds touching `Y`**, split into
+the bonds inside `Y` and the bonds crossing its boundary. The on-site potential does not leak. -/
+lemma leakOp_finiteHam (V : L → ℕ → ℝ) (Λ Y : Finset L) (n : ℕ) :
+    leakOp Y n (D.finiteHam V Λ) =
+      ∑ q ∈ (Λ ×ˢ Λ).filter (fun q => q.1 ∈ Y ∧ q.2 ∈ Y), leakOp Y n (D.bondTerm q.1 q.2) +
+        ∑ q ∈ (Λ ×ˢ Λ).filter (fun q => (q.1 ∈ Y ∧ q.2 ∉ Y) ∨ (q.1 ∉ Y ∧ q.2 ∈ Y)),
+          leakOp Y n (D.bondTerm q.1 q.2) := by
+  rw [finiteHam, leakOp_add, leakOp_eq_zero Y n _ fun α β h z _ => by
+      rw [matEl_diagAdj] at h; split_ifs at h with hb
+      · rw [hb]
+      · exact absurd rfl h, zero_add, leakOp_sum,
+    ← Finset.sum_filter_add_sum_filter_not (Λ ×ˢ Λ) (fun q => q.1 ∈ Y ∧ q.2 ∈ Y)]
+  congr 1
+  refine (Finset.sum_subset (fun q hq => ?_) fun q hq hq' => ?_).symm
+  · obtain ⟨hΛ, hc⟩ := Finset.mem_filter.mp hq
+    exact Finset.mem_filter.mpr ⟨hΛ, by tauto⟩
+  · obtain ⟨hΛ, hni⟩ := Finset.mem_filter.mp hq
+    have hnc : ¬((q.1 ∈ Y ∧ q.2 ∉ Y) ∨ (q.1 ∉ Y ∧ q.2 ∈ Y)) :=
+      fun h => hq' (Finset.mem_filter.mpr ⟨hΛ, h⟩)
+    exact D.leakOp_bondTerm_eq_zero Y n (by tauto) (by tauto)
+
+/-- **Leaking moves raise an occupation in `Y` from `n` to `n + 1`.** -/
+lemma exists_raise_of_leakOp_ne (Y : Finset L) (n : ℕ) {x y : L} {α β : Occ L}
+    (h : matEl (leakOp Y n (D.bondTerm x y)) α β ≠ 0) :
+    (∀ z ∈ Y, β z ≤ n) ∧ ∃ z ∈ Y, (z = x ∨ z = y) ∧ α z = n + 1 ∧ β z = n := by
+  rw [matEl_leakOp] at h
+  have hb : cutWeight Y n β = 1 := by
+    rcases cutWeight_mem Y n β with hb | hb
+    · exact absurd (by rw [hb]; simp) h
+    · exact hb
+  have ha : cutWeight Y n α = 0 := by
+    rcases cutWeight_mem Y n α with ha | ha
+    · exact ha
+    · exact absurd (by rw [ha]; simp) h
+  have hT : matEl (D.bondTerm x y) α β ≠ 0 := fun h0 => h (by rw [h0]; ring)
+  have hβY : ∀ z ∈ Y, β z ≤ n := by
+    unfold cutWeight at hb; split_ifs at hb with hc; exacts [hc, absurd hb (by norm_num)]
+  obtain ⟨z, hz, hαz⟩ : ∃ z ∈ Y, n < α z := by
+    unfold cutWeight at ha; split_ifs at ha with hc
+    · exact absurd ha (by norm_num)
+    · push Not at hc; exact hc
+  have hstep := D.matEl_bondTerm_step hT z
+  refine ⟨hβY, z, hz, ?_, by have := hβY z hz; omega, by have := hβY z hz; omega⟩
+  by_contra hzxy
+  push Not at hzxy
+  have := D.matEl_bondTerm_out hT z hzxy.1 hzxy.2
+  have := hβY z hz
+  omega
+
+end BoseHubbardData
+
 end InfiniteBosons
