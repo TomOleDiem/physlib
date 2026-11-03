@@ -576,4 +576,63 @@ theorem norm_true_sub_trunc_le (V : L → ℕ → ℝ) (Λ : Finset L) (S : Fins
 
 end BoseHubbardData
 
+
+namespace BoseHubbardData
+
+open Finsupp Matrix
+
+variable {L : Type*} [DecidableEq L] (D : BoseHubbardData L)
+
+/-- **The leakage in terms of local moments.** If every local moment of `v` in `Λ` is at most `m`,
+then `‖leak v‖ ≤ R √((n + 1)^{-(p+1)} |Λ| m)` with `R = 8 K |Λ|² (n + 2)`. -/
+lemma norm_leak_le_of_moments (V : L → ℕ → ℝ) (Λ : Finset L) (n p : ℕ) {K : ℝ} (hK : 0 ≤ K)
+    (hJ : ∀ x y, |D.J x y| ≤ K) (hΔ : ∀ x y, ‖D.Δ x y‖ ≤ K)
+    (v : EuclideanSpace ℂ (truncSet Λ n)) {m : ℝ}
+    (hm : ∀ x ∈ Λ, ∑ a : truncSet Λ n, localMoment p x a.1 * ‖v a‖ ^ 2 ≤ m) :
+    ‖embed (D.leak V Λ (truncSet Λ n) v)‖ ≤ 8 * K * (Λ.card : ℝ) ^ 2 * (n + 2) *
+      Real.sqrt (((n : ℝ) + 1)⁻¹ ^ (p + 1) * (Λ.card * m)) := by
+  have hR : (0 : ℝ) ≤ 8 * K * (Λ.card : ℝ) ^ 2 * (n + 2) := by positivity
+  have h1 := D.norm_leak_sq_le V Λ n hK hJ hΔ v
+  have h2 := boundary_weight_le Λ n p v
+  have h3 : ∑ x ∈ Λ, ∑ a : truncSet Λ n, localMoment p x a.1 * ‖v a‖ ^ 2 ≤ Λ.card * m := by
+    simpa using Finset.sum_le_sum hm
+  have h4 : ‖embed (D.leak V Λ (truncSet Λ n) v)‖ ^ 2 ≤ (8 * K * (Λ.card : ℝ) ^ 2 * (n + 2)) ^ 2 *
+      (((n : ℝ) + 1)⁻¹ ^ (p + 1) * (Λ.card * m)) :=
+    h1.trans (mul_le_mul_of_nonneg_left (h2.trans
+      (mul_le_mul_of_nonneg_left h3 (by positivity))) (by positivity))
+  rw [← Real.sqrt_sq (norm_nonneg _), ← Real.sqrt_sq hR, ← Real.sqrt_mul (sq_nonneg _)]
+  exact Real.sqrt_le_sqrt h4
+
+end BoseHubbardData
+
+section Window
+
+variable {L : Type*} [DecidableEq L]
+
+/-- The weight of an embedded truncated vector on any finite window is bounded by its weight on
+the truncation. -/
+lemma sum_truncEmbed_le (S : Finset (Occ L)) (G : Occ L → ℝ) (hG : ∀ a, 0 ≤ G a)
+    (ψ : EuclideanSpace ℂ S) (F : Finset (Occ L)) :
+    ∑ γ ∈ F, G γ * ‖(truncEmbed S ψ : HilbertSp (Occ L)) γ‖ ^ 2 ≤ ∑ a : S, G a.1 * ‖ψ a‖ ^ 2 := by
+  classical
+  have hcoord : ∀ γ, (truncEmbed S ψ : HilbertSp (Occ L)) γ =
+      if h : γ ∈ S then ψ ⟨γ, h⟩ else 0 := fun γ => by
+    rw [truncEmbed_apply, embed_apply, truncVec_apply]
+  calc ∑ γ ∈ F, G γ * ‖(truncEmbed S ψ : HilbertSp (Occ L)) γ‖ ^ 2
+      = ∑ γ ∈ F.filter (· ∈ S), G γ * ‖(truncEmbed S ψ : HilbertSp (Occ L)) γ‖ ^ 2 := by
+        rw [Finset.sum_filter]
+        refine Finset.sum_congr rfl fun γ _ => ?_
+        split_ifs with h
+        · rfl
+        · rw [hcoord, dif_neg h, norm_zero]; ring
+    _ ≤ ∑ γ ∈ S, G γ * ‖(truncEmbed S ψ : HilbertSp (Occ L)) γ‖ ^ 2 :=
+        Finset.sum_le_sum_of_subset_of_nonneg (fun γ hγ => (Finset.mem_filter.mp hγ).2)
+          fun γ _ _ => mul_nonneg (hG γ) (sq_nonneg _)
+    _ = ∑ a : S, G a.1 * ‖ψ a‖ ^ 2 := by
+        rw [← Finset.sum_coe_sort S]
+        refine Finset.sum_congr rfl fun a _ => ?_
+        rw [hcoord, dif_pos a.2]
+
+end Window
+
 end InfiniteBosons
