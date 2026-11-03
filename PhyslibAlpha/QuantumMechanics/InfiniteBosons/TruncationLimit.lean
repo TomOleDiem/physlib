@@ -248,4 +248,48 @@ lemma truncVec_apply (S : Finset (Occ L)) (v : EuclideanSpace ℂ S) (γ : Occ L
 
 end Embedding
 
+
+/-!
+
+## D. The leakage of the truncated evolution
+
+-/
+
+section Leakage
+
+open Finsupp Matrix
+
+variable {L : Type*} [DecidableEq L]
+
+lemma apply_truncVec (S : Finset (Occ L)) (P : Adjointable (Occ L)) (v : EuclideanSpace ℂ S)
+    (γ : Occ L) : P.1.1 (truncVec S v) γ = ∑ a : S, matEl P γ a.1 * v a := by
+  simp only [truncVec, LinearMap.coe_mk, AddHom.coe_mk, map_sum, Finsupp.finsetSum_apply]
+  refine Finset.sum_congr rfl fun a _ => ?_
+  rw [show (single a.1 (v a) : Occ L →₀ ℂ) = v a • single a.1 1 by simp [Finsupp.smul_single],
+    map_smul, Finsupp.smul_apply, smul_eq_mul, mul_comm]
+  rfl
+
+namespace BoseHubbardData
+
+variable (D : BoseHubbardData L)
+
+lemma toEuclideanCLM_truncHam_apply (V : L → ℕ → ℝ) (Λ : Finset L) (S : Finset (Occ L))
+    (v : EuclideanSpace ℂ S) (a : S) :
+    toEuclideanCLM (𝕜 := ℂ) (D.truncHam V Λ S) v a = ∑ b : S, matEl (D.finiteHam V Λ) a.1 b.1 * v b := by
+  rw [show (toEuclideanCLM (𝕜 := ℂ) (D.truncHam V Λ S) v) a =
+    (D.truncHam V Λ S *ᵥ (WithLp.ofLp v)) a from rfl, mulVec, dotProduct]
+  rfl
+
+/-- **The leakage is supported outside the truncation.** On states of `S`, the full Hamiltonian
+applied to a truncated vector agrees with the truncated Hamiltonian. -/
+lemma leak_apply_mem (V : L → ℕ → ℝ) (Λ : Finset L) (S : Finset (Occ L)) (v : EuclideanSpace ℂ S)
+    {γ : Occ L} (hγ : γ ∈ S) :
+    (D.finiteHam V Λ).1.1 (truncVec S v) γ -
+      truncVec S (toEuclideanCLM (𝕜 := ℂ) (D.truncHam V Λ S) v) γ = 0 := by
+  rw [apply_truncVec, truncVec_apply, dif_pos hγ, toEuclideanCLM_truncHam_apply, sub_self]
+
+end BoseHubbardData
+
+end Leakage
+
 end InfiniteBosons
