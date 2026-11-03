@@ -103,10 +103,18 @@ Milestones 0 to 3 are intermediate. They are not evidence that T2 holds.
    acts on the occupations of `Λ` only, the same finite matrix on every outside fibre, so it is a
    bounded operator; `P_K` commutes with `D` and all `F_x`, and the truncated hopping and pairing
    terms obey the same matrix-element bounds, so step 3 holds uniformly in `K_max`.
-5. Remove the truncation: `P_K H_Λ P_K → H_Λ` on finite vectors (eventually equal on each finite
-   vector), the finite vectors are a core by T0, so strong resolvent convergence
-   (Reed-Simon VIII.25) gives `e^{-itH_{Λ,K}} → e^{-itH_Λ}` strongly; moments pass to the limit by
-   lower semicontinuity (regularized moments, as DLL eq. (57)).
+5. Remove the truncation (no Trotter-Kato needed; PhyslibAlpha has Stone but no strong resolvent
+   convergence). Take `S_K` = states supported in `Λ` with all occupations `≤ K`, `H_K` =
+   `truncHam` on `S_K`, `φ_s = e^{-isH_K} ψ` (a finite vector, so in the domain of `H_Λ`), and
+   `U_t` the unitary group of the closure of `H_Λ` (T0 + Stone, as in `hamPMap_dynamics`). Duhamel:
+   `U_t ψ - φ_t = -i ∫_0^t U_{t-s} (H_Λ - H_K) φ_s ds`, so
+   `‖U_t ψ - φ_t‖ ≤ t sup_s ‖(1 - P_{S_K}) H_Λ φ_s‖`. Only moves that raise an occupation from `K`
+   to `K + 1` leave `S_K`, with amplitude `O(K)`, so
+   `‖(1 - P_{S_K}) H_Λ φ_s‖² ≤ C_Λ K² Σ_x ⟨φ_s, 1_{N_x ≥ K} φ_s⟩ ≤ C_Λ K² |Λ| W M e^{cs} / K^{p+1}`
+   by Chebyshev and `truncated_localMoment_uniform`. For `p + 1 > 2` this tends to `0` as
+   `K → ∞`, uniformly on `[0, T]`. Then bounded cutoffs `min(G_x, R)` of the moments pass to the
+   limit and `R → ∞` by monotone convergence gives T1 for `U_t`. Uses only truncated moments, so it
+   is not circular.
 
 ## Where Deuchert-Lampart-Lemm use number conservation
 
